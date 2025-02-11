@@ -1,6 +1,6 @@
 # Quiz App
 
-Easily run a quiz from a simple text file. Create and refine your quiz questions with ChatGPT for a quick and convenient setup. Great for testing knowledge quickly andGreat for testing knowledge quickly and informally.
+Easily run a quiz from a simple text file. Create and refine your quiz questions with ChatGPT for a quick and convenient setup. Great for testing knowledge quickly and informally.
 
 ## Features
 
@@ -37,12 +37,13 @@ Easily run a quiz from a simple text file. Create and refine your quiz questions
 
    - Review what you got wrong and the correct answers.
 
-## Customizing
+## Requirements
 
-- **Use ChatGPT to Create Questions:** Quickly generate questions by asking ChatGPT to help, then paste them into your text file.
-
-  -Ex: "Hey GPT, create a practice test for \<Whatever> using this format: \<insert example questions>"
-- **Change colors or fonts:** Modify the app’s code to suit your style.
+- **Python 3.x** – Required to run the script.
+- **Tkinter** – A built-in Python GUI library. It is included with most systems but may need to be installed manually on some Linux distributions:
+  - **Ubuntu/Debian:** `sudo apt-get install python3-tk`
+  - **Arch Linux:** `sudo pacman -S tk`
+  - **MacOS & Windows:** Included with Python by default.
 
 ## Quick Setup
 
@@ -51,4 +52,10 @@ Easily run a quiz from a simple text file. Create and refine your quiz questions
 3. Run the script.
 
 No need to overthink—just write your questions and start testing.
+
+## Customizing
+
+- **Use ChatGPT to Create Questions:** Quickly generate questions by asking ChatGPT to help, then paste them into your text file.
+  - Ex: "Hey GPT, create a practice test for  using this format: "
+- **Change colors or fonts:** Modify the app’s code to suit your style.
 
