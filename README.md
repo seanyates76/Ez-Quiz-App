@@ -1,6 +1,6 @@
 # Quiz App
 
-Easily run a quiz from a simple text file. Great for testing knowledge quickly and informally.
+Easily run a quiz from a simple text file. Create and refine your quiz questions with ChatGPT for a quick and convenient setup. Great for testing knowledge quickly andGreat for testing knowledge quickly and informally.
 
 ## Features
 
