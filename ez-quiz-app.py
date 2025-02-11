@@ -179,15 +179,17 @@ class QuizApp:
         if q['type'] == 'mc':
             # For MC, assume option text starts with letter + ')', e.g., "A) Mars"
             letter = selected.split(')')[0].strip().upper()
+            correct_option = next((opt for opt in q['options'] if opt.startswith(correct_answer)), correct_answer)
             if letter == correct_answer:
                 self.correct_count += 1
             else:
-                self.incorrect_answers.append((q['question'], letter, correct_answer))
+                self.incorrect_answers.append((q['question'], selected, correct_option))
         elif q['type'] == 'tf':
+            correct_option = "True" if correct_answer == "T" else "False"
             if selected.upper() == correct_answer:
                 self.correct_count += 1
             else:
-                self.incorrect_answers.append((q['question'], selected.upper(), correct_answer))
+                self.incorrect_answers.append((q['question'], "True" if selected.upper() == "T" else "False", correct_option))
 
         self.next_question()
 
@@ -200,16 +202,62 @@ class QuizApp:
         score = int((self.correct_count / self.total_questions) * 100)
 
         # Show results
-        result_message = f"You scored {score} out of 100!\n\n"
-        result_message += "Here are the questions you missed:\n\n"
+        self.display_results(score)
 
-        for i, (question, user_answer, correct_answer) in enumerate(self.incorrect_answers, start=1):
-            result_message += f"{i}. {question}\n"
-            result_message += f"   Your answer: {user_answer}\n"
-            result_message += f"   Correct answer: {correct_answer}\n\n"
+    def display_results(self, score):
+        # Create a new window for the results page
+        result_window = tk.Toplevel(self.master)
+        result_window.title("Quiz Results")
+        result_window.geometry("800x600")
+        result_window.configure(bg="black")
 
-        messagebox.showinfo("Quiz Results", result_message)
-        self.master.destroy()
+        # Add a scrollbar for pageable content
+        result_frame = tk.Frame(result_window, bg="black")
+        result_frame.pack(fill="both", expand=True)
+
+        result_canvas = tk.Canvas(result_frame, bg="black", highlightthickness=0)
+        result_scroll = tk.Scrollbar(result_frame, orient="vertical", command=result_canvas.yview)
+
+        result_scroll.pack(side="right", fill="y")
+        result_canvas.pack(side="left", fill="both", expand=True)
+        result_canvas.configure(yscrollcommand=result_scroll.set)
+
+        # Create a frame inside the canvas
+        content_frame = tk.Frame(result_canvas, bg="black")
+        result_canvas.create_window((0, 0), window=content_frame, anchor="nw")
+
+        # Populate the content frame with results
+        tk.Label(
+            content_frame,
+            text=f"You scored {score} out of 100!",
+            font=("Arial", 16),
+            fg="white",
+            bg="black"
+        ).pack(pady=10)
+
+        tk.Label(
+            content_frame,
+            text="Here are the questions you missed:",
+            font=("Arial", 14),
+            fg="white",
+            bg="black"
+        ).pack(pady=10)
+
+        for i, (question, user_answer, correct_option) in enumerate(self.incorrect_answers, start=1):
+            tk.Label(
+                content_frame,
+                text=f"{i}. {question}\n   Your answer: {user_answer}\n   Correct answer: {correct_option}\n",
+                font=("Arial", 12),
+                fg="white",
+                bg="black",
+                justify="left",
+                anchor="w",
+                wraplength=700
+            ).pack(pady=5, anchor="w")
+
+        # Update the scrollable area
+        content_frame.update_idletasks()
+        result_canvas.configure(scrollregion=result_canvas.bbox("all"))
 
 def main():
     if len(sys.argv) < 2:
