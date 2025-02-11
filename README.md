@@ -5,7 +5,9 @@ Easily run a quiz from a simple text file. This lightweight Python application a
 [![Python Version](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-![EZ Quiz Showcase](EZ_Quiz_Showcase.gif)
+<p align="center">
+  <img src="assets/EZ_Quiz_Showcase.gif" alt="EZ Quiz Showcase">
+</p>
 
 
 ## Table of Contents
