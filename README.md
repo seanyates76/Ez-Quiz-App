@@ -6,7 +6,7 @@ Easily run a quiz from a simple text file. This lightweight Python application a
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 <p align="center">
-  <img src="assets/EZ_Quiz_Showcase.gif" alt="EZ Quiz Showcase">
+  <img src="EZ_Quiz_Showcase.gif" alt="EZ Quiz Showcase">
 </p>
 
 
