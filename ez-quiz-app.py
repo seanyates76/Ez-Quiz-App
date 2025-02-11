@@ -1,283 +1,401 @@
 #!/usr/bin/env python3
 import sys
+import os
+import re
+import math
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
+from functools import partial
+from tkinter import font as tkFont
+
+# ======================
+# Color and Style Settings
+# ======================
+BG_COLOR         = "#2C2F33"   # Dark slate background
+QUESTION_BG      = "#23272A"   # Dark header background
+BUTTON_BG        = "#7289DA"   # Professional blue accent
+BUTTON_FG        = "#FFFFFF"   # White button text
+ACTIVE_BG        = "#677BC4"   # Slightly darker on hover
+LABEL_FG         = "#FFFFFF"   # White text for labels
+CORRECT_COLOR    = "#43B581"   # Vibrant green for correct answers
+INCORRECT_COLOR  = "#F04747"   # Vibrant red for incorrect answers
+SEPARATOR_COLOR  = "#99AAB5"   # Light gray for separator lines
+
+# ======================
+# Font Settings (using Segoe UI for a modern look)
+# ======================
+FONT_QUESTION       = ("Segoe UI", 16, "bold")
+FONT_QUESTION_EXTRA = ("Segoe UI", 12, "bold")  # 2 sizes smaller for 4+ line questions
+FONT_BUTTON         = ("Segoe UI", 12)
+FONT_LABEL          = ("Segoe UI", 12)
+FONT_TITLE          = ("Segoe UI", 20, "bold")
+
+# ======================
+# Helper Functions
+# ======================
+def clear_widgets(container):
+    """Destroy all widgets in the given container."""
+    for widget in container.winfo_children():
+        widget.destroy()
 
 def load_questions_from_file(filename):
     """
-    Load questions from a text file.
-
-    Expected file format:
-    - Each question is on a separate line.
-    - Fields are separated by a pipe '|' character.
-
-    For Multiple Choice (MC):
-      MC|<question text>|<option1;option2;...>|<correct answer letter>
-      Example:
-      MC|Which planet is known as the Red Planet?|A) Mars;B) Venus;C) Jupiter;D) Saturn|A
-
-    For True/False (TF):
-      TF|<question text>|<correct answer letter (T or F)>
-      Example:
-      TF|The Earth is flat.|F
-
-    For Yes/No (YN):
-      YN|<question text>|<correct answer letter (Y or N)>
-      Example:
-      YN|Are pandas classified as bears?|Y
-
-    Returns a list of question dictionaries.
+    Load questions from a file.
+    Basic validations are applied; since the file is local and expected to be trusted,
+    additional sanitization is not implemented.
     """
     questions = []
     try:
         with open(filename, 'r', encoding='utf-8') as f:
             for line in f:
-                # Remove whitespace and ignore empty lines or comments
                 line = line.strip()
                 if not line or line.startswith('#'):
                     continue
-
                 parts = line.split('|')
                 if len(parts) < 3:
-                    print(f"Skipping invalid line: {line}")
                     continue
-
-                q_type = parts[0].strip().upper()
-                q_text = parts[1].strip()
-
-                if q_type == 'MC':
-                    if len(parts) != 4:
-                        print(f"Skipping invalid MC line (should have 4 parts): {line}")
-                        continue
-                    # Split the options by semicolon
+                q_type, q_text = parts[0].strip().upper(), parts[1].strip()
+                if q_type == 'MC' and len(parts) == 4:
                     options = [opt.strip() for opt in parts[2].split(';')]
-                    answer = parts[3].strip().upper()
-                    question = {
+                    questions.append({
                         'type': 'mc',
                         'question': q_text,
                         'options': options,
-                        'answer': answer
-                    }
-                    questions.append(question)
-                elif q_type in ['TF', 'YN']:
-                    if len(parts) != 3:
-                        print(f"Skipping invalid {q_type} line (should have 3 parts): {line}")
-                        continue
-                    answer = parts[2].strip().upper()
-                    # For YN, convert Y/N to T/F (optional)
-                    if q_type == 'YN':
-                        if answer == 'Y':
-                            answer = 'T'
-                        elif answer == 'N':
-                            answer = 'F'
-                    question = {
-                        'type': 'tf',  # We'll use the same handling as TF
+                        'answer': parts[3].strip().upper()
+                    })
+                elif q_type in ['TF', 'YN'] and len(parts) == 3:
+                    answer = 'T' if parts[2].strip().upper() == 'Y' else 'F'
+                    questions.append({
+                        'type': 'tf',
                         'question': q_text,
                         'answer': answer
-                    }
-                    questions.append(question)
-                else:
-                    print(f"Unknown question type '{q_type}' in line: {line}")
+                    })
     except FileNotFoundError:
         print(f"File not found: {filename}")
-        sys.exit(1)
+        return []
     return questions
 
+# ======================
+# Main Quiz Application
+# ======================
 class QuizApp:
     def __init__(self, master, questions):
         self.master = master
         self.questions = questions
+        self.restart_quiz()
+
+    def center_window(self, width, height):
+        """Resize and recenter the window on the screen."""
+        self.master.geometry(f"{width}x{height}")
+        self.master.update_idletasks()
+        screen_width = self.master.winfo_screenwidth()
+        screen_height = self.master.winfo_screenheight()
+        x = (screen_width - width) // 2
+        y = (screen_height - height) // 2
+        self.master.geometry(f"{width}x{height}+{x}+{y}")
+
+    def restart_quiz(self):
+        """Reset quiz state, clear global scroll bindings, and set window size."""
+        self.master.unbind_all("<MouseWheel>")
+        self.master.unbind_all("<Button-4>")
+        self.master.unbind_all("<Button-5>")
+        
+        self.center_window(700, 500)
         self.current_question = 0
         self.correct_count = 0
-        self.incorrect_answers = []  # To track wrong answers
-        self.total_questions = len(questions)
+        self.incorrect_answers = []
+        
+        clear_widgets(self.master)
+        self.master.configure(bg=BG_COLOR)
+        
+        # Fixed header, 130px to prevent top-line clipping
+        self.header_frame = tk.Frame(self.master, bg=QUESTION_BG, height=130)
+        self.header_frame.pack(fill="x")
+        self.header_frame.pack_propagate(False)
 
-        # Configure master background
-        self.master.configure(bg="black")
-
-        # Set up the main GUI components with black and grey styling.
+        # Anchor top-left, with padding
         self.question_label = tk.Label(
-            master, text="", wraplength=600, font=("Arial", 14),
-            bg="black", fg="grey"
+            self.header_frame,
+            text="",
+            wraplength=680,
+            font=FONT_QUESTION,
+            bg=QUESTION_BG,
+            fg=LABEL_FG,
+            anchor="nw"
         )
-        self.question_label.pack(pady=20)
-
-        self.buttons_frame = tk.Frame(master, bg="black")
+        self.question_label.pack(side="top", padx=20, pady=10, fill="both", expand=True)
+        
+        self.buttons_frame = tk.Frame(self.master, bg=BG_COLOR)
         self.buttons_frame.pack(pady=10)
-
         self.load_question()
 
-    def clear_buttons(self):
-        for widget in self.buttons_frame.winfo_children():
-            widget.destroy()
-
     def load_question(self):
-        if self.current_question >= self.total_questions:
-            self.end_quiz()
+        if self.current_question >= len(self.questions):
+            self.display_score()
             return
-
-        self.clear_buttons()
+        
+        clear_widgets(self.buttons_frame)
         q = self.questions[self.current_question]
-        self.question_label.config(
-            text=f"Question {self.current_question + 1}: {q['question']}"
-        )
-
-        if q['type'] == 'mc':
-            # Create a button for each multiple-choice option
+        question_text = f"Question {self.current_question + 1}: {q['question']}"
+        
+        # Estimate line count using the normal font
+        wrap_length = 680
+        normal_font_obj = tkFont.Font(font=FONT_QUESTION)
+        explicit_lines = question_text.count("\n") + 1
+        estimated_lines = math.ceil(normal_font_obj.measure(question_text) / wrap_length)
+        total_lines = max(explicit_lines, estimated_lines)
+        
+        # If 4+ lines, shrink to 12pt
+        if total_lines >= 4:
+            question_font = FONT_QUESTION_EXTRA
+        else:
+            question_font = FONT_QUESTION
+        
+        self.question_label.config(text=question_text, font=question_font)
+        
+        if q.get('options'):
             for option in q['options']:
-                btn = tk.Button(
+                answer_letter = option[0].upper()
+                tk.Button(
                     self.buttons_frame,
                     text=option,
                     width=40,
-                    font=("Arial", 12),
-                    command=lambda opt=option: self.check_answer(opt),
-                    bg="grey", fg="white", activebackground="darkgrey",
-                    relief="flat"
-                )
-                btn.pack(pady=5)
+                    font=FONT_BUTTON,
+                    command=partial(self.check_answer, answer_letter),
+                    bg=BUTTON_BG,
+                    fg=BUTTON_FG,
+                    activebackground=ACTIVE_BG,
+                    relief="flat", bd=0
+                ).pack(pady=5)
         elif q['type'] == 'tf':
-            # For true/false, create two buttons: True and False
-            btn_true = tk.Button(
-                self.buttons_frame,
-                text="True",
-                width=20,
-                font=("Arial", 12),
-                command=lambda: self.check_answer("T"),
-                bg="grey", fg="white", activebackground="darkgrey",
-                relief="flat"
-            )
-            btn_true.pack(pady=5)
-            btn_false = tk.Button(
-                self.buttons_frame,
-                text="False",
-                width=20,
-                font=("Arial", 12),
-                command=lambda: self.check_answer("F"),
-                bg="grey", fg="white", activebackground="darkgrey",
-                relief="flat"
-            )
-            btn_false.pack(pady=5)
-        else:
-            tk.Label(
-                self.buttons_frame,
-                text="Unsupported question type.",
-                bg="black", fg="grey",
-                font=("Arial", 12)
-            ).pack()
-            tk.Button(
-                self.buttons_frame,
-                text="Continue",
-                command=self.next_question,
-                bg="grey", fg="white", activebackground="darkgrey",
-                relief="flat"
-            ).pack(pady=5)
+            for text, letter in [("True", "T"), ("False", "F")]:
+                tk.Button(
+                    self.buttons_frame,
+                    text=text,
+                    width=20,
+                    font=FONT_BUTTON,
+                    command=partial(self.check_answer, letter),
+                    bg=BUTTON_BG,
+                    fg=BUTTON_FG,
+                    activebackground=ACTIVE_BG,
+                    relief="flat", bd=0
+                ).pack(pady=5)
+        self.buttons_frame.pack(pady=10)
 
     def check_answer(self, selected):
         q = self.questions[self.current_question]
-        correct_answer = q['answer'].upper()
-
-        if q['type'] == 'mc':
-            # For MC, assume option text starts with letter + ')', e.g., "A) Mars"
-            letter = selected.split(')')[0].strip().upper()
-            correct_option = next((opt for opt in q['options'] if opt.startswith(correct_answer)), correct_answer)
-            if letter == correct_answer:
-                self.correct_count += 1
-            else:
-                self.incorrect_answers.append((q['question'], selected, correct_option))
-        elif q['type'] == 'tf':
-            correct_option = "True" if correct_answer == "T" else "False"
-            if selected.upper() == correct_answer:
-                self.correct_count += 1
-            else:
-                self.incorrect_answers.append((q['question'], "True" if selected.upper() == "T" else "False", correct_option))
-
-        self.next_question()
-
-    def next_question(self):
+        correct_answer = q['answer']
+        if selected == correct_answer:
+            self.correct_count += 1
+        else:
+            self.incorrect_answers.append((q['question'], selected, correct_answer, q.get('options', [])))
         self.current_question += 1
         self.load_question()
 
-    def end_quiz(self):
-        # Calculate a percentage score based on the total number of questions.
-        score = int((self.correct_count / self.total_questions) * 100)
-
-        # Show results
-        self.display_results(score)
-
-    def display_results(self, score):
-        # Create a new window for the results page
-        result_window = tk.Toplevel(self.master)
-        result_window.title("Quiz Results")
-        result_window.geometry("800x600")
-        result_window.configure(bg="black")
-
-        # Add a scrollbar for pageable content
-        result_frame = tk.Frame(result_window, bg="black")
-        result_frame.pack(fill="both", expand=True)
-
-        result_canvas = tk.Canvas(result_frame, bg="black", highlightthickness=0)
-        result_scroll = tk.Scrollbar(result_frame, orient="vertical", command=result_canvas.yview)
-
-        result_scroll.pack(side="right", fill="y")
-        result_canvas.pack(side="left", fill="both", expand=True)
-        result_canvas.configure(yscrollcommand=result_scroll.set)
-
-        # Create a frame inside the canvas
-        content_frame = tk.Frame(result_canvas, bg="black")
-        result_canvas.create_window((0, 0), window=content_frame, anchor="nw")
-
-        # Populate the content frame with results
+    def display_score(self):
+        score = int((self.correct_count / len(self.questions)) * 100)
+        clear_widgets(self.master)
+        self.center_window(700, 500)
+        
+        score_frame = tk.Frame(self.master, bg=BG_COLOR)
+        score_frame.pack(pady=30)
         tk.Label(
-            content_frame,
+            score_frame,
             text=f"You scored {score} out of 100!",
-            font=("Arial", 16),
-            fg="white",
-            bg="black"
-        ).pack(pady=10)
+            font=FONT_TITLE,
+            fg=LABEL_FG,
+            bg=BG_COLOR,
+            pady=20
+        ).pack()
+        
+        button_frame = tk.Frame(self.master, bg=BG_COLOR)
+        button_frame.pack(pady=20)
+        tk.Button(
+            button_frame,
+            text="Retry",
+            command=self.restart_quiz,
+            font=FONT_BUTTON,
+            width=15, height=1,
+            bg=BUTTON_BG, fg=BUTTON_FG,
+            activebackground=ACTIVE_BG,
+            relief="flat", bd=0
+        ).pack(side="left", padx=5)
+        tk.Button(
+            button_frame,
+            text="View Results",
+            command=self.display_results,
+            font=FONT_BUTTON,
+            width=15, height=1,
+            bg=BUTTON_BG, fg=BUTTON_FG,
+            activebackground=ACTIVE_BG,
+            relief="flat", bd=0
+        ).pack(side="left", padx=5)
+        tk.Button(
+            button_frame,
+            text="Exit",
+            command=self.master.quit,
+            font=FONT_BUTTON,
+            width=15, height=1,
+            bg=BUTTON_BG, fg=BUTTON_FG,
+            activebackground=INCORRECT_COLOR,
+            relief="flat", bd=0
+        ).pack(side="left", padx=5)
 
+    def display_results(self):
+        self.center_window(1000, 900)
+        clear_widgets(self.master)
+        
+        outer_frame = tk.Frame(self.master, bg=BG_COLOR)
+        outer_frame.pack(fill="both", expand=True)
+        canvas = tk.Canvas(outer_frame, bg=BG_COLOR, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(outer_frame, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg=BG_COLOR)
+        
+        scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Global scroll bindings for the results page
+        canvas.bind_all("<MouseWheel>", lambda event: self._on_mousewheel(event, canvas))
+        canvas.bind_all("<Button-4>", lambda event: canvas.yview_scroll(-1, "units"))
+        canvas.bind_all("<Button-5>", lambda event: canvas.yview_scroll(1, "units"))
+        
         tk.Label(
-            content_frame,
-            text="Here are the questions you missed:",
-            font=("Arial", 14),
-            fg="white",
-            bg="black"
+            scrollable_frame,
+            text="Review Your Missed Questions",
+            font=FONT_TITLE,
+            fg=LABEL_FG,
+            bg=BG_COLOR,
+            pady=10
         ).pack(pady=10)
-
-        for i, (question, user_answer, correct_option) in enumerate(self.incorrect_answers, start=1):
+        
+        for i, (question, user_letter, correct_letter, options) in enumerate(self.incorrect_answers, start=1):
+            q_frame = tk.Frame(scrollable_frame, bg=BG_COLOR)
+            q_frame.pack(fill="x", padx=20, pady=10)
             tk.Label(
-                content_frame,
-                text=f"{i}. {question}\n   Your answer: {user_answer}\n   Correct answer: {correct_option}\n",
-                font=("Arial", 12),
-                fg="white",
-                bg="black",
-                justify="left",
-                anchor="w",
-                wraplength=700
-            ).pack(pady=5, anchor="w")
+                q_frame,
+                text=f"{i}. {question}",
+                font=FONT_LABEL,
+                fg=LABEL_FG,
+                bg=BG_COLOR,
+                wraplength=900,
+                justify="left"
+            ).pack(anchor="w", padx=5, pady=5)
+            
+            ca_frame = tk.Frame(q_frame, bg=BG_COLOR)
+            ca_frame.pack(anchor="w", padx=25, pady=2)
+            tk.Label(
+                ca_frame,
+                text="Correct Answer: ",
+                font=FONT_LABEL,
+                fg=LABEL_FG,
+                bg=BG_COLOR
+            ).pack(side="left")
+            self.create_answer_display(ca_frame, correct_letter, options, CORRECT_COLOR)
+            
+            ua_frame = tk.Frame(q_frame, bg=BG_COLOR)
+            ua_frame.pack(anchor="w", padx=25, pady=2)
+            tk.Label(
+                ua_frame,
+                text="Your Answer: ",
+                font=FONT_LABEL,
+                fg=LABEL_FG,
+                bg=BG_COLOR
+            ).pack(side="left")
+            self.create_answer_display(ua_frame, user_letter, options, INCORRECT_COLOR)
+            
+            separator = tk.Frame(scrollable_frame, bg=SEPARATOR_COLOR, height=1)
+            separator.pack(fill="x", padx=20, pady=5)
+        
+        button_frame = tk.Frame(self.master, bg=BG_COLOR)
+        button_frame.pack(pady=20)
+        tk.Button(
+            button_frame,
+            text="Retry",
+            command=self.restart_quiz,
+            font=FONT_BUTTON,
+            width=15, height=1,
+            bg=BUTTON_BG, fg=BUTTON_FG,
+            activebackground=ACTIVE_BG,
+            relief="flat", bd=0
+        ).pack(side="left", padx=5)
+        tk.Button(
+            button_frame,
+            text="Exit",
+            command=self.master.quit,
+            font=FONT_BUTTON,
+            width=15, height=1,
+            bg=BUTTON_BG, fg=BUTTON_FG,
+            activebackground=INCORRECT_COLOR,
+            relief="flat", bd=0
+        ).pack(side="left", padx=5)
 
-        # Update the scrollable area
-        content_frame.update_idletasks()
-        result_canvas.configure(scrollregion=result_canvas.bbox("all"))
+    def _on_mousewheel(self, event, canvas):
+        canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
+    def create_answer_display(self, parent, letter, options, letter_color):
+        """
+        For True/False questions, show full text.
+        For multiple-choice, display the letter and cleaned answer text.
+        """
+        if not options:
+            full_text = "True" if letter.upper() == "T" else "False"
+            tk.Label(parent, text=full_text, font=FONT_LABEL, fg=letter_color, bg=BG_COLOR).pack(side="left")
+        else:
+            tk.Label(parent, text=letter, font=FONT_LABEL, fg=letter_color, bg=BG_COLOR).pack(side="left")
+            answer_text = self.get_option_text(letter, options)
+            cleaned_text = re.sub(r'^[A-Z]\)\s*', '', answer_text)
+            tk.Label(parent, text=" " + cleaned_text, font=FONT_LABEL, fg=LABEL_FG, bg=BG_COLOR).pack(side="left")
+
+    def get_option_text(self, letter, options):
+        if options:
+            index = ord(letter.upper()) - 65  # 'A' -> 0, 'B' -> 1, etc.
+            if 0 <= index < len(options):
+                return options[index]
+            return ""
+        else:
+            return "True" if letter.upper() == "T" else "False"
+
+# ======================
+# Application Entry Point
+# ======================
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 quiz-app.py <question_list.txt>")
-        sys.exit(1)
-
-    filename = sys.argv[1]
-    questions = load_questions_from_file(filename)
-
-    if not questions:
-        print("No valid questions loaded. Please check your file format.")
-        sys.exit(1)
-
-    # Set up the Tkinter window and start the quiz.
     root = tk.Tk()
-    root.title("Practice Quiz")
-    root.geometry("700x400")
-    # Set the background of the root window as well.
-    root.configure(bg="black")
-    app = QuizApp(root, questions)
+    root.title("EZ Quiz")
+
+    # On Linux, setting a custom WM_CLASS can help your app appear as a separate window:
+    try:
+        root.wm_class("EZQuiz", "EZQuiz")
+    except Exception as e:
+        print("Could not set WM_CLASS:", e)
+
+    root.configure(bg=BG_COLOR)
+    
+    # Set an icon if available
+    icon_path = os.path.join(os.path.dirname(__file__), "ez_quiz_icon.png")
+    if os.path.exists(icon_path):
+        root.iconphoto(False, tk.PhotoImage(file=icon_path))
+    
+    # Center the window initially
+    app_width, app_height = 700, 500
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    x = (screen_width - app_width) // 2
+    y = (screen_height - app_height) // 2
+    root.geometry(f"{app_width}x{app_height}+{x}+{y}")
+    
+    if len(sys.argv) > 1:
+        questions = load_questions_from_file(sys.argv[1])
+        if not questions:
+            messagebox.showerror("Error", "No valid questions loaded from file.")
+            sys.exit(1)
+    else:
+        print("Usage: python quiz-app.py <questions_file>")
+        sys.exit(1)
+    
+    QuizApp(root, questions)
     root.mainloop()
 
 if __name__ == "__main__":
