@@ -30,12 +30,6 @@ Easily run a quiz from a simple text file. This lightweight Python application a
   See your score immediately after completing the quiz.
 - **Detailed Results:**  
   Review which questions you missed along with the correct answers.
-- **Dynamic Interface:**  
-  A fixed header area with dynamic font adjustment ensures a consistent layout.
-- **Standalone Window:**  
-  Launches as its own window with a custom icon and WM_CLASS (on Linux) for a separate taskbar entry.
-- **Retry Functionality:**  
-  Restart your quiz quickly with a dedicated Retry button.
 
 ## Installation
 
@@ -97,7 +91,7 @@ YN|Are apples fruits?|Y
 ## Customizing
 
 - **Generate Questions with ChatGPT:**  
-  Quickly generate quiz questions by asking ChatGPT to produce questions in the required format.
+  Quickly generate quiz questions by asking ChatGPT to produce questions in the above format.
 - **UI Customization:**  
   The app is built using Tkinter. Feel free to modify the colors, fonts, or layout by editing the source code.
 - **Dynamic Font Adjustment:**  
