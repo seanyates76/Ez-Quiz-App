@@ -64,7 +64,7 @@ Easily run a quiz from a simple text file. This lightweight Python application a
 Run the app by executing the following command in your terminal:
 
 ```bash
-python3 quiz-app.py questions.txt
+python3 ez-quiz-app.py questions.txt
 ```
 
 When you launch the application, you’ll see a standalone window with a custom icon. Click on the buttons corresponding to your answers. After completing the quiz, view your score and detailed results, with options to retry or exit.
