@@ -1,6 +1,7 @@
 # EZ Quiz Python App
 
 Easily run a quiz from a simple text file. This lightweight Python application allows you to quickly create and take quizzes without any fuss—perfect for informal testing, study sessions, or quick knowledge checks.
+It supports both a Tkinter GUI and a simple command-line mode.
 
 [![Python Version](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -55,13 +56,25 @@ Easily run a quiz from a simple text file. This lightweight Python application a
 
 ## Usage
 
-Run the app by executing the following command in your terminal:
+### GUI
+
+Launch the Tkinter interface with:
 
 ```bash
 python3 ez-quiz-app.py questions.txt
 ```
 
-When you launch the application, you’ll see a standalone window with a custom icon. Click on the buttons corresponding to your answers. After completing the quiz, view your score and detailed results, with options to retry or exit.
+When you run this command a window opens where you can click on your answers. After finishing the quiz you’ll see your score along with buttons to retry or view detailed results.
+
+### Command Line
+
+If you prefer to stay in the terminal, run:
+
+```bash
+python3 ez_quiz_cli.py questions.txt
+```
+
+You’ll be prompted to type your answers directly in the console and your score will be printed when you’re done.
 
 ## Question File Format
 
