@@ -4,7 +4,7 @@ Fast, offline web quiz supporting MC, TF, YN and MT question types. No backend. 
 
 Links
 - Repo: https://github.com/seanyates76/Ez-Quiz-App
-- Pages (after first deploy): https://seanyates76.github.io/Ez-Quiz-App/
+- Live: https://ez-quiz.app/
 
 Run locally
 1) Open `index.html` in a browser.
@@ -26,16 +26,14 @@ Each line: `TYPE|Question|Options|Answer`
 - YN: `YN|Is 0 an even number?|Y`
 - MT: `MT|Match.|1) 22;2) 53|A) SSH;B) DNS|1-A,2-B`
 
-Deploy to GitHub Pages
-This repo includes `.github/workflows/pages.yml`. After pushing to `main`:
-- GitHub Actions builds and deploys the repository to GitHub Pages automatically.
-- The site will be available at `https://<user>.github.io/<repo>/`.
-
-If Pages is not enabled yet:
-1) Settings → Pages → Build and deployment → Source: “GitHub Actions”.
-2) Re‑run the workflow (Actions tab → Deploy to GitHub Pages → Run workflow).
+Deploy to Netlify
+- The repo is configured with `netlify.toml` for security headers and caching.
+- Connect the GitHub repo in Netlify; build command: none; publish directory: `.`.
+- Add custom domain `ez-quiz.app` and enable HTTPS.
 
 Notes
 - The service worker uses relative paths and scope for subpath hosting.
 - Security: user content never injected with `innerHTML`; DOM nodes are used to render results.
 
+License
+MIT — see `LICENSE.txt`.
