@@ -1,0 +1,427 @@
+/*
+ * Global style sheet for EZ Quiz Web
+ *
+ * Variables define the colour palette for dark and light modes. The document’s
+ * data-theme attribute toggles between these sets.
+ */
+
+:root {
+  --bg:#222;
+  --fg:#eee;
+  --card:#2b2b2b;
+  --accent:#2ecc71;
+  --primary:#3478f6;
+  --muted:#9aa3ad;
+  --chip:#1f1f1f;
+  --chip-fg:#cfe3ff;
+  --opt:#3a3a3a;
+  --border:#3a3a3a;
+  --good:#2ecc71;
+  --bad:#ff6b6b;
+  --input:#151515;
+  --sep:rgba(255,255,255,.12);
+}
+[data-theme="light"] {
+  --bg:#f7f9fc;
+  --fg:#0f172a;
+  --card:#ffffff;
+  --accent:#10b981;
+  --primary:#2563eb;
+  --muted:#6b7280;
+  --chip:#e5e7eb;
+  --chip-fg:#1f2937;
+  --opt:#eef2f7;
+  --border:#d6d9e0;
+  --good:#059669;
+  --bad:#ef4444;
+  --input:#f3f5f9;
+  --sep:rgba(0,0,0,.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  position: relative;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  width: min(860px, 96%);
+}
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.btn.green {
+  background: var(--accent);
+  color: #063;
+}
+.btn.blue {
+  background: var(--primary);
+  color: #fff;
+}
+.btn.grey {
+  background: var(--muted);
+  color: #fff;
+}
+.chip {
+  font-weight: 900;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  background: var(--chip);
+  color: var(--chip-fg);
+}
+.question {
+  font-size: 20px;
+  margin: 14px 0;
+  font-weight: 800;
+}
+.option {
+  display: block;
+  width: 100%;
+  max-width: 680px;
+  margin: 10px 0;
+  padding: 12px;
+  background: var(--opt);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 700;
+}
+.option input {
+  margin-right: 10px;
+  transform: translateY(1px);
+}
+.hidden {
+  display: none;
+}
+textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--fg);
+}
+.textarea-drop {
+  outline: 2px dashed var(--primary);
+  outline-offset: 4px;
+  background: rgba(52,120,246,.08);
+}
+#diag {
+  margin: 6px 0 8px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+a {
+  color: #7ba0ff;
+}
+.subtle {
+  color: var(--muted);
+  font-size: 13px;
+}
+.scorebig {
+  font-size: 22px;
+  font-weight: 900;
+  margin: 6px 0 10px;
+  text-align: center;
+}
+.miss-list {
+  max-height: 56vh;
+  overflow: auto;
+  border-top: 1px solid var(--sep);
+  margin-top: 8px;
+}
+.miss-item {
+  padding: 12px 2px;
+  border-bottom: 1px solid var(--sep);
+}
+.miss-q {
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.label {
+  display: inline-block;
+  min-width: 84px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.good {
+  color: var(--good);
+  font-weight: 900;
+}
+.bad {
+  color: var(--bad);
+  font-weight: 900;
+}
+.sep {
+  height: 1px;
+  background: var(--sep);
+  margin: 10px 0;
+}
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* Review page action buttons offset */
+.review-actions {
+  margin-top: 20px;
+}
+
+/* Header */
+.header-strip {
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border-bottom: 1px solid var(--border);
+  padding: 10px 0 14px;
+  margin-bottom: 18px;
+  width: 100%;
+}
+.brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(960px, 96%);
+  margin: 0 auto;
+}
+.brand-center {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.brand-controls {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+.brand-title {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.1;
+  text-align: center;
+  width: fit-content;
+  margin: 0 auto;
+}
+/* Light mode backdrop behind wordmark to increase contrast */
+[data-theme="light"] .brand-title {
+  background: #bcc2c9; /* medium-dark grey chip for contrast */
+  border-radius: 10px;
+  padding: 3px; /* even padding all around */
+  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 6px 18px rgba(0,0,0,.06), 0 0 0 1px var(--border);
+}
+.brand-title-img {
+  height: 96px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+  image-rendering: -webkit-optimize-contrast;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,.25)) drop-shadow(0 6px 16px rgba(0,0,0,.25));
+}
+.brand-tagline {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  margin: -6px 0 16px; /* closer to header, then give space */
+}
+
+/* Stronger separation in light mode header */
+[data-theme="light"] .header-strip {
+  background: linear-gradient(180deg, #dfe3ea, #cfd5df);
+  border-top: 1px solid #ccd3dd;
+  border-bottom: 1px solid #b3bbc7;
+  box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 12px 24px rgba(0,0,0,.08);
+}
+.brand-title h1 {
+  margin: 0;
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: .2px;
+}
+/* removed .brand-sub text; not used */
+.settings-btn,
+.faq-btn {
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  transition: transform .08s ease, background .15s ease, border-color .15s ease;
+}
+.settings-btn:hover,
+.faq-btn:hover {
+  transform: translateY(-1px);
+  background: var(--opt);
+}
+.settings-btn:active,
+.faq-btn:active {
+  transform: translateY(0);
+}
+.settings-btn:focus,
+.faq-btn:focus {
+  outline: 2px solid var(--primary);
+}
+
+/* Modals */
+.settings-modal,
+.faq-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  z-index: 1000;
+  display: none;
+}
+.settings-modal {
+  width: 420px;
+}
+.faq-modal {
+  width: 80vw;
+  height: 80vh;
+  max-width: 80vw;
+  max-height: 80vh;
+  overflow: auto;
+}
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 999;
+  display: none;
+}
+.settings-item {
+  margin: 8px 0;
+}
+.settings-actions,
+.faq-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.quiz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pair-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--opt);
+}
+.pair-left {
+  font-weight: 800;
+  min-width: 32px;
+}
+select {
+  background: var(--input);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px;
+}
+.faq-content {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  max-height: 100%;
+  overflow-y: auto;
+}
+.faq-content h1 {
+  font-size: 18px;
+  margin: 16px 0 8px;
+}
+.faq-content h2 {
+  font-size: 16px;
+  margin: 12px 0 6px;
+}
+.faq-content p,
+.faq-content ul {
+  margin: 6px 0;
+}
+.faq-content ul {
+  padding-left: 20px;
+}
+/* Code blocks in FAQ */
+.faq-content pre {
+  background: var(--opt);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 13px;
+}
+.faq-content code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Responsive adjustments */
+@media (max-width: 520px) {
+  .settings-btn,
+  .faq-btn {
+    width: 46px;
+    height: 46px;
+    font-size: 20px;
+  }
+  .brand-title h1 {
+    font-size: 24px;
+  }
+  .brand-title-img { height: 72px; }
+}

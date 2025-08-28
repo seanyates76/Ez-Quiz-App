@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Description for search engines and social sharing -->
+  <meta name="description" content="EZ Quiz Web is a fast, local quiz app supporting multiple‑choice, true/false, yes/no and matching question types." />
+  <!-- Theme color for mobile browsers -->
+  <meta name="theme-color" content="#2c2c2c" />
+  <title>EZ Quiz Web</title>
+  <!-- Icons -->
+  <link rel="icon" href="icons/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="icons/favicon-16.png" sizes="16x16">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <!-- External stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header bar with brand and controls -->
+  <div class="header-strip">
+    <div class="brand">
+      <div class="brand-center">
+        <!-- App square icon removed to avoid double-branding -->
+        <div class="brand-title" aria-label="EZ Quiz Web">
+          <img class="brand-title-img" src="icons/brand-title-source.png" alt="EZ Quiz" onerror="if(!this.dataset.fbk){this.dataset.fbk=1; this.src='icons/brand-title.png';}else{this.style.display='none'; this.nextElementSibling.hidden=false;}">
+          <h1 class="brand-title-text" hidden>EZ Quiz Web</h1>
+        </div>
+      </div>
+      <div class="brand-controls">
+        <button class="faq-btn" id="faqBtn" type="button" title="FAQ">?</button>
+        <button class="settings-btn" id="settingsBtn" type="button" title="Settings">⚙</button>
+      </div>
+    </div>
+  </div>
+  <div class="brand-tagline">Smart, Simple, Fast, EZ.</div>
+  <main>
+    <!-- Overlay for modals -->
+    <div class="overlay" id="overlay"></div>
+    <!-- Settings modal -->
+    <div class="settings-modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <h2 id="settingsTitle">Settings</h2>
+      <div class="settings-item"><label><input type="checkbox" id="toggleTimer"> Enable timer</label></div>
+      <div class="settings-item">
+        <label><input type="checkbox" id="countdownMode"> Countdown mode</label><br/>
+        <label>Duration (mm:ss): <input type="text" id="countdownInput" value="10:00" style="width:84px"></label>
+      </div>
+      <div class="settings-item">
+        <label for="themeSelect">Theme</label>
+        <select id="themeSelect">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+        </select>
+      </div>
+      <div class="settings-actions"><button class="btn grey" id="closeSettings" type="button">Close</button></div>
+    </div>
+    <!-- FAQ modal -->
+    <div class="faq-modal" id="faqModal" role="dialog" aria-modal="true" aria-labelledby="faqTitle">
+      <h2 id="faqTitle">Help &amp; FAQ</h2>
+      <div class="faq-content">
+        <h2>Getting Started</h2>
+        <p>EZ Quiz Web is a simple offline quiz tool supporting multiple‑choice, true/false, yes/no, and matching questions. No sign‑up required!</p>
+        <h2>How Do I Use AI to Create Questions?</h2>
+        <p>Use this prompt with your AI tool (e.g., ChatGPT):</p>
+        <pre><code>Hi AI friend, can you make me a quiz _ questions long with this format:
+MC|Which shape has three sides?|A) Triangle;B) Square|A
+MC|Which numbers are prime?|A) 2;B) 4;C) 5;D) 9|A,C
+TF|The Sun is a star.|T
+YN|Is 0 an even number?|Y
+MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1-A,2-B</code></pre>
+        <p>Replace “_” with the desired number (e.g., 5). Paste the generated questions into the input area.</p>
+        <h2>What Question Types Are Supported?</h2>
+        <ul>
+          <li><strong>MC</strong>: Multiple‑choice (single or multi‑answer, e.g., A,C).</li>
+          <li><strong>TF</strong>: True/False (T/F).</li>
+          <li><strong>YN</strong>: Yes/No (Y/N).</li>
+          <li><strong>MT</strong>: Matching (e.g., 1‑A).</li>
+        </ul>
+        <h2>How Do I Enter Questions?</h2>
+        <p>Use the format <code>TYPE|Question|Options|Answer</code> (e.g., <code>MC|What is 2+2?|A) 3;B) 4|A</code>). See the built‑in set for examples.</p>
+        <h2>What If a Question Is Skipped?</h2>
+        <p>Invalid lines are skipped. Check the diagnostic message under the input for hints.</p>
+        <h2>Can I Save My Quizzes?</h2>
+        <p>Copy the textarea contents or save them to a <code>.txt</code> file; quizzes aren’t saved in‑app.</p>
+        <h2>How Do I Start?</h2>
+        <p>Enter questions and click “Start Quiz.” You can enable a timer or switch themes in Settings. Tip: press Enter to start and to advance; Backspace goes back.</p>
+      </div>
+      <div class="faq-actions"><button class="btn grey" id="closeFaq" type="button">Close</button></div>
+    </div>
+    <!-- Menu (upload/paste) card -->
+    <div class="card" id="menu">
+      <textarea id="quizInput" placeholder="(Optional) Paste questions here..."></textarea>
+      <div id="diag">Ready. Tip: you can drag a .txt file onto the box.</div>
+      <div class="row">
+        <button class="btn blue" id="loadBtn" type="button">Load .txt</button>
+        <input type="file" id="fileInput" accept=".txt" class="hidden">
+        <button class="btn grey" id="builtInBtn" type="button">Use Demo Set</button>
+        <button class="btn grey" id="clearBtn" type="button">Clear</button>
+        <button class="btn green" id="startBtn" type="button">Start Quiz</button>
+      </div>
+      
+    </div>
+    <!-- Quiz card -->
+    <div class="card hidden" id="quiz">
+      <div class="quiz-header">
+        <div class="left">
+          <div class="chip" id="qCounter">0/0</div>
+          <div class="chip hidden" id="timer">00:00</div>
+        </div>
+        <button class="btn grey" id="backDuringQuiz" type="button">Back to Menu</button>
+      </div>
+      <div id="qBody"></div>
+      <div class="nav-row">
+        <button class="btn grey" id="prevBtn" type="button">◀ Previous</button>
+        <div class="row" style="margin-left:auto">
+          <button class="btn blue" id="nextBtn" type="button">Next ▶</button>
+          <button class="btn green hidden" id="finishBtn" type="button">Finish ✅</button>
+        </div>
+      </div>
+    </div>
+    <!-- Results card -->
+    <div class="card hidden" id="result"></div>
+  </main>
+  <!-- App logic -->
+  <script src="app.js"></script>
+  <!-- Register service worker for offline capability -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function (err) {
+          console.error('ServiceWorker registration failed:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
