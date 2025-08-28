@@ -4,9 +4,7 @@ EZ Quiz Web
 
 Netlify
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/SITE_ID/deploy-status)](https://app.netlify.com/sites/SITE_NAME/deploys)
-
-Replace `SITE_ID` and `SITE_NAME` with your Netlify site badge ID and site name once available (from Site settings → General → Site details).
+[![Netlify Status](https://api.netlify.com/api/v1/badges/35b8697e-f228-4b5f-8065-6286e05246c8/deploy-status)](https://app.netlify.com/projects/eq-quiz/deploys)
 
 Fast, offline web quiz supporting MC, TF, YN and MT question types. No backend. Installable PWA. Keyboard friendly.
 
