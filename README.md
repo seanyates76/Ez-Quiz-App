@@ -1,5 +1,7 @@
 EZ Quiz Web
 
+[![Release](https://img.shields.io/github/v/release/seanyates76/Ez-Quiz-App?display_name=tag&sort=semver)](https://github.com/seanyates76/Ez-Quiz-App/releases)
+
 Fast, offline web quiz supporting MC, TF, YN and MT question types. No backend. Installable PWA. Keyboard friendly.
 
 Links
