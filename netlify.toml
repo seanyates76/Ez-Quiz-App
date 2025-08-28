@@ -38,3 +38,11 @@ for = "/sw.js"
 for = "/manifest.webmanifest"
   [headers.values]
     Cache-Control = "no-cache"
+
+## Redirect www to apex
+[[redirects]]
+  from = "/*"
+  to = "https://ez-quiz.app/:splat"
+  status = 301
+  force = true
+  conditions = {Host = ["www.ez-quiz.app"]}
