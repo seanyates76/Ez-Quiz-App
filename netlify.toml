@@ -46,3 +46,16 @@ for = "/manifest.webmanifest"
   status = 301
   force = true
   conditions = {Host = ["www.ez-quiz.app"]}
+
+## Fallback: force HTTPS for apex (works before Force TLS is toggled)
+[[redirects]]
+  from = "http://ez-quiz.app/*"
+  to = "https://ez-quiz.app/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.ez-quiz.app/*"
+  to = "https://ez-quiz.app/:splat"
+  status = 301
+  force = true

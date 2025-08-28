@@ -16,6 +16,8 @@ Features
 - Enter to start/advance; Backspace to go back.
 - Timer options (elapsed or countdown).
 - Review results (missed or all) with Back to Results/Main Menu.
+- Retake Missed Only from the Missed view.
+- Compact progress bar beside counter/timer.
 - PWA ready: offline app shell, maskable icons, relative paths for GitHub Pages.
 
 Question format
@@ -34,6 +36,14 @@ Deploy to Netlify
 Notes
 - The service worker uses relative paths and scope for subpath hosting.
 - Security: user content never injected with `innerHTML`; DOM nodes are used to render results.
+
+Changelog (highlights)
+- New header wordmark with adaptive mobile layout.
+- Color‑coded status line and improved import UX (drag‑drop + clear).
+- Keyboard shortcuts: Enter/Backspace and Enter‑to‑start.
+- Review flow fixes + Retake Missed Only.
+- Single‑scrollbar FAQ modal; Close button always visible.
+- Progress bar in quiz header.
 
 License
 MIT — see `LICENSE.txt`.

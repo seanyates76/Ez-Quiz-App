@@ -90,6 +90,10 @@ main {
   background: var(--muted);
   color: #fff;
 }
+.btn.orange {
+  background: #f59e0b; /* EZ orange */
+  color: #3b2200;
+}
 .chip {
   font-weight: 900;
   font-size: 14px;
@@ -136,7 +140,21 @@ textarea {
   outline-offset: 4px;
   background: rgba(52,120,246,.08);
 }
+.diag-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
 #diag {
+  margin: 6px 0 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.diag-row #diag.ok { color: var(--good); }
+.diag-row #diag.warn { color: #b98a27; }
+.diag-row #diag.err { color: var(--bad); }
+.diag-row #diag.info { color: var(--muted); }
+.tip {
   margin: 6px 0 8px;
   font-size: 12px;
   color: var(--muted);
@@ -200,6 +218,56 @@ a {
 .review-actions {
   margin-top: 20px;
 }
+.review-top-actions { margin: 6px 0 10px; }
+
+/* Centered actions on results (desktop/wide) */
+.result-actions {
+  justify-content: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+@media (min-width: 720px), (min-aspect-ratio: 4/3) {
+  .result-actions .btn { min-width: 150px; }
+}
+
+/* Summary ratio bar */
+.ratio-wrap {
+  width: min(560px, 92%);
+  height: 14px;
+  border-radius: 8px;
+  background: var(--sep);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  overflow: hidden;
+  margin: 12px auto 8px;
+}
+.ratio-row {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+.ratio-good { background: var(--good); height: 100%; transition: width .35s ease; }
+.ratio-bad { background: #f59e0b; height: 100%; transition: width .35s ease; }
+.ratio-legend {
+  display: flex;
+  gap: 10px 14px;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  }
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--opt);
+  border: 1px solid var(--border);
+}
+.legend-dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+.legend-good { background: var(--good); }
+.legend-bad { background: #f59e0b; }
 
 /* Header */
 .header-strip {
@@ -238,6 +306,7 @@ a {
   text-align: center;
   width: fit-content;
   margin: 0 auto;
+  contain: content;
 }
 /* Light mode backdrop behind wordmark to increase contrast */
 [data-theme="light"] .brand-title {
@@ -249,10 +318,13 @@ a {
 .brand-title-img {
   height: 96px;
   width: auto;
+  max-width: 90vw;
   display: block;
   margin: 0 auto;
-  image-rendering: -webkit-optimize-contrast;
-  filter: drop-shadow(0 1px 0 rgba(0,0,0,.25)) drop-shadow(0 6px 16px rgba(0,0,0,.25));
+  image-rendering: auto;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
 }
 .brand-tagline {
   text-align: center;
@@ -322,10 +394,15 @@ a {
 }
 .faq-modal {
   width: 80vw;
-  height: 80vh;
   max-width: 80vw;
-  max-height: 80vh;
-  overflow: auto;
+  height: auto;
+  max-height: 90vh;
+  display: flex; /* robust mobile scrolling */
+  flex-direction: column; /* title | content | actions */
+  overflow: hidden; /* single scrollbar lives in .faq-content */
+}
+@supports (height: 1svh) {
+  .faq-modal { max-height: 90svh; }
 }
 .overlay {
   position: fixed;
@@ -344,6 +421,14 @@ a {
   gap: 8px;
   margin-top: 12px;
 }
+.faq-actions {
+  /* Keep the close button visible without overlapping content */
+  flex: 0 0 auto;
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  background: var(--card);
+}
 .quiz-header {
   display: flex;
   align-items: center;
@@ -355,6 +440,19 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+.prog {
+  width: 84px;
+  height: 6px;
+  border-radius: 4px;
+  background: var(--sep);
+  overflow: hidden;
+}
+.prog-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--good);
+  transition: width .2s ease;
 }
 .pair-row {
   display: flex;
@@ -378,12 +476,17 @@ select {
 }
 #countdownInput { width: 84px; }
 .faq-content {
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: 14px;
   line-height: 1.5;
-  max-height: 100%;
-  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0; /* allow flex child to scroll */
+  overflow: auto; /* single scrollbar */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
+/* Tighten heading spacing to maximize viewport real estate */
+.faq-modal h2 { margin: 0; }
 .faq-content h1 {
   font-size: 18px;
   margin: 16px 0 8px;
@@ -416,14 +519,34 @@ select {
 
 /* Responsive adjustments */
 @media (max-width: 520px) {
+  .header-strip { padding: 8px 0 12px; }
+  /* Keep buttons on the right; reserve space so the title never overlaps */
+  .brand { flex-direction: row; gap: 8px; padding-right: 96px; }
+  .brand-center { order: 0; }
+  .brand-controls { position: absolute; right: 0; top: 50%; transform: translateY(-50%); gap: 8px; }
   .settings-btn,
-  .faq-btn {
-    width: 46px;
-    height: 46px;
-    font-size: 20px;
-  }
-  .brand-title h1 {
-    font-size: 24px;
-  }
-  .brand-title-img { height: 72px; }
+  .faq-btn { width: 42px; height: 42px; font-size: 18px; }
+  .brand-title h1 { font-size: 22px; }
+  .brand-title-img { height: 60px; }
+  .brand-tagline { margin-top: -2px; }
+  .prog { width: 68px; height: 6px; }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+  .brand-title-img { height: 52px; }
+  .settings-btn,
+  .faq-btn { width: 38px; height: 38px; font-size: 16px; }
+}
+
+/* Tall viewports (aspect ratio <= 9:10): keep buttons right, shrink and scale title */
+@media (max-aspect-ratio: 9/10) {
+  .header-strip { padding: 8px 0 12px; }
+  .brand { flex-direction: row; gap: 8px; padding-right: 88px; }
+  .brand-controls { position: absolute; right: 0; top: 50%; transform: translateY(-50%); gap: 8px; }
+  /* 30% smaller buttons from 52px -> ~36px */
+  .settings-btn,
+  .faq-btn { width: 36px; height: 36px; font-size: 16px; }
+  /* Keep title centered and scale with width, clamped */
+  .brand-title-img { height: clamp(48px, 18vw, 72px); }
 }

@@ -102,7 +102,10 @@ MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1
     <!-- Menu (upload/paste) card -->
     <div class="card" id="menu">
       <textarea id="quizInput" placeholder="(Optional) Paste questions here..."></textarea>
-      <div id="diag">Ready. Tip: you can drag a .txt file onto the box.</div>
+      <div class="diag-row">
+        <div id="diag">Ready.</div>
+        <div class="tip">Tip: you can drag a .txt file onto the box.</div>
+      </div>
       <div class="row">
         <button class="btn blue" id="loadBtn" type="button">Load .txt</button>
         <input type="file" id="fileInput" accept=".txt" class="hidden">
@@ -118,6 +121,9 @@ MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1
         <div class="left">
           <div class="chip" id="qCounter">0/0</div>
           <div class="chip hidden" id="timer">00:00</div>
+          <div class="prog" id="progWrap" aria-hidden="true">
+            <div class="prog-bar" id="progBar" style="width:0%"></div>
+          </div>
         </div>
         <button class="btn grey" id="backDuringQuiz" type="button">Back to Menu</button>
       </div>
@@ -126,7 +132,7 @@ MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1
         <button class="btn grey" id="prevBtn" type="button">◀ Previous</button>
         <div class="row ml-auto">
           <button class="btn blue" id="nextBtn" type="button">Next ▶</button>
-          <button class="btn green hidden" id="finishBtn" type="button">Finish ✅</button>
+          <button class="btn green hidden" id="finishBtn" type="button">Finish</button>
         </div>
       </div>
     </div>

@@ -31,7 +31,11 @@
   const faqModal = $('faqModal');
   const closeFaq = $('closeFaq');
 
-  function show(el) { if (el) el.style.display = 'block'; }
+  function show(el) {
+    if (!el) return;
+    const isModal = el.classList && (el.classList.contains('settings-modal') || el.classList.contains('faq-modal'));
+    el.style.display = isModal ? 'flex' : 'block';
+  }
   function hide(el) { if (el) el.style.display = 'none'; }
   function closeModal() {
     hide(settingsModal);
@@ -170,7 +174,15 @@
   const quiz = $('quiz');
   const result = $('result');
   const diag = $('diag');
+  // Status helper with color coding for the diag area
+  function setDiag(text, level = 'info') {
+    if (!diag) return;
+    diag.textContent = text;
+    diag.classList.remove('ok','warn','err','info');
+    if (['ok','warn','err','info'].includes(level)) diag.classList.add(level);
+  }
   const qCounter = $('qCounter');
+  const progBar = $('progBar');
   const qBody = $('qBody');
   const backDuringQuiz = $('backDuringQuiz');
   const prevBtn = $('prevBtn');
@@ -201,7 +213,7 @@
     const reader = new FileReader();
     reader.onload = (ev) => {
       quizInput.value = ev.target.result || '';
-      diag.textContent = 'File loaded.';
+      setDiag('File loaded.', 'ok');
     };
     reader.readAsText(f);
   });
@@ -227,7 +239,7 @@
     const reader = new FileReader();
     reader.onload = (ev) => {
       quizInput.value = ev.target.result || '';
-      diag.textContent = 'File dropped.';
+      setDiag('File dropped.', 'ok');
     };
     reader.readAsText(f);
   });
@@ -235,14 +247,14 @@
   // Clear textarea
   clearBtn.addEventListener('click', () => {
     quizInput.value = '';
-    diag.textContent = 'Cleared.';
+    setDiag('Cleared.', 'info');
     quizInput.focus();
   });
 
   // Built‑in sample loader
   builtInBtn.addEventListener('click', () => {
     quizInput.value = builtIn;
-    diag.textContent = 'Built‑in loaded.';
+    setDiag('Demo set loaded.', 'ok');
   });
 
   // Quiz state
@@ -383,14 +395,14 @@
   function startQuiz() {
     const raw = quizInput.value.trim();
     if (!raw) {
-      diag.textContent = 'Please enter or load some questions.';
+      setDiag('Please enter or load some questions.', 'warn');
       return;
     }
     try {
       questions = parseQuestions(raw);
       userAnswers = new Array(questions.length).fill(null);
       currentIndex = 0;
-      diag.textContent = '';
+      setDiag('', 'info');
       showQuiz();
       showQuestion();
       if (timerOn) {
@@ -398,7 +410,7 @@
       }
     } catch (err) {
       console.error(err);
-      diag.textContent = 'Failed to parse questions.';
+      setDiag('Failed to parse questions.', 'err');
     }
   }
 
@@ -408,6 +420,8 @@
     qCounter.textContent = (currentIndex + 1) + '/' + questions.length;
     // hide timer if not enabled
     timerEl.classList.toggle('hidden', !timerOn);
+    // Update progress bar
+    updateProgress();
     // clear previous body content
     qBody.innerHTML = '';
     if (q.type === 'MC') {
@@ -541,6 +555,13 @@
     nextBtn.disabled = currentIndex >= questions.length - 1;
     finishBtn.classList.toggle('hidden', currentIndex < questions.length - 1);
     nextBtn.classList.toggle('hidden', currentIndex >= questions.length - 1);
+    updateProgress();
+  }
+
+  function updateProgress() {
+    if (!progBar || !questions.length) { return; }
+    const pct = Math.max(0, Math.min(100, Math.round(((currentIndex + 1) / questions.length) * 100)));
+    progBar.style.width = pct + '%';
   }
 
   function changeQuestion(delta) {
@@ -612,8 +633,51 @@
       }
       result.appendChild(timeDiv);
     }
+    // Ratio bar (correct vs incorrect)
+    const total = questions.length || 1;
+    const wrongCount = Math.max(0, total - correctCount);
+    const goodPct = Math.round((correctCount / total) * 100);
+    const badPct = 100 - goodPct;
+    const ratioWrap = document.createElement('div');
+    ratioWrap.className = 'ratio-wrap';
+    const ratioRow = document.createElement('div');
+    ratioRow.className = 'ratio-row';
+    const goodSeg = document.createElement('div');
+    goodSeg.className = 'ratio-good';
+    goodSeg.style.width = goodPct + '%';
+    const badSeg = document.createElement('div');
+    badSeg.className = 'ratio-bad';
+    badSeg.style.width = badPct + '%';
+    ratioRow.appendChild(goodSeg);
+    ratioRow.appendChild(badSeg);
+    ratioWrap.appendChild(ratioRow);
+    result.appendChild(ratioWrap);
+    // Accessible label
+    ratioWrap.setAttribute('role', 'img');
+    ratioWrap.setAttribute('aria-label', correctCount + ' correct (' + goodPct + '%), ' + wrongCount + ' incorrect (' + badPct + '%)');
+    const legend = document.createElement('div');
+    legend.className = 'ratio-legend';
+    const goodItem = document.createElement('span');
+    goodItem.className = 'legend-item';
+    const goodDot = document.createElement('span');
+    goodDot.className = 'legend-dot legend-good';
+    const goodText = document.createElement('span');
+    goodText.textContent = 'Correct ' + correctCount + ' (' + goodPct + '%)';
+    goodItem.appendChild(goodDot);
+    goodItem.appendChild(goodText);
+    const badItem = document.createElement('span');
+    badItem.className = 'legend-item';
+    const badDot = document.createElement('span');
+    badDot.className = 'legend-dot legend-bad';
+    const badText = document.createElement('span');
+    badText.textContent = 'Incorrect ' + wrongCount + ' (' + badPct + '%)';
+    badItem.appendChild(badDot);
+    badItem.appendChild(badText);
+    legend.appendChild(goodItem);
+    legend.appendChild(badItem);
+    result.appendChild(legend);
     const btnRow = document.createElement('div');
-    btnRow.className = 'row';
+    btnRow.className = 'row result-actions';
     const reviewMissedBtn = document.createElement('button');
     reviewMissedBtn.className = 'btn blue';
     reviewMissedBtn.textContent = 'Review Missed';
@@ -650,8 +714,27 @@
     result.innerHTML = '';
     const header = document.createElement('div');
     header.className = 'scorebig';
-    header.textContent = 'Review';
+    // Determine if this matches the current 'missed' set
+    let isMissedView = false;
+    if (lastSummary && Array.isArray(lastSummary.miss)) {
+      const setA = new Set(indexes);
+      const setB = new Set(lastSummary.miss);
+      isMissedView = setA.size === setB.size && [...setA].every((x) => setB.has(x));
+    }
+    header.textContent = isMissedView ? 'Missed Questions' : 'Review';
     result.appendChild(header);
+    if (isMissedView) {
+      const topRow = document.createElement('div');
+      topRow.className = 'row review-top-actions';
+      const retakeBtn = document.createElement('button');
+      retakeBtn.className = 'btn orange ml-auto';
+      retakeBtn.textContent = 'Retake Missed Only';
+      retakeBtn.addEventListener('click', () => {
+        retakeOnly(indexes);
+      });
+      topRow.appendChild(retakeBtn);
+      result.appendChild(topRow);
+    }
     const listDiv = document.createElement('div');
     listDiv.className = 'miss-list';
     indexes.forEach((idx) => {
@@ -811,8 +894,20 @@
     showResult();
   }
 
-  // Initialise by showing the menu
+  function retakeOnly(indexes) {
+    const subset = indexes.map((i) => questions[i]);
+    if (!subset.length) { renderSummary(); return; }
+    questions = subset;
+    userAnswers = new Array(questions.length).fill(null);
+    currentIndex = 0;
+    showQuiz();
+    showQuestion();
+    if (timerOn) startTimer();
+  }
+
+  // Initialise by showing the menu and ensure modals are closed
   showMenu();
+  closeModal();
 
   // Header wordmark fallback (no inline handlers to satisfy CSP)
   document.addEventListener('DOMContentLoaded', () => {
@@ -837,6 +932,39 @@
       navigator.serviceWorker.register('sw.js').catch(function (err) {
         console.error('ServiceWorker registration failed:', err);
       });
+    });
+  }
+
+  // Soft refresh / site reset via title clicks
+  const titleEl = document.querySelector('.brand-title');
+  let lastTitleClick = 0;
+  function softRefresh() {
+    try { stopTimer(); } catch {}
+    questions = [];
+    userAnswers = [];
+    currentIndex = 0;
+    qBody.innerHTML = '';
+    qCounter.textContent = '0/0';
+    finishBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+    timerEl.classList.add('hidden');
+    result.innerHTML = '';
+    showMenu();
+    setDiag('Ready.', 'ok');
+  }
+  if (titleEl) {
+    titleEl.style.cursor = 'pointer';
+    titleEl.title = 'Click to refresh • double‑click to reset';
+    titleEl.addEventListener('click', () => {
+      const now = Date.now();
+      if (now - lastTitleClick < 5000) {
+        // Second click within 5 seconds: hard reset
+        try { localStorage.removeItem('ezq_theme'); } catch {}
+        location.reload();
+        return;
+      }
+      lastTitleClick = now;
+      softRefresh();
     });
   }
 })();
