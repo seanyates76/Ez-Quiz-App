@@ -2,6 +2,12 @@ EZ Quiz Web
 
 [![Release](https://img.shields.io/github/v/release/seanyates76/Ez-Quiz-App?display_name=tag&sort=semver)](https://github.com/seanyates76/Ez-Quiz-App/releases)
 
+Netlify
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/SITE_ID/deploy-status)](https://app.netlify.com/sites/SITE_NAME/deploys)
+
+Replace `SITE_ID` and `SITE_NAME` with your Netlify site badge ID and site name once available (from Site settings → General → Site details).
+
 Fast, offline web quiz supporting MC, TF, YN and MT question types. No backend. Installable PWA. Keyboard friendly.
 
 Links

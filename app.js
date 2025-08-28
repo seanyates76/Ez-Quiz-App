@@ -8,6 +8,7 @@
  */
 
 (function () {
+  const APP_VERSION = document.querySelector('meta[name="app-version"]').getAttribute('content') || '';
   // Helper to get elements by ID
   const $ = (id) => document.getElementById(id);
 
@@ -966,5 +967,11 @@
       lastTitleClick = now;
       softRefresh();
     });
+  }
+
+  // Set version in footer
+  const verEl = document.getElementById('appVersion');
+  if (verEl) {
+    verEl.textContent = 'EZ Quiz Web ' + APP_VERSION;
   }
 })();

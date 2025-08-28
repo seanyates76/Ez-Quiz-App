@@ -58,6 +58,13 @@ main {
   padding: 24px;
   position: relative;
 }
+.app-footer {
+  width: 100%;
+  text-align: center;
+  margin: 20px 0 26px;
+  font-size: 12px;
+  color: var(--muted);
+}
 .card {
   background: var(--card);
   border: 1px solid var(--border);
