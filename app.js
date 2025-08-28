@@ -813,4 +813,30 @@
 
   // Initialise by showing the menu
   showMenu();
+
+  // Header wordmark fallback (no inline handlers to satisfy CSP)
+  document.addEventListener('DOMContentLoaded', () => {
+    const img = document.querySelector('.brand-title-img');
+    if (!img) return;
+    let attemptedFallback = false;
+    img.addEventListener('error', () => {
+      if (!attemptedFallback) {
+        attemptedFallback = true;
+        img.src = 'icons/brand-title.png';
+      } else {
+        img.style.display = 'none';
+        const txt = img.nextElementSibling;
+        if (txt) txt.hidden = false;
+      }
+    });
+  });
+
+  // Register service worker (moved out of inline script to tighten CSP)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function (err) {
+        console.error('ServiceWorker registration failed:', err);
+      });
+    });
+  }
 })();

@@ -25,7 +25,7 @@
       <div class="brand-center">
         <!-- App square icon removed to avoid double-branding -->
         <div class="brand-title" aria-label="EZ Quiz Web">
-          <img class="brand-title-img" src="icons/brand-title-source.png" alt="EZ Quiz" onerror="if(!this.dataset.fbk){this.dataset.fbk=1; this.src='icons/brand-title.png';}else{this.style.display='none'; this.nextElementSibling.hidden=false;}">
+          <img class="brand-title-img" src="icons/brand-title-source.png" alt="EZ Quiz">
           <h1 class="brand-title-text" hidden>EZ Quiz Web</h1>
         </div>
       </div>
@@ -114,7 +114,7 @@ MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1
       <div id="qBody"></div>
       <div class="nav-row">
         <button class="btn grey" id="prevBtn" type="button">◀ Previous</button>
-        <div class="row" style="margin-left:auto">
+        <div class="row ml-auto">
           <button class="btn blue" id="nextBtn" type="button">Next ▶</button>
           <button class="btn green hidden" id="finishBtn" type="button">Finish ✅</button>
         </div>
@@ -125,15 +125,5 @@ MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1
   </main>
   <!-- App logic -->
   <script src="app.js"></script>
-  <!-- Register service worker for offline capability -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('sw.js').catch(function (err) {
-          console.error('ServiceWorker registration failed:', err);
-        });
-      });
-    }
-  </script>
 </body>
 </html>
