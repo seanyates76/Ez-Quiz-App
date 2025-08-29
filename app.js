@@ -31,6 +31,7 @@
   const faqBtn = $('faqBtn');
   const faqModal = $('faqModal');
   const closeFaq = $('closeFaq');
+  const resetAppBtn = $('resetAppBtn');
   // Prompt popover elements
   const promptBtn = $('promptBtn');
   const promptPopover = $('promptPopover');
@@ -40,11 +41,16 @@
   const cancelPromptBtn = $('cancelPromptBtn');
   const toastEl = document.getElementById('toast');
 
+  let lastFocusedEl = null;
   function show(el) {
     if (!el) return;
     const isModal = el.classList && (el.classList.contains('settings-modal') || el.classList.contains('faq-modal'));
     el.style.display = isModal ? 'flex' : 'block';
-    if (isModal) lockBodyScroll(true);
+    if (isModal) {
+      lastFocusedEl = document.activeElement;
+      lockBodyScroll(true);
+      trapFocus(el);
+    }
   }
   function hide(el) { if (el) el.style.display = 'none'; }
   function closeModal() {
@@ -52,6 +58,10 @@
     hide(faqModal);
     hide(overlay);
     lockBodyScroll(false);
+    // Restore focus to the last trigger
+    if (lastFocusedEl && typeof lastFocusedEl.focus === 'function') {
+      try { lastFocusedEl.focus(); } catch {}
+    }
   }
   settingsBtn.addEventListener('click', () => {
     show(settingsModal);
@@ -68,6 +78,33 @@
   closeSettings.addEventListener('click', closeModal);
   closeFaq.addEventListener('click', closeModal);
   overlay.addEventListener('click', closeModal);
+
+  // Focus trap for modals
+  function trapFocus(container) {
+    const focusables = container.querySelectorAll('a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])');
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    // Move focus to first
+    setTimeout(() => { try { first.focus(); } catch {} }, 0);
+    function onKey(e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      } else if (e.key === 'Escape') {
+        e.stopPropagation();
+        closeModal();
+      }
+    }
+    container._trapHandler = onKey;
+    document.addEventListener('keydown', onKey, true);
+    const off = () => document.removeEventListener('keydown', onKey, true);
+    // Remove handler when closed
+    const mo = new MutationObserver(() => {
+      if (container.style.display === 'none') { off(); mo.disconnect(); }
+    });
+    mo.observe(container, { attributes: true, attributeFilter: ['style'] });
+  }
 
   // Toast helper
   function showToast(msg, opts) {
@@ -386,6 +423,7 @@
     reader.onload = (ev) => {
       quizInput.value = ev.target.result || '';
       setDiag('File loaded.', 'ok');
+      saveSession('menu');
     };
     reader.readAsText(f);
   });
@@ -421,12 +459,14 @@
     quizInput.value = '';
     setDiag('Cleared.', 'info');
     quizInput.focus();
+    saveSession('menu');
   });
 
   // Built‑in sample loader
   builtInBtn.addEventListener('click', () => {
     quizInput.value = builtIn;
     setDiag('Demo set loaded.', 'ok');
+    saveSession('menu');
   });
 
   // Quiz state
@@ -445,6 +485,7 @@
   backDuringQuiz.addEventListener('click', () => {
     stopTimer();
     showMenu();
+    saveSession('menu');
   });
   prevBtn.addEventListener('click', () => {
     changeQuestion(-1);
@@ -503,6 +544,7 @@
     menu.classList.remove('hidden');
     quiz.classList.add('hidden');
     result.classList.add('hidden');
+    saveSession('menu');
   }
 
   // Show quiz container
@@ -519,49 +561,92 @@
     result.classList.remove('hidden');
   }
 
-  // Parse question lines into objects
+  // Helpers to split with support for backslash-escapes (e.g., \|, \;, \,)
+  function splitEscaped(str, delim) {
+    const out = [];
+    let buf = '';
+    let i = 0;
+    while (i < str.length) {
+      const ch = str[i];
+      if (ch === '\\' && i + 1 < str.length) {
+        buf += str[i + 1];
+        i += 2;
+        continue;
+      }
+      if (ch === delim) {
+        out.push(buf.trim());
+        buf = '';
+        i++;
+        continue;
+      }
+      buf += ch;
+      i++;
+    }
+    out.push(buf.trim());
+    return out;
+  }
+
+  // Parse question lines into objects with validation and per-line errors
   function parseQuestions(str) {
-    const lines = str.split(/\n/).map((l) => l.trim()).filter((l) => l);
-    return lines.map((line) => {
-      const parts = line.split('|').map((p) => p.trim());
-      const type = parts[0].toUpperCase();
-      if (type === 'MC') {
-        if (parts.length < 4) throw new Error('Invalid MC format');
-        const question = parts[1];
-        const optionStr = parts[2];
-        const answerStr = parts[3];
-        const options = optionStr.split(';').map((opt) => opt.trim());
-        const answers = answerStr.split(',').map((s) => s.trim().toUpperCase());
-        const multi = answers.length > 1;
-        return { type: 'MC', question, options, answers, multi };
-      } else if (type === 'TF') {
-        if (parts.length < 3) throw new Error('Invalid TF format');
-        const question = parts[1];
-        const answer = parts[2].trim().toUpperCase();
-        return { type: 'TF', question, answer };
-      } else if (type === 'YN') {
-        if (parts.length < 3) throw new Error('Invalid YN format');
-        const question = parts[1];
-        const answer = parts[2].trim().toUpperCase();
-        return { type: 'YN', question, answer };
-      } else if (type === 'MT') {
-        if (parts.length < 5) throw new Error('Invalid MT format');
-        const question = parts[1];
-        const leftStr = parts[2];
-        const rightStr = parts[3];
-        const mapStr = parts[4];
-        const lefts = leftStr.split(';').map((s) => s.trim());
-        const rights = rightStr.split(';').map((s) => s.trim());
-        const answerMap = {};
-        mapStr.split(',').map((s) => s.trim()).forEach((pair) => {
-          const [l, r] = pair.split('-').map((x) => x.trim());
-          answerMap[l] = r.toUpperCase();
-        });
-        return { type: 'MT', question, lefts, rights, answerMap };
-      } else {
-        throw new Error('Unknown question type: ' + type);
+    const lines = str.split(/\n/).map((l) => l).filter((l) => l.trim());
+    const out = [];
+    const errors = [];
+    lines.forEach((raw, idx) => {
+      try {
+        const parts = splitEscaped(raw, '|');
+        const type = (parts[0] || '').trim().toUpperCase();
+        if (!['MC','TF','YN','MT'].includes(type)) throw new Error('Unknown type');
+        if (type === 'MC') {
+          if (parts.length < 4) throw new Error('MC requires 4 fields');
+          const question = (parts[1] || '').trim();
+          const optionStr = parts[2] || '';
+          const answerStr = parts[3] || '';
+          const options = splitEscaped(optionStr, ';');
+          if (options.length < 2) throw new Error('MC needs at least 2 options');
+          const answers = (answerStr || '').split(',').map((s) => s.trim().toUpperCase()).filter(Boolean);
+          if (!answers.length) throw new Error('MC answer missing');
+          const validLetters = options.map((_, i) => String.fromCharCode(65 + i));
+          const invalid = answers.find((a) => !validLetters.includes(a));
+          if (invalid) throw new Error('Invalid answer letter: ' + invalid);
+          const multi = answers.length > 1;
+          out.push({ type: 'MC', question, options, answers, multi, raw });
+        } else if (type === 'TF') {
+          if (parts.length < 3) throw new Error('TF requires 3 fields');
+          const question = (parts[1] || '').trim();
+          const answer = (parts[2] || '').trim().toUpperCase();
+          if (!['T','F'].includes(answer)) throw new Error('TF answer must be T or F');
+          out.push({ type: 'TF', question, answer, raw });
+        } else if (type === 'YN') {
+          if (parts.length < 3) throw new Error('YN requires 3 fields');
+          const question = (parts[1] || '').trim();
+          const answer = (parts[2] || '').trim().toUpperCase();
+          if (!['Y','N'].includes(answer)) throw new Error('YN answer must be Y or N');
+          out.push({ type: 'YN', question, answer, raw });
+        } else if (type === 'MT') {
+          if (parts.length < 5) throw new Error('MT requires 5 fields');
+          const question = (parts[1] || '').trim();
+          const lefts = splitEscaped(parts[2] || '', ';');
+          const rights = splitEscaped(parts[3] || '', ';');
+          const pairs = splitEscaped(parts[4] || '', ',');
+          if (lefts.length < 2 || rights.length < 2) throw new Error('MT needs at least 2 left and 2 right');
+          const answerMap = {};
+          pairs.forEach((pair) => {
+            const [l, r] = pair.split('-').map((x) => (x || '').trim());
+            if (!l || !r) throw new Error('MT mapping invalid: ' + pair);
+            answerMap[l] = r.toUpperCase();
+          });
+          out.push({ type: 'MT', question, lefts, rights, answerMap, raw });
+        }
+      } catch (e) {
+        errors.push(`Line ${idx + 1}: ${e.message}`);
       }
     });
+    if (errors.length) {
+      const err = new Error('Parse errors');
+      err._details = errors;
+      throw err;
+    }
+    return out;
   }
 
   // Start the quiz
@@ -581,9 +666,16 @@
       if (timerOn) {
         startTimer();
       }
+      sessionSeed = (Math.random() * 0xffffffff) >>> 0;
+      saveSession('quiz');
     } catch (err) {
       console.error(err);
-      setDiag('Failed to parse questions.', 'err');
+      if (err && err._details) {
+        setDiag(err._details.slice(0, 3).join(' | ') + (err._details.length > 3 ? ' …' : ''), 'err');
+        alert('Could not start quiz due to errors:\n' + err._details.join('\n'));
+      } else {
+        setDiag('Failed to parse questions.', 'err');
+      }
     }
   }
 
@@ -598,10 +690,10 @@
     // clear previous body content
     qBody.innerHTML = '';
     if (q.type === 'MC') {
-      const divQ = document.createElement('div');
-      divQ.className = 'question';
-      divQ.textContent = q.question;
-      qBody.appendChild(divQ);
+      const fs = document.createElement('fieldset');
+      const lg = document.createElement('legend');
+      lg.textContent = q.question;
+      fs.appendChild(lg);
       q.options.forEach((opt, idx) => {
         const label = document.createElement('label');
         label.className = 'option';
@@ -630,16 +722,18 @@
           } else {
             userAnswers[currentIndex] = input.value;
           }
+          saveSession('quiz');
         });
         label.appendChild(input);
         label.appendChild(document.createTextNode(opt));
-        qBody.appendChild(label);
+        fs.appendChild(label);
       });
+      qBody.appendChild(fs);
     } else if (q.type === 'TF') {
-      const divQ = document.createElement('div');
-      divQ.className = 'question';
-      divQ.textContent = q.question;
-      qBody.appendChild(divQ);
+      const fs = document.createElement('fieldset');
+      const lg = document.createElement('legend');
+      lg.textContent = q.question;
+      fs.appendChild(lg);
       ['T', 'F'].forEach((letter) => {
         const label = document.createElement('label');
         label.className = 'option';
@@ -650,16 +744,18 @@
         if (userAnswers[currentIndex] === letter) input.checked = true;
         input.addEventListener('change', () => {
           userAnswers[currentIndex] = input.value;
+          saveSession('quiz');
         });
         label.appendChild(input);
         label.appendChild(document.createTextNode(letter === 'T' ? 'True' : 'False'));
-        qBody.appendChild(label);
+        fs.appendChild(label);
       });
+      qBody.appendChild(fs);
     } else if (q.type === 'YN') {
-      const divQ = document.createElement('div');
-      divQ.className = 'question';
-      divQ.textContent = q.question;
-      qBody.appendChild(divQ);
+      const fs = document.createElement('fieldset');
+      const lg = document.createElement('legend');
+      lg.textContent = q.question;
+      fs.appendChild(lg);
       ['Y', 'N'].forEach((letter) => {
         const label = document.createElement('label');
         label.className = 'option';
@@ -670,24 +766,20 @@
         if (userAnswers[currentIndex] === letter) input.checked = true;
         input.addEventListener('change', () => {
           userAnswers[currentIndex] = input.value;
+          saveSession('quiz');
         });
         label.appendChild(input);
         label.appendChild(document.createTextNode(letter === 'Y' ? 'Yes' : 'No'));
-        qBody.appendChild(label);
+        fs.appendChild(label);
       });
+      qBody.appendChild(fs);
     } else if (q.type === 'MT') {
-      const divQ = document.createElement('div');
-      divQ.className = 'question';
-      divQ.textContent = q.question;
-      qBody.appendChild(divQ);
-      // Randomise right options for this question
-      const rightsRandom = q.rights.slice();
-      for (let i = rightsRandom.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const tmp = rightsRandom[i];
-        rightsRandom[i] = rightsRandom[j];
-        rightsRandom[j] = tmp;
-      }
+      const fs = document.createElement('fieldset');
+      const lg = document.createElement('legend');
+      lg.textContent = q.question;
+      fs.appendChild(lg);
+      // Deterministic shuffle for rights using seeded RNG
+      const rightsRandom = getShuffledRights(q.rights, currentIndex);
       q.lefts.forEach((leftItem) => {
         const row = document.createElement('div');
         row.className = 'pair-row';
@@ -715,12 +807,15 @@
           let mapping = userAnswers[currentIndex] || {};
           mapping[leftKey] = select.value;
           userAnswers[currentIndex] = mapping;
+          saveSession('quiz');
         });
         row.appendChild(select);
-        qBody.appendChild(row);
+        fs.appendChild(row);
       });
+      qBody.appendChild(fs);
     }
     updateNavButtons();
+    saveSession('quiz');
   }
 
   function updateNavButtons() {
@@ -742,6 +837,7 @@
     if (delta === 1 && currentIndex >= questions.length - 1) return;
     currentIndex += delta;
     showQuestion();
+    saveSession('quiz');
   }
 
   function finishQuiz() {
@@ -785,6 +881,7 @@
     // Save and render summary
     lastSummary = { correctCount, miss };
     renderSummary();
+    saveSession('result');
   }
 
   function renderSummary() {
@@ -857,6 +954,12 @@
     reviewMissedBtn.addEventListener('click', () => {
       reviewQuestions(miss);
     });
+    const exportMissedBtn = document.createElement('button');
+    exportMissedBtn.className = 'btn orange';
+    exportMissedBtn.textContent = 'Export Missed';
+    exportMissedBtn.addEventListener('click', () => {
+      exportMissed(miss);
+    });
     const reviewAllBtn = document.createElement('button');
     reviewAllBtn.className = 'btn grey';
     reviewAllBtn.textContent = 'Review All';
@@ -867,7 +970,7 @@
     retryBtn.className = 'btn green';
     retryBtn.textContent = 'Retry';
     retryBtn.addEventListener('click', () => {
-      showMenu();
+      restartQuiz();
     });
     const backBtn = document.createElement('button');
     backBtn.className = 'btn grey';
@@ -876,11 +979,37 @@
       showMenu();
     });
     btnRow.appendChild(reviewMissedBtn);
+    btnRow.appendChild(exportMissedBtn);
     btnRow.appendChild(reviewAllBtn);
     btnRow.appendChild(retryBtn);
     btnRow.appendChild(backBtn);
     result.appendChild(btnRow);
     showResult();
+  }
+
+  function restartQuiz() {
+    if (!questions || !questions.length) { showMenu(); return; }
+    userAnswers = new Array(questions.length).fill(null);
+    currentIndex = 0;
+    showQuiz();
+    showQuestion();
+    if (timerOn) startTimer();
+    saveSession('quiz');
+  }
+
+  function exportMissed(indexes){
+    if (!indexes || !indexes.length) { showToast('Nothing to export'); return; }
+    const lines = indexes.map((i) => (questions[i] && questions[i].raw) ? questions[i].raw : '').filter(Boolean);
+    if (!lines.length) { showToast('Nothing to export'); return; }
+    const blob = new Blob([lines.join('\n') + '\n'], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'missed-questions.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   function reviewQuestions(indexes) {
@@ -1076,6 +1205,7 @@
     showQuiz();
     showQuestion();
     if (timerOn) startTimer();
+    saveSession('quiz');
   }
 
   // Initialise by showing the menu and ensure modals are closed
@@ -1148,4 +1278,100 @@
   if (verEl) {
     verEl.textContent = 'EZ Quiz Web ' + APP_VERSION;
   }
+
+  // Reset app: clear storage, unregister SW, clear caches, reload
+  async function resetApp() {
+    try { localStorage.clear(); } catch {}
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+    } catch {}
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    } catch {}
+    location.reload();
+  }
+  if (resetAppBtn) {
+    resetAppBtn.addEventListener('click', () => {
+      if (confirm('Reset EZ Quiz Web? This clears saved data and reloads.')) resetApp();
+    });
+  }
+
+  // Autosave session and deterministic shuffle seed
+  let sessionSeed = (Math.random() * 0xffffffff) >>> 0;
+  function mulberry32(a){return function(){var t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+  function hashSeed(seed, idx){
+    // simple mixing
+    let h = seed ^ 0x9e3779b9;
+    h = Math.imul(h ^ (h >>> 16), 0x85ebca6b);
+    h ^= idx + 0x165667b1;
+    h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+    return (h ^ (h >>> 16)) >>> 0;
+  }
+  function getShuffledRights(rights, idx){
+    const arr = rights.slice();
+    const rng = mulberry32(hashSeed(sessionSeed, idx));
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function saveSession(view){
+    try {
+      const data = {
+        v: 1,
+        view,
+        raw: quizInput ? quizInput.value : '',
+        answers: userAnswers,
+        idx: currentIndex,
+        seed: sessionSeed,
+        timerOn,
+        countdown,
+        duration: countdownInput ? countdownInput.value : '10:00'
+      };
+      localStorage.setItem('ezq_session', JSON.stringify(data));
+    } catch {}
+  }
+  function restoreSession(){
+    try {
+      const s = localStorage.getItem('ezq_session');
+      if (!s) return;
+      const data = JSON.parse(s);
+      if (!data || data.v !== 1) return;
+      if (quizInput) quizInput.value = data.raw || '';
+      if (typeof data.timerOn === 'boolean') {
+        toggleTimer.checked = data.timerOn; timerOn = data.timerOn; timerEl.classList.toggle('hidden', !timerOn);
+      }
+      if (typeof data.countdown === 'boolean') {
+        countdownMode.checked = data.countdown; countdown = data.countdown;
+      }
+      if (data.duration && countdownInput) countdownInput.value = data.duration;
+      if (data.view === 'quiz' && data.raw) {
+        try {
+          questions = parseQuestions(data.raw);
+          userAnswers = Array.isArray(data.answers) ? data.answers : new Array(questions.length).fill(null);
+          currentIndex = Math.max(0, Math.min(questions.length - 1, data.idx || 0));
+          sessionSeed = (data.seed >>> 0) || sessionSeed;
+          showQuiz();
+          showQuestion();
+          setDiag('Session restored.', 'ok');
+        } catch {}
+      } else {
+        setDiag('Ready.', 'ok');
+      }
+    } catch {}
+  }
+
+  // Persist textarea input changes
+  if (quizInput) {
+    quizInput.addEventListener('input', () => saveSession('menu'));
+  }
+
+  // Attempt session restore on load
+  restoreSession();
 })();

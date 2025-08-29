@@ -134,11 +134,16 @@ main {
   cursor: pointer;
   text-align: left;
   font-weight: 700;
+  outline: none;
 }
 .option input {
   margin-right: 10px;
   transform: translateY(1px);
 }
+.option:focus-within { box-shadow: 0 0 0 2px var(--primary); }
+input:focus-visible, select:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+fieldset { border: none; padding: 0; margin: 0; }
+legend { font-size: 20px; font-weight: 800; margin: 14px 0; }
 .hidden {
   display: none;
 }
