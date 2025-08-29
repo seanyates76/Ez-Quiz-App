@@ -8,7 +8,7 @@
  * page for navigation requests when offline.
  */
 
-const CACHE_NAME = 'ezquiz-cache-v47';
+const CACHE_NAME = 'ezquiz-cache-v48';
 const RELATIVE_URLS = [
   'index.html',
   'style.css',
@@ -57,9 +57,10 @@ self.addEventListener('fetch', (event) => {
             return response;
           })
           .catch(() => {
-            // When offline and navigation to non‑cached assets happens, fallback to index
+            // When offline and navigation to non‑cached assets happens, fallback to index (respect scope)
             if (event.request.mode === 'navigate') {
-              return caches.match('/index.html');
+              const indexUrl = new URL('index.html', self.registration.scope).toString();
+              return caches.match(indexUrl);
             }
           })
       );

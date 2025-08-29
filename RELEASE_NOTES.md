@@ -57,4 +57,12 @@ Fixes & polish
 - Support FAB: removed transform on hover/active to prevent position jump on mobile; subtle brightness feedback only
 - Button colors: replaced color-mix fallbacks for broader browser support (grey ⚙, blue ?, purple ✨ retained)
 - Tip/Ready: compact, wrapped row under the textarea; button row spacing adjusted
+EZ Quiz Web v1.1.2
+===================
+
+Release date: 2025-08-29
+
+PWA cache bump
+- Service worker cache version bumped to v48 to force fresh assets
+- Offline navigation fallback now resolves index.html relative to SW scope for robust subpath hosting
 
