@@ -18,7 +18,7 @@
   <!-- Theme color for mobile browsers -->
   <meta name="theme-color" content="#2c2c2c" />
   <title>EZ Quiz Web</title>
-  <meta name="app-version" content="v1.0.0" />
+  <meta name="app-version" content="v1.1.0" />
   <!-- Icons -->
   <link rel="icon" href="icons/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="icons/favicon-32.png" sizes="32x32">
@@ -42,6 +42,23 @@
       </div>
       <div class="brand-controls">
         <button class="faq-btn" id="faqBtn" type="button" title="FAQ">?</button>
+        <div class="prompt-wrap">
+          <button class="prompt-btn" id="promptBtn" type="button" title="Build AI Prompt" aria-haspopup="dialog" aria-expanded="false">✨</button>
+          <div class="prompt-popover" id="promptPopover" role="dialog" aria-modal="false" aria-labelledby="promptTitle">
+            <div class="prompt-caret" aria-hidden="true"></div>
+            <h3 id="promptTitle" class="prompt-title">Build Quiz Prompt</h3>
+            <label class="block-label" for="promptTopic">Topic</label>
+            <input id="promptTopic" type="text" inputmode="text" placeholder="e.g., Solar System" />
+            <div class="field-row">
+              <label class="block-label" for="promptLength">Length</label>
+              <input id="promptLength" type="number" min="1" max="200" value="30" />
+            </div>
+            <div class="prompt-actions">
+              <button class="btn grey" id="cancelPromptBtn" type="button">Cancel</button>
+              <button class="btn blue" id="copyPromptBtn" type="button">Copy</button>
+            </div>
+          </div>
+        </div>
         <button class="settings-btn" id="settingsBtn" type="button" title="Settings">⚙</button>
       </div>
     </div>
@@ -52,20 +69,28 @@
     <div class="overlay" id="overlay"></div>
     <!-- Settings modal -->
     <div class="settings-modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-      <h2 id="settingsTitle">Settings</h2>
-      <div class="settings-item"><label><input type="checkbox" id="toggleTimer"> Enable timer</label></div>
-      <div class="settings-item">
-        <label><input type="checkbox" id="countdownMode"> Countdown mode</label><br/>
-        <label>Duration (mm:ss): <input type="text" id="countdownInput" value="10:00"></label>
+      <div class="modal-header">
+        <h2 id="settingsTitle">Settings</h2>
       </div>
-      <div class="settings-item">
-        <label for="themeSelect">Theme</label>
-        <select id="themeSelect">
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-        </select>
+      <div class="modal-content settings-content" role="document">
+        <div class="settings-group">
+          <h3 class="group-title">Timer</h3>
+          <label class="switch"><input type="checkbox" id="toggleTimer"><span>Enable timer</span></label>
+          <div class="field-row">
+            <label class="switch"><input type="checkbox" id="countdownMode"><span>Countdown mode</span></label>
+            <label class="inline-input">Duration (mm:ss): <input type="text" id="countdownInput" value="10:00"></label>
+          </div>
+        </div>
+        <div class="settings-group">
+          <h3 class="group-title">Appearance</h3>
+          <label for="themeSelect" class="block-label">Theme</label>
+          <select id="themeSelect">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </div>
       </div>
-      <div class="settings-actions"><button class="btn grey" id="closeSettings" type="button">Close</button></div>
+      <div class="modal-actions settings-actions"><button class="btn grey" id="closeSettings" type="button">Close</button></div>
     </div>
     <!-- FAQ modal -->
     <div class="faq-modal" id="faqModal" role="dialog" aria-modal="true" aria-labelledby="faqTitle">
@@ -74,14 +99,15 @@
         <h2>Getting Started</h2>
         <p>EZ Quiz Web is a simple offline quiz tool supporting multiple‑choice, true/false, yes/no, and matching questions. No sign‑up required!</p>
         <h2>How Do I Use AI to Create Questions?</h2>
-        <p>Use this prompt with your AI tool (e.g., ChatGPT):</p>
+        <p>Use the ✨ Prompt button in the header (or press Ctrl/Cmd+P) to build a topic‑aware prompt. Enter a Topic and a desired Length, then Copy and paste it into your AI tool (e.g., ChatGPT). Paste the generated questions back into the input area.</p>
+        <p>If you prefer manual copy, here’s the same format:</p>
         <pre><code>Hi AI friend, can you make me a quiz _ questions long with this format:
 MC|Which shape has three sides?|A) Triangle;B) Square|A
 MC|Which numbers are prime?|A) 2;B) 4;C) 5;D) 9|A,C
 TF|The Sun is a star.|T
 YN|Is 0 an even number?|Y
 MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1-A,2-B</code></pre>
-        <p>Replace “_” with the desired number (e.g., 5). Paste the generated questions into the input area.</p>
+        <p>Replace “_” with the desired number (e.g., 5) if you use the manual prompt.</p>
         <h2>What Question Types Are Supported?</h2>
         <ul>
           <li><strong>MC</strong>: Multiple‑choice (single or multi‑answer, e.g., A,C).</li>
@@ -97,6 +123,8 @@ MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1
         <p>Copy the textarea contents or save them to a <code>.txt</code> file; quizzes aren’t saved in‑app.</p>
         <h2>How Do I Start?</h2>
         <p>Enter questions and click “Start Quiz.” You can enable a timer or switch themes in Settings. Tip: press Enter to start and to advance; Backspace goes back.</p>
+        <h2>How Can I Support Development?</h2>
+        <p>Tap the floating ☕ button (bottom-right) or visit <a href="https://www.buymeacoffee.com/seanyates78" target="_blank" rel="noopener">buymeacoffee.com/seanyates78</a>. Thank you!</p>
       </div>
       <div class="faq-actions"><button class="btn grey" id="closeFaq" type="button">Close</button></div>
     </div>
@@ -104,8 +132,8 @@ MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1
     <div class="card" id="menu">
       <textarea id="quizInput" placeholder="(Optional) Paste questions here..."></textarea>
       <div class="diag-row">
+        <div class="tip">Tip: Click or tap ✨ to build a quiz prompt.</div>
         <div id="diag">Ready.</div>
-        <div class="tip">Tip: you can drag a .txt file onto the box.</div>
       </div>
       <div class="row">
         <button class="btn blue" id="loadBtn" type="button">Load .txt</button>
@@ -139,12 +167,27 @@ MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1
     </div>
     <!-- Results card -->
     <div class="card hidden" id="result"></div>
-  </main>
+</main>
+  <!-- Floating Support button (mobile) -->
+  <a class="support-fab" href="https://www.buymeacoffee.com/seanyates78" target="_blank" rel="noopener" aria-label="Support">☕</a>
+  <!-- Toast notification -->
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <footer class="app-footer">
     <span id="appVersion">EZ Quiz Web</span>
-    • <a href="https://github.com/seanyates76/Ez-Quiz-App" target="_blank" rel="noopener">GitHub</a>
+    • <a href="https://www.buymeacoffee.com/seanyates78" target="_blank" rel="noopener">Support</a>
   </footer>
   <!-- App logic -->
   <script src="app.js"></script>
+  <!-- Buy Me a Coffee widget (desktop); hidden via CSS on mobile/touch -->
+  <script
+    data-name="BMC-Widget"
+    data-id="seanyates78"
+    data-description="Support me on Buy Me a Coffee!"
+    data-message="Like EZ Quiz Web? Thanks for your support! ☕️"
+    data-color="#D8C3A5"
+    data-position="Right"
+    data-x_margin="18"
+    data-y_margin="18"
+    src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"></script>
 </body>
 </html>

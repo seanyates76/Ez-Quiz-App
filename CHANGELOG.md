@@ -1,6 +1,14 @@
 Changelog
 =========
 
+2025-08-29
+- ✨ Prompt builder popover with Topic/Length, copy‑to‑clipboard, toast, and Ctrl/Cmd+P shortcut.
+- Settings modal refined: sticky header/footer, grouped sections, better small‑screen scrolling.
+- Header buttons: higher contrast and feedback; added ✨ alongside ? and ⚙.
+- Buy Me a Coffee: floating widget (bottom‑right), warm beige color; Support link in footer.
+- CSP: allow BMC widget domains and inline styles required by the widget.
+- Settings icon button restyled to neutral grey for clarity.
+
 2025-08-28
 - New header wordmark; mobile header scales without overlap.
 - Light‑mode chip backdrop + stronger header separation.

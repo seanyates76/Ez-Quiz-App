@@ -31,31 +31,178 @@
   const faqBtn = $('faqBtn');
   const faqModal = $('faqModal');
   const closeFaq = $('closeFaq');
+  // Prompt popover elements
+  const promptBtn = $('promptBtn');
+  const promptPopover = $('promptPopover');
+  const promptTopic = $('promptTopic');
+  const promptLength = $('promptLength');
+  const copyPromptBtn = $('copyPromptBtn');
+  const cancelPromptBtn = $('cancelPromptBtn');
+  const toastEl = document.getElementById('toast');
 
   function show(el) {
     if (!el) return;
     const isModal = el.classList && (el.classList.contains('settings-modal') || el.classList.contains('faq-modal'));
     el.style.display = isModal ? 'flex' : 'block';
+    if (isModal) lockBodyScroll(true);
   }
   function hide(el) { if (el) el.style.display = 'none'; }
   function closeModal() {
     hide(settingsModal);
     hide(faqModal);
     hide(overlay);
+    lockBodyScroll(false);
   }
   settingsBtn.addEventListener('click', () => {
     show(settingsModal);
     show(overlay);
     hide(faqModal);
+    hidePrompt();
   });
   faqBtn.addEventListener('click', () => {
     show(faqModal);
     show(overlay);
     hide(settingsModal);
+    hidePrompt();
   });
   closeSettings.addEventListener('click', closeModal);
   closeFaq.addEventListener('click', closeModal);
   overlay.addEventListener('click', closeModal);
+
+  // Toast helper
+  function showToast(msg, opts) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    // Position near cursor if coordinates provided
+    if (opts && typeof opts.x === 'number' && typeof opts.y === 'number') {
+      const x = opts.x;
+      const y = opts.y;
+      toastEl.style.setProperty('--toast-x', x + 'px');
+      toastEl.style.setProperty('--toast-y', (y - 8) + 'px');
+      toastEl.classList.add('at-cursor');
+    } else {
+      toastEl.classList.remove('at-cursor');
+    }
+    toastEl.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toastEl.classList.remove('show'), 1600);
+  }
+
+  // Prompt popover logic
+  function openPrompt() {
+    if (!promptPopover) return;
+    promptPopover.classList.add('open');
+    promptBtn && promptBtn.setAttribute('aria-expanded', 'true');
+    // Focus topic
+    setTimeout(() => { if (promptTopic) promptTopic.focus(); }, 0);
+    lockBodyScroll(true);
+  }
+  function hidePrompt() {
+    if (!promptPopover) return;
+    promptPopover.classList.remove('open');
+    promptBtn && promptBtn.setAttribute('aria-expanded', 'false');
+    lockBodyScroll(false);
+  }
+  function togglePrompt() {
+    if (!promptPopover) return;
+    const isOpen = promptPopover.classList.contains('open');
+    if (isOpen) hidePrompt(); else openPrompt();
+  }
+  if (promptBtn) promptBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePrompt();
+  });
+  if (cancelPromptBtn) cancelPromptBtn.addEventListener('click', () => hidePrompt());
+  // Outside click closes
+  document.addEventListener('click', (e) => {
+    if (!promptPopover || !promptPopover.classList.contains('open')) return;
+    const t = e.target;
+    if (promptPopover.contains(t) || (promptBtn && promptBtn.contains(t))) return;
+    hidePrompt();
+  });
+  // Esc closes when popover is open
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && promptPopover && promptPopover.classList.contains('open')) {
+      e.stopPropagation();
+      hidePrompt();
+    }
+  }, true);
+  // Ctrl/Cmd+P opens popover (override print)
+  document.addEventListener('keydown', (e) => {
+    const p = (e.key === 'p' || e.key === 'P');
+    if (p && (e.ctrlKey || e.metaKey) && !isTypingContext()) {
+      e.preventDefault();
+      openPrompt();
+    }
+  });
+
+  // Clipboard helpers
+  async function copyToClipboard(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (_) { /* fall through */ }
+    // Fallback
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-1000px';
+      ta.style.top = '-1000px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function buildPrompt(topic, length) {
+    const n = Math.max(1, Math.min(200, Number(length) || 30));
+    const t = (topic || 'General Knowledge').trim();
+    return [
+      `You are QuizMaker. Create exactly ${n} quiz lines about ${t}.`,
+      '',
+      'Allowed line types (choose any mix):',
+      '',
+      'MC: MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A',
+      '',
+      'For multi-answer MC: separate letters with commas, no spaces (e.g., A,C).',
+      '',
+      'TF: TF|Statement.|T OR TF|Statement.|F',
+      '',
+      'YN: YN|Question?|Y OR YN|Question?|N',
+      '',
+      'MT: MT|Prompt.|1) L1;2) L2;3) L3|A) R1;B) R2;C) R3|1-A,2-B,3-C',
+      '',
+      'Hard constraints:',
+      '',
+      'Output only the quiz lines. No headings, numbering, quotes, explanations, or extra text.',
+      `Exactly ${n} non-blank lines. One question per line. No empty lines.`,
+      'ASCII characters only (no smart quotes). No trailing spaces.',
+      'Follow the exact separators: pipes |, semicolons ;, and commas , as shown.',
+      'MC has exactly A-D options; answer is letters only (e.g., A or A,C). TF uses T/F. YN uses Y/N.',
+      'MT includes at least 2 left items and 2 right items, with a correct mapping (e.g., 1-A,2-B,...).',
+      '',
+      'Begin output now (no extra text before or after the lines).'
+    ].join('\n');
+  }
+
+  if (copyPromptBtn) {
+    copyPromptBtn.addEventListener('click', async (e) => {
+      const topic = promptTopic ? promptTopic.value : '';
+      const length = promptLength ? promptLength.value : '30';
+      const text = buildPrompt(topic, length);
+      const ok = await copyToClipboard(text);
+      hidePrompt();
+      showToast(ok ? 'Prompt copied' : 'Copy failed', { x: e.clientX, y: e.clientY });
+    });
+  }
 
   // Utilities for keyboard navigation vs typing contexts
   function isTypingContext() {
@@ -163,6 +310,28 @@
       resumeTimer();
     }
   });
+
+  // Body scroll lock (ref-counted) to prevent background scroll on iOS
+  const body = document.body;
+  let lockCount = 0;
+  let scrollLockY = 0;
+  function lockBodyScroll(lock) {
+    if (lock) {
+      lockCount++;
+      if (lockCount > 1) return;
+      scrollLockY = window.scrollY || document.documentElement.scrollTop || 0;
+      body.style.top = `-${scrollLockY}px`;
+      body.classList.add('no-scroll');
+    } else {
+      if (lockCount === 0) return;
+      lockCount--;
+      if (lockCount === 0) {
+        body.classList.remove('no-scroll');
+        body.style.top = '';
+        window.scrollTo(0, scrollLockY);
+      }
+    }
+  }
 
   // Quiz DOM elements
   const quizInput = $('quizInput');
@@ -289,7 +458,8 @@
   document.addEventListener('keydown', (e) => {
     const modalOpen = (settingsModal && settingsModal.style.display === 'block') ||
       (faqModal && faqModal.style.display === 'block') ||
-      (overlay && overlay.style.display === 'block');
+      (overlay && overlay.style.display === 'block') ||
+      (promptPopover && promptPopover.classList && promptPopover.classList.contains('open'));
     if (modalOpen) return;
 
     const menuVisible = !menu.classList.contains('hidden');
@@ -926,6 +1096,8 @@
       }
     });
   });
+
+  // Buy Me a Coffee widget is included in index.html for reliability
 
   // Register service worker (moved out of inline script to tighten CSP)
   if ('serviceWorker' in navigator) {
