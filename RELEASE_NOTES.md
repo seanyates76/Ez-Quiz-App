@@ -66,3 +66,6 @@ PWA cache bump
 - Service worker cache version bumped to v48 to force fresh assets
 - Offline navigation fallback now resolves index.html relative to SW scope for robust subpath hosting
 
+Versioned assets
+- index.html now references `style.css?v=1.1.3` and `app.js?v=1.1.3` to bypass long-lived CDN/browser caches
+- SW fetch handler serves versioned .css/.js from cached base files when offline

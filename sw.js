@@ -48,22 +48,28 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request)
-          .then((response) => {
-            return response;
-          })
-          .catch(() => {
-            // When offline and navigation to non‑cached assets happens, fallback to index (respect scope)
-            if (event.request.mode === 'navigate') {
-              const indexUrl = new URL('index.html', self.registration.scope).toString();
-              return caches.match(indexUrl);
-            }
-          })
-      );
-    })
-  );
+  event.respondWith((async () => {
+    const req = event.request;
+    const url = new URL(req.url);
+    // Try match with queryless URL for versioned css/js requests
+    let alt;
+    if (url.search && (url.pathname.endsWith('.css') || url.pathname.endsWith('.js'))) {
+      const bareUrl = new URL(url.pathname, self.registration.scope).toString();
+      alt = await caches.match(bareUrl);
+    }
+    const cached = await caches.match(req);
+    if (cached) return cached;
+    if (alt) return alt;
+    try {
+      const resp = await fetch(req);
+      return resp;
+    } catch (e) {
+      if (req.mode === 'navigate') {
+        const indexUrl = new URL('index.html', self.registration.scope).toString();
+        const indexResp = await caches.match(indexUrl);
+        if (indexResp) return indexResp;
+      }
+      throw e;
+    }
+  })());
 });
