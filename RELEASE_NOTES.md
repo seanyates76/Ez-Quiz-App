@@ -45,4 +45,16 @@ Docs & security
 Notes
 - On mobile and tablets the widget is hidden in favor of a native FAB
 - If an ad blocker hides the widget on desktop, the Support FAB may appear as fallback
+EZ Quiz Web v1.1.1
+===================
+
+Release date: 2025-08-29
+
+Fixes & polish
+- Modals: stabilized visibility and CSS parsing so Settings/FAQ open reliably
+- FAQ: updated AI section to prioritize the ✨ Prompt Builder; manual prompt moved to an advanced section
+- Menu: textarea placeholder now reads “Paste text or load file here...”
+- Support FAB: removed transform on hover/active to prevent position jump on mobile; subtle brightness feedback only
+- Button colors: replaced color-mix fallbacks for broader browser support (grey ⚙, blue ?, purple ✨ retained)
+- Tip/Ready: compact, wrapped row under the textarea; button row spacing adjusted
 

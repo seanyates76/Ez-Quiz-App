@@ -322,11 +322,13 @@
       scrollLockY = window.scrollY || document.documentElement.scrollTop || 0;
       body.style.top = `-${scrollLockY}px`;
       body.classList.add('no-scroll');
+      body.classList.add('overlay-open');
     } else {
       if (lockCount === 0) return;
       lockCount--;
       if (lockCount === 0) {
         body.classList.remove('no-scroll');
+        body.classList.remove('overlay-open');
         body.style.top = '';
         window.scrollTo(0, scrollLockY);
       }

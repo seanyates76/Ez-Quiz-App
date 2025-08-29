@@ -18,7 +18,7 @@
   <!-- Theme color for mobile browsers -->
   <meta name="theme-color" content="#2c2c2c" />
   <title>EZ Quiz Web</title>
-  <meta name="app-version" content="v1.1.0" />
+  <meta name="app-version" content="v1.1.1" />
   <!-- Icons -->
   <link rel="icon" href="icons/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="icons/favicon-32.png" sizes="32x32">
@@ -99,15 +99,7 @@
         <h2>Getting Started</h2>
         <p>EZ Quiz Web is a simple offline quiz tool supporting multiple‑choice, true/false, yes/no, and matching questions. No sign‑up required!</p>
         <h2>How Do I Use AI to Create Questions?</h2>
-        <p>Use the ✨ Prompt button in the header (or press Ctrl/Cmd+P) to build a topic‑aware prompt. Enter a Topic and a desired Length, then Copy and paste it into your AI tool (e.g., ChatGPT). Paste the generated questions back into the input area.</p>
-        <p>If you prefer manual copy, here’s the same format:</p>
-        <pre><code>Hi AI friend, can you make me a quiz _ questions long with this format:
-MC|Which shape has three sides?|A) Triangle;B) Square|A
-MC|Which numbers are prime?|A) 2;B) 4;C) 5;D) 9|A,C
-TF|The Sun is a star.|T
-YN|Is 0 an even number?|Y
-MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1-A,2-B</code></pre>
-        <p>Replace “_” with the desired number (e.g., 5) if you use the manual prompt.</p>
+        <p>Use the ✨ Prompt button in the header (or press Ctrl/Cmd+P). Enter a Topic and a Length, click Copy, paste into your AI tool (e.g., ChatGPT), then paste the output back into the textbox.</p>
         <h2>What Question Types Are Supported?</h2>
         <ul>
           <li><strong>MC</strong>: Multiple‑choice (single or multi‑answer, e.g., A,C).</li>
@@ -123,6 +115,32 @@ MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1
         <p>Copy the textarea contents or save them to a <code>.txt</code> file; quizzes aren’t saved in‑app.</p>
         <h2>How Do I Start?</h2>
         <p>Enter questions and click “Start Quiz.” You can enable a timer or switch themes in Settings. Tip: press Enter to start and to advance; Backspace goes back.</p>
+        <h2>Manual Prompt (Advanced)</h2>
+        <p>Prefer a copy‑paste prompt? Use this template and replace {N} and {TOPIC}:</p>
+        <pre><code>You are QuizMaker. Create exactly {N} quiz lines about {TOPIC}.
+
+Allowed line types (choose any mix):
+
+MC: MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A
+
+For multi-answer MC: separate letters with commas, no spaces (e.g., A,C).
+
+TF: TF|Statement.|T OR TF|Statement.|F
+
+YN: YN|Question?|Y OR YN|Question?|N
+
+MT: MT|Prompt.|1) L1;2) L2;3) L3|A) R1;B) R2;C) R3|1-A,2-B,3-C
+
+Hard constraints:
+
+Output only the quiz lines. No headings, numbering, quotes, explanations, or extra text.
+Exactly {N} non-blank lines. One question per line. No empty lines.
+ASCII characters only (no smart quotes). No trailing spaces.
+Follow the exact separators: pipes |, semicolons ;, and commas , as shown.
+MC has exactly A-D options; answer is letters only (e.g., A or A,C). TF uses T/F. YN uses Y/N.
+MT includes at least 2 left items and 2 right items, with a correct mapping (e.g., 1-A,2-B,...).
+
+Begin output now (no extra text before or after the lines).</code></pre>
         <h2>How Can I Support Development?</h2>
         <p>Tap the floating ☕ button (bottom-right) or visit <a href="https://www.buymeacoffee.com/seanyates78" target="_blank" rel="noopener">buymeacoffee.com/seanyates78</a>. Thank you!</p>
       </div>
@@ -130,7 +148,7 @@ MT|Match the animal to its habitat.|1) Lion;2) Penguin|A) Jungle;B) Antarctica|1
     </div>
     <!-- Menu (upload/paste) card -->
     <div class="card" id="menu">
-      <textarea id="quizInput" placeholder="(Optional) Paste questions here..."></textarea>
+      <textarea id="quizInput" placeholder="Paste text or load file here..."></textarea>
       <div class="diag-row">
         <div class="tip">Tip: Click or tap ✨ to build a quiz prompt.</div>
         <div id="diag">Ready.</div>

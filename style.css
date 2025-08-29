@@ -426,8 +426,9 @@ a {
   box-shadow: 0 10px 24px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.04) inset;
   transition: transform .08s ease, filter .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease;
 }
-.support-fab:hover { transform: translateY(-1px); filter: brightness(1.05); }
-.support-fab:active { transform: translateY(0); filter: brightness(0.98); }
+.overlay-open .support-fab { pointer-events: none; opacity: .7; }
+.support-fab:hover { filter: brightness(1.05); }
+.support-fab:active { filter: brightness(0.98); }
 .support-fab:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--primary); }
 .prompt-btn:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 8px 18px rgba(0,0,0,.28); }
 .prompt-btn:active { transform: translateY(0); filter: brightness(0.98); }
@@ -513,13 +514,13 @@ a {
 .faq-btn {
   background: linear-gradient(180deg, #60a5fa, #2563eb);
   color: #ffffff;
-  border-color: color-mix(in oklab, #2563eb 55%, #000 45%);
+  border-color: #1e40af; /* solid fallback for broad support */
 }
 .settings-btn {
-  background: linear-gradient(180deg, color-mix(in oklab, var(--muted) 92%, #ffffff 8%), var(--muted));
+  background: linear-gradient(180deg, #a1aab4, #6b7280);
   color: #fff;
-  border-color: color-mix(in oklab, var(--muted) 50%, #000 50%);
-  padding-top: 1px; /* nudge gear glyph into optical center */
+  border-color: #565e6a;
+  padding-top: 1px; /* optical nudge */
 }
 .settings-btn:hover,
 .faq-btn:hover {
@@ -557,7 +558,6 @@ a {
   max-width: 80vw;
   height: auto;
   max-height: 90vh;
-  display: flex;
   flex-direction: column;
   overflow: hidden; /* single scrollbar lives in .settings-content */
   padding: 0; /* handled by header/content/actions */
@@ -616,7 +616,6 @@ a {
   max-width: 80vw;
   height: auto;
   max-height: 90vh;
-  display: flex; /* robust mobile scrolling */
   flex-direction: column; /* title | content | actions */
   overflow: hidden; /* single scrollbar lives in .faq-content */
 }
@@ -800,4 +799,11 @@ select {
 /* Hide BMC widget bubble on small screens and touch devices */
 @media (max-width: 720px), (pointer: coarse) {
   [id^="bmc-wbtn"], iframe[src*="buymeacoffee.com"] { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .settings-btn,
+  .faq-btn,
+  .prompt-btn,
+  .support-fab,
+  .prompt-popover { transition: none !important; transform: none !important; }
 }
