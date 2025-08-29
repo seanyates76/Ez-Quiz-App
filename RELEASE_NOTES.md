@@ -24,4 +24,25 @@ Getting started
 Known notes
 - Service worker updates require a hard refresh on first deploy (Shift+Reload)
 - If the header wordmark source is changed, use `icons/brand-title-source.png`
+EZ Quiz Web v1.1.0
+===================
+
+Release date: 2025-08-29
+
+Highlights
+- ✨ Prompt builder popover with Topic/Length, copy‑to‑clipboard, and Ctrl/Cmd+P shortcut
+- Cursor‑positioned toasts for instant feedback
+- Settings modal polish: sticky header/footer, grouped sections, small‑screen scrolling
+- Header buttons refreshed: grey ⚙, cosmic purple ✨, cooler blue ?
+- Support options: desktop Buy Me a Coffee widget; mobile/tablet floating ☕ FAB; footer Support link
+- Footer anchored to bottom across devices; safe‑area aware
+- Textarea made non‑resizable to protect layout
+
+Docs & security
+- README/FAQ updated for the new prompt builder and support info
+- CSP updated to allow BMC widget domains and inline styles required by the widget
+
+Notes
+- On mobile and tablets the widget is hidden in favor of a native FAB
+- If an ad blocker hides the widget on desktop, the Support FAB may appear as fallback
 
