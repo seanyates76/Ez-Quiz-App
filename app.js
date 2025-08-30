@@ -50,6 +50,15 @@
       lastFocusedEl = document.activeElement;
       lockBodyScroll(true);
       trapFocus(el);
+      // Ensure FAQ starts at top on every open
+      if (el.classList.contains('faq-modal')) {
+        const scroller = el.querySelector('.faq-content');
+        if (scroller) {
+          setTimeout(() => {
+            scroller.scrollTop = 0;
+          }, 0);
+        }
+      }
     }
   }
   function hide(el) { if (el) el.style.display = 'none'; }
@@ -603,10 +612,12 @@
           const answerStr = parts[3] || '';
           const options = splitEscaped(optionStr, ';');
           if (options.length < 2) throw new Error('MC needs at least 2 options');
+          if (options.some((o) => !o)) throw new Error('MC has an empty option');
           const answers = (answerStr || '').split(',').map((s) => s.trim().toUpperCase()).filter(Boolean);
           if (!answers.length) throw new Error('MC answer missing');
           const validLetters = options.map((_, i) => String.fromCharCode(65 + i));
-          const invalid = answers.find((a) => !validLetters.includes(a));
+          const seen = new Set();
+          const invalid = answers.find((a) => !validLetters.includes(a) || (seen.has(a) ? true : (seen.add(a), false)));
           if (invalid) throw new Error('Invalid answer letter: ' + invalid);
           const multi = answers.length > 1;
           out.push({ type: 'MC', question, options, answers, multi, raw });
@@ -629,11 +640,18 @@
           const rights = splitEscaped(parts[3] || '', ';');
           const pairs = splitEscaped(parts[4] || '', ',');
           if (lefts.length < 2 || rights.length < 2) throw new Error('MT needs at least 2 left and 2 right');
+          if (lefts.some((o) => !o) || rights.some((o) => !o)) throw new Error('MT has an empty option');
+          const leftKeys = new Set(lefts.map((l) => (l.split(')')[0] || '').trim()).filter(Boolean));
+          const rightKeys = new Set(rights.map((r) => (r.split(')')[0] || '').trim().toUpperCase()).filter(Boolean));
           const answerMap = {};
           pairs.forEach((pair) => {
             const [l, r] = pair.split('-').map((x) => (x || '').trim());
             if (!l || !r) throw new Error('MT mapping invalid: ' + pair);
-            answerMap[l] = r.toUpperCase();
+            const lk = (l.split(')')[0] || '').trim();
+            const rk = r.toUpperCase();
+            if (!leftKeys.has(lk)) throw new Error('MT mapping references unknown left: ' + l);
+            if (!rightKeys.has(rk)) throw new Error('MT mapping references unknown right: ' + r);
+            answerMap[lk] = rk;
           });
           out.push({ type: 'MT', question, lefts, rights, answerMap, raw });
         }
@@ -788,6 +806,11 @@
         leftDiv.textContent = leftItem;
         row.appendChild(leftDiv);
         const select = document.createElement('select');
+        // Placeholder blank option to require explicit choice
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = '\u2014 Select \u2014';
+        select.appendChild(placeholder);
         rightsRandom.forEach((opt) => {
           const option = document.createElement('option');
           const parts = opt.split(')');
@@ -805,7 +828,12 @@
         }
         select.addEventListener('change', () => {
           let mapping = userAnswers[currentIndex] || {};
-          mapping[leftKey] = select.value;
+          if (select.value) {
+            mapping[leftKey] = select.value;
+          } else {
+            // Remove mapping if placeholder selected
+            if (mapping && mapping.hasOwnProperty(leftKey)) delete mapping[leftKey];
+          }
           userAnswers[currentIndex] = mapping;
           saveSession('quiz');
         });
@@ -835,12 +863,16 @@
   function changeQuestion(delta) {
     if (delta === -1 && currentIndex === 0) return;
     if (delta === 1 && currentIndex >= questions.length - 1) return;
+    // Validate MT before moving forward
+    if (delta > 0 && !validateCurrentQuestion(true)) return;
     currentIndex += delta;
     showQuestion();
     saveSession('quiz');
   }
 
   function finishQuiz() {
+    // Validate current question (e.g., MT requires all selections) before finishing
+    if (!validateCurrentQuestion(true)) return;
     stopTimer();
     let correctCount = 0;
     const miss = [];
@@ -882,6 +914,21 @@
     lastSummary = { correctCount, miss };
     renderSummary();
     saveSession('result');
+  }
+
+  function validateCurrentQuestion(showMsg) {
+    const q = questions[currentIndex];
+    if (!q) return true;
+    if (q.type === 'MT') {
+      const ua = userAnswers[currentIndex];
+      const required = q.lefts.map((l) => l.split(')')[0].trim());
+      const missing = required.filter((k) => !ua || !ua[k]);
+      if (missing.length) {
+        if (showMsg) showToast('Please select an option for all rows');
+        return false;
+      }
+    }
+    return true;
   }
 
   function renderSummary() {
@@ -1232,12 +1279,12 @@
   // Buy Me a Coffee widget is included in index.html for reliability
 
   // Register service worker (moved out of inline script to tighten CSP)
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').catch(function (err) {
-        console.error('ServiceWorker registration failed:', err);
-      });
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+      console.warn('SW register failed:', err);
     });
+  } else {
+    console.info('SW skipped (insecure context or file://)');
   }
 
   // Soft refresh / site reset via title clicks
