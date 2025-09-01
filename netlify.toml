@@ -1,70 +1,8 @@
-# Netlify configuration for EZ Quiz Web
-
-## Security headers (global)
-[[headers]]
-for = "/*"
-  [headers.values]
-    # Allow Buy Me a Coffee widget (scripts + optional frames), and keep a tight policy otherwise
-    Content-Security-Policy = "default-src 'self'; worker-src 'self'; img-src 'self' data: https://cdn.buymeacoffee.com https://img.buymeacoffee.com; style-src 'self'; script-src 'self' https://cdnjs.buymeacoffee.com https://www.buymeacoffee.com https://buymeacoffee.com; connect-src 'self' https://www.buymeacoffee.com https://buymeacoffee.com; frame-src https://www.buymeacoffee.com https://buymeacoffee.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; upgrade-insecure-requests"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
-    X-Content-Type-Options = "nosniff"
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    Permissions-Policy = "accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), bluetooth=(), camera=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), usb=(), web-share=(), xr-spatial-tracking=()"
-    Cross-Origin-Resource-Policy = "same-origin"
-
-## Cache aggressively for static assets
-[[headers]]
-for = "/*.css"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "/*.js"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "/icons/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-## Ensure HTML is always validated fresh
-[[headers]]
-for = "/*.html"
-  [headers.values]
-    Cache-Control = "no-cache, must-revalidate"
-
-## Service worker should always be fetched fresh
-[[headers]]
-for = "/sw.js"
-  [headers.values]
-    Cache-Control = "no-store, must-revalidate"
-
-## Manifest should be validated frequently
-[[headers]]
-for = "/manifest.webmanifest"
-  [headers.values]
-    Cache-Control = "no-cache"
-
-## Redirect www to apex
-[[redirects]]
-  from = "/*"
-  to = "https://ez-quiz.app/:splat"
-  status = 301
-  force = true
-  conditions = {Host = ["www.ez-quiz.app"]}
-
-## Fallback: force HTTPS for apex (works before Force TLS is toggled)
-[[redirects]]
-  from = "http://ez-quiz.app/*"
-  to = "https://ez-quiz.app/:splat"
-  status = 301
-  force = true
+[functions]
+  node_bundler = "esbuild"
+  directory = "netlify/functions"
 
 [[redirects]]
-  from = "http://www.ez-quiz.app/*"
-  to = "https://ez-quiz.app/:splat"
-  status = 301
-  force = true
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
