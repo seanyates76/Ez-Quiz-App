@@ -37,6 +37,7 @@ function buildPrompt(topic, length) {
 }
 
 exports.handler = async (event) => {
+  console.log("process.env: ", process.env);
   const API_KEY = process.env.GEMINI_API_KEY;
   console.log("API_KEY: ", API_KEY);
   if (event.httpMethod !== 'POST') {
