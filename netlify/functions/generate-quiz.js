@@ -42,7 +42,7 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const apiKey = event.headers['x-api-key'] || process.env.GEMINI_API_KEY;
+  const apiKey = event.queryStringParameters.apiKey || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return { statusCode: 500, body: 'API key not configured.' };
   }
