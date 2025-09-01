@@ -37,6 +37,7 @@ function buildPrompt(topic, length) {
 }
 
 exports.handler = async (event) => {
+  console.log(event.headers);
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
