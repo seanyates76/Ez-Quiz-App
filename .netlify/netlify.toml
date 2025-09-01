@@ -1,0 +1,115 @@
+functionsDirectory = "/home/arch-bean/ez-quiz-app/netlify/functions"
+functionsDirectoryOrigin = "config"
+headersOrigin = "config"
+redirectsOrigin = "config"
+plugins = []
+
+[build]
+publish = "/home/arch-bean/ez-quiz-app"
+publishOrigin = "default"
+functions = "/home/arch-bean/ez-quiz-app/netlify/functions"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[functions]
+
+[functions."*"]
+node_bundler = "esbuild"
+
+[[headers]]
+for = "/*"
+
+[headers.values]
+Content-Security-Policy = "default-src 'self'; worker-src 'self'; img-src 'self' data: https://cdn.buymeacoffee.com https://img.buymeacoffee.com; style-src 'self'; script-src 'self' https://cdnjs.buymeacoffee.com https://www.buymeacoffee.com https://buymeacoffee.com; connect-src 'self' https://www.buymeacoffee.com https://buymeacoffee.com; frame-src https://www.buymeacoffee.com https://buymeacoffee.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; upgrade-insecure-requests"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+X-Content-Type-Options = "nosniff"
+X-Frame-Options = "DENY"
+X-XSS-Protection = "1; mode=block"
+Permissions-Policy = "accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), bluetooth=(), camera=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), usb=(), web-share=(), xr-spatial-tracking=()"
+Cross-Origin-Resource-Policy = "same-origin"
+
+[[headers]]
+for = "/*.css"
+
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/*.js"
+
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/icons/*"
+
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/*.html"
+
+[headers.values]
+Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+for = "/sw.js"
+
+[headers.values]
+Cache-Control = "no-store, must-revalidate"
+
+[[headers]]
+for = "/manifest.webmanifest"
+
+[headers.values]
+Cache-Control = "no-cache"
+
+[[redirects]]
+from = "/*"
+to = "https://ez-quiz.app/:splat"
+status = 301.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+Host = ["www.ez-quiz.app"]
+
+[redirects.headers]
+
+[[redirects]]
+from = "http://ez-quiz.app/*"
+to = "https://ez-quiz.app/:splat"
+status = 301.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/:splat"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]

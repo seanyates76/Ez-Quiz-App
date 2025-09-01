@@ -1,0 +1,24 @@
+{
+  "name": "ez-quiz-app",
+  "version": "1.0.0",
+  "description": "EZ Quiz Web",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seanyates76/Ez-Quiz-App.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/seanyates76/Ez-Quiz-App/issues"
+  },
+  "homepage": "https://github.com/seanyates76/Ez-Quiz-App#readme",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1"
+  }
+}
