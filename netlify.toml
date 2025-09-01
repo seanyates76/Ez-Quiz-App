@@ -63,10 +63,6 @@ for = "/manifest.webmanifest"
   status = 301
   force = true
 
-to = "https://ez-quiz.app/:splat"
-  status = 301
-  force = true
-
 [functions]
   node_bundler = "esbuild"
   directory = "netlify/functions"
