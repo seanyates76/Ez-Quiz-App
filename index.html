@@ -169,6 +169,32 @@ Begin output now (no extra text before or after the lines).</code></pre>
       
     </div>
     <!-- Quiz card -->
+    <div class="card">
+      <h2>Generate Quiz with AI</h2>
+      <div class="form-group">
+        <label for="aiTopic">Topic:</label>
+        <input type="text" id="aiTopic" placeholder="e.g., World History">
+      </div>
+      <div class="form-group">
+        <label for="aiCount">Number of Questions:</label>
+        <select id="aiCount">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="aiDifficulty">Difficulty:</label>
+        <select id="aiDifficulty">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+      <button class="btn blue" id="generateQuizBtn">Generate Quiz</button>
+      <button class="btn grey" id="copyGeneratedQuizBtn">Copy Generated Quiz</button>
+      <pre id="results"></pre>
+    </div>
     <div class="card hidden" id="quiz">
       <div class="quiz-header">
         <div class="left">

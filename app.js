@@ -1422,3 +1422,51 @@
   // Attempt session restore on load
   restoreSession();
 })();
+
+  // AI Quiz Generation Logic
+  const aiTopicInput = $('aiTopic');
+  const aiCountSelect = $('aiCount');
+  const aiDifficultySelect = $('aiDifficulty');
+  const generateQuizBtn = $('generateQuizBtn');
+  const copyGeneratedQuizBtn = $('copyGeneratedQuizBtn');
+  const resultsPre = $('results');
+
+  generateQuizBtn.addEventListener('click', async () => {
+    const topic = aiTopicInput.value;
+    const count = aiCountSelect.value;
+    const difficulty = aiDifficultySelect.value;
+
+    resultsPre.textContent = 'Generating quiz...';
+    copyGeneratedQuizBtn.disabled = true;
+
+    try {
+      const response = await fetch('/api/generate-quiz', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ topic, length: count, difficulty }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate quiz.');
+      }
+
+      const data = await response.json();
+      resultsPre.textContent = data.quiz;
+      copyGeneratedQuizBtn.disabled = false;
+    } catch (error) {
+      console.error('Error generating quiz:', error);
+      resultsPre.textContent = `Error: ${error.message}`;
+      copyGeneratedQuizBtn.disabled = true;
+    }
+  });
+
+  copyGeneratedQuizBtn.addEventListener('click', async () => {
+    const text = resultsPre.textContent;
+    if (text && text !== 'Generating quiz...' && !text.startsWith('Error:')) {
+      const ok = await copyToClipboard(text);
+      showToast(ok ? 'Quiz copied!' : 'Copy failed');
+    }
+  });
