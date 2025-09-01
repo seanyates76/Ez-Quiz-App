@@ -48,7 +48,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { topic, length } = JSON.parse(event.body);
+    const { topic, length, apiKey } = JSON.parse(event.body);
     const prompt = buildPrompt(topic, length);
 
     const genAI = new GoogleGenerativeAI(apiKey);
