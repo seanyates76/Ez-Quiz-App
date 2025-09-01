@@ -39,14 +39,11 @@ function buildPrompt(topic, length) {
 exports.handler = async (event) => {
   const API_KEY = process.env.GEMINI_API_KEY;
   console.log("API_KEY: ", API_KEY);
-  console.log("API_KEY: ", API_KEY);
-  console.log(event.headers);
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const API_KEY = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+  if (!API_KEY) {
     return { statusCode: 500, body: 'API key not configured.' };
   }
 
@@ -54,7 +51,7 @@ exports.handler = async (event) => {
     const { topic, length } = JSON.parse(event.body);
     const prompt = buildPrompt(topic, length);
 
-    const genAI = new GoogleGenerativeAI(apiKey);
+    const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
     const generationConfig = {
