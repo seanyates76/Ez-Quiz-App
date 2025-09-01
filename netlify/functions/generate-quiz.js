@@ -37,6 +37,10 @@ function buildPrompt(topic, length) {
 }
 
 exports.handler = async (event) => {
+  const API_KEY = process.env.GEMINI_API_KEY;
+  console.log("API_KEY: ", API_KEY);
+  const API_KEY = process.env.GEMINI_API_KEY;
+  console.log("API_KEY: ", API_KEY);
   console.log(event.headers);
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
