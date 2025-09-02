@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>EZ-Quiz</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <main class="wrap">
+    <h1>EZ-Quiz</h1>
+    <form id="quizForm" autocomplete="off">
+      <label>Topic <input name="topic" type="text" placeholder="e.g., World History" required></label>
+      <label>Number of Questions <input name="count" type="number" min="1" max="20" value="5" required></label>
+      <button type="submit" id="genBtn">Start Quiz</button>
+      <span id="status" aria-live="polite"></span>
+    </form>
+    <section id="quiz" hidden></section>
+  </main>
+  <script src="script.js" defer></script>
+</body>
+</html>

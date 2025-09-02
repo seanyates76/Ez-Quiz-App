@@ -1,0 +1,8 @@
+:root { font-family: system-ui, sans-serif; line-height:1.5; }
+.wrap { max-width: 720px; margin: 4rem auto; padding: 0 1rem; }
+label { display:block; margin:.5rem 0; }
+input { padding:.5rem; width:100%; }
+button { padding:.6rem 1rem; margin-top:.5rem; cursor:pointer; }
+#status { margin-left:.75rem; opacity:.75; }
+.opts { display:grid; gap:.5rem; margin-top:1rem; }
+.opt { text-align:left; }
