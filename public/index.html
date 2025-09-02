@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Description for search engines and social sharing -->
+  <meta name="description" content="EZ Quiz Web is a fast, local quiz app supporting multiple‑choice, true/false, yes/no and matching question types." />
+  <link rel="canonical" href="https://ez-quiz.app/" />
+  <meta property="og:title" content="EZ Quiz Web" />
+  <meta property="og:description" content="Create and take quizzes offline. MC / TF / YN / MT. Smart, Simple, Fast, EZ." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ez-quiz.app/" />
+  <meta property="og:image" content="https://ez-quiz.app/icons/icon-512.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="EZ Quiz Web" />
+  <meta name="twitter:description" content="Create and take quizzes offline. MC / TF / YN / MT." />
+  <meta name="twitter:image" content="https://ez-quiz.app/icons/icon-512.png" />
+  <!-- Theme color for mobile browsers -->
+  <meta name="theme-color" content="#2c2c2c" />
+  <title>EZ Quiz Web</title>
+  <meta name="app-version" content="v1.1.5" />
+  <!-- Icons -->
+  <link rel="icon" href="icons/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="icons/favicon-16.png" sizes="16x16">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <!-- External stylesheet -->
+  <link rel="preload" as="style" href="style.css?v=1.1.5">
+  <link rel="stylesheet" href="style.css?v=1.1.5">
+</head>
+<body>
+  <main>
+    <h1>EZ-Quiz: Generate Your Quiz</h1>
+    <form id="quizForm">
+      <label>
+        Quiz Topic:
+        <input type="text" name="topic" placeholder="e.g. World History" required>
+      </label>
+      <label>
+        Number of Questions:
+        <input type="number" name="count" value="5" min="1" max="20" required>
+      </label>
+      <button type="submit">Generate Quiz</button>
+    </form>
+    <div id="loadingMsg" style="display:none;">Generating quiz, please wait...</div>
+    <div id="errorMsg" style="display:none; color: red;"></div>
+    <div id="quizContainer" style="display:none;"></div>
+  </main>
+  <script src="script.js?v=1.1.5"></script>
+</body>
+</html>
