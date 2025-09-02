@@ -50,6 +50,9 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.url.includes('/.netlify/functions/')) {
+    return; // let network handle serverless calls uncached
+  }
   if (event.request.method !== 'GET') return;
   event.respondWith((async () => {
     const req = event.request;

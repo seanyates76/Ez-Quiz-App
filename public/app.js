@@ -8,6 +8,30 @@
  */
 
 (function () {
+  async function callAI(topic, questionCount){
+    const r = await fetch('/.netlify/functions/generate-quiz', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ topic, questionCount })
+    });
+    const data = await r.json().catch(()=>({ error:'Bad response' }));
+    if (!r.ok || data.error) throw new Error(data.error || `HTTP ${r.status}`);
+    return data.questions; // [{question, options[4], answerIndex}]
+  }
+
+  function toLegacyLines(questions){
+    const L = i => ['A','B','C','D'][i];
+    return questions.map(q=>{
+      const qtext = String(q.question||'').replace(/\?+$/,'') + '?';
+      const opts = q.options || [];
+      const A = String(opts[0]||'Option A'), B = String(opts[1]||'Option B'),
+            C = String(opts[2]||'Option C'), D = String(opts[3]||'Option D');
+      const ans = L(Math.max(0, Math.min(3, q.answerIndex|0)));
+      return `MC|${qtext}|A) ${A};B) ${B};C) ${C};D) ${D}|${ans}`;
+    }).join('\n');
+  }
+
+
   const APP_VERSION = document.querySelector('meta[name="app-version"]').getAttribute('content') || '';
   // Helper to get elements by ID
   const $ = (id) => document.getElementById(id);
@@ -241,12 +265,28 @@
 
   if (copyPromptBtn) {
     copyPromptBtn.addEventListener('click', async (e) => {
-      const topic = promptTopic ? promptTopic.value : '';
-      const length = promptLength ? promptLength.value : '30';
-      const text = buildPrompt(topic, length);
-      const ok = await copyToClipboard(text);
-      hidePrompt();
-      showToast(ok ? 'Prompt copied' : 'Copy failed', { x: e.clientX, y: e.clientY });
+      copyPromptBtn.disabled = true;
+      setDiag('Generating…', 'info');
+      try {
+        const topic = promptTopic.value.trim();
+        const count = Math.max(1, Math.min(20, parseInt(promptLength.value,10)||5));
+        if (!topic) throw new Error('Enter a topic');
+
+        const questions = await callAI(topic, count);
+        quizInput.value = toLegacyLines(questions);
+
+        hidePrompt();
+        const startQuizButton = document.getElementById('startBtn');
+        if(startQuizButton) {
+            startQuizButton.focus();
+        }
+
+      } catch (err) {
+        alert(err.message || 'Generation failed');
+      } finally {
+        copyPromptBtn.disabled = false;
+        setDiag('');
+      }
     });
   }
 
