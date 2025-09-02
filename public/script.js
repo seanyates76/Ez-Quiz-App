@@ -66,4 +66,12 @@ function setBusy(b, msg){
   statusEl.textContent = msg || "";
 }
 
-function escapeHTML(s){ return String(s).replace(/[&<"'']/g, m=>({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":
+function escapeHTML(s){
+  return String(s).replace(/[&<>'"`]/g, m => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;'
+  }[m]));
+}
