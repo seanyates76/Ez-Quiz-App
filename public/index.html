@@ -1,246 +1,67 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <!-- Description for search engines and social sharing -->
-  <meta name="description" content="EZ Quiz Web is a fast, local quiz app supporting multiple‑choice, true/false, yes/no and matching question types." />
-  <link rel="canonical" href="https://ez-quiz.app/" />
-  <meta property="og:title" content="EZ Quiz Web" />
-  <meta property="og:description" content="Create and take quizzes offline. MC / TF / YN / MT. Smart, Simple, Fast, EZ." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://ez-quiz.app/" />
-  <meta property="og:image" content="https://ez-quiz.app/icons/icon-512.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="EZ Quiz Web" />
-  <meta name="twitter:description" content="Create and take quizzes offline. MC / TF / YN / MT." />
-  <meta name="twitter:image" content="https://ez-quiz.app/icons/icon-512.png" />
-  <!-- Theme color for mobile browsers -->
-  <meta name="theme-color" content="#2c2c2c" />
-  <title>EZ Quiz Web</title>
-  <meta name="app-version" content="v1.1.5" />
-  <!-- Icons -->
-  <link rel="icon" href="icons/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" href="icons/favicon-32.png" sizes="32x32">
-  <link rel="icon" type="image/png" href="icons/favicon-16.png" sizes="16x16">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>EZ-Quiz</title>
+
+  <!-- Keep your existing asset paths; adjust if yours differ) -->
+  <link rel="icon" href="icons/favicon.ico">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <!-- PWA manifest -->
   <link rel="manifest" href="manifest.webmanifest">
-  <!-- External stylesheet -->
-  <link rel="preload" as="style" href="style.css?v=1.1.5">
-  <link rel="stylesheet" href="style.css?v=1.1.5">
+
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <!-- Header bar with brand and controls -->
-  <div class="header-strip">
+  <header class="topbar">
     <div class="brand">
-      <div class="brand-center">
-        <!-- App square icon removed to avoid double-branding -->
-        <div class="brand-title" aria-label="EZ Quiz Web">
-          <img class="brand-title-img" src="icons/brand-title-source.png" alt="EZ Quiz">
-          <h1 class="brand-title-text" hidden>EZ Quiz Web</h1>
-        </div>
-      </div>
-      <div class="brand-controls">
-        <!-- QUICK GENERATE (Primary path) -->
-        <form id="quickForm" class="quick-form" autocomplete="off">
-          <input id="quickTopic" name="topic" placeholder="Topic (e.g., World History)" required>
-          <input id="quickCount" name="count" type="number" min="1" max="20" value="5" required>
-          <select id="quickDifficulty" name="difficulty" aria-label="Difficulty">
-            <option value="easy">Easy</option>
-            <option value="medium" selected>Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-          <button id="quickBtn" type="submit" title="Generate and start quiz">Generate</button>
-          <span id="quickStatus" class="status" aria-live="polite"></span>
-        </form>
-
-        <!-- MANUAL OPTIONS (legacy tools live here) -->
-        <details class="menu" id="manualMenu">
-          <summary>Manual ▾</summary>
-          <div class="menu-sheet">
-            <button type="button" id="openEditor">Open Manual Editor</button>
-            <hr>
-            <button type="button" id="menuLoadTxt">Load .txt</button>
-            <button type="button" id="menuUseDemo">Use Demo Set</button>
-            <button type="button" id="menuClearTxt">Clear Editor</button>
-            <hr>
-            <button type="button" id="menuStartQuiz">Start Quiz (from editor)</button>
-            <button type="button" id="menuHelp">Help</button>
-          </div>
-        </details>
-        <button class="faq-btn" id="faqBtn" type="button" title="FAQ">?</button>
-        <div class="prompt-wrap">
-          <button class="prompt-btn" id="promptBtn" type="button" title="Build AI Prompt" aria-haspopup="dialog" aria-expanded="false">✨</button>
-          <div class="prompt-popover" id="promptPopover" role="dialog" aria-modal="false" aria-labelledby="promptTitle">
-            <div class="prompt-caret" aria-hidden="true"></div>
-            <h3 id="promptTitle" class="prompt-title">Build Quiz Prompt</h3>
-            <label class="block-label" for="promptTopic">Topic</label>
-            <input id="promptTopic" type="text" inputmode="text" placeholder="e.g., Solar System" />
-            <div class="field-row">
-              <label class="block-label" for="promptLength">Length</label>
-              <input id="promptLength" type="number" min="1" max="200" value="30" />
-            </div>
-            <div class="prompt-actions">
-              <button class="btn grey" id="cancelPromptBtn" type="button">Cancel</button>
-              <button class="btn blue" id="copyPromptBtn" type="button">Copy</button>
-            </div>
-          </div>
-        </div>
-        <button class="settings-btn" id="settingsBtn" type="button" title="Settings">⚙</button>
-      </div>
+      <img src="icons/brand-title-source.png" alt="EZ-Quiz" class="brand-img">
     </div>
-  </div>
-  <div class="brand-tagline">Smart, Simple, Fast, EZ.</div>
-  <main>
-    <!-- Overlay for modals -->
-    <div class="overlay" id="overlay"></div>
-    <!-- Settings modal -->
-    <div class="settings-modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-      <div class="modal-header">
-        <h2 id="settingsTitle">Settings</h2>
+
+    <!-- Manual-only dropdown -->
+    <details class="menu" id="manualMenu">
+      <summary>Manual ▾</summary>
+      <div class="menu-sheet">
+        <button type="button" id="openEditor">Open Manual Editor</button>
+        <hr>
+        <button type="button" id="menuLoadTxt">Load .txt</button>
+        <button type="button" id="menuUseDemo">Use Demo Set</button>
+        <button type="button" id="menuClearTxt">Clear Editor</button>
+        <hr>
+        <button type="button" id="menuStartQuiz">Start Quiz (from editor)</button>
+        <button type="button" id="menuHelp">Help</button>
       </div>
-      <div class="modal-content settings-content" role="document">
-        <div class="settings-group">
-          <h3 class="group-title">Timer</h3>
-          <label class="switch"><input type="checkbox" id="toggleTimer"><span>Enable timer</span></label>
-          <div class="field-row">
-            <label class="switch"><input type="checkbox" id="countdownMode"><span>Countdown mode</span></label>
-            <label class="inline-input">Duration (mm:ss): <input type="text" id="countdownInput" value="10:00"></label>
-          </div>
-        </div>
-        <div class="settings-group">
-          <h3 class="group-title">Appearance</h3>
-          <label for="themeSelect" class="block-label">Theme</label>
-          <select id="themeSelect">
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
-          </select>
-        </div>
-        <div class="settings-group">
-          <h3 class="group-title">Advanced</h3>
-          <p class="subtle">Reset clears saved data and reloads the app.</p>
-          <button class="btn orange" id="resetAppBtn" type="button">Reset App</button>
-        </div>
-      </div>
-      <div class="modal-actions settings-actions"><button class="btn grey" id="closeSettings" type="button">Close</button></div>
-    </div>
-    <!-- FAQ modal -->
-    <div class="faq-modal" id="faqModal" role="dialog" aria-modal="true" aria-labelledby="faqTitle">
-      <h2 id="faqTitle">Help &amp; FAQ</h2>
-      <div class="faq-content">
-        <h2>Getting Started</h2>
-        <p>EZ Quiz Web is a simple offline quiz tool supporting multiple‑choice, true/false, yes/no, and matching questions. No sign‑up required!</p>
-        <h2>How Do I Use AI to Create Questions?</h2>
-        <p>Use the ✨ Prompt button in the header (or press Ctrl/Cmd+P). Enter a Topic and a Length, click Copy, paste into your AI tool (e.g., ChatGPT), then paste the output back into the textbox.</p>
-        <h2>What Question Types Are Supported?</h2>
-        <ul>
-          <li><strong>MC</strong>: Multiple‑choice (single or multi‑answer, e.g., A,C).</li>
-          <li><strong>TF</strong>: True/False (T/F).</li>
-          <li><strong>YN</strong>: Yes/No (Y/N).</li>
-          <li><strong>MT</strong>: Matching (e.g., 1‑A).</li>
-        </ul>
-        <h2>How Do I Enter Questions?</h2>
-        <p>Use the format <code>TYPE|Question|Options|Answer</code> (e.g., <code>MC|What is 2+2?|A) 3;B) 4|A</code>). See the built‑in set for examples.</p>
-        <h2>What If a Question Is Skipped?</h2>
-        <p>Invalid lines are skipped. Check the diagnostic message under the input for hints.</p>
-        <h2>Can I Save My Quizzes?</h2>
-        <p>Copy the textarea contents or save them to a <code>.txt</code> file; quizzes aren’t saved in‑app.</p>
-        <h2>How Do I Start?</h2>
-        <p>Enter questions and click “Start Quiz.” You can enable a timer or switch themes in Settings. Tip: press Enter to start and to advance; Backspace goes back.</p>
-        <h2>Manual Prompt (Advanced)</h2>
-        <p>Prefer a copy‑paste prompt? Use this template and replace {N} and {TOPIC}:</p>
-        <pre><code>You are QuizMaker. Create exactly {N} quiz lines about {TOPIC}.
+    </details>
+  </header>
 
-Allowed line types (choose any mix):
+  <main class="wrap">
+    <!-- HERO: Primary generator (main use case) -->
+    <section class="card hero">
+      <h1>Generate a Quiz</h1>
+      <form id="quickForm" class="quick-form" autocomplete="off">
+        <input id="quickTopic" name="topic" placeholder="Topic (e.g., World History)" required>
+        <input id="quickCount" name="count" type="number" min="1" max="20" value="5" required>
+        <select id="quickDifficulty" name="difficulty" aria-label="Difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <button id="quickBtn" type="submit">Generate</button>
+        <span id="quickStatus" class="status" aria-live="polite"></span>
+      </form>
+    </section>
 
-MC: MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A
+    <!-- QUIZ: renders questions here -->
+    <section class="quiz" id="quizView" hidden></section>
 
-For multi-answer MC: separate letters with commas, no spaces (e.g., A,C).
+    <!-- EDITOR: hidden by default; opened from Manual ▾ -->
+    <section class="editor" id="editorPane" hidden>
+      <h2>Manual Editor</h2>
+      <textarea id="quizInput" placeholder="Paste MC|… lines, then Start from Manual ▾"></textarea>
+      <div class="hint">Supports MC / TF / YN lines. Use Manual ▾ to load .txt, use demo, clear, or start.</div>
+      <button id="startQuiz" type="button">Start Quiz from Editor</button>
+    </section>
+  </main>
 
-TF: TF|Statement.|T OR TF|Statement.|F
-
-YN: YN|Question?|Y OR YN|Question?|N
-
-MT: MT|Prompt.|1) L1;2) L2;3) L3|A) R1;B) R2;C) R3|1-A,2-B,3-C
-
-Hard constraints:
-
-Output only the quiz lines. No headings, numbering, quotes, explanations, or extra text.
-Exactly {N} non-blank lines. One question per line. No empty lines.
-ASCII characters only (no smart quotes). No trailing spaces.
-Follow the exact separators: pipes |, semicolons ;, and commas , as shown.
-MC has exactly A-D options; answer is letters only (e.g., A or A,C). TF uses T/F. YN uses Y/N.
-MT includes at least 2 left items and 2 right items, with a correct mapping (e.g., 1-A,2-B,...).
-
-Begin output now (no extra text before or after the lines).</code></pre>
-        <h2>How Can I Support Development?</h2>
-        <p>Tap the floating ☕ button (bottom-right) or visit <a href="https://www.buymeacoffee.com/seanyates78" target="_blank" rel="noopener">buymeacoffee.com/seanyates78</a>. Thank you!</p>
-      </div>
-      <div class="faq-actions"><button class="btn grey" id="closeFaq" type="button">Close</button></div>
-    </div>
-    <!-- Menu (upload/paste) card -->
-    <div class="card" id="menu">
-      <textarea id="quizInput" placeholder="Paste text or load file here..."></textarea>
-      <div class="diag-row">
-        <div class="tip">Tip: Click or tap ✨ to build a quiz prompt.</div>
-        <div id="diag">Ready.</div>
-      </div>
-      <div class="row">
-        <button class="btn blue" id="loadBtn" type="button">Load .txt</button>
-        <input type="file" id="fileInput" accept=".txt" class="hidden">
-        <button class="btn grey" id="builtInBtn" type="button">Use Demo Set</button>
-        <button class="btn grey" id="clearBtn" type="button">Clear</button>
-        <button class="btn green" id="startBtn" type="button">Start Quiz</button>
-      </div>
-      
-    </div>
-    <!-- Quiz card -->
-    <div class="card hidden" id="quiz">
-      <div class="quiz-header">
-        <div class="left">
-          <div class="chip" id="qCounter">0/0</div>
-          <div class="chip hidden" id="timer">00:00</div>
-          <div class="prog" id="progWrap" aria-hidden="true">
-            <div class="prog-bar" id="progBar" style="width:0%"></div>
-          </div>
-        </div>
-        <button class="btn grey" id="backDuringQuiz" type="button">Back to Menu</button>
-      </div>
-      <div id="qBody"></div>
-      <div class="nav-row">
-        <button class="btn grey" id="prevBtn" type="button">◀ Previous</button>
-        <div class="row ml-auto">
-          <button class="btn blue" id="nextBtn" type="button">Next ▶</button>
-          <button class="btn green hidden" id="finishBtn" type="button">Finish</button>
-        </div>
-      </div>
-    </div>
-    <!-- Results card -->
-    <div class="card hidden" id="result"></div>
-</main>
-  <!-- Floating Support button (mobile) -->
-  <a class="support-fab" href="https://www.buymeacoffee.com/seanyates78" target="_blank" rel="noopener" aria-label="Support">☕</a>
-  <!-- Toast notification -->
-  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-  <footer class="app-footer">
-    <span id="appVersion">EZ Quiz Web</span>
-    • <a href="https://www.buymeacoffee.com/seanyates78" target="_blank" rel="noopener">Support</a>
-    • <a href="privacy.html">Privacy</a>
-    • <a href="terms.html">Terms</a>
-  </footer>
-  <!-- App logic -->
-  <script src="app.js?v=1.1.5"></script>
-  <!-- Buy Me a Coffee widget (desktop); hidden via CSS on mobile/touch -->
-  <script
-    data-name="BMC-Widget"
-    data-id="seanyates78"
-    data-description="Support me on Buy Me a Coffee!"
-    data-message="Like EZ Quiz Web? Thanks for your support! ☕️"
-    data-color="#D8C3A5"
-    data-position="Right"
-    data-x_margin="18"
-    data-y_margin="18"
-    src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"></script>
+  <script src="app.js" defer></script>
 </body>
-</html>
