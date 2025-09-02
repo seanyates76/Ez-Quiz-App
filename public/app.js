@@ -8,11 +8,11 @@
  */
 
 (function () {
-  async function callAI(topic, questionCount){
+  async function callAI(topic, questionCount, difficulty){
     const r = await fetch('/.netlify/functions/generate-quiz', {
       method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ topic, questionCount })
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ topic, questionCount, difficulty })
     });
     const data = await r.json().catch(()=>({ error:'Bad response' }));
     if (!r.ok || data.error) throw new Error(data.error || `HTTP ${r.status}`);
@@ -1470,54 +1470,44 @@
   restoreSession();
 })();
 
-// Quick generate → auto start
-(() => {
+(function wireQuickForm(){
   const form  = document.getElementById('quickForm');
   const topic = document.getElementById('quickTopic');
   const count = document.getElementById('quickCount');
-  const diff  = document.getElementById('quickDifficulty'); // reserved for future prompt flavoring
+  const diff  = document.getElementById('quickDifficulty');
   const ta    = document.getElementById('quizInput');
   const start = document.getElementById('startQuiz');
-
-  if (!form || !topic || !count || !ta || !start) return; // graceful if IDs differ
+  const btn   = document.getElementById('quickBtn');
+  const st    = document.getElementById('quickStatus');
+  if (!form || !topic || !count || !diff || !ta || !start || !btn) return;
 
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
-    const t = String(topic.value||'').trim();
+    const t = topic.value.trim();
     const n = Math.max(1, Math.min(20, parseInt(count.value,10)||5));
-    if (!t){ alert('Enter a topic'); return; }
+    const d = diff.value || 'medium';
+    if (!t) return alert('Enter a topic');
 
-    setQuickBusy(true,'Generating…');
+    btn.disabled = true; st.textContent = 'Generating…';
     try{
-      const qs = await callAI(t, n);      // difficulty `diff.value` can be passed server-side later
-      ta.value = toLegacyLines(qs);       // mirror into editor for transparency
-      start.click();                      // auto start using your existing Start Quiz flow
-      document.getElementById('manualMenu')?.removeAttribute('open'); // close dropdown if open
+      const qs = await callAI(t, n, d);
+      ta.value = toLegacyLines(qs);     // mirror to editor for transparency
+      start.click();                    // auto-start with your existing Start Quiz flow
+      document.getElementById('manualMenu')?.removeAttribute('open');
     }catch(err){
       alert(err.message || 'Generation failed');
     }finally{
-      setQuickBusy(false,'');
+      btn.disabled = false; st.textContent = '';
     }
   });
-})();
+})();;
 
-// Hook the Manual menu to your existing buttons (no new logic)
 (() => {
   const byId = id => document.getElementById(id);
-  const click = (src, dst) => { const s=byId(src), d=byId(dst); if (s && d) s.onclick = () => d.click(); };
-
-  // Show the editor pane (if you hide it by default)
-  const editor = document.querySelector('.editor');
-  const openEditorBtn = byId('openEditor');
-  if (openEditorBtn && editor) openEditorBtn.onclick = () => {
-    editor.style.display = ''; // reveal
-    document.getElementById('manualMenu')?.removeAttribute('open');
-    byId('quizInput')?.focus();
-  };
-
-  click('menuLoadTxt',  'loadTxt');
-  click('menuUseDemo',  'useDemo');
-  click('menuClearTxt', 'clearTxt');
-  click('menuStartQuiz','startQuiz');
-  click('menuHelp',     'helpBtnOpen'); // change to your actual help button id
-})();
+  const proxy = (src, dst) => { const a=byId(src), b=byId(dst); if (a && b) a.onclick = () => b.click(); };
+  proxy('menuLoadTxt','loadTxt');
+  proxy('menuUseDemo','useDemo');
+  proxy('menuClearTxt','clearTxt');
+  proxy('menuStartQuiz','startQuiz');
+  proxy('menuHelp','faqBtn');
+})();;
