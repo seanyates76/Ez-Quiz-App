@@ -1,22 +1,55 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>EZ-Quiz</title>
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <main class="wrap">
-    <h1>EZ-Quiz</h1>
-    <form id="quizForm">
-      <label>Topic <input name="topic" required placeholder="e.g., World History"></label>
-      <label>Number of Questions <input name="count" type="number" min="1" max="20" value="5" required></label>
-      <button id="genBtn" type="submit">Start Quiz</button>
-      <span id="status" aria-live="polite"></span>
-    </form>
-    <section id="quiz" hidden></section>
+  <header class="topbar">
+    <div class="brand">EZ-Quiz</div>
+    <nav class="actions">
+      <button id="openPrompt" title="Build a quiz with AI">✨ Generate</button>
+      <button id="loadTxt">Load .txt</button>
+      <button id="useDemo">Use Demo Set</button>
+      <button id="clearTxt">Clear</button>
+      <button id="startQuiz" class="primary">Start Quiz</button>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <section class="editor">
+      <textarea id="quizInput" placeholder="Paste quiz text here…"></textarea>
+      <div class="hint">Tip: Use <b>✨ Generate</b> to build a quiz from a topic.</div>
+    </section>
+
+    <aside class="panel" id="promptPanel" hidden>
+      <h3>Build a Quiz</h3>
+      <form id="promptForm" autocomplete="off">
+        <label>Topic
+          <input name="topic" placeholder="e.g., World History" required/>
+        </label>
+        <div class="row2">
+          <label>Questions
+            <input name="count" type="number" min="1" max="20" value="5" required/>
+          </label>
+          <label>Difficulty
+            <select name="difficulty">
+              <option>easy</option><option>medium</option><option>hard</option>
+            </select>
+          </label>
+        </div>
+        <button id="genBtn" type="submit">Generate</button>
+        <div id="genStatus" class="status" aria-live="polite"></div>
+        <label class="autostart">
+          <input type="checkbox" id="autoStart" checked/> Start quiz after generation
+        </label>
+      </form>
+    </aside>
+
+    <section class="quiz" id="quizView" hidden></section>
   </main>
+
   <script src="script.js" defer></script>
 </body>
 </html>
