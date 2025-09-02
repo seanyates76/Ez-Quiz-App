@@ -42,6 +42,33 @@
         </div>
       </div>
       <div class="brand-controls">
+        <!-- QUICK GENERATE (Primary path) -->
+        <form id="quickForm" class="quick-form" autocomplete="off">
+          <input id="quickTopic" name="topic" placeholder="Topic (e.g., World History)" required>
+          <input id="quickCount" name="count" type="number" min="1" max="20" value="5" required>
+          <select id="quickDifficulty" name="difficulty" aria-label="Difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+          <button id="quickBtn" type="submit" title="Generate and start quiz">Generate</button>
+          <span id="quickStatus" class="status" aria-live="polite"></span>
+        </form>
+
+        <!-- MANUAL OPTIONS (legacy tools live here) -->
+        <details class="menu" id="manualMenu">
+          <summary>Manual ▾</summary>
+          <div class="menu-sheet">
+            <button type="button" id="openEditor">Open Manual Editor</button>
+            <hr>
+            <button type="button" id="menuLoadTxt">Load .txt</button>
+            <button type="button" id="menuUseDemo">Use Demo Set</button>
+            <button type="button" id="menuClearTxt">Clear Editor</button>
+            <hr>
+            <button type="button" id="menuStartQuiz">Start Quiz (from editor)</button>
+            <button type="button" id="menuHelp">Help</button>
+          </div>
+        </details>
         <button class="faq-btn" id="faqBtn" type="button" title="FAQ">?</button>
         <div class="prompt-wrap">
           <button class="prompt-btn" id="promptBtn" type="button" title="Build AI Prompt" aria-haspopup="dialog" aria-expanded="false">✨</button>

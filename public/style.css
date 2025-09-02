@@ -812,3 +812,34 @@ select {
   .support-fab,
   .prompt-popover { transition: none !important; transform: none !important; }
 }
+
+/* Quick form (header inline) */
+.quick-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.quick-form input,.quick-form select,.quick-form button{
+  height:36px;border-radius:10px;border:1px solid var(--line,#1f2937);
+  background:#0f172a;color:var(--ink,#e5e7eb);padding:0 10px
+}
+.quick-form input{min-width:220px}
+.quick-form select{min-width:110px}
+.quick-form button{background:linear-gradient(180deg,#2563eb,#1d4ed8);border-color:#1e3a8a;font-weight:600}
+.quick-form .status{min-width:80px;color:var(--muted,#94a3b8);font-size:12px}
+
+/* Manual dropdown (no extra JS needed) */
+.menu{position:relative}
+.menu > summary{list-style:none;cursor:pointer;background:#0f172a;border:1px solid var(--line,#1f2937);
+  border-radius:10px;padding:8px 12px;color:var(--ink,#e5e7eb)}
+.menu[open] > summary{outline:2px solid rgba(37,99,235,.35)}
+.menu .menu-sheet{
+  position:absolute;right:0;top:calc(100% + 6px);min-width:220px;z-index:50;
+  background:#0b1222;border:1px solid #25314a;border-radius:12px;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,.35)
+}
+.menu .menu-sheet button{display:block;width:100%;text-align:left;margin:4px 0;padding:8px 10px;border-radius:8px;border:1px solid #25314a;background:#0f172a;color:inherit}
+.menu .menu-sheet button:hover{border-color:#2f4aa3}
+.menu .menu-sheet hr{border:none;border-top:1px solid #1f2937;margin:6px 0}
+
+/* Mobile: stack quick form inputs nicely */
+ @media (max-width:900px){
+  .quick-form{width:100%}
+  .quick-form input{flex:1 1 100%}
+  .quick-form select{flex:1 1 120px}
+}

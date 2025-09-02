@@ -31,6 +31,13 @@
     }).join('\n');
   }
 
+  function setQuickBusy(b,msg){
+    const btn = document.getElementById('quickBtn');
+    const st  = document.getElementById('quickStatus');
+    if (btn) btn.disabled = !!b;
+    if (st)  st.textContent = msg || '';
+  }
+
 
   const APP_VERSION = document.querySelector('meta[name="app-version"]').getAttribute('content') || '';
   // Helper to get elements by ID
@@ -1461,4 +1468,56 @@
 
   // Attempt session restore on load
   restoreSession();
+})();
+
+// Quick generate → auto start
+(() => {
+  const form  = document.getElementById('quickForm');
+  const topic = document.getElementById('quickTopic');
+  const count = document.getElementById('quickCount');
+  const diff  = document.getElementById('quickDifficulty'); // reserved for future prompt flavoring
+  const ta    = document.getElementById('quizInput');
+  const start = document.getElementById('startQuiz');
+
+  if (!form || !topic || !count || !ta || !start) return; // graceful if IDs differ
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const t = String(topic.value||'').trim();
+    const n = Math.max(1, Math.min(20, parseInt(count.value,10)||5));
+    if (!t){ alert('Enter a topic'); return; }
+
+    setQuickBusy(true,'Generating…');
+    try{
+      const qs = await callAI(t, n);      // difficulty `diff.value` can be passed server-side later
+      ta.value = toLegacyLines(qs);       // mirror into editor for transparency
+      start.click();                      // auto start using your existing Start Quiz flow
+      document.getElementById('manualMenu')?.removeAttribute('open'); // close dropdown if open
+    }catch(err){
+      alert(err.message || 'Generation failed');
+    }finally{
+      setQuickBusy(false,'');
+    }
+  });
+})();
+
+// Hook the Manual menu to your existing buttons (no new logic)
+(() => {
+  const byId = id => document.getElementById(id);
+  const click = (src, dst) => { const s=byId(src), d=byId(dst); if (s && d) s.onclick = () => d.click(); };
+
+  // Show the editor pane (if you hide it by default)
+  const editor = document.querySelector('.editor');
+  const openEditorBtn = byId('openEditor');
+  if (openEditorBtn && editor) openEditorBtn.onclick = () => {
+    editor.style.display = ''; // reveal
+    document.getElementById('manualMenu')?.removeAttribute('open');
+    byId('quizInput')?.focus();
+  };
+
+  click('menuLoadTxt',  'loadTxt');
+  click('menuUseDemo',  'useDemo');
+  click('menuClearTxt', 'clearTxt');
+  click('menuStartQuiz','startQuiz');
+  click('menuHelp',     'helpBtnOpen'); // change to your actual help button id
 })();
