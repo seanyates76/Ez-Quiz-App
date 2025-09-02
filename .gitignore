@@ -1,16 +1,1 @@
-# General
-.DS_Store
-Thumbs.db
-*.log
-.env*
-.idea/
-.vscode/
-node_modules/
-dist/
-build/
-
-# Local tools and design sources
-tools/
-icons/source.png
-# Keep the runtime header source in repo
-!icons/brand-title-source.png
+.netlify/
