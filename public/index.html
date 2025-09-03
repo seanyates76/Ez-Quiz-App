@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>EZ-Quiz</title>
 
-  <!-- Keep your existing asset paths; adjust if yours differ) -->
+  <!-- Preserve common assets (adjust paths only if yours differ) -->
   <link rel="icon" href="icons/favicon.ico">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
@@ -35,12 +35,15 @@
   </header>
 
   <main class="wrap">
-    <!-- HERO: Primary generator (main use case) -->
+    <!-- Primary generator -->
     <section class="card hero">
       <h1>Generate a Quiz</h1>
       <form id="quickForm" class="quick-form" autocomplete="off">
+        <label for="quickTopic" class="sr">Topic</label>
         <input id="quickTopic" name="topic" placeholder="Topic (e.g., World History)" required>
+        <label for="quickCount" class="sr">Length</label>
         <input id="quickCount" name="count" type="number" min="1" max="20" value="5" required>
+        <label for="quickDifficulty" class="sr">Difficulty</label>
         <select id="quickDifficulty" name="difficulty" aria-label="Difficulty">
           <option value="easy">Easy</option>
           <option value="medium" selected>Medium</option>
@@ -49,12 +52,21 @@
         <button id="quickBtn" type="submit">Generate</button>
         <span id="quickStatus" class="status" aria-live="polite"></span>
       </form>
+
+      <!-- Ready panel (shown after generation). User must press Start. -->
+      <div id="readyPanel" class="ready" hidden>
+        <div class="ready-text">✅ Quiz generated. Review options or press Start to begin.</div>
+        <div class="ready-actions">
+          <button id="startNow" class="btn primary">Start</button>
+          <button id="openEditorFromReady" class="btn">Open in Editor</button>
+        </div>
+      </div>
     </section>
 
-    <!-- QUIZ: renders questions here -->
+    <!-- JSON quiz renders here -->
     <section class="quiz" id="quizView" hidden></section>
 
-    <!-- EDITOR: hidden by default; opened from Manual ▾ -->
+    <!-- Manual editor: hidden by default; opened via Manual ▾ -->
     <section class="editor" id="editorPane" hidden>
       <h2>Manual Editor</h2>
       <textarea id="quizInput" placeholder="Paste MC|… lines, then Start from Manual ▾"></textarea>
@@ -62,6 +74,14 @@
       <button id="startQuiz" type="button">Start Quiz from Editor</button>
     </section>
   </main>
+
+  <!-- Full-screen veil during generation -->
+  <div id="veil" hidden>
+    <div class="veil-box">
+      <div class="spinner"></div>
+      <div class="veil-msg" id="veilMsg">Summoning questions…</div>
+    </div>
+  </div>
 
   <script src="app.js" defer></script>
 </body>

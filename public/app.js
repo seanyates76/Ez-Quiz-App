@@ -1,8 +1,8 @@
-/* EZ-Quiz: generator-first app.js (compact build) */
+/* EZ-Quiz: generator-first app.js (delayed start) */
 (function () {
   // ---------- Utils ----------
   function escapeHTML(s){
-    return String(s).replace(/[&<>\"]/g, m => ({
+    return String(s).replace(/[&<>\""]/g, m => ({
       "&":"&amp;",
       "<":"&lt;",
       ">":"&gt;",
@@ -35,6 +35,17 @@
     renderQuestionJSON();
   }
 
+  function setProgress(idx, total){
+    const bar = document.getElementById('quizProgress');
+    if (!bar) return;
+    const pct = total ? Math.round((idx/total)*100) : 0;
+    bar.style.width = pct + '%';
+  }
+  function fadeSwap(el, html){
+    el.style.opacity = '0';
+    setTimeout(()=>{ el.innerHTML = html; el.style.opacity = '1'; }, 100);
+  }
+
   function renderQuestionJSON(){
     const quizEl = document.getElementById('quizView');
     const state = window.__quiz;
@@ -42,39 +53,83 @@
 
     const { questions, idx, score } = state;
     if (idx >= questions.length){
-      quizEl.innerHTML = `
+      fadeSwap(quizEl, '
+        <div class="progress"><span id="quizProgress" style="width:100%"></span></div>
         <h2>Quiz Complete</h2>
         <p>Score: ${score}/${questions.length}</p>
-        <button id="again">New Quiz</button>`;
-      const again = document.getElementById('again');
-      if (again) again.onclick = () => location.reload();
+        <div class="quiz-footer">
+          <button id="again" class="btn primary">New Quiz</button>
+        </div>
+      ');
+      setTimeout(()=>{ 
+        const a = document.getElementById('again');
+        if (a) a.onclick = () => location.href = location.pathname;
+      }, 0);
       return;
     }
+
     const q = questions[idx];
-    quizEl.innerHTML = `
+    const opts = Array.isArray(q.options) ? q.options.slice(0,4) : [];
+    while (opts.length < 4) opts.push(`Option ${opts.length+1}`);
+
+    const html = `
+      <div class="progress"><span id="quizProgress"></span></div>
       <h2>Question ${idx+1} of ${questions.length}</h2>
       <p class="q">${escapeHTML(q.question||'')}</p>
       <div class="opts">
-        ${Array.isArray(q.options) ? q.options.slice(0,4).map((o,i)=>`<button class="opt" data-i="${i}">${escapeHTML(o||'')}</button>`).join('') : ''}
-      </div>`;
-    const buttons = quizEl.querySelectorAll('.opt');
-    buttons.forEach(b => {
-      b.onclick = () => {
-        const pick = parseInt(b.dataset.i,10);
-        if (pick === (q.answerIndex|0)) state.score++;
-        state.idx++; renderQuestionJSON();
-      };
-    });
+        ${opts.map((o,i)=>`<button class="opt" data-i="${i}">${escapeHTML(o||'')}</button>`).join('')}
+      </div>
+    `;
+    fadeSwap(quizEl, html);
+    setTimeout(()=>{ 
+      setProgress(idx, questions.length);
+      const buttons = quizEl.querySelectorAll('.opt');
+      buttons.forEach(b => {
+        b.onclick = () => {
+          const pick = parseInt(b.dataset.i,10);
+          if (pick === (q.answerIndex|0)) state.score++;
+          state.idx++; renderQuestionJSON();
+        };
+      });
+    }, 0);
   }
 
-  // ---------- Quick form (primary path) ----------
+  // ---------- Veil loader with quirky messages ----------
+  const MESSAGES = [
+    'Sharpening pencils…',
+    'Arguing about the correct answer… politely.',
+    'Counting to four. Repeatedly.',
+    'Shuffling options without dropping any.',
+    'Checking for trick questions…',
+    'Teaching the quiz to behave.',
+    'Wrangling multiple choices…',
+  ];
+  let veilTimer = null;
+  function showVeil(startAt=0){
+    const veil = document.getElementById('veil');
+    const msg  = document.getElementById('veilMsg');
+    if (!veil || !msg) return;
+    let i = startAt % MESSAGES.length;
+    msg.textContent = MESSAGES[i++];
+    veil.hidden = false;
+    veilTimer = setInterval(()=>{ msg.textContent = MESSAGES[i++ % MESSAGES.length]; }, 900);
+  }
+  function hideVeil(doneText){
+    const veil = document.getElementById('veil');
+    const msg  = document.getElementById('veilMsg');
+    if (veilTimer) { clearInterval(veilTimer); veilTimer = null; }
+    if (msg) msg.textContent = doneText;
+    setTimeout(()=>{ if (veil) veil.hidden = true; }, 250);
+  }
+
+  // ---------- Quick form (Generate → ready panel, no auto-start) ----------
   (function wireQuickForm(){
-    const form  = document.getElementById('quickForm');
-    const topic = document.getElementById('quickTopic');
-    const count = document.getElementById('quickCount');
-    const diff  = document.getElementById('quickDifficulty');
-    const btn   = document.getElementById('quickBtn');
-    const st    = document.getElementById('quickStatus');
+    const form   = document.getElementById('quickForm');
+    const topic  = document.getElementById('quickTopic');
+    const count  = document.getElementById('quickCount');
+    const diff   = document.getElementById('quickDifficulty');
+    const btn    = document.getElementById('quickBtn');
+    const st     = document.getElementById('quickStatus');
     if (!form || !topic || !count || !diff || !btn || !st) return;
 
     form.addEventListener('submit', async (e)=>{
@@ -85,16 +140,46 @@
       if (!t){ alert('Enter a topic'); return; }
 
       btn.disabled = true; st.textContent = 'Generating…';
+      showVeil(Math.floor(Math.random()*MESSAGES.length));
       try{
         const qs = await callAI(t, n, d);
-        startQuizWithQuestions(qs);
-        const m = document.getElementById('manualMenu'); if (m) m.removeAttribute('open');
+        pending = qs;
+        hideVeil('Quiz ready!');
+        st.textContent = '';
+        ready.hidden = false;           // show “Quiz generated, press Start…”
       }catch(err){
+        hideVeil();
         alert(err && err.message || 'Generation failed');
         st.textContent = err && err.message || 'Generation failed';
       }finally{
         btn.disabled = false; if (st.textContent === 'Generating…') st.textContent = '';
       }
+    });
+
+    start.addEventListener('click', ()=>{
+      if (!pending || !Array.isArray(pending) || pending.length === 0){
+        alert('No quiz ready. Generate first.'); return;
+      }
+      ready.hidden = true;
+      startQuizWithQuestions(pending);
+      const m = document.getElementById('manualMenu'); if (m) m.removeAttribute('open');
+    });
+
+    openEd.addEventListener('click', ()=>{
+      // reveal editor and mirror pending quiz, don’t start
+      const editor = document.getElementById('editorPane');
+      if (editor) editor.hidden = false;
+      if (pending && Array.isArray(pending)) {
+        const ta = document.getElementById('quizInput');
+        if (ta) {
+          ta.value = pending.map(q=>{
+            const opt = i => String(q.options?.[i] ?? '').trim() || `Option ${i+1}`;
+            const ans = (q.answerIndex|0);
+            return `MC|${q.question}|A) ${opt(0)};B) ${opt(1)};C) ${opt(2)};D) ${opt(3)}|${'ABCD'[ans]||'A'}`;
+          }).join('\n');
+        }
+      }
+      const m = document.getElementById('manualMenu'); if (m) m.removeAttribute('open');
     });
   })();
 
@@ -115,7 +200,7 @@
     proxy('menuUseDemo','useDemo');
     proxy('menuClearTxt','clearTxt');
     proxy('menuStartQuiz','startQuiz');
-    proxy('menuHelp','faqBtn'); // change to your actual help button id if it differs
+    proxy('menuHelp','faqBtn'); // change if your Help button uses a different id
   })();
 
   // ---------- Prefill-only from URL (no auto-run) ----------
@@ -129,6 +214,15 @@
       if (n) { const el=document.getElementById('quickCount'); if (el) el.value=n; }
       if (d) { const el=document.getElementById('quickDifficulty'); if (el) el.value=d.toLowerCase(); }
     }catch{}
+  })();
+
+  // ---------- Brand click → back to clean start ----------
+  (function brandHome(){
+    const titleEl = document.querySelector('.brand-img');
+    if (!titleEl) return;
+    titleEl.style.cursor = 'pointer';
+    titleEl.title = 'Back to start';
+    titleEl.addEventListener('click', ()=> location.href = location.pathname);
   })();
 
 })();
