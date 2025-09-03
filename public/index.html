@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>EZ-Quiz</title>
 
-  <!-- Preserve common assets (adjust paths only if yours differ) -->
   <link rel="icon" href="icons/favicon.ico">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
@@ -17,27 +16,16 @@
     <div class="brand">
       <img src="icons/brand-title-source.png" alt="EZ-Quiz" class="brand-img">
     </div>
-
-    <!-- Manual-only dropdown -->
-    <details class="menu" id="manualMenu">
-      <summary>Manual ▾</summary>
-      <div class="menu-sheet">
-        <button type="button" id="openEditor">Open Manual Editor</button>
-        <hr>
-        <button type="button" id="menuLoadTxt">Load .txt</button>
-        <button type="button" id="menuUseDemo">Use Demo Set</button>
-        <button type="button" id="menuClearTxt">Clear Editor</button>
-        <hr>
-        <button type="button" id="menuStartQuiz">Start Quiz (from editor)</button>
-        <button type="button" id="menuHelp">Help</button>
-      </div>
-    </details>
+    <!-- Quiz title shows only during quiz -->
+    <div id="quizTitle" class="quiz-title" hidden></div>
   </header>
 
   <main class="wrap">
+    <!-- Big centered page title for generate screen -->
+    <h1 id="pageTitle" class="page-title">Generate a Quiz</h1>
+
     <!-- Primary generator -->
     <section class="card hero">
-      <h1>Generate a Quiz</h1>
       <form id="quickForm" class="quick-form" autocomplete="off">
         <label for="quickTopic" class="sr">Topic</label>
         <input id="quickTopic" name="topic" placeholder="Topic (e.g., World History)" required>
@@ -49,13 +37,30 @@
           <option value="medium" selected>Medium</option>
           <option value="hard">Hard</option>
         </select>
+
         <button id="quickBtn" type="submit">Generate</button>
+
+        <!-- Advanced inline dropdown, next to Generate -->
+        <details class="inline-advanced" id="advancedMenu">
+          <summary>Advanced ▾</summary>
+          <div class="menu-sheet">
+            <button type="button" id="openEditor">Open Manual Editor</button>
+            <hr>
+            <button type="button" id="menuLoadTxt">Load .txt</button>
+            <button type="button" id="menuUseDemo">Use Demo Set</button>
+            <button type="button" id="menuClearTxt">Clear Editor</button>
+            <hr>
+            <button type="button" id="menuStartQuiz">Start Quiz (from editor)</button>
+            <button type="button" id="menuHelp">Help</button>
+          </div>
+        </details>
+
         <span id="quickStatus" class="status" aria-live="polite"></span>
       </form>
 
       <!-- Ready panel (shown after generation). User must press Start. -->
       <div id="readyPanel" class="ready" hidden>
-        <div class="ready-text">✅ Quiz generated. Review options or press Start to begin.</div>
+        <div class="ready-text">✅ Quiz generated. Press <b>Start</b> when ready.</div>
         <div class="ready-actions">
           <button id="startNow" class="btn primary">Start</button>
           <button id="openEditorFromReady" class="btn">Open in Editor</button>
@@ -69,7 +74,7 @@
     <!-- Manual editor: hidden by default; opened via Manual ▾ -->
     <section class="editor" id="editorPane" hidden>
       <h2>Manual Editor</h2>
-      <textarea id="quizInput" placeholder="Paste MC|… lines, then Start from Manual ▾"></textarea>
+      <textarea id="quizInput" placeholder="Paste MC|… lines, then Start from Advanced ▾"></textarea>
       <div class="hint">Supports MC / TF / YN lines. Use Manual ▾ to load .txt, use demo, clear, or start.</div>
       <button id="startQuiz" type="button">Start Quiz from Editor</button>
     </section>

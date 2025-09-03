@@ -1,8 +1,8 @@
-/* EZ-Quiz: generator-first app.js (delayed start) */
+/* EZ-Quiz: generator-first app.js (delayed start, advanced inline) */
 (function () {
   // ---------- Utils ----------
   function escapeHTML(s){
-    return String(s).replace(/[&<>\""]/g, m => ({
+    return String(s).replace(/[&<>\"]/g, m => ({
       "&":"&amp;",
       "<":"&lt;",
       ">":"&gt;",
@@ -12,51 +12,62 @@
   }
   function clamp(n,a,b){ n = Number(n)||0; return Math.max(a, Math.min(b, n)); }
 
-  function ensureReadyPanel(){
-    let panel = document.getElementById('readyPanel');
-    if (panel) return panel;
-    const hero = document.querySelector('.hero');
-    if (!hero) return null;
-    const div = document.createElement('div');
-    div.id = 'readyPanel';
-    div.className = 'ready';
-    div.hidden = true;
-    div.innerHTML = `
-      <div class="ready-text">✅ Quiz generated. Review options or press Start to begin.</div>
-      <div class="ready-actions">
-        <button id="startNow" class="btn primary">Start</button>
-        <button id="openEditorFromReady" class="btn">Open in Editor</button>
-      </div>`;
-    hero.appendChild(div);
-    return div;
+  // Page title (big centered on generate screen)
+  function showGenerateTitle(show){
+    const t = document.getElementById('pageTitle');
+    if (t) t.hidden = !show;
+  }
+  // Header quiz title (during quiz)
+  function setHeaderQuizTitle(meta){
+    const el = document.getElementById('quizTitle');
+    if (!el) return;
+    if (meta){
+      el.textContent = `${meta.topic} • ${meta.count} • ${meta.difficulty}`;
+      el.hidden = false;
+    } else {
+      el.textContent = '';
+      el.hidden = true;
+    }
   }
 
   // ---------- Backend call ----------
   async function callAI(topic, questionCount, difficulty){
-  const r = await fetch('/.netlify/functions/generate-quiz',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ topic, questionCount, difficulty })
-  });
-  let payload = null;
-  try { payload = await r.clone().json(); } catch { /* fall through */ }
-  if (!r.ok){
-    let bodyText = '';
-    try { bodyText = await r.text(); } catch {}
-    const msg = (payload && payload.error) || bodyText || `HTTP ${r.status}`;
-    throw new Error(msg);
+    const r = await fetch('/.netlify/functions/generate-quiz',{ 
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ topic, questionCount, difficulty })
+    });
+    let payload = null;
+    try { payload = await r.clone().json(); } catch {} // .clone() to allow .text() later
+    if (!r.ok){
+      let bodyText = '';
+      try { bodyText = await r.text(); } catch {} // get raw text for debugging
+      const msg = (payload && payload.error) || bodyText || `HTTP ${r.status}`;
+      throw new Error(msg);
+    }
+    if (!payload || !Array.isArray(payload.questions)) throw new Error('Malformed response');
+    return payload.questions; // [{question, options[4], answerIndex}]
   }
-  if (!payload || !Array.isArray(payload.questions)) throw new Error('Malformed response');
-  return payload.questions;
-}
 
   // ---------- JSON quiz runner ----------
-  function startQuizWithQuestions(questions){
+  function startQuizWithQuestions(questions, meta){
+    // mirror to editor for power users
+    const ta = document.getElementById('quizInput');
+    if (ta && Array.isArray(questions)) {
+      ta.value = questions.map(q=>{
+        const opt = i => String(q.options?.[i] ?? '').trim() || `Option ${i+1}`;
+        const ans = (q.answerIndex|0);
+        return `MC|${q.question}|A) ${opt(0)};B) ${opt(1)};C) ${opt(2)};D) ${opt(3)}|${'ABCD'[ans]||'A'}`;
+      }).join('\n');
+    }
+
     const editor = document.getElementById('editorPane');
     if (editor) editor.hidden = true;
     const quizEl = document.getElementById('quizView');
     if (quizEl) quizEl.hidden = false;
-    window.__quiz = { questions, idx:0, score:0 };
+    window.__quiz = { questions, idx:0, score:0, meta };
+    setHeaderQuizTitle(meta);
+    showGenerateTitle(false);
     renderQuestionJSON();
   }
 
@@ -81,14 +92,14 @@
       fadeSwap(quizEl, [
         '<div class="progress"><span id="quizProgress" style="width:100%"></span></div>',
         '<h2>Quiz Complete</h2>',
-        `<p>Score: ${score}/${questions.length}</p>`,
+        `<p>Score: ${score}/${questions.length}</p>`, 
         '<div class="quiz-footer">',
         '<button id="again" class="btn primary">New Quiz</button>',
         '</div>'
       ].join(''));
       setTimeout(()=>{ 
         const a = document.getElementById('again');
-        if (a) a.onclick = () => location.href = location.pathname;
+        if (a) a.onclick = () => { setHeaderQuizTitle(null); location.href = location.pathname; };
       }, 0);
       return;
     }
@@ -100,7 +111,7 @@
     const html = [
       '<div class="progress"><span id="quizProgress"></span></div>',
       `<h2>Question ${idx+1} of ${questions.length}</h2>`,
-      `<p class="q">${escapeHTML(q.question||'')}</p>`,
+      `<p class="q">${escapeHTML(q.question||'')}</p>`, 
       '<div class="opts">',
       ...opts.map((o,i)=>`<button class="opt" data-i="${i}">${escapeHTML(o||'')}</button>`),
       '</div>'
@@ -119,7 +130,7 @@
     }, 0);
   }
 
-  // ---------- Veil loader with quirky messages ----------
+  // ---------- Veil loader (8× slower messages) ----------
   const MESSAGES = [
     'Sharpening pencils…',
     'Arguing about the correct answer… politely.',
@@ -137,7 +148,7 @@
     let i = startAt % MESSAGES.length;
     msg.textContent = MESSAGES[i++];
     veil.hidden = false;
-    veilTimer = setInterval(()=>{ msg.textContent = MESSAGES[i++ % MESSAGES.length]; }, 7200);
+    veilTimer = setInterval(()=>{ msg.textContent = MESSAGES[i++ % MESSAGES.length]; }, 7200); // 8x slower
   }
   function hideVeil(doneText){
     const veil = document.getElementById('veil');
@@ -145,6 +156,26 @@
     if (veilTimer) { clearInterval(veilTimer); veilTimer = null; }
     if (msg) msg.textContent = doneText;
     setTimeout(()=>{ if (veil) veil.hidden = true; }, 250);
+  }
+
+  // Ensure ready panel exists (for safety across previews)
+  function ensureReadyPanel(){
+    let panel = document.getElementById('readyPanel');
+    if (panel) return panel;
+    const hero = document.querySelector('.hero');
+    if (!hero) return null;
+    const div = document.createElement('div');
+    div.id = 'readyPanel';
+    div.className = 'ready';
+    div.hidden = true;
+    div.innerHTML = `
+      <div class="ready-text">✅ Quiz generated. Press <b>Start</b> when ready.</div>
+      <div class="ready-actions">
+        <button id="startNow" class="btn primary">Start</button>
+        <button id="openEditorFromReady" class="btn">Open in Editor</button>
+      </div>`;
+    hero.appendChild(div);
+    return div;
   }
 
   // ---------- Quick form (Generate → ready panel, no auto-start) ----------
@@ -156,15 +187,19 @@
     const btn    = document.getElementById('quickBtn');
     const st     = document.getElementById('quickStatus');
 
-    // Ensure the ready panel exists (creates it if missing)
-    const panel  = ensureReadyPanel();
+    // Advanced dropdown is inline next to Generate
+    const advanced = document.getElementById('advancedMenu');
+
+    // Ensure the ready panel exists
+    ensureReadyPanel();
     const ready  = document.getElementById('readyPanel');
     const start  = document.getElementById('startNow');
     const openEd = document.getElementById('openEditorFromReady');
 
     if (!form || !topic || !count || !diff || !btn || !st) return;
 
-    let pending = null; // holds generated questions until user presses Start
+    let pending = null;     // generated questions waiting for Start
+    let pendingMeta = null; // {topic,count,difficulty}
 
     form.addEventListener('submit', async (e)=>{
       e.preventDefault();
@@ -177,16 +212,16 @@
       showVeil(Math.floor(Math.random()*7));
       try{
         const qs = await callAI(t, n, d);
-        pending = qs;
+        pending = qs; pendingMeta = { topic:t, count:n, difficulty:d };
         hideVeil('Quiz ready!');
         st.textContent = '';
-        if (ready) ready.hidden = false;   // show “Quiz generated, press Start…”
+        if (ready) ready.hidden = false;
       }catch(err){
         hideVeil();
         alert(err && err.message || 'Generation failed');
         st.textContent = err && err.message || 'Generation failed';
       }finally{
-        btn.disabled = false; if (st.textContent === 'Generating…') st.textContent = '';
+        btn.disabled = false;
       }
     });
 
@@ -195,8 +230,8 @@
         alert('No quiz ready. Generate first.'); return;
       }
       if (ready) ready.hidden = true;
-      startQuizWithQuestions(pending);
-      const m = document.getElementById('manualMenu'); if (m) m.removeAttribute('open');
+      if (advanced) advanced.removeAttribute('open');
+      startQuizWithQuestions(pending, pendingMeta);
     });
 
     if (openEd) openEd.addEventListener('click', ()=>{
@@ -212,9 +247,9 @@
           }).join('\n');
         }
       }
-      const m = document.getElementById('manualMenu'); if (m) m.removeAttribute('open');
+      if (advanced) advanced.removeAttribute('open');
     });
-  })();;
+  })();
 
   // ---------- Manual ▾ proxies ----------
   (function wireManualMenu(){
@@ -224,7 +259,7 @@
     const editor = byId('editorPane');
     const openEditor = byId('openEditor');
     if (openEditor && editor) openEditor.onclick = () => {
-      editor.hidden = false; const m = byId('manualMenu'); if (m) m.removeAttribute('open');
+      editor.hidden = false; const m = byId('advancedMenu'); if (m) m.removeAttribute('open');
       const qa = byId('quizInput'); if (qa) qa.focus();
     };
 
@@ -255,7 +290,7 @@
     if (!titleEl) return;
     titleEl.style.cursor = 'pointer';
     titleEl.title = 'Back to start';
-    titleEl.addEventListener('click', ()=> location.href = location.pathname);
+    titleEl.addEventListener('click', ()=> { setHeaderQuizTitle(null); location.href = location.pathname; });
   })();
 
 })();
