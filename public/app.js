@@ -53,14 +53,14 @@
 
     const { questions, idx, score } = state;
     if (idx >= questions.length){
-      fadeSwap(quizEl, '
-        <div class="progress"><span id="quizProgress" style="width:100%"></span></div>
-        <h2>Quiz Complete</h2>
-        <p>Score: ${score}/${questions.length}</p>
-        <div class="quiz-footer">
-          <button id="again" class="btn primary">New Quiz</button>
-        </div>
-      ');
+      fadeSwap(quizEl, [
+        '<div class="progress"><span id="quizProgress" style="width:100%"></span></div>',
+        '<h2>Quiz Complete</h2>',
+        `<p>Score: ${score}/${questions.length}</p>`,
+        '<div class="quiz-footer">',
+        '<button id="again" class="btn primary">New Quiz</button>',
+        '</div>'
+      ].join(''));
       setTimeout(()=>{ 
         const a = document.getElementById('again');
         if (a) a.onclick = () => location.href = location.pathname;
@@ -72,14 +72,14 @@
     const opts = Array.isArray(q.options) ? q.options.slice(0,4) : [];
     while (opts.length < 4) opts.push(`Option ${opts.length+1}`);
 
-    const html = `
-      <div class="progress"><span id="quizProgress"></span></div>
-      <h2>Question ${idx+1} of ${questions.length}</h2>
-      <p class="q">${escapeHTML(q.question||'')}</p>
-      <div class="opts">
-        ${opts.map((o,i)=>`<button class="opt" data-i="${i}">${escapeHTML(o||'')}</button>`).join('')}
-      </div>
-    `;
+    const html = [
+      '<div class="progress"><span id="quizProgress"></span></div>',
+      `<h2>Question ${idx+1} of ${questions.length}</h2>`,
+      `<p class="q">${escapeHTML(q.question||'')}</p>`,
+      '<div class="opts">',
+      ...opts.map((o,i)=>`<button class="opt" data-i="${i}">${escapeHTML(o||'')}</button>`),
+      '</div>'
+    ].join('');
     fadeSwap(quizEl, html);
     setTimeout(()=>{ 
       setProgress(idx, questions.length);
