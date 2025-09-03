@@ -1,17 +1,24 @@
 /* EZ-Quiz: generator-first app.js (compact build) */
 (function () {
   // ---------- Utils ----------
-  function escapeHTML(s){ return String(s).replace(/[&<>\"]/g, m => ({ "&":"&amp;","<":"&lt;">":"&gt;","\"":"&quot;","'":"&#39;" }[m])); }
+  function escapeHTML(s){
+    return String(s).replace(/[&<>\"]/g, m => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      "\"":"&quot;",
+      "'":"&#39;"
+    }[m]));
+  }
   function clamp(n,a,b){ n = Number(n)||0; return Math.max(a, Math.min(b, n)); }
 
   // ---------- Backend call ----------
   async function callAI(topic, questionCount, difficulty){
-    const r = await fetch('/.netlify/functions/generate-quiz',
-      {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ topic, questionCount, difficulty })
-      });
+    const r = await fetch('/.netlify/functions/generate-quiz',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ topic, questionCount, difficulty })
+    });
     const data = await r.json().catch(()=>({error:'Bad response'}));
     if (!r.ok || data.error) throw new Error(data.error || `HTTP ${r.status}`);
     if (!Array.isArray(data.questions)) throw new Error('Malformed response');
