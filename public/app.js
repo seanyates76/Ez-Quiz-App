@@ -12,18 +12,43 @@
   }
   function clamp(n,a,b){ n = Number(n)||0; return Math.max(a, Math.min(b, n)); }
 
+  function ensureReadyPanel(){
+    let panel = document.getElementById('readyPanel');
+    if (panel) return panel;
+    const hero = document.querySelector('.hero');
+    if (!hero) return null;
+    const div = document.createElement('div');
+    div.id = 'readyPanel';
+    div.className = 'ready';
+    div.hidden = true;
+    div.innerHTML = `
+      <div class="ready-text">✅ Quiz generated. Review options or press Start to begin.</div>
+      <div class="ready-actions">
+        <button id="startNow" class="btn primary">Start</button>
+        <button id="openEditorFromReady" class="btn">Open in Editor</button>
+      </div>`;
+    hero.appendChild(div);
+    return div;
+  }
+
   // ---------- Backend call ----------
   async function callAI(topic, questionCount, difficulty){
-    const r = await fetch('/.netlify/functions/generate-quiz',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ topic, questionCount, difficulty })
-    });
-    const data = await r.json().catch(()=>({error:'Bad response'}));
-    if (!r.ok || data.error) throw new Error(data.error || `HTTP ${r.status}`);
-    if (!Array.isArray(data.questions)) throw new Error('Malformed response');
-    return data.questions; // [{question, options[4], answerIndex}]
+  const r = await fetch('/.netlify/functions/generate-quiz',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ topic, questionCount, difficulty })
+  });
+  let payload = null;
+  try { payload = await r.clone().json(); } catch { /* fall through */ }
+  if (!r.ok){
+    let bodyText = '';
+    try { bodyText = await r.text(); } catch {}
+    const msg = (payload && payload.error) || bodyText || `HTTP ${r.status}`;
+    throw new Error(msg);
   }
+  if (!payload || !Array.isArray(payload.questions)) throw new Error('Malformed response');
+  return payload.questions;
+}
 
   // ---------- JSON quiz runner ----------
   function startQuizWithQuestions(questions){
@@ -112,7 +137,7 @@
     let i = startAt % MESSAGES.length;
     msg.textContent = MESSAGES[i++];
     veil.hidden = false;
-    veilTimer = setInterval(()=>{ msg.textContent = MESSAGES[i++ % MESSAGES.length]; }, 900);
+    veilTimer = setInterval(()=>{ msg.textContent = MESSAGES[i++ % MESSAGES.length]; }, 7200);
   }
   function hideVeil(doneText){
     const veil = document.getElementById('veil');
@@ -130,7 +155,16 @@
     const diff   = document.getElementById('quickDifficulty');
     const btn    = document.getElementById('quickBtn');
     const st     = document.getElementById('quickStatus');
+
+    // Ensure the ready panel exists (creates it if missing)
+    const panel  = ensureReadyPanel();
+    const ready  = document.getElementById('readyPanel');
+    const start  = document.getElementById('startNow');
+    const openEd = document.getElementById('openEditorFromReady');
+
     if (!form || !topic || !count || !diff || !btn || !st) return;
+
+    let pending = null; // holds generated questions until user presses Start
 
     form.addEventListener('submit', async (e)=>{
       e.preventDefault();
@@ -140,13 +174,13 @@
       if (!t){ alert('Enter a topic'); return; }
 
       btn.disabled = true; st.textContent = 'Generating…';
-      showVeil(Math.floor(Math.random()*MESSAGES.length));
+      showVeil(Math.floor(Math.random()*7));
       try{
         const qs = await callAI(t, n, d);
         pending = qs;
         hideVeil('Quiz ready!');
         st.textContent = '';
-        ready.hidden = false;           // show “Quiz generated, press Start…”
+        if (ready) ready.hidden = false;   // show “Quiz generated, press Start…”
       }catch(err){
         hideVeil();
         alert(err && err.message || 'Generation failed');
@@ -156,17 +190,16 @@
       }
     });
 
-    start.addEventListener('click', ()=>{
+    if (start) start.addEventListener('click', ()=>{
       if (!pending || !Array.isArray(pending) || pending.length === 0){
         alert('No quiz ready. Generate first.'); return;
       }
-      ready.hidden = true;
+      if (ready) ready.hidden = true;
       startQuizWithQuestions(pending);
       const m = document.getElementById('manualMenu'); if (m) m.removeAttribute('open');
     });
 
-    openEd.addEventListener('click', ()=>{
-      // reveal editor and mirror pending quiz, don’t start
+    if (openEd) openEd.addEventListener('click', ()=>{
       const editor = document.getElementById('editorPane');
       if (editor) editor.hidden = false;
       if (pending && Array.isArray(pending)) {
@@ -181,7 +214,7 @@
       }
       const m = document.getElementById('manualMenu'); if (m) m.removeAttribute('open');
     });
-  })();
+  })();;
 
   // ---------- Manual ▾ proxies ----------
   (function wireManualMenu(){
