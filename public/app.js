@@ -264,10 +264,12 @@ const count = Math.max(1, parseInt((countInput?.value || pbCount?.value || '10')
 try{
 showStatus('Generating via AI…');
 generateBtn.disabled = true;
+showVeil(Math.floor(Math.random()*MESSAGES.length));
 const lines = await generateWithAI(topic, count);
 if(!lines){
 showStatus('AI did not return any lines. Try again or use the Prompt Builder.');
 generateBtn.disabled = false;
+hideVeil('Nothing yet…');
 return;
 }
 if(editor) editor.value = lines;
@@ -289,6 +291,7 @@ runParseFlow(lines);
   showStatus(`Generation failed: ${pretty}`);
 }finally{
 generateBtn.disabled = false;
+ hideVeil('Done');
 }
 });
 

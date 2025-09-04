@@ -244,6 +244,13 @@ details.advanced > summary{display:none}
 }
 #bmacBtn:focus-visible{outline:3px solid var(--ring); outline-offset:2px}
 
+/* Veil loader */
+.veil{position:fixed; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; z-index:100}
+.veil__panel{background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:16px 18px; display:flex; align-items:center; gap:12px; box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.veil__msg{font-weight:600}
+.spinner{width:22px; height:22px; border-radius:50%; border:3px solid rgba(255,255,255,.25); border-top-color:#fff; animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* Optional hero adjustments */
  @media (min-width:900px){
   /* uncomment to center hero at start
