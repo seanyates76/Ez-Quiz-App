@@ -1,0 +1,165 @@
+import { S } from './state.js';
+import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel } from './utils.js';
+
+// Elements helper
+const el = (id) => $(id);
+
+export function setMode(mode){
+  S.mode = mode;
+  const generatorCard = el('generatorCard');
+  const quizView = el('quizView');
+  const resultsView = el('resultsView');
+  if(mode==='quiz'){
+    generatorCard?.classList.add('is-hidden'); resultsView?.classList.add('is-hidden'); quizView?.classList.remove('is-hidden'); document.body.classList.add('is-quiz');
+  }else if(mode==='results'){
+    generatorCard?.classList.add('is-hidden'); quizView?.classList.add('is-hidden'); resultsView?.classList.remove('is-hidden'); document.body.classList.add('is-quiz');
+  }else{
+    generatorCard?.classList.remove('is-hidden'); quizView?.classList.add('is-hidden'); resultsView?.classList.add('is-hidden'); document.body.classList.remove('is-quiz');
+  }
+}
+
+let timerInterval=null, pausedAt=0, elapsedOffset=0, remainingOnPause=0;
+
+export function syncSettingsFromUI(){
+  const timerEnabledEl = el('timerEnabled');
+  const countdownModeEl = el('countdownMode');
+  const timerDurationEl = el('timerDuration');
+  S.settings.timerEnabled=!!(timerEnabledEl?.checked);
+  S.settings.countdown=!!(countdownModeEl?.checked);
+  S.settings.durationMs = (()=>{ const v=timerDurationEl?.value||''; const parts=v.split(':'); if(parts.length===2){ const mm=parseInt(parts[0],10)||0; const ss=parseInt(parts[1],10)||0; return (mm*60+ss)*1000;} const mm=parseInt(v,10)||0; return mm*60*1000; })();
+}
+
+export function beginQuiz(){
+  const timerEl = el('timer'); const quizTitleEl = el('quizTitle');
+  S.quiz.index = 0; S.quiz.score = 0; S.quiz.startedAt = Date.now(); S.quiz.finishedAt = 0;
+  clearInterval(timerInterval); timerInterval=null; pausedAt=0; elapsedOffset=0; remainingOnPause=0; if(timerEl) timerEl.textContent = '';
+  if(S.settings.timerEnabled){ if(S.settings.countdown && S.settings.durationMs>0){ S.quiz.endAt = Date.now() + S.settings.durationMs; timerInterval = setInterval(tickCountdown, 1000); if(timerEl) timerEl.textContent = formatDuration(S.quiz.endAt - Date.now()); } else { timerInterval = setInterval(tickStopwatch, 1000); if(timerEl) timerEl.textContent = '00:00'; } }
+  setMode('quiz');
+  if (quizTitleEl) {
+    let heading = (S.quiz.title || '').trim();
+    if (!heading) { const pretty = formatTopicLabel(S.quiz.topic||''); heading = pretty ? (/\bquiz$/i.test(pretty) ? pretty : `${pretty} Quiz`) : 'Quiz'; }
+    else { const m = heading.match(/\bquiz\b/i); if (!m) heading = `${heading} Quiz`; }
+    quizTitleEl.textContent = heading;
+  }
+  renderCurrentQuestion(); updateNavButtons(); updateProgress();
+}
+
+function tickStopwatch(){ const timerEl=el('timer'); const elapsed = Date.now() - S.quiz.startedAt - elapsedOffset; if(timerEl) timerEl.textContent = formatDuration(elapsed); }
+function tickCountdown(){ const timerEl=el('timer'); const remain=S.quiz.endAt - Date.now(); if(timerEl) timerEl.textContent = formatDuration(remain); if(remain<=0){ clearInterval(timerInterval); timerInterval=null; finishQuiz(true);} }
+
+export function updateNavButtons(){
+  const prevBtn=el('prevBtn'), nextBtn=el('nextBtn'), finishBtn=el('finishBtn'); const qChip=el('qChip');
+  const i=S.quiz.index, total=S.quiz.questions.length;
+  if(qChip){ qChip.textContent = total? `${i+1}/${total}` : '0/0'; }
+  if(prevBtn) prevBtn.disabled = i<=0;
+  if(nextBtn){ nextBtn.disabled = i>=total-1; if(i>=total-1){ nextBtn.classList.add('is-hidden'); } else { nextBtn.classList.remove('is-hidden'); } }
+  if(finishBtn){ if(i>=total-1){ finishBtn.classList.remove('is-hidden'); } else { finishBtn.classList.add('is-hidden'); } }
+  updateProgress();
+}
+
+export function updateProgress(){ const total=S.quiz.questions.length; const elBar = document.getElementById('progBar'); if(!elBar || !total){ if(elBar) elBar.style.width='0%'; return; } const pct = Math.max(0, Math.min(100, Math.round(((S.quiz.index+1)/total)*100))); elBar.style.width = pct + '%'; const wrap=document.getElementById('progWrap'); if(wrap){ wrap.setAttribute('aria-valuemin','0'); wrap.setAttribute('aria-valuemax','100'); wrap.setAttribute('aria-valuenow', String(pct)); } }
+
+export function renderCurrentQuestion(){
+  const questionHost=el('questionHost'); const q = S.quiz.questions[S.quiz.index]; if(!q){ questionHost.innerHTML = '<p>Missing question.</p>'; return; }
+  const n=S.quiz.index+1, total=S.quiz.questions.length;
+  let html = `<div class="qwrap">       <div class="qhdr"><strong>Question ${n}/${total}</strong></div>       <div class="qtext" style="margin:8px 0 12px">${escapeHTML(q.text)}</div>`;
+  if(q.type==='MC'){
+    const user = Array.isArray(S.quiz.answers[S.quiz.index]) ? S.quiz.answers[S.quiz.index] : [];
+    const multiple = Array.isArray(q.correct) && q.correct.length>1;
+    if(multiple){ html += `<div class="options">` + q.options.map((opt,i)=> { const checked = user.includes(i) ? 'checked' : ''; return `<label class="opt"><input type="checkbox" data-idx="${i}" ${checked}/> <span>${escapeHTML(opt)}</span></label>`; }).join('') + `</div>`; }
+    else { html += `<div class="options">` + q.options.map((opt,i)=> { const checked = user.includes(i) ? 'checked' : ''; return `<label class="opt"><input type="radio" name="mc" data-idx="${i}" ${checked}/> <span>${escapeHTML(opt)}</span></label>`; }).join('') + `</div>`; }
+  } else if(q.type==='TF'){
+    const user=S.quiz.answers[S.quiz.index]; const tChecked=user===true?'checked':'', fChecked=user===false?'checked':'';
+    html += `<div class="options"><label class="opt"><input type="radio" name="tf" data-bool="true" ${tChecked}/> True</label><label class="opt"><input type="radio" name="tf" data-bool="false" ${fChecked}/> False</label></div>`;
+  } else if(q.type==='YN'){
+    const user=S.quiz.answers[S.quiz.index]; const yChecked=user===true?'checked':'', nChecked=user===false?'checked':'';
+    html += `<div class="options"><label class="opt"><input type="radio" name="yn" data-bool="true" ${yChecked}/> Yes</label><label class="opt"><input type="radio" name="yn" data-bool="false" ${nChecked}/> No</label></div>`;
+  } else if(q.type==='MT'){
+    const user=Array.isArray(S.quiz.answers[S.quiz.index])?S.quiz.answers[S.quiz.index]:new Array(q.left.length).fill(-1);
+    html += `<div class="mtwrap">` + q.left.map((L,li)=>{ return `<div class="mtrow"><div class="mtleft">${escapeHTML(L)}</div><div class="mtright"><select data-li="${li}"><option value="">— choose —</option>${q.right.map((R,ri)=> `<option value="${ri}" ${user[li]===ri?'selected':''}>${String.fromCharCode(65+ri)}) ${escapeHTML(R)}</option>`).join('')}</select></div></div>`; }).join('') + `</div>`;
+  }
+  html += `</div>`; questionHost.innerHTML = html;
+  // Progressbar in the body
+  const qwrapProg = document.createElement('div'); qwrapProg.className='prog'; qwrapProg.id='progWrap'; qwrapProg.innerHTML='<div class="prog-bar" id="progBar" style="width:0%"></div>'; qwrapProg.setAttribute('role','progressbar'); qwrapProg.setAttribute('aria-label','Question progress');
+  const hdrEl = questionHost.querySelector('.qhdr'); const qtextEl = questionHost.querySelector('.qtext'); if(hdrEl && qtextEl){ hdrEl.after(qwrapProg); }
+  updateProgress();
+
+  // Wire inputs
+  if(q.type==='MC'){
+    const multiple = q.correct.length>1;
+    if(multiple){ byQSA('input[type="checkbox"]', questionHost).forEach(cb=>{ cb.addEventListener('change', ()=>{ const i=parseInt(cb.getAttribute('data-idx'),10); const cur=Array.isArray(S.quiz.answers[S.quiz.index])?[...S.quiz.answers[S.quiz.index]]:[]; if(cb.checked){ if(!cur.includes(i)) cur.push(i); } else { const at=cur.indexOf(i); if(at>=0) cur.splice(at,1); } S.quiz.answers[S.quiz.index] = cur.sort((a,b)=>a-b); try{ cb.blur(); }catch{} }); }); }
+    else { byQSA('input[type="radio"][name="mc"]', questionHost).forEach(rb=>{ rb.addEventListener('change', ()=>{ const i=parseInt(rb.getAttribute('data-idx'),10); S.quiz.answers[S.quiz.index] = [i]; try{ rb.blur(); }catch{} }); }); }
+  } else if(q.type==='TF'){
+    byQSA('input[type="radio"][name="tf"]', questionHost).forEach(rb=>{ rb.addEventListener('change', ()=>{ const v=rb.getAttribute('data-bool')==='true'; S.quiz.answers[S.quiz.index] = v; try{ rb.blur(); }catch{} }); });
+  } else if(q.type==='YN'){
+    byQSA('input[type="radio"][name="yn"]', questionHost).forEach(rb=>{ rb.addEventListener('change', ()=>{ const v=rb.getAttribute('data-bool')==='true'; S.quiz.answers[S.quiz.index] = v; try{ rb.blur(); }catch{} }); });
+  } else if(q.type==='MT'){
+    byQSA('select[data-li]', questionHost).forEach(sel=>{ sel.addEventListener('change', ()=>{ const li=parseInt(sel.getAttribute('data-li'),10); const ri= sel.value===''? -1 : parseInt(sel.value,10); const cur=Array.isArray(S.quiz.answers[S.quiz.index])?[...S.quiz.answers[S.quiz.index]]:new Array(q.left.length).fill(-1); cur[li]=ri; S.quiz.answers[S.quiz.index]=cur; try{ sel.blur(); }catch{} }); });
+  }
+}
+
+export function wireQuizControls(){
+  const prevBtn=el('prevBtn'), nextBtn=el('nextBtn'), finishBtn=el('finishBtn'), backDuringQuiz=el('backDuringQuiz');
+  prevBtn?.addEventListener('click', (e)=>{ S.quiz.index=clamp(S.quiz.index-1,0,S.quiz.questions.length-1); renderCurrentQuestion(); updateNavButtons(); try{e.currentTarget.blur();}catch{} });
+  nextBtn?.addEventListener('click', (e)=>{ if(S.settings.requireAnswer && !isCurrentAnswered()) return; S.quiz.index=clamp(S.quiz.index+1,0,S.quiz.questions.length-1); renderCurrentQuestion(); updateNavButtons(); try{e.currentTarget.blur();}catch{} });
+  finishBtn?.addEventListener('click', (e)=>{ if(S.settings.requireAnswer && !isCurrentAnswered()) return; finishQuiz(false); try{e.currentTarget.blur();}catch{} });
+  backDuringQuiz?.addEventListener('click', (e)=>{ if(S.mode==='quiz'){ const confirmLeave = confirm('Leave quiz and return to menu? Your progress will be lost.'); if(!confirmLeave) return; } if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } setMode('idle'); try{e.currentTarget.blur();}catch{} });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e)=>{
+    if(S.mode!=='quiz') return; const a=document.activeElement; const tag=a?.tagName?.toLowerCase(); if(tag==='input'||tag==='textarea'||a?.isContentEditable||tag==='select') return;
+    if(e.key === 'Enter' || e.key === 'ArrowRight'){
+      e.preventDefault(); if(S.settings.requireAnswer && !isCurrentAnswered()) return;
+      if(S.quiz.index < S.quiz.questions.length-1){ S.quiz.index++; renderCurrentQuestion(); updateNavButtons(); } else { if(!S.settings.requireAnswer || isCurrentAnswered()) finishQuiz(false); }
+    }else if(e.key === 'Backspace' || e.key === 'ArrowLeft'){
+      e.preventDefault(); if(S.quiz.index>0){ S.quiz.index--; renderCurrentQuestion(); updateNavButtons(); }
+    } else {
+      // answer hotkeys
+      const q = S.quiz.questions[S.quiz.index]; if(!q) return; const k = e.key.toLowerCase();
+      if(q.type==='MC'){
+        let idx=-1; if(k>='a'&&k<='z') idx=k.charCodeAt(0)-97; else if(k>='1'&&k<='9') idx=parseInt(k,10)-1;
+        if(idx>=0 && idx<q.options.length){ const multiple = q.correct && q.correct.length>1; if(multiple){ const inputs=byQSA('input[type="checkbox"]', el('questionHost')); const target=inputs[idx]; if(!target) return; target.checked=!target.checked; target.dispatchEvent(new Event('change',{bubbles:true})); } else { const inputs=byQSA('input[type="radio"][name="mc"]', el('questionHost')); const target=inputs[idx]; if(!target) return; target.checked=true; target.dispatchEvent(new Event('change',{bubbles:true})); } updateNavButtons(); }
+      } else if(q.type==='TF'){
+        if(k==='t'||k==='f'){ const val=(k==='t'); const inputs=byQSA('input[type="radio"][name="tf"]', el('questionHost')); const target=inputs.find(n=> (n.getAttribute('data-bool')==='true')===val); if(target){ target.checked=true; target.dispatchEvent(new Event('change',{bubbles:true})); updateNavButtons(); } }
+      } else if(q.type==='YN'){
+        if(k==='y'||k==='n'){ const val=(k==='y'); const inputs=byQSA('input[type="radio"][name="yn"]', el('questionHost')); const target=inputs.find(n=> (n.getAttribute('data-bool')==='true')===val); if(target){ target.checked=true; target.dispatchEvent(new Event('change',{bubbles:true})); updateNavButtons(); } }
+      }
+    }
+  });
+}
+
+function compareQA(q, a){ if(q.type==='MC'){ const user=Array.isArray(a)?a.slice().sort((x,y)=>x-y):[]; const correct=(q.correct||[]).slice().sort((x,y)=>x-y); return user.length && arraysEqual(user, correct); } if(q.type==='TF' || q.type==='YN'){ return typeof a==='boolean' && a===q.correct; } if(q.type==='MT'){ const user=Array.isArray(a)?a:[]; const target=new Array(q.left.length).fill(-1); q.pairs.forEach(([li,ri])=>{ target[li]=ri; }); return user.length===target.length && arraysEqual(user, target); } return false; }
+function viewCorrect(q){ if(q.type==='MC'){ return indexesToLetters(q.correct).join(','); } if(q.type==='TF'){ return q.correct ? 'T' : 'F'; } if(q.type==='YN'){ return q.correct ? 'Y' : 'N'; } if(q.type==='MT'){ return q.pairs.map(([li,ri]) => `${li+1}-${String.fromCharCode(65+ri)}`).join(','); } return ''; }
+function viewUser(q,a){ if(q.type==='MC'){ const arr=Array.isArray(a)?a:[]; return indexesToLetters(arr).join(','); } if(q.type==='TF'){ if(typeof a!=='boolean') return ''; return a?'T':'F'; } if(q.type==='YN'){ if(typeof a!=='boolean') return ''; return a?'Y':'N'; } if(q.type==='MT'){ const arr=Array.isArray(a)?a:[]; return arr.map((ri,li)=> (ri<0?`${li+1}-?`:`${li+1}-${String.fromCharCode(65+ri)}`)).join(','); } return ''; }
+
+export function finishQuiz(auto=false){ if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } S.quiz.finishedAt = Date.now(); let score=0; const qs=S.quiz.questions, ans=S.quiz.answers; for(let i=0;i<qs.length;i++){ const q=qs[i], a=ans[i]; if(q.type==='MC'){ const user=Array.isArray(a)?a.slice().sort((x,y)=>x-y):[]; const correct=(q.correct||[]).slice().sort((x,y)=>x-y); if(user.length && arraysEqual(user, correct)) score++; } else if(q.type==='TF' || q.type==='YN'){ if(typeof a==='boolean' && a===q.correct) score++; } else if(q.type==='MT'){ const user=Array.isArray(a)?a:[]; const target=new Array(q.left.length).fill(-1); q.pairs.forEach(([li,ri])=>{ target[li]=ri; }); if(user.length===target.length && arraysEqual(user, target)) score++; } } S.quiz.score=score; renderResults(); setMode('results'); }
+
+export function renderResults(){
+  const resultsSummary=el('resultsSummary'); const missedList=el('missedList'); const showAllChk=el('showAllChk');
+  const total=S.quiz.questions.length; const duration = S.quiz.finishedAt && S.quiz.startedAt ? (S.quiz.finishedAt - S.quiz.startedAt - 0) : 0;
+  resultsSummary.innerHTML = `<p><strong>Score:</strong> ${S.quiz.score}/${total}</p><p><strong>Time:</strong> ${formatDuration(Math.max(0,duration))}</p>`;
+  const items=[]; for(let i=0;i<total;i++){ const q=S.quiz.questions[i], a=S.quiz.answers[i]; const correctView=viewCorrect(q), userView=viewUser(q,a); const isCorrect=compareQA(q,a); items.push({ idx:i+1, text:q.text, userView, correctView, isCorrect }); }
+  if(showAllChk && showAllChk.dataset.init!=="1"){ showAllChk.checked=false; showAllChk.dataset.init="1"; }
+  const showMissedOnly = !(showAllChk && showAllChk.checked);
+  let view = showMissedOnly ? items.filter(it=>!it.isCorrect) : items.slice();
+  if(!showMissedOnly){ view.sort((a,b)=> Number(a.isCorrect) - Number(b.isCorrect)); }
+  if(!view.length){ missedList.innerHTML = `<div class="missed-item"><em>${showMissedOnly ? 'No missed questions 🎉' : 'No questions'}</em></div>`; return; }
+  missedList.innerHTML = view.map(item => `<div class="missed-item"><div><strong>Q${item.idx}.</strong> ${escapeHTML(item.text)}</div><div class="user-ans ${item.isCorrect ? 'ans-correct' : 'ans-wrong'}"><strong>Your answer:</strong> ${escapeHTML(item.userView || '—')}</div><div><strong>Correct:</strong> ${escapeHTML(item.correctView)}</div></div>`).join('');
+}
+
+export function wireResultsControls(){
+  const retakeBtn=el('retakeBtn'); const retakeMissedBtn=el('retakeMissedBtn'); const retakeMenuBtn=el('retakeMenuBtn'); const retakeMenu=el('retakeMenu'); const backToMenuBtn=el('backToMenuBtn'); const showAllChk=el('showAllChk');
+  function getMissedIndexes(){ const idxs=[]; const qs=S.quiz.questions, ans=S.quiz.answers; for(let i=0;i<qs.length;i++){ if(!compareQA(qs[i], ans[i])) idxs.push(i); } return idxs; }
+  function retake(missedOnly){ if (!Array.isArray(S.quiz?.questions) || S.quiz.questions.length === 0) { setMode('idle'); return; } if(missedOnly){ const idxs=getMissedIndexes(); if(!idxs.length){ return; } S.quiz.questions = idxs.map(i => S.quiz.questions[i]); } S.quiz.answers = new Array(S.quiz.questions.length).fill(null); beginQuiz(); }
+  retakeBtn?.addEventListener('click', ()=>{ retake(!(showAllChk && showAllChk.checked)); });
+  retakeMissedBtn?.addEventListener('click', ()=> retake(true));
+  retakeMenuBtn?.addEventListener('click', ()=>{ if(!retakeMenu) return; const hidden = retakeMenu.hasAttribute('hidden'); if(hidden){ retakeMenu.removeAttribute('hidden'); retakeMenuBtn?.setAttribute('aria-expanded','true'); } else { retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false'); } });
+  document.addEventListener('click', (e)=>{ if(!retakeMenu || retakeMenu.hasAttribute('hidden')) return; const t=e.target; if(t===retakeMenuBtn || retakeMenu.contains(t)) return; retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false'); });
+  backToMenuBtn?.addEventListener('click', ()=> setMode('idle'));
+  showAllChk?.addEventListener('change', ()=> renderResults());
+}
+
+export function pauseTimerIfQuiz(){ if(S.mode!=='quiz') return; if(!timerInterval) return; pausedAt = Date.now(); if(S.settings.timerEnabled){ if(S.settings.countdown && S.quiz.endAt){ remainingOnPause = Math.max(0, S.quiz.endAt - Date.now()); } } clearInterval(timerInterval); timerInterval=null; }
+export function resumeTimerIfQuiz(){ if(S.mode!=='quiz') return; if(timerInterval) return; if(!S.settings.timerEnabled) return; const timerEl=el('timer'); if(S.settings.countdown && S.settings.durationMs>0){ if(remainingOnPause>0){ S.quiz.endAt = Date.now() + remainingOnPause; remainingOnPause = 0; } timerInterval = setInterval(tickCountdown, 1000); if(timerEl) timerEl.textContent = formatDuration(S.quiz.endAt - Date.now()); } else { if(pausedAt){ elapsedOffset += (Date.now() - pausedAt); pausedAt = 0; } timerInterval = setInterval(tickStopwatch, 1000); }
+}
+
