@@ -35,6 +35,7 @@ const startBtn = $('startBtn');
 const quizView = $('quizView');
 const questionHost = $('questionHost');
 const timerEl = $('timer');
+const quizTitleEl = $('quizTitle');
 const prevBtn = $('prevBtn');
 const nextBtn = $('nextBtn');
 const finishBtn = $('finishBtn');
@@ -299,7 +300,7 @@ fileInput?.addEventListener('change', ()=>{
     const text = String(reader.result || '');
     if(editor) editor.value = text;
     if(mirror) mirror.value = text;
-    runParseFlow(text);
+    runParseFlow(text, f.name || 'Imported');
     showStatus(`Loaded ${f.name} (${text.length} chars)`);
   };
   reader.onerror = () => { showStatus('Failed to read file'); };
@@ -318,7 +319,7 @@ demoBtn?.addEventListener('click', ()=>{
   ].join('\n');
   if(editor) editor.value = demo;
   if(mirror) mirror.value = demo;
-  runParseFlow(demo);
+  runParseFlow(demo, 'Demo');
 });
 
 // Clear
@@ -332,7 +333,7 @@ generateBtn?.addEventListener('click', async ()=>{
 // If there is editor content, use manual flow
 const editorText = (editor?.value || '').trim();
 if(editorText.length){
-runParseFlow(editorText);
+runParseFlow(editorText, topicInput?.value || 'Custom');
 return;
 }
 // Otherwise attempt AI generation using toolbar or Prompt Builder fields
@@ -351,7 +352,7 @@ return;
 }
 if(editor) editor.value = lines;
 if(mirror) mirror.value = lines;
-runParseFlow(lines);
+runParseFlow(lines, topic);
 }catch(err){
   const msg = String(err && err.message || err || 'Error');
   let pretty = msg;
@@ -379,11 +380,12 @@ startBtn?.addEventListener('click', ()=>{
 });
 }
 
-function runParseFlow(sourceText){
+function runParseFlow(sourceText, topicLabel){
 const {questions, errors} = parseEditorInput(sourceText);
 S.quiz.questions = questions;
 S.quiz.index = 0;
 S.quiz.answers = new Array(questions.length).fill(null);
+ if (topicLabel) { S.quiz.topic = String(topicLabel).trim(); }
 S.mode = 'generated';
 if(mirror) mirror.value = sourceText;
 
@@ -413,8 +415,10 @@ if(S.settings.timerEnabled){
 }
 
 setMode('quiz');
+ if (quizTitleEl) { const t=S.quiz.topic?`(${S.quiz.topic}) `:''; quizTitleEl.textContent = `${t}Quiz`; }
 renderCurrentQuestion();
 updateNavButtons();
+ updateProgress();
 }
 function tickStopwatch(){ const elapsed = Date.now() - S.quiz.startedAt - elapsedOffset; if(timerEl) timerEl.textContent = formatDuration(elapsed); }
 function tickCountdown(){
@@ -491,6 +495,7 @@ if(q.type==='MC'){
 
 html += `</div>`;
 questionHost.innerHTML = html;
+updateProgress();
 
 if(q.type==='MC'){
   const multiple = q.correct.length>1;
