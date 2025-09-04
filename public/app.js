@@ -697,7 +697,7 @@ function renderResults(){
   missedList.innerHTML = view.map(item => `
     <div class="missed-item">
       <div><strong>Q${item.idx}.</strong> ${escapeHTML(item.text)}</div>
-      <div><strong>Your answer:</strong> ${escapeHTML(item.userView || '—')}</div>
+      <div class="user-ans ${item.isCorrect ? 'ans-correct' : 'ans-wrong'}"><strong>Your answer:</strong> ${escapeHTML(item.userView || '—')}</div>
       <div><strong>Correct:</strong> ${escapeHTML(item.correctView)}</div>
     </div>
   `).join('');

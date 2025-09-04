@@ -249,10 +249,15 @@ details.advanced > summary{display:none}
 }
 .results-actions{margin-top:14px}
 
+/* Color coding for user's answers */
+.user-ans.ans-correct{ color: var(--success); font-weight:600 }
+.user-ans.ans-wrong{ color: var(--danger); font-weight:600 }
+
 /* Split button + menu */
-.split{position:relative; display:inline-flex; align-items:stretch}
-.split > .btn:first-child{border-top-right-radius:8px; border-bottom-right-radius:8px}
-.split > .split-caret{width:38px; padding:0; display:inline-flex; align-items:center; justify-content:center}
+.split{position:relative; display:inline-flex; align-items:stretch; min-width:260px}
+/* Make the caret side-button ~1/4 width of the group */
+.split > .btn:first-child{border-top-right-radius:8px; border-bottom-right-radius:8px; flex:3 1 0}
+.split > .split-caret{padding:0; display:inline-flex; align-items:center; justify-content:center; flex:1 1 0}
 .menu{position:absolute; top:100%; right:0; background:var(--panel); border:1px solid var(--border); border-radius:10px; min-width:180px; padding:6px; box-shadow:0 10px 24px rgba(0,0,0,.35); z-index:20}
 .menu .menu-item{display:block; width:100%; text-align:left; background:transparent; color:var(--text); border:0; padding:8px 10px; border-radius:8px; cursor:pointer}
 .menu .menu-item:hover{background:var(--panel-2)}
