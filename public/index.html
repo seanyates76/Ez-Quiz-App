@@ -66,7 +66,12 @@
     <!-- Quiz View -->
     <section id="quizView" class="card is-hidden" aria-labelledby="quizTitle">
       <h2 id="quizTitle">Quiz</h2>
-      <div id="timer" class="timer" aria-live="polite"></div>
+      <div class="quiz-header-row">
+        <div id="timer" class="timer" aria-live="polite"></div>
+        <div class="prog" id="progWrap" aria-hidden="false">
+          <div class="prog-bar" id="progBar" style="width:0%"></div>
+        </div>
+      </div>
       <div id="questionHost"></div>
       <div class="row gap">
         <button id="prevBtn" class="btn">Previous</button>

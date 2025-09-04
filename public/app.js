@@ -38,6 +38,7 @@ const timerEl = $('timer');
 const prevBtn = $('prevBtn');
 const nextBtn = $('nextBtn');
 const finishBtn = $('finishBtn');
+const progBar = $('progBar');
 
 const resultsView = $('resultsView');
 const resultsSummary = $('resultsSummary');
@@ -343,6 +344,14 @@ function updateNavButtons(){
 const i=S.quiz.index, total=S.quiz.questions.length;
 if(prevBtn) prevBtn.disabled = i<=0;
 if(nextBtn) nextBtn.disabled = i>=total-1;
+ if(finishBtn){
+   if(i>=total-1){
+     finishBtn.classList.remove('is-hidden');
+   }else{
+     finishBtn.classList.add('is-hidden');
+   }
+ }
+ updateProgress();
 }
 
 function renderCurrentQuestion(){
@@ -441,6 +450,13 @@ if(q.type==='MC'){
     });
   });
 }
+
+function updateProgress(){
+  const total = S.quiz.questions.length;
+  if(!progBar || !total){ if(progBar) progBar.style.width='0%'; return; }
+  const pct = Math.max(0, Math.min(100, Math.round(((S.quiz.index+1)/total)*100)));
+  progBar.style.width = pct + '%';
+}
 }
 
 prevBtn?.addEventListener('click', ()=>{ S.quiz.index=clamp(S.quiz.index-1,0,S.quiz.questions.length-1); renderCurrentQuestion(); updateNavButtons(); });
@@ -451,14 +467,17 @@ document.addEventListener('keydown', (e)=>{
 if(S.mode!=='quiz') return;
 const a=document.activeElement; const tag=a?.tagName?.toLowerCase();
 if(tag==='input'||tag==='textarea'||a?.isContentEditable||tag==='select') return;
-if(e.key === 'Enter'){
+if(e.key === 'Enter' || e.key === 'ArrowRight'){
   e.preventDefault();
   if(S.quiz.index < S.quiz.questions.length-1){
     S.quiz.index++;
     renderCurrentQuestion();
     updateNavButtons();
+  } else {
+    // On last question, Enter/Right finishes
+    finishQuiz(false);
   }
-}else if(e.key === 'Backspace'){
+}else if(e.key === 'Backspace' || e.key === 'ArrowLeft'){
   e.preventDefault();
   if(S.quiz.index>0){
     S.quiz.index--;
