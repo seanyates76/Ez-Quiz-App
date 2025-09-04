@@ -50,11 +50,33 @@ try {
   return {
     statusCode: 200,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ lines, provider: usedProvider, model: usedModel }),
+    body: JSON.stringify({ lines, provider: usedProvider, model: usedModel, fallbackUsed: false }),
   };
 } catch (err) {
   const msg = String((err && err.message) || err || 'Error');
   const is429 = msg.includes('429') || /quota|rate limit/i.test(msg) || (err && err.status===429);
+
+  // Fallback to Gemini if primary provider failed and Gemini credentials exist
+  const primary = (provider || '').toLowerCase();
+  const canFallbackToGemini = primary !== 'gemini' && !!process.env.GEMINI_API_KEY;
+  if (canFallbackToGemini) {
+    try {
+      const { lines, provider: usedProvider, model: usedModel } = await generateLines({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-1.5-flash', topic, count, env: process.env });
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lines, provider: usedProvider, model: usedModel, fallbackUsed: true, fallbackFrom: primary, errorPrimary: msg }),
+      };
+    } catch (fallbackErr) {
+      const fbMsg = String((fallbackErr && fallbackErr.message) || fallbackErr || 'Error');
+      return {
+        statusCode: (err && err.status) || (fallbackErr && fallbackErr.status) || (is429 ? 429 : 502),
+        headers: { ...corsHeaders, ...(is429 ? { 'Retry-After': '30' } : {}) },
+        body: JSON.stringify({ error: 'Generation failed', details: msg, fallback: { tried: 'gemini', details: fbMsg } }),
+      };
+    }
+  }
+
   return {
     statusCode: is429 ? 429 : (err && err.status) || 502,
     headers: { ...corsHeaders, ...(is429 ? { 'Retry-After': '30' } : {}) },
