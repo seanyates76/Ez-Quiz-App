@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EZ Quiz</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-theme="dark">
+  <header class="site-header" role="banner">
+    <div class="brand">
+      <a href="/" class="brand-link" aria-label="EZ Quiz Home">
+        <img src="icons/brand-title-source.png" alt="EZ Quiz" class="brand-logo" />
+      </a>
+    </div>
+    <nav class="header-actions" aria-label="Utility">
+      <button id="helpBtn" class="icon-btn" title="Help" aria-haspopup="dialog" aria-controls="helpModal">?</button>
+      <button id="settingsBtn" class="icon-btn" title="Settings" aria-haspopup="dialog" aria-controls="settingsModal">⚙</button>
+      <button id="promptBtn" class="icon-btn" title="Prompt Builder" aria-haspopup="dialog" aria-controls="promptModal">✨</button>
+    </nav>
+  </header>
+
+  <main class="container" id="app" role="main">
+    <!-- Generator Card -->
+    <section id="generatorCard" class="card">
+
+      <!-- Top toolbar (simple generate form) -->
+      <div class="gen-toolbar" role="group" aria-label="Generate toolbar">
+        <input id="topicInput" type="text" class="toolbar-input" placeholder="Topic (e.g., World History)" />
+        <input id="countInput" type="number" class="toolbar-input narrow" min="1" step="1" value="10" />
+        <select id="difficultyInput" class="toolbar-input narrow" aria-label="Difficulty">
+          <option value="medium" selected>Medium</option>
+          <option value="easy">Easy</option>
+          <option value="hard">Hard</option>
+        </select>
+        <button id="generateBtn" class="btn primary">Generate</button>
+        <button id="advancedToggleBtn" class="btn">Advanced ▾</button>
+      </div>
+
+      <!-- Advanced authoring (manual paste + preview) -->
+      <details id="manualMenu" class="advanced">
+        <summary>Advanced</summary>
+        <div class="advanced-body">
+          <div class="grid">
+            <div class="col">
+              <label for="editor" class="lbl">Editor (paste MC/TF/YN/MT lines)</label>
+              <textarea id="editor" class="editor" rows="10" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
+              <div id="status" class="status" aria-live="polite"></div>
+              <div class="row gap" style="margin-top:8px">
+                <button id="loadBtn" class="btn">Load .txt</button>
+                <input id="fileInput" type="file" accept=".txt" style="display:none" />
+                <button id="demoBtn" class="btn">Use Demo Set</button>
+                <button id="clearBtn" class="btn">Clear</button>
+              </div>
+            </div>
+
+            <div class="col">
+              <label for="mirror" class="lbl">Mirror</label>
+              <textarea id="mirror" class="mirror" rows="10" readonly></textarea>
+              <div class="row gap">
+                <button id="startBtn" class="btn" disabled>Start</button>
+              </div>
+            </div>
+          </div>
+          <p style="margin-top:8px">Optional power tools live here. (Prompt Builder ✨ in header.)</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- Quiz View -->
+    <section id="quizView" class="card is-hidden" aria-labelledby="quizTitle">
+      <div class="quiz-title-row">
+        <h2 id="quizTitle">Quiz</h2>
+        <button id="backDuringQuiz" class="btn" type="button" title="Back to Menu">Back to Menu</button>
+      </div>
+      <div class="quiz-header-row">
+        <div id="timer" class="timer" aria-live="polite"></div>
+        <div class="chip" id="qChip" aria-live="polite">0/0</div>
+      </div>
+      <div id="questionHost"></div>
+      <div class="row gap quiz-nav-row">
+        <button id="prevBtn" class="btn">Previous</button>
+        <button id="nextBtn" class="btn success">Next</button>
+        <button id="finishBtn" class="btn primary">Finish</button>
+      </div>
+    </section>
+
+    <!-- Results View -->
+    <section id="resultsView" class="card is-hidden" aria-labelledby="resultsTitle">
+      <h2 id="resultsTitle">Results</h2>
+      <div id="resultsSummary" class="results-summary"></div>
+      <div id="missedList" class="results-missed"></div>
+      <div class="row gap results-actions">
+        <div class="split">
+          <button id="retakeBtn" class="btn">Retake</button>
+          <button id="retakeMenuBtn" class="btn split-caret" aria-haspopup="menu" aria-expanded="false" title="More retake options">▾</button>
+          <div id="retakeMenu" class="menu" role="menu" hidden>
+            <button id="retakeMissedBtn" class="menu-item" role="menuitem">Take missed quiz</button>
+          </div>
+        </div>
+        <label class="inline"><input type="checkbox" id="showAllChk"> Show all</label>
+        <button id="backToMenuBtn" class="btn">Back to Menu</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer: Support links -->
+  <footer class="container" role="contentinfo" style="margin-bottom:72px">
+    <nav aria-label="Footer">
+      <p style="margin:12px 0; color:var(--muted)">
+        <a href="https://www.buymeacoffee.com/seanyates78" target="_blank" rel="noopener">Support</a>
+        &nbsp;•&nbsp;
+        <a href="/privacy.html" target="_blank" rel="noopener">Privacy</a>
+        &nbsp;•&nbsp;
+        <a href="/terms.html" target="_blank" rel="noopener">Terms</a>
+      </p>
+    </nav>
+  </footer>
+
+  <!-- Floating Support (fallback) -->
+  <a id="bmacBtn" class="bmac" href="https://www.buymeacoffee.com/seanyates78" target="_blank" rel="noopener">☕</a>
+
+  <!-- Veil Loader -->
+  <div id="veil" class="veil" hidden aria-live="polite" aria-busy="true">
+    <div class="veil__panel">
+      <div class="spinner" aria-hidden="true"></div>
+      <div id="veilMsg" class="veil__msg">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Help Modal (filled FAQ) -->
+  <div id="helpModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="helpModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="helpTitle">Help &amp; FAQ</h3>
+        <button id="helpClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <section>
+          <h4>Getting Started</h4>
+          <ol>
+            <li>Paste quiz lines into the <em>Editor</em> (left) or use ✨ Prompt Builder to generate them.</li>
+            <li>Click <strong>Generate</strong> to parse and preview; then <strong>Start</strong> to begin.</li>
+            <li>Use <kbd>Enter</kbd> for Next, <kbd>Backspace</kbd> for Previous during the quiz.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h4>Accepted Line Formats</h4>
+          <ul>
+            <li><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> (multiple: <code>|A,C</code>)</li>
+            <li><code>TF|Statement.|T</code> (or <code>F</code>)</li>
+            <li><code>YN|Question?|Y</code> (or <code>N</code>)</li>
+            <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
+          </ul>
+          <p>Delimiter rules are strict: use the shown pipes <code>|</code>, semicolons <code>;</code>, and labels.</p>
+        </section>
+
+        <section>
+          <h4>Using AI (✨ Prompt Builder)</h4>
+          <p>Open ✨, set a topic and length, then <strong>Copy</strong>. Paste into ChatGPT/Gemini and bring the generated lines back into the Editor.</p>
+        </section>
+
+        <section>
+          <h4>Saving &amp; Settings</h4>
+          <ul>
+            <li>Theme and timer settings persist automatically across reloads.</li>
+            <li><strong>Reset App</strong> (Settings → Advanced) clears saved settings and reloads.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Shortcuts</h4>
+          <ul>
+            <li>Open Prompt Builder: <kbd>Ctrl/Cmd + P</kbd></li>
+            <li>During quiz: <kbd>Enter</kbd> = Next, <kbd>Backspace</kbd> = Previous</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Troubleshooting</h4>
+          <ul>
+            <li><strong>Parser errors?</strong> Check delimiters and labels (e.g., <code>A)</code>, <code>1)</code>).</li>
+            <li><strong>Start disabled?</strong> Ensure at least one valid question parsed.</li>
+            <li><strong>Timer?</strong> Enable in Settings; set duration as <code>mm:ss</code> for countdown.</li>
+            <li><strong>Reset?</strong> Use Reset App to clear saved theme/timer.</li>
+          </ul>
+        </section>
+      </div>
+      <footer class="modal__footer">
+        <button id="helpOk" class="btn">Close</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="settingsModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="settingsTitle">Settings</h3>
+        <button id="settingsClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <fieldset class="fieldgroup">
+          <legend>Timer</legend>
+          <label><input type="checkbox" id="timerEnabled" /> Enable timer</label>
+          <label><input type="checkbox" id="countdownMode" /> Countdown mode</label>
+          <label class="inline">
+            Duration (mm:ss)
+            <input type="text" id="timerDuration" inputmode="numeric" placeholder="05:00" />
+          </label>
+        </fieldset>
+
+        <fieldset class="fieldgroup">
+          <legend>Quiz Behavior</legend>
+          <label><input type="checkbox" id="autoStart" /> Auto‑start after generate</label>
+          <label><input type="checkbox" id="requireAnswer" /> Require answer to advance</label>
+        </fieldset>
+
+        <fieldset class="fieldgroup">
+          <legend>Appearance</legend>
+          <label><input type="radio" name="theme" value="dark" checked /> Dark</label>
+          <label><input type="radio" name="theme" value="light" /> Light</label>
+        </fieldset>
+
+        <div class="row">
+          <button id="resetApp" class="btn danger">Reset App</button>
+        </div>
+      </div>
+      <footer class="modal__footer">
+        <button class="btn" id="settingsSave">Close</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Prompt Builder Modal -->
+  <div id="promptModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="promptTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="promptModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="promptTitle">Prompt Builder ✨</h3>
+        <button id="promptClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <label class="block">Topic <input id="pbTopic" type="text" placeholder="CompTIA A+ 2025 Core 1" /></label>
+        <label class="block">Length <input id="pbCount" type="number" min="1" step="1" value="30" /></label>
+      </div>
+      <footer class="modal__footer">
+        <button id="pbCancel" class="btn">Cancel</button>
+        <button id="pbCopy" class="btn primary">Copy Prompt</button>
+      </footer>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+  <!-- Buy Me a Coffee widget (desktop); button above acts as fallback -->
+  <script
+    data-name="BMC-Widget"
+    data-id="seanyates78"
+    data-description="Support me on Buy Me a Coffee!"
+    data-message="Like EZ Quiz Web? Thanks for your support! ☕️"
+    data-color="#D8C3A5"
+    data-position="Right"
+    data-x_margin="18"
+    data-y_margin="18"
+    src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"></script>
+  <script>
+    // Hide fallback button when the BMC widget is present
+    (function(){
+      function hideFallbackIfWidget(){
+        var hasWidget = document.querySelector('iframe[src*="buymeacoffee.com"], script[src*="buymeacoffee.com"]');
+        var btn = document.getElementById('bmacBtn');
+        if(hasWidget && btn){ btn.style.display = 'none'; }
+      }
+      window.addEventListener('load', function(){ setTimeout(hideFallbackIfWidget, 250); });
+      var mo = new MutationObserver(hideFallbackIfWidget);
+      mo.observe(document.documentElement, { childList:true, subtree:true });
+    })();
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

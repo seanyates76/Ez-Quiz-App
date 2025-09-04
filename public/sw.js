@@ -8,14 +8,23 @@
  * page for navigation requests when offline.
  */
 
-const CACHE_NAME = 'ezquiz-cache-v50';
+const CACHE_NAME = 'ezquiz-cache-v52';
 const RELATIVE_URLS = [
   'index.html',
-  'style.css',
-  'app.js',
+  'styles.css',
+  'js/main.js',
+  'js/state.js',
+  'js/utils.js',
+  'js/parser.js',
+  'js/veil.js',
+  'js/api.js',
+  'js/settings.js',
+  'js/modals.js',
+  'js/generator.js',
+  'js/quiz.js',
   // Versioned assets to avoid stale caches on first offline load
-  'style.css?v=1.1.5',
-  'app.js?v=1.1.5',
+  'styles.css?v=1.1.6',
+  'js/main.js?v=1.1.6',
   'manifest.webmanifest',
   'sw.js',
   'icons/icon-192.png',
@@ -50,6 +59,9 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.url.includes('/.netlify/functions/')) {
+    return; // let network handle serverless calls uncached
+  }
   if (event.request.method !== 'GET') return;
   event.respondWith((async () => {
     const req = event.request;
