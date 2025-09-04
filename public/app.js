@@ -88,6 +88,7 @@ const helpClose = $('helpClose');
 const helpOk = $('helpOk');
 const settingsClose = $('settingsClose');
 const settingsSave = $('settingsSave');
+const promptClose = $('promptClose');
 
 const timerEnabledEl = $('timerEnabled');
 const countdownModeEl = $('countdownMode');
@@ -176,6 +177,8 @@ settingsBtn?.addEventListener('click', ()=> openModal('settingsModal'));
 promptBtn?.addEventListener('click', ()=> openModal('promptModal'));
 helpClose?.addEventListener('click', ()=> closeModal('helpModal'));
 helpOk?.addEventListener('click', ()=> closeModal('helpModal'));
+promptClose?.addEventListener('click', ()=> closeModal('promptModal'));
+pbCancel?.addEventListener('click', ()=> closeModal('promptModal'));
 document.addEventListener('click', (e)=>{ const t=e.target; if(t && t.matches('.modal__backdrop')){ const id=t.getAttribute('data-close'); if(id) closeModal(id); } });
 
 // Reset
