@@ -8,6 +8,8 @@
   --primary:#7aa2ff;
   --primary-press:#5a83e6;
   --danger:#ff5d6c;
+  --success:#22c55e;
+  --success-press:#16a34a;
   --ring:#9ec1ff;
   --border:#2a3244;
 
@@ -27,6 +29,8 @@ body[data-theme="light"]{
   --primary:#245cff;
   --primary-press:#1a44c4;
   --danger:#cf2e3a;
+  --success:#22c55e;
+  --success-press:#1a8e45;
   --ring:#6ea3ff;
   --border:#dbe2ef;
 
@@ -140,6 +144,9 @@ body{
 .btn.primary{background:var(--primary); border-color:transparent; color:#fff}
 .btn.primary:hover{filter:brightness(1.05)}
 .btn.primary:active{background:var(--primary-press)}
+.btn.success{background:var(--success); border-color:transparent; color:#fff}
+.btn.success:hover{filter:brightness(1.05)}
+.btn.success:active{background:var(--success-press)}
 .btn.danger{background:var(--danger); color:#fff; border-color:transparent}
 .btn[disabled]{opacity:.6; cursor:not-allowed}
 
