@@ -74,7 +74,7 @@ const resultsSummary = $('resultsSummary');
 const missedList = $('missedList');
 const retakeBtn = $('retakeBtn');
 const backToMenuBtn = $('backToMenuBtn');
-const missedOnlyChk = $('missedOnlyChk');
+const showAllChk = $('showAllChk');
 const retakeMenuBtn = $('retakeMenuBtn');
 const retakeMenu = $('retakeMenu');
 const retakeMissedBtn = $('retakeMissedBtn');
@@ -769,7 +769,9 @@ function renderResults(){
     const isCorrect=compareQA(q,a);
     items.push({ idx:i+1, text:q.text, userView, correctView, isCorrect });
   }
-  const showMissedOnly = !!(missedOnlyChk && missedOnlyChk.checked);
+  // Default: missed-only unless user opts to show all
+  if(showAllChk && showAllChk.dataset.init!=="1"){ showAllChk.checked = false; showAllChk.dataset.init = "1"; }
+  const showMissedOnly = !(showAllChk && showAllChk.checked);
   const view = showMissedOnly ? items.filter(it=>!it.isCorrect) : items;
 
   if(!view.length){
@@ -834,7 +836,7 @@ function retake(missedOnly){
   beginQuiz();
 }
 
-retakeBtn?.addEventListener('click', () => { retake(!!(missedOnlyChk && missedOnlyChk.checked)); });
+retakeBtn?.addEventListener('click', () => { retake(!(showAllChk && showAllChk.checked)); });
 retakeMissedBtn?.addEventListener('click', () => { retake(true); });
 retakeMenuBtn?.addEventListener('click', ()=>{
   if(!retakeMenu) return; const hidden = retakeMenu.hasAttribute('hidden');
@@ -847,8 +849,8 @@ document.addEventListener('click', (e)=>{
   retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false');
 });
 
-// Toggle view between all and missed-only
-missedOnlyChk?.addEventListener('change', ()=> renderResults());
+// Toggle view between missed-only and all
+showAllChk?.addEventListener('change', ()=> renderResults());
 
 backToMenuBtn?.addEventListener('click', () => {
   setMode('idle');
