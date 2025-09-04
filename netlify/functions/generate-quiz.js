@@ -15,6 +15,8 @@ const corsHeaders = {
 'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
+const { generateLines } = require('./lib/providers.js');
+
 exports.handler = async (event) => {
 // Preflight
 if (event.httpMethod === 'OPTIONS') {
@@ -29,15 +31,6 @@ body: JSON.stringify({ error: 'Method Not Allowed' }),
 };
 }
 
-const apiKey = process.env.GEMINI_API_KEY;
-if (!apiKey) {
-return {
-statusCode: 500,
-headers: corsHeaders,
-body: JSON.stringify({ error: 'Missing GEMINI_API_KEY env var' }),
-};
-}
-
 let payload;
 try { payload = JSON.parse(event.body || '{}'); } catch {
 return {
@@ -49,69 +42,23 @@ body: JSON.stringify({ error: 'Invalid JSON' }),
 
 const topic = String(payload.topic || '').trim() || 'General knowledge';
 const count = Math.max(1, Math.min(50, parseInt(payload.count || 10, 10)));
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-
-// Construct strict instructions (matches front-end parser)
-const prompt = [
-`Create EXACTLY ${count} quiz lines about ${topic}.`,
-`Output ONLY the lines, no commentary or numbering, one per line.`,
-`Allowed formats ONLY (mix them):`,
-`MC|Question?|A) Option 1;B) Option 2;C) Option 3;D) Option 4|A`,
-`MC|Question with multiple answers?|A) 1;B) 2;C) 3;D) 4|A,C`,
-`TF|A true/false statement.|T`,
-`YN|A yes/no question.|Y`,
-`MT|Match.|1) L1;2) L2;3) L3|A) R1;B) R2;C) R3|1-A,2-B,3-C`,
-`Rules:`,
-`- EXACTLY ${count} lines.`,
-`- Use only MC, TF, YN, MT.`,
-`- MC correct field may be single (A) or multiple (A,C).`,
-`- No blank lines or extra prose.`,
-].join('\n');
+const provider = String(payload.provider || process.env.AI_PROVIDER || 'gemini');
+const model = String(payload.model || '');
 
 try {
-// Dynamic ESM import inside handler (works in CJS on Node 18)
-const { GoogleGenerativeAI } = await import('@google/generative-ai');
-const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({ model: DEFAULT_MODEL });
-
-const result = await model.generateContent({
-contents: [{ role: 'user', parts: [{ text: prompt }] }],
-generationConfig: {
-temperature: 0.6,
-topK: 32,
-topP: 0.9,
-maxOutputTokens: 1024,
-},
-});
-
-const text = (result?.response?.text?.() || '').trim();
-
-// Post-process to keep ONLY valid lines & enforce count
-const lines = text
-.split('\n')
-.map((l) => l.trim())
-.filter(Boolean)
-// strip leading numbering like "1. ..." if present
-.map((l) => l.replace(/^\d+\.\s*/, ''))
-// keep only valid prefixes
-.filter((l) => /^(MC|TF|YN|MT)\|/i.test(l));
-
-// If fewer than requested, return what we have; if more, truncate
-const normalized = lines.slice(0, count);
-const body = { lines: normalized.join('\n') };
-
-return {
-statusCode: 200,
-headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-body: JSON.stringify(body),
-};
+  const { lines, provider: usedProvider, model: usedModel } = await generateLines({ provider, model, topic, count, env: process.env });
+  return {
+    statusCode: 200,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lines, provider: usedProvider, model: usedModel }),
+  };
 } catch (err) {
   const msg = String((err && err.message) || err || 'Error');
-  const is429 = msg.includes('429') || /quota/i.test(msg);
+  const is429 = msg.includes('429') || /quota|rate limit/i.test(msg) || (err && err.status===429);
   return {
-    statusCode: is429 ? 429 : 502,
+    statusCode: is429 ? 429 : (err && err.status) || 502,
     headers: { ...corsHeaders, ...(is429 ? { 'Retry-After': '30' } : {}) },
-    body: JSON.stringify({ error: 'Generation failed', details: msg }),
+    body: JSON.stringify({ error: 'Generation failed', details: msg, provider }),
   };
 }
 };
