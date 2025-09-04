@@ -418,6 +418,7 @@ if(q.type==='MC'){
         const cur=Array.isArray(S.quiz.answers[S.quiz.index])?[...S.quiz.answers[S.quiz.index]]:[];
         if(cb.checked){ if(!cur.includes(i)) cur.push(i); } else { const at=cur.indexOf(i); if(at>=0) cur.splice(at,1); }
         S.quiz.answers[S.quiz.index] = cur.sort((a,b)=>a-b);
+        try{ cb.blur(); }catch{}
       });
     });
   }else{
@@ -425,6 +426,7 @@ if(q.type==='MC'){
       rb.addEventListener('change', ()=>{
         const i=parseInt(rb.getAttribute('data-idx'),10);
         S.quiz.answers[S.quiz.index] = [i];
+        try{ rb.blur(); }catch{}
       });
     });
   }
@@ -433,6 +435,7 @@ if(q.type==='MC'){
     rb.addEventListener('change', ()=>{
       const v=rb.getAttribute('data-bool')==='true';
       S.quiz.answers[S.quiz.index] = v;
+      try{ rb.blur(); }catch{}
     });
   });
 } else if(q.type==='YN'){
@@ -440,6 +443,7 @@ if(q.type==='MC'){
     rb.addEventListener('change', ()=>{
       const v=rb.getAttribute('data-bool')==='true';
       S.quiz.answers[S.quiz.index] = v;
+      try{ rb.blur(); }catch{}
     });
   });
 } else if(q.type==='MT'){
@@ -450,6 +454,7 @@ if(q.type==='MC'){
       const cur=Array.isArray(S.quiz.answers[S.quiz.index])?[...S.quiz.answers[S.quiz.index]]:new Array(q.left.length).fill(-1);
       cur[li]=ri;
       S.quiz.answers[S.quiz.index]=cur;
+      try{ sel.blur(); }catch{}
     });
   });
 }
@@ -470,8 +475,8 @@ function updateCounter(){
 }
 }
 
-prevBtn?.addEventListener('click', ()=>{ S.quiz.index=clamp(S.quiz.index-1,0,S.quiz.questions.length-1); renderCurrentQuestion(); updateNavButtons(); });
-nextBtn?.addEventListener('click', ()=>{ S.quiz.index=clamp(S.quiz.index+1,0,S.quiz.questions.length-1); renderCurrentQuestion(); updateNavButtons(); });
+prevBtn?.addEventListener('click', (e)=>{ S.quiz.index=clamp(S.quiz.index-1,0,S.quiz.questions.length-1); renderCurrentQuestion(); updateNavButtons(); try{e.currentTarget.blur();}catch{} });
+nextBtn?.addEventListener('click', (e)=>{ S.quiz.index=clamp(S.quiz.index+1,0,S.quiz.questions.length-1); renderCurrentQuestion(); updateNavButtons(); try{e.currentTarget.blur();}catch{} });
 
 // Shortcuts
 document.addEventListener('keydown', (e)=>{
@@ -499,12 +504,13 @@ if(e.key === 'Enter' || e.key === 'ArrowRight'){
 });
 
 // Finish → Results
-finishBtn?.addEventListener('click', ()=> finishQuiz(false));
+finishBtn?.addEventListener('click', (e)=>{ finishQuiz(false); try{e.currentTarget.blur();}catch{} });
 
 // Back to Menu during quiz
-backDuringQuiz?.addEventListener('click', ()=>{
+backDuringQuiz?.addEventListener('click', (e)=>{
   if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
   setMode('idle');
+  try{e.currentTarget.blur();}catch{}
 });
 function finishQuiz(auto=false){
 if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
