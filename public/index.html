@@ -269,6 +269,19 @@
     data-y_margin="18"
     src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"></script>
   <script>
+    // Hide fallback button when the BMC widget is present
+    (function(){
+      function hideFallbackIfWidget(){
+        var hasWidget = document.querySelector('iframe[src*="buymeacoffee.com"], script[src*="buymeacoffee.com"]');
+        var btn = document.getElementById('bmacBtn');
+        if(hasWidget && btn){ btn.style.display = 'none'; }
+      }
+      window.addEventListener('load', function(){ setTimeout(hideFallbackIfWidget, 250); });
+      var mo = new MutationObserver(hideFallbackIfWidget);
+      mo.observe(document.documentElement, { childList:true, subtree:true });
+    })();
+  </script>
+  <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(() => {});
