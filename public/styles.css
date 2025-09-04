@@ -62,7 +62,7 @@ body{
 .header-actions{display:flex; gap:10px}
 .icon-btn{
   appearance:none; border:1px solid var(--border); background:var(--panel-2);
-  color:var(--text); border-radius:12px; padding:8px 12px; cursor:pointer; line-height:1;
+  color:var(--text); border-radius:12px; padding:10px 16px; cursor:pointer; line-height:1; font-size:20px;
   transition:transform .04s ease, box-shadow .2s ease, filter .15s ease;
 }
 .icon-btn:hover{filter:brightness(1.06)}
@@ -175,6 +175,7 @@ details.advanced > summary{display:none}
 
 /* Quiz Options (polish) */
 #quizView .options{display:grid; gap:10px}
+#quizView .options{margin-bottom:12px}
 #quizView label.opt{
   display:flex; align-items:flex-start; gap:10px;
   padding:10px 12px;
@@ -197,6 +198,7 @@ details.advanced > summary{display:none}
 #quizView .qhdr{font-size:14px; color:var(--muted)}
 #quizView .qtext{font-size:16px}
 #quizView .mtwrap{display:grid; gap:10px}
+#quizView .mtwrap{margin-bottom:12px}
 #quizView .mtrow{
   display:grid; grid-template-columns:1fr 220px; gap:12px;
   padding:10px 12px; border:1px solid var(--field-border); border-radius:12px; background:var(--panel-2);
@@ -272,8 +274,9 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 /* Small screens polish */
  @media (max-width:600px){
   .site-header{padding:10px 12px}
-  .icon-btn{padding:8px 10px}
+  .icon-btn{padding:9px 12px; font-size:18px}
   .btn{min-width:100%; width:100%}
   .grid{gap:12px}
   .card{padding:14px}
 }
+#quizView #questionHost + .row{margin-top:12px}
