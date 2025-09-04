@@ -211,10 +211,11 @@ body: JSON.stringify({ topic, count }),
 signal: controller.signal
 });
 clearTimeout(id);
-if(!res.ok){
-const err = await res.text().catch(()=>String(res.status));
-throw new Error(err || `HTTP ${res.status}`);
-}
+  if(!res.ok){
+    let body;
+    try { body = await res.json(); } catch { body = await res.text().catch(()=>String(res.status)); }
+    throw new Error(JSON.stringify({ status: res.status, body }));
+  }
 const data = await res.json();
 return String(data.lines || '').trim();
 }catch(err){
@@ -270,7 +271,19 @@ if(editor) editor.value = lines;
 if(mirror) mirror.value = lines;
 runParseFlow(lines);
 }catch(err){
-showStatus(`Generation failed: ${String(err.message || err)}`);
+  const msg = String(err && err.message || err || 'Error');
+  let pretty = msg;
+  try {
+    const parsed = JSON.parse(msg);
+    const status = parsed.status;
+    const body = parsed.body;
+    if(status === 429 || /quota|rate limit/i.test(JSON.stringify(body))){
+      pretty = 'Rate limit hit. Please wait ~30s and try again.';
+    } else if (typeof body === 'object' && body && body.error){
+      pretty = body.error;
+    }
+  } catch {}
+  showStatus(`Generation failed: ${pretty}`);
 }finally{
 generateBtn.disabled = false;
 }

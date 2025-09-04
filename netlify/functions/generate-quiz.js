@@ -49,6 +49,7 @@ body: JSON.stringify({ error: 'Invalid JSON' }),
 
 const topic = String(payload.topic || '').trim() || 'General knowledge';
 const count = Math.max(1, Math.min(50, parseInt(payload.count || 10, 10)));
+const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 
 // Construct strict instructions (matches front-end parser)
 const prompt = [
@@ -71,7 +72,7 @@ try {
 // Dynamic ESM import inside handler (works in CJS on Node 18)
 const { GoogleGenerativeAI } = await import('@google/generative-ai');
 const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+const model = genAI.getGenerativeModel({ model: DEFAULT_MODEL });
 
 const result = await model.generateContent({
 contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -105,10 +106,12 @@ headers: { ...corsHeaders, 'Content-Type': 'application/json' },
 body: JSON.stringify(body),
 };
 } catch (err) {
-return {
-statusCode: 502,
-headers: corsHeaders,
-body: JSON.stringify({ error: 'Generation failed', details: String(err && err.message || err) }),
-};
+  const msg = String((err && err.message) || err || 'Error');
+  const is429 = msg.includes('429') || /quota/i.test(msg);
+  return {
+    statusCode: is429 ? 429 : 502,
+    headers: { ...corsHeaders, ...(is429 ? { 'Retry-After': '30' } : {}) },
+    body: JSON.stringify({ error: 'Generation failed', details: msg }),
+  };
 }
 };
