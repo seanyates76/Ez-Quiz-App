@@ -144,7 +144,50 @@ export function renderResults(){
   let view = showMissedOnly ? items.filter(it=>!it.isCorrect) : items.slice();
   if(!showMissedOnly){ view.sort((a,b)=> Number(a.isCorrect) - Number(b.isCorrect)); }
   if(!view.length){ missedList.innerHTML = `<div class="missed-item"><em>${showMissedOnly ? 'No missed questions 🎉' : 'No questions'}</em></div>`; return; }
-  missedList.innerHTML = view.map(item => `<div class="missed-item"><div><strong>Q${item.idx}.</strong> ${escapeHTML(item.text)}</div><div class="user-ans ${item.isCorrect ? 'ans-correct' : 'ans-wrong'}"><strong>Your answer:</strong> ${escapeHTML(item.userView || '—')}</div><div><strong>Correct:</strong> ${escapeHTML(item.correctView)}</div></div>`).join('');
+  missedList.innerHTML = view.map(item => {
+    const q = S.quiz.questions[item.idx-1];
+    const a = S.quiz.answers[item.idx-1];
+    const userDetail = buildUserAnswerDetail(q,a);
+    return `<div class="missed-item">`
+      + `<div><strong>Q${item.idx}.</strong> ${escapeHTML(item.text)}</div>`
+      + `<div class="user-ans ${item.isCorrect ? 'ans-correct' : 'ans-wrong'}"><strong>Your answer:</strong> ${userDetail}</div>`
+      + `<div><strong>Correct:</strong> ${escapeHTML(item.correctView)}</div>`
+      + `</div>`;
+  }).join('');
+}
+
+function buildUserAnswerDetail(q,a){
+  if(!q) return '';
+  if(q.type==='MC'){
+    const arr=Array.isArray(a)?a:[];
+    return arr.map(idx => {
+      const letter = String.fromCharCode(65+idx);
+      const text = q.options && q.options[idx] ? q.options[idx] : '';
+      return `${letter} <span class="ans-text">(${escapeHTML(text)})</span>`;
+    }).join(', ');
+  }
+  if(q.type==='TF'){
+    if(typeof a!=='boolean') return '';
+    const letter = a ? 'T':'F';
+    const text = a ? 'True':'False';
+    return `${letter} <span class="ans-text">(${text})</span>`;
+  }
+  if(q.type==='YN'){
+    if(typeof a!=='boolean') return '';
+    const letter = a ? 'Y':'N';
+    const text = a ? 'Yes':'No';
+    return `${letter} <span class="ans-text">(${text})</span>`;
+  }
+  if(q.type==='MT'){
+    const arr=Array.isArray(a)?a:[];
+    return arr.map((ri,li)=>{
+      if(ri<0) return `${li+1}-?`;
+      const letter=String.fromCharCode(65+ri);
+      const text = q.right && q.right[ri] ? q.right[ri] : '';
+      return `${li+1}-${letter} <span class="ans-text">(${escapeHTML(text)})</span>`;
+    }).join(', ');
+  }
+  return '';
 }
 
 export function wireResultsControls(){
@@ -162,4 +205,3 @@ export function wireResultsControls(){
 export function pauseTimerIfQuiz(){ if(S.mode!=='quiz') return; if(!timerInterval) return; pausedAt = Date.now(); if(S.settings.timerEnabled){ if(S.settings.countdown && S.quiz.endAt){ remainingOnPause = Math.max(0, S.quiz.endAt - Date.now()); } } clearInterval(timerInterval); timerInterval=null; }
 export function resumeTimerIfQuiz(){ if(S.mode!=='quiz') return; if(timerInterval) return; if(!S.settings.timerEnabled) return; const timerEl=el('timer'); if(S.settings.countdown && S.settings.durationMs>0){ if(remainingOnPause>0){ S.quiz.endAt = Date.now() + remainingOnPause; remainingOnPause = 0; } timerInterval = setInterval(tickCountdown, 1000); if(timerEl) timerEl.textContent = formatDuration(S.quiz.endAt - Date.now()); } else { if(pausedAt){ elapsedOffset += (Date.now() - pausedAt); pausedAt = 0; } timerInterval = setInterval(tickStopwatch, 1000); }
 }
-
