@@ -223,15 +223,16 @@ details.advanced > summary{display:none}
 .modal.is-open{display:block}
 .modal__backdrop{position:absolute; inset:0; background:rgba(0,0,0,.5)}
 .modal__dialog{
-  position:relative; margin:10vh auto; max-width:640px; background:var(--panel);
+  position:relative; margin:10vh auto; max-width:640px; max-height:80vh; background:var(--panel);
   border:1px solid var(--border); border-radius:16px; padding:0 0 12px 0;
   box-shadow:0 20px 60px rgba(0,0,0,.35);
+  display:flex; flex-direction:column;
 }
 .modal__header{
   display:flex; justify-content:space-between; align-items:center;
   padding:12px 12px 8px; border-bottom:1px solid var(--border);
 }
-.modal__body{padding:12px; display:grid; gap:10px}
+.modal__body{padding:12px; display:grid; gap:10px; overflow:auto}
 .modal__footer{padding:12px; border-top:1px solid var(--border)}
 .block{display:block}
 .fieldgroup{border:1px solid var(--border); border-radius:12px; padding:10px; margin-bottom:10px}
