@@ -69,6 +69,27 @@ body{
 .icon-btn:active{transform:translateY(1px)}
 .icon-btn:focus-visible{outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow)}
 
+/* Ensure badge-style padding is visible in all themes */
+.site-header .brand-link{
+  padding:12px 18px; /* base padding */
+  border-radius:16px;
+  background:var(--panel-2);
+  border:1px solid var(--field-border);
+  box-shadow:0 6px 18px rgba(0,0,0,.06);
+}
+
+/* Light mode hero (brand) padding + contrast */
+body[data-theme="light"] .brand-link{
+  padding:12px 18px; /* visibly larger */
+  margin:2px 0 0 2px; /* breathing room from header edges */
+  border-radius:18px;
+  background:#e9eef7; /* solid, contrasted to white header */
+  border:2px solid var(--field-border);
+  box-shadow:0 8px 20px rgba(0,0,0,.10);
+}
+body[data-theme="light"] .brand-link:hover{ filter:brightness(1.02); }
+body[data-theme="light"] .brand-logo{ filter:drop-shadow(0 2px 6px rgba(0,0,0,.18)); }
+
 /* Layout */
 .container{max-width:1060px; margin:24px auto; padding:0 16px}
 .card{
@@ -226,6 +247,7 @@ details.advanced > summary{display:none}
 .results-missed .missed-item{
   padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--panel-2)
 }
+.results-actions{margin-top:14px}
 
 /* Split button + menu */
 .split{position:relative; display:inline-flex; align-items:stretch}

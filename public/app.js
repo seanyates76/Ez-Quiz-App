@@ -116,7 +116,7 @@ const clearBtn = $('clearBtn');
 window.EZQ = window.EZQ || {};
 const S = window.EZQ;
 S.mode = S.mode || 'idle';
-S.quiz = S.quiz || { questions: [], index: 0, answers: [], score: 0, startedAt: 0, finishedAt: 0, endAt: 0 };
+S.quiz = S.quiz || { questions: [], index: 0, answers: [], score: 0, startedAt: 0, finishedAt: 0, endAt: 0, topic: '', title: '' };
 S.settings = S.settings || { theme: 'dark', timerEnabled: false, countdown: false, durationMs: 0 };
 
 let timerInterval = null;
@@ -386,8 +386,8 @@ return;
 }
 if(editor) editor.value = lines;
 if(mirror) mirror.value = lines;
-const title = (out && out.title) ? out.title : topic;
-runParseFlow(lines, title);
+const title = (out && out.title) ? out.title : '';
+runParseFlow(lines, topic, title);
 if (S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
 }catch(err){
   const msg = String(err && err.message || err || 'Error');
@@ -416,12 +416,13 @@ startBtn?.addEventListener('click', ()=>{
 });
 }
 
-function runParseFlow(sourceText, topicLabel){
+function runParseFlow(sourceText, topicLabel, fullTitle){
 const {questions, errors} = parseEditorInput(sourceText);
 S.quiz.questions = questions;
 S.quiz.index = 0;
 S.quiz.answers = new Array(questions.length).fill(null);
  if (topicLabel) { S.quiz.topic = String(topicLabel).trim(); }
+ if (fullTitle) { S.quiz.title = String(fullTitle).trim(); } else { S.quiz.title = S.quiz.title || ''; }
 S.mode = 'generated';
 if(mirror) mirror.value = sourceText;
 
@@ -452,8 +453,16 @@ if(S.settings.timerEnabled){
 
  setMode('quiz');
  if (quizTitleEl) {
-   const pretty = formatTopicLabel(S.quiz.topic||'');
-   quizTitleEl.textContent = pretty ? `${pretty} Quiz` : 'Quiz';
+   let heading = (S.quiz.title || '').trim();
+   if (!heading) {
+     const pretty = formatTopicLabel(S.quiz.topic||'');
+     heading = pretty ? (/\bquiz$/i.test(pretty) ? pretty : `${pretty} Quiz`) : 'Quiz';
+   } else {
+     // Ensure no duplicate 'Quiz' if AI included it already
+     const m = heading.match(/\bquiz\b/i);
+     if (!m) heading = `${heading} Quiz`;
+   }
+   quizTitleEl.textContent = heading;
  }
  renderCurrentQuestion();
  updateNavButtons();
@@ -666,34 +675,32 @@ setMode('results');
 }
 
 function renderResults(){
-const total=S.quiz.questions.length;
-const duration = S.quiz.finishedAt && S.quiz.startedAt ? (S.quiz.finishedAt - S.quiz.startedAt - elapsedOffset) : 0;
-resultsSummary.innerHTML = `       <p><strong>Score:</strong> ${S.quiz.score}/${total}</p>       <p><strong>Time:</strong> ${formatDuration(Math.max(0, duration))}</p>
-    `;
+  const total=S.quiz.questions.length;
+  const duration = S.quiz.finishedAt && S.quiz.startedAt ? (S.quiz.finishedAt - S.quiz.startedAt - elapsedOffset) : 0;
+  resultsSummary.innerHTML = `       <p><strong>Score:</strong> ${S.quiz.score}/${total}</p>       <p><strong>Time:</strong> ${formatDuration(Math.max(0, duration))}</p>`;
 
-const missed=[];
-for(let i=0;i<total;i++){
-  const q=S.quiz.questions[i], a=S.quiz.answers[i];
-  const correctView=viewCorrect(q), userView=viewUser(q,a);
-  const isCorrect=compareQA(q,a);
-  if(!isCorrect){ missed.push({ idx:i+1, text:q.text, userView, correctView, i }); }
-}
+  // Build full results list first
+  const items=[];
+  for(let i=0;i<total;i++){
+    const q=S.quiz.questions[i], a=S.quiz.answers[i];
+    const correctView=viewCorrect(q), userView=viewUser(q,a);
+    const isCorrect=compareQA(q,a);
+    items.push({ idx:i+1, text:q.text, userView, correctView, isCorrect });
+  }
+  const showMissedOnly = !!(missedOnlyChk && missedOnlyChk.checked);
+  const view = showMissedOnly ? items.filter(it=>!it.isCorrect) : items;
 
-if(!missed.length){
-  missedList.innerHTML = `<div class="missed-item"><em>No missed questions 🎉</em></div>`;
-  if(missedOnlyChk){ missedOnlyChk.checked=false; missedOnlyChk.disabled=true; }
-  if(retakeMenuBtn){ retakeMenuBtn.disabled=true; }
-  return;
-}
-if(missedOnlyChk){ missedOnlyChk.disabled=false; }
-if(retakeMenuBtn){ retakeMenuBtn.disabled=false; }
-missedList.innerHTML = missed.map(item => `
-  <div class="missed-item">
-    <div><strong>Q${item.idx}.</strong> ${escapeHTML(item.text)}</div>
-    <div><strong>Your answer:</strong> ${escapeHTML(item.userView || '—')}</div>
-    <div><strong>Correct:</strong> ${escapeHTML(item.correctView)}</div>
-  </div>
-`).join('');
+  if(!view.length){
+    missedList.innerHTML = `<div class="missed-item"><em>${showMissedOnly ? 'No missed questions 🎉' : 'No questions'}</em></div>`;
+    return;
+  }
+  missedList.innerHTML = view.map(item => `
+    <div class="missed-item">
+      <div><strong>Q${item.idx}.</strong> ${escapeHTML(item.text)}</div>
+      <div><strong>Your answer:</strong> ${escapeHTML(item.userView || '—')}</div>
+      <div><strong>Correct:</strong> ${escapeHTML(item.correctView)}</div>
+    </div>
+  `).join('');
 }
 
 function viewCorrect(q){
@@ -757,6 +764,9 @@ document.addEventListener('click', (e)=>{
   const t=e.target; if(t===retakeMenuBtn || retakeMenu.contains(t)) return;
   retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false');
 });
+
+// Toggle view between all and missed-only
+missedOnlyChk?.addEventListener('change', ()=> renderResults());
 
 backToMenuBtn?.addEventListener('click', () => {
   setMode('idle');
