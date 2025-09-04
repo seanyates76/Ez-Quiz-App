@@ -285,8 +285,8 @@ clearTimeout(id);
     try { body = await res.json(); } catch { body = await res.text().catch(()=>String(res.status)); }
     throw new Error(JSON.stringify({ status: res.status, body }));
   }
-const data = await res.json();
-return String(data.lines || '').trim();
+  const data = await res.json();
+  return { lines: String(data.lines || '').trim(), title: String(data.title || '') };
 }catch(err){
 clearTimeout(id);
 throw err;
@@ -370,7 +370,8 @@ try{
 showStatus('Generating via AI…');
 generateBtn.disabled = true;
 showVeil(Math.floor(Math.random()*MESSAGES.length));
-const lines = await generateWithAI(topic, count);
+const out = await generateWithAI(topic, count);
+const lines = out && out.lines || '';
 if(!lines){
 showStatus('AI did not return any lines. Try again or use the Prompt Builder.');
 generateBtn.disabled = false;
@@ -379,7 +380,8 @@ return;
 }
 if(editor) editor.value = lines;
 if(mirror) mirror.value = lines;
-runParseFlow(lines, topic);
+const title = (out && out.title) ? out.title : topic;
+runParseFlow(lines, title);
 }catch(err){
   const msg = String(err && err.message || err || 'Error');
   let pretty = msg;

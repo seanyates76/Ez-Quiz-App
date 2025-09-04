@@ -46,11 +46,11 @@ const provider = String(payload.provider || process.env.AI_PROVIDER || 'gemini')
 const model = String(payload.model || '');
 
 try {
-  const { lines, provider: usedProvider, model: usedModel } = await generateLines({ provider, model, topic, count, env: process.env });
+  const { title, lines, provider: usedProvider, model: usedModel } = await generateLines({ provider, model, topic, count, env: process.env });
   return {
     statusCode: 200,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ lines, provider: usedProvider, model: usedModel, fallbackUsed: false }),
+    body: JSON.stringify({ title, lines, provider: usedProvider, model: usedModel, fallbackUsed: false }),
   };
 } catch (err) {
   const msg = String((err && err.message) || err || 'Error');
@@ -61,11 +61,11 @@ try {
   const canFallbackToGemini = primary !== 'gemini' && !!process.env.GEMINI_API_KEY;
   if (canFallbackToGemini) {
     try {
-      const { lines, provider: usedProvider, model: usedModel } = await generateLines({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-1.5-flash', topic, count, env: process.env });
+      const { title, lines, provider: usedProvider, model: usedModel } = await generateLines({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-1.5-flash', topic, count, env: process.env });
       return {
         statusCode: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lines, provider: usedProvider, model: usedModel, fallbackUsed: true, fallbackFrom: primary, errorPrimary: msg }),
+        body: JSON.stringify({ title, lines, provider: usedProvider, model: usedModel, fallbackUsed: true, fallbackFrom: primary, errorPrimary: msg }),
       };
     } catch (fallbackErr) {
       const fbMsg = String((fallbackErr && fallbackErr.message) || fallbackErr || 'Error');

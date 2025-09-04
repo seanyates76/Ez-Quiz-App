@@ -3,32 +3,40 @@
 // Utility: build strict prompt compatible with front-end parser
 function buildPrompt(topic, count){
   return [
-    `Create EXACTLY ${count} quiz lines about ${topic}.`,
-    `Output ONLY the lines, no commentary or numbering, one per line.`,
-    `Allowed formats ONLY (mix them):`,
+    `Task: Produce a quiz about ${topic}.`,
+    `Output format:`,
+    `1) First line must be: TITLE: <Professional Title>`,
+    `   - Use Title Case, depluralize the last word if plural (e.g., "Histories" -> "History", "Ports" -> "Port").`,
+    `   - No parentheses or file extensions; keep it concise (e.g., "World History Quiz").`,
+    `2) Then output EXACTLY ${count} quiz lines, one per line, using ONLY these formats:`,
     `MC|Question?|A) Option 1;B) Option 2;C) Option 3;D) Option 4|A`,
     `MC|Question with multiple answers?|A) 1;B) 2;C) 3;D) 4|A,C`,
     `TF|A true/false statement.|T`,
     `YN|A yes/no question.|Y`,
     `MT|Match.|1) L1;2) L2;3) L3|A) R1;B) R2;C) R3|1-A,2-B,3-C`,
-    `Rules:`,
-    `- EXACTLY ${count} lines.`,
-    `- Use only MC, TF, YN, MT.`,
+    `Hard rules:`,
+    `- Output only plain text. No numbering, bullet points, or commentary.`,
+    `- Exactly 1 title line starting with "TITLE:" plus ${count} quiz lines.`,
     `- MC correct field may be single (A) or multiple (A,C).`,
-    `- No blank lines or extra prose.`,
+    `- No blank lines.`,
   ].join('\n');
 }
 
 // Utility: normalize model output into valid lines
 function normalizeOutputToLines(text, count){
-  if(!text) return '';
-  const lines = String(text)
+  if(!text) return { title: '', lines: '' };
+  const raw = String(text)
     .split('\n')
     .map((l)=>l.trim())
     .filter(Boolean)
-    .map((l)=> l.replace(/^\d+\.\s*/, ''))
-    .filter((l)=> /^(MC|TF|YN|MT)\|/i.test(l));
-  return lines.slice(0, count).join('\n');
+    .map((l)=> l.replace(/^\d+\.\s*/, ''));
+  // Extract optional TITLE line
+  let title = '';
+  if(raw.length && /^title\s*:/i.test(raw[0])){
+    title = raw.shift().replace(/^title\s*:/i,'').trim();
+  }
+  const lines = raw.filter((l)=> /^(MC|TF|YN|MT)\|/i.test(l)).slice(0, count);
+  return { title, lines: lines.join('\n') };
 }
 
 async function geminiGenerate({ apiKey, model = 'gemini-1.5-flash', topic, count }){
@@ -97,13 +105,15 @@ async function generateLines({ provider, model, topic, count, env }){
   const args = { topic, count: n };
   try{
     if(p==='gemini'){
-      return { provider: 'gemini', model: model || env.GEMINI_MODEL || 'gemini-1.5-flash', lines: await geminiGenerate({ apiKey: env.GEMINI_API_KEY, model: model || env.GEMINI_MODEL || 'gemini-1.5-flash', ...args }) };
+      const { title, lines } = await geminiGenerate({ apiKey: env.GEMINI_API_KEY, model: model || env.GEMINI_MODEL || 'gemini-1.5-flash', ...args });
+      return { provider: 'gemini', model: model || env.GEMINI_MODEL || 'gemini-1.5-flash', title, lines };
     }
     if(p==='openai'){
-      return { provider: 'openai', model: model || env.OPENAI_MODEL || 'gpt-4o-mini', lines: await openaiGenerate({ apiKey: env.OPENAI_API_KEY, model: model || env.OPENAI_MODEL || 'gpt-4o-mini', ...args }) };
+      const { title, lines } = await openaiGenerate({ apiKey: env.OPENAI_API_KEY, model: model || env.OPENAI_MODEL || 'gpt-4o-mini', ...args });
+      return { provider: 'openai', model: model || env.OPENAI_MODEL || 'gpt-4o-mini', title, lines };
     }
     if(p==='echo'){
-      return { provider: 'echo', model: 'stub', lines: echoGenerate(args) };
+      return { provider: 'echo', model: 'stub', title: `${topic || 'General Knowledge'} Quiz`, lines: echoGenerate(args) };
     }
     throw new Error(`Unknown provider: ${provider}`);
   }catch(err){
@@ -116,4 +126,3 @@ async function generateLines({ provider, model, topic, count, env }){
 }
 
 module.exports = { generateLines };
-
