@@ -31,8 +31,8 @@
         <input id="topicInput" type="text" class="toolbar-input" placeholder="Topic (e.g., World History)" />
         <input id="countInput" type="number" class="toolbar-input narrow" min="1" step="1" value="10" />
         <select id="difficultyInput" class="toolbar-input narrow" aria-label="Difficulty">
-          <option value="medium" selected>Medium</option>
           <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
           <option value="hard">Hard</option>
         </select>
         <button id="generateBtn" class="btn primary">Generate</button>
@@ -142,53 +142,76 @@
       </header>
       <div class="modal__body">
         <section>
-          <h4>Getting Started</h4>
+          <h4>Quick Start</h4>
           <ol>
-            <li>Paste quiz lines into the <em>Editor</em> (left) or use ✨ Prompt Builder to generate them.</li>
-            <li>Click <strong>Generate</strong> to parse and preview; then <strong>Start</strong> to begin.</li>
-            <li>Use <kbd>Enter</kbd> for Next, <kbd>Backspace</kbd> for Previous during the quiz.</li>
+            <li>Paste or load a <em>.txt</em> file into the <strong>Editor</strong>, or click <strong>Use Demo Set</strong>.</li>
+            <li>Click <strong>Generate</strong> to parse and preview; then click <strong>Start</strong> to begin.</li>
+            <li>During the quiz, use <kbd>Enter</kbd> for Next and <kbd>Backspace</kbd> for Previous.</li>
           </ol>
         </section>
 
         <section>
-          <h4>Accepted Line Formats</h4>
+          <h4>Question Formats</h4>
           <ul>
             <li><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> (multiple: <code>|A,C</code>)</li>
             <li><code>TF|Statement.|T</code> (or <code>F</code>)</li>
             <li><code>YN|Question?|Y</code> (or <code>N</code>)</li>
             <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
           </ul>
-          <p>Delimiter rules are strict: use the shown pipes <code>|</code>, semicolons <code>;</code>, and labels.</p>
+          <p>Use the exact delimiters shown: pipes <code>|</code>, semicolons <code>;</code>, and labels like <code>A)</code> or <code>1)</code>.</p>
         </section>
 
         <section>
-          <h4>Using AI (✨ Prompt Builder)</h4>
-          <p>Open ✨, set a topic and length, then <strong>Copy</strong>. Paste into ChatGPT/Gemini and bring the generated lines back into the Editor.</p>
-        </section>
-
-        <section>
-          <h4>Saving &amp; Settings</h4>
+          <h4>Quiz Controls</h4>
           <ul>
-            <li>Theme and timer settings persist automatically across reloads.</li>
-            <li><strong>Reset App</strong> (Settings → Advanced) clears saved settings and reloads.</li>
+            <li><strong>MC</strong>: click options (multiple selections allowed if the answer has multiple letters).</li>
+            <li><strong>TF/YN</strong>: use the on‑screen buttons or keys (<kbd>T/F</kbd>, <kbd>Y/N</kbd>).</li>
+            <li><strong>Keyboard</strong>: <kbd>Enter</kbd>/<kbd>→</kbd> for Next, <kbd>Backspace</kbd>/<kbd>←</kbd> for Previous.</li>
           </ul>
         </section>
 
         <section>
-          <h4>Shortcuts</h4>
+          <h4>Results &amp; Retake</h4>
           <ul>
-            <li>Open Prompt Builder: <kbd>Ctrl/Cmd + P</kbd></li>
-            <li>During quiz: <kbd>Enter</kbd> = Next, <kbd>Backspace</kbd> = Previous</li>
+            <li>Missed questions are shown first by default; toggle <strong>Show all</strong> to see everything.</li>
+            <li><strong>Retake</strong> repeats the quiz; use the caret to <strong>Retake missed only</strong>.</li>
+            <li>Your answer list shows both the letter and the answer text.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Timer &amp; Settings</h4>
+          <ul>
+            <li>Enable a timer in <strong>Settings</strong>; choose <em>Stopwatch</em> or <em>Countdown</em>.</li>
+            <li>Set duration as <code>mm:ss</code> for countdown.</li>
+            <li>Optional: <strong>Require answer to advance</strong> and <strong>Auto‑start after generate</strong>.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Saving &amp; Reset</h4>
+          <ul>
+            <li>Theme and timer preferences save automatically and persist across reloads.</li>
+            <li>Use <strong>Reset App</strong> in Settings to clear saved preferences.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Advanced</h4>
+          <ul>
+            <li><strong>Prompt Builder ✨</strong>: open, enter a Topic and Length, then <strong>Copy</strong> to get a ready‑made prompt you can use in your AI tool; paste the resulting lines into the Editor.</li>
+            <li><strong>Generate from Topic</strong>: the <strong>Generate</strong> button can fetch quiz lines if a backend is configured; otherwise, paste lines or use the Demo.</li>
+            <li><strong>Formatting tips</strong>: no extra numbering or commentary; one question per line; MC answers can be single (<code>A</code>) or multiple (<code>A,C</code>).</li>
           </ul>
         </section>
 
         <section>
           <h4>Troubleshooting</h4>
           <ul>
-            <li><strong>Parser errors?</strong> Check delimiters and labels (e.g., <code>A)</code>, <code>1)</code>).</li>
-            <li><strong>Start disabled?</strong> Ensure at least one valid question parsed.</li>
-            <li><strong>Timer?</strong> Enable in Settings; set duration as <code>mm:ss</code> for countdown.</li>
-            <li><strong>Reset?</strong> Use Reset App to clear saved theme/timer.</li>
+            <li><strong>Parser errors</strong>: check delimiters/labels and remove extra bullets or numbering.</li>
+            <li><strong>Start disabled</strong>: ensure at least one valid line was parsed in the Editor.</li>
+            <li><strong>Timer not showing</strong>: enable it and set a duration (for countdown).</li>
+            <li><strong>Stuck/needs refresh</strong>: use <strong>Reset App</strong> in Settings.</li>
           </ul>
         </section>
       </div>
@@ -259,17 +282,36 @@
   </div>
 
   <script type="module" src="js/main.js"></script>
-  <!-- Buy Me a Coffee widget (desktop only); button above acts as fallback -->
+  <!-- Buy Me a Coffee widget: desktop only; mutually exclusive with fallback button -->
   <script>
     (function(){
-      function hideFallbackIfWidget(){
-        var iframe = document.querySelector('iframe[src*="buymeacoffee.com"]');
-        var btn = document.getElementById('bmacBtn');
-        if(iframe && btn){ btn.style.display = 'none'; }
+      var mq = window.matchMedia('(min-width: 768px)');
+      var loaded = false;
+
+      function getWidgetIframe(){
+        return document.querySelector('iframe[src*="buymeacoffee.com"]');
       }
+      function show(el){ if(el) el.style.display = ''; }
+      function hide(el){ if(el) el.style.display = 'none'; }
+
+      function syncSupportUI(){
+        var btn = document.getElementById('bmacBtn');
+        var iframe = getWidgetIframe();
+        if(mq.matches){
+          // Desktop: prefer widget; hide fallback if widget exists
+          if(iframe){ hide(btn); show(iframe); }
+          else { show(btn); }
+        } else {
+          // Tablet/phone: hide widget if present; show fallback
+          if(iframe){ hide(iframe); }
+          show(btn);
+        }
+      }
+
       function loadBMCWidget(){
-        if(!window.matchMedia('(min-width: 768px)').matches) return;
-        if(document.querySelector('script[data-bmc-widget]')) return;
+        if(loaded) return;
+        if(!mq.matches) return; // only on desktop
+        if(document.querySelector('script[data-bmc-widget]')){ loaded = true; syncSupportUI(); return; }
         var s = document.createElement('script');
         s.src = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js';
         s.setAttribute('data-bmc-widget','1');
@@ -281,12 +323,23 @@
         s.setAttribute('data-position','Right');
         s.setAttribute('data-x_margin','18');
         s.setAttribute('data-y_margin','18');
-        s.onload = hideFallbackIfWidget;
+        s.onload = function(){ loaded = true; syncSupportUI(); };
         (document.body || document.head).appendChild(s);
       }
-      window.addEventListener('load', function(){ setTimeout(function(){ loadBMCWidget(); hideFallbackIfWidget(); }, 200); });
-      var mo = new MutationObserver(hideFallbackIfWidget);
+
+      // On load, attempt to load widget (desktop) and sync visibility
+      window.addEventListener('load', function(){ setTimeout(function(){ loadBMCWidget(); syncSupportUI(); }, 200); });
+
+      // Observe DOM for late insertion of widget iframe and re-sync
+      var mo = new MutationObserver(syncSupportUI);
       mo.observe(document.documentElement, { childList:true, subtree:true });
+
+      // React to viewport changes (desktop <-> mobile)
+      if(typeof mq.addEventListener === 'function'){
+        mq.addEventListener('change', function(){ loadBMCWidget(); syncSupportUI(); });
+      } else if(typeof mq.addListener === 'function'){
+        mq.addListener(function(){ loadBMCWidget(); syncSupportUI(); });
+      }
     })();
   </script>
   <script>
