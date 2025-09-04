@@ -189,6 +189,11 @@ advancedToggleBtn?.addEventListener('click', ()=>{
   if(open) d.removeAttribute('open'); else d.setAttribute('open','');
 });
 
+// Pressing Enter in the topic box triggers generation
+topicInput?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); generateBtn?.click(); }
+});
+
 // Prompt builder (unchanged copy logic – kept for parity)
 function buildPromptTemplate(topic, count){
 const n=Math.max(1,parseInt(count||1,10)); const safeTopic=(topic||'CompTIA A+ 2025 Core 1').trim();
@@ -359,7 +364,6 @@ generateBtn?.addEventListener('click', async ()=>{
 const editorText = (editor?.value || '').trim();
 if(editorText.length){
   runParseFlow(editorText, topicInput?.value || 'Custom');
-  if (S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
   return;
 }
 // Otherwise attempt AI generation using toolbar or Prompt Builder fields
