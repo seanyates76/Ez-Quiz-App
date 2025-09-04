@@ -67,6 +67,7 @@ const prevBtn = $('prevBtn');
 const nextBtn = $('nextBtn');
 const finishBtn = $('finishBtn');
 const backDuringQuiz = $('backDuringQuiz');
+const qChip = $('qChip');
 
 const resultsView = $('resultsView');
 const resultsSummary = $('resultsSummary');
@@ -93,6 +94,8 @@ const promptClose = $('promptClose');
 const timerEnabledEl = $('timerEnabled');
 const countdownModeEl = $('countdownMode');
 const timerDurationEl = $('timerDuration');
+const autoStartEl = $('autoStart');
+const requireAnswerEl = $('requireAnswer');
 
 const resetApp = $('resetApp');
 
@@ -117,7 +120,7 @@ window.EZQ = window.EZQ || {};
 const S = window.EZQ;
 S.mode = S.mode || 'idle';
 S.quiz = S.quiz || { questions: [], index: 0, answers: [], score: 0, startedAt: 0, finishedAt: 0, endAt: 0, topic: '', title: '' };
-S.settings = S.settings || { theme: 'dark', timerEnabled: false, countdown: false, durationMs: 0 };
+S.settings = S.settings || { theme: 'dark', timerEnabled: false, countdown: false, durationMs: 0, autoStart: true, requireAnswer: false };
 
 let timerInterval = null;
 let pausedAt = 0, elapsedOffset = 0, remainingOnPause = 0;
@@ -153,18 +156,20 @@ function hideVeil(doneText){
 
 // Persistence
 const STORAGE_KEYS = { theme: 'ezq.theme', settings: 'ezq.settings' };
-function saveSettingsToStorage(){ try{ localStorage.setItem(STORAGE_KEYS.theme, S.settings.theme); localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({ timerEnabled: !!S.settings.timerEnabled, countdown: !!S.settings.countdown, durationMs: Number(S.settings.durationMs||0) })); }catch{} }
+function saveSettingsToStorage(){ try{ localStorage.setItem(STORAGE_KEYS.theme, S.settings.theme); localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({ timerEnabled: !!S.settings.timerEnabled, countdown: !!S.settings.countdown, durationMs: Number(S.settings.durationMs||0), autoStart: !!S.settings.autoStart, requireAnswer: !!S.settings.requireAnswer })); }catch{} }
 function loadSettingsFromStorage(){
 try{ const t=localStorage.getItem(STORAGE_KEYS.theme); if(t==='light'||t==='dark') S.settings.theme=t; }catch{}
-try{ const raw=localStorage.getItem(STORAGE_KEYS.settings); if(raw){ const obj=JSON.parse(raw); S.settings.timerEnabled=!!obj.timerEnabled; S.settings.countdown=!!obj.countdown; S.settings.durationMs=Number(obj.durationMs||0); } }catch{}
+try{ const raw=localStorage.getItem(STORAGE_KEYS.settings); if(raw){ const obj=JSON.parse(raw); S.settings.timerEnabled=!!obj.timerEnabled; S.settings.countdown=!!obj.countdown; S.settings.durationMs=Number(obj.durationMs||0); S.settings.autoStart = obj.autoStart!==undefined ? !!obj.autoStart : S.settings.autoStart; S.settings.requireAnswer = !!obj.requireAnswer; } }catch{}
 }
 function applyTheme(theme){ const t=(theme==='light'||theme==='dark')?theme:'dark'; S.settings.theme=t; document.body.setAttribute('data-theme', t); saveSettingsToStorage(); }
-function reflectSettingsIntoUI(){ byQSA('input[name="theme"]').forEach(r=>{ r.checked=(r.value===S.settings.theme); }); if(timerEnabledEl) timerEnabledEl.checked=!!S.settings.timerEnabled; if(countdownModeEl) countdownModeEl.checked=!!S.settings.countdown; if(timerDurationEl) timerDurationEl.value=msToMmSs(S.settings.durationMs); }
+function reflectSettingsIntoUI(){ byQSA('input[name="theme"]').forEach(r=>{ r.checked=(r.value===S.settings.theme); }); if(timerEnabledEl) timerEnabledEl.checked=!!S.settings.timerEnabled; if(countdownModeEl) countdownModeEl.checked=!!S.settings.countdown; if(timerDurationEl) timerDurationEl.value=msToMmSs(S.settings.durationMs); if(autoStartEl) autoStartEl.checked=!!S.settings.autoStart; if(requireAnswerEl) requireAnswerEl.checked=!!S.settings.requireAnswer; }
 function wireSettingsPanel(){
 byQSA('input[name="theme"]').forEach(radio=>{ radio.addEventListener('change', ()=>{ if(radio.checked) applyTheme(radio.value); }); });
 timerEnabledEl?.addEventListener('change', ()=>{ S.settings.timerEnabled=!!timerEnabledEl.checked; saveSettingsToStorage(); });
 countdownModeEl?.addEventListener('change', ()=>{ S.settings.countdown=!!countdownModeEl.checked; saveSettingsToStorage(); });
 timerDurationEl?.addEventListener('input', ()=>{ S.settings.durationMs=mmSsToMs(timerDurationEl.value); saveSettingsToStorage(); });
+autoStartEl?.addEventListener('change', ()=>{ S.settings.autoStart=!!autoStartEl.checked; saveSettingsToStorage(); });
+requireAnswerEl?.addEventListener('change', ()=>{ S.settings.requireAnswer=!!requireAnswerEl.checked; saveSettingsToStorage(); updateNavButtons(); });
 settingsClose?.addEventListener('click', ()=> closeModal('settingsModal'));
 settingsSave?.addEventListener('click', ()=> closeModal('settingsModal'));
 }
@@ -194,6 +199,12 @@ advancedToggleBtn?.addEventListener('click', ()=>{
 
 // Pressing Enter in the topic box triggers generation
 topicInput?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); generateBtn?.click(); }
+});
+countInput?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); generateBtn?.click(); }
+});
+difficultyInput?.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') { e.preventDefault(); generateBtn?.click(); }
 });
 
@@ -370,8 +381,12 @@ if(editorText.length){
   return;
 }
 // Otherwise attempt AI generation using toolbar or Prompt Builder fields
-const topic = (topicInput?.value || pbTopic?.value || 'General knowledge').trim();
-const count = Math.max(1, parseInt((countInput?.value || pbCount?.value || '10'), 10));
+const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
+const topic = topicRaw || 'General knowledge';
+let count = parseInt((countInput?.value || pbCount?.value || '10'), 10);
+if(!Number.isFinite(count)) count = 10;
+count = Math.max(1, Math.min(50, count));
+if(!topicRaw){ showStatus('Using default topic: General knowledge'); }
 try{
 showStatus('Generating via AI…');
 generateBtn.disabled = true;
@@ -475,12 +490,14 @@ if(timerEl) timerEl.textContent = formatDuration(remain);
 if(remain<=0){ clearInterval(timerInterval); timerInterval=null; finishQuiz(true);}
 }
 function updateNavButtons(){
-const i=S.quiz.index, total=S.quiz.questions.length;
-if(prevBtn) prevBtn.disabled = i<=0;
-if(nextBtn){
+ const i=S.quiz.index, total=S.quiz.questions.length;
+ // update chip
+ if(qChip){ qChip.textContent = total? `${i+1}/${total}` : '0/0'; }
+ if(prevBtn) prevBtn.disabled = i<=0;
+ if(nextBtn){
   nextBtn.disabled = i>=total-1;
   if(i>=total-1){ nextBtn.classList.add('is-hidden'); } else { nextBtn.classList.remove('is-hidden'); }
-}
+ }
   if(finishBtn){
     if(i>=total-1){
       finishBtn.classList.remove('is-hidden');
@@ -547,6 +564,8 @@ const qwrapProg = document.createElement('div');
 qwrapProg.className = 'prog';
 qwrapProg.id = 'progWrap';
 qwrapProg.innerHTML = '<div class="prog-bar" id="progBar" style="width:0%"></div>';
+qwrapProg.setAttribute('role','progressbar');
+qwrapProg.setAttribute('aria-label','Question progress');
 const hdrEl = questionHost.querySelector('.qhdr');
 const qtextEl = questionHost.querySelector('.qtext');
 if(hdrEl && qtextEl){ hdrEl.after(qwrapProg); }
@@ -608,6 +627,25 @@ function updateProgress(){
   if(!el || !total){ if(el) el.style.width='0%'; return; }
   const pct = Math.max(0, Math.min(100, Math.round(((S.quiz.index+1)/total)*100)));
   el.style.width = pct + '%';
+  const wrap = document.getElementById('progWrap');
+  if(wrap){ wrap.setAttribute('aria-valuemin','0'); wrap.setAttribute('aria-valuemax','100'); wrap.setAttribute('aria-valuenow', String(pct)); }
+}
+
+// helper: is current question answered (for requireAnswer)
+function isCurrentAnswered(){
+  const q=S.quiz.questions[S.quiz.index];
+  const a=S.quiz.answers[S.quiz.index];
+  if(!q) return false;
+  if(q.type==='MC'){
+    const arr=Array.isArray(a)?a:[]; return arr.length>0;
+  }
+  if(q.type==='TF' || q.type==='YN'){
+    return typeof a==='boolean';
+  }
+  if(q.type==='MT'){
+    const arr=Array.isArray(a)?a:[]; if(!arr.length) return false; return arr.every(v=> typeof v==='number' && v>=0);
+  }
+  return false;
 }
 }
 
@@ -619,15 +657,17 @@ document.addEventListener('keydown', (e)=>{
 if(S.mode!=='quiz') return;
 const a=document.activeElement; const tag=a?.tagName?.toLowerCase();
 if(tag==='input'||tag==='textarea'||a?.isContentEditable||tag==='select') return;
+// Keyboard navigation
 if(e.key === 'Enter' || e.key === 'ArrowRight'){
   e.preventDefault();
+  if(S.settings.requireAnswer && !isCurrentAnswered()) return;
   if(S.quiz.index < S.quiz.questions.length-1){
     S.quiz.index++;
     renderCurrentQuestion();
     updateNavButtons();
   } else {
     // On last question, Enter/Right finishes
-    finishQuiz(false);
+    if(!S.settings.requireAnswer || isCurrentAnswered()) finishQuiz(false);
   }
 }else if(e.key === 'Backspace' || e.key === 'ArrowLeft'){
   e.preventDefault();
@@ -635,6 +675,44 @@ if(e.key === 'Enter' || e.key === 'ArrowRight'){
     S.quiz.index--;
     renderCurrentQuestion();
     updateNavButtons();
+  }
+} else {
+  // Answer hotkeys
+  const q = S.quiz.questions[S.quiz.index];
+  if(!q) return;
+  const k = e.key.toLowerCase();
+  if(q.type==='MC'){
+    // map a-z or digits 1-9
+    let idx = -1;
+    if(k>='a' && k<='z') idx = k.charCodeAt(0)-97; // a=0
+    else if(k>='1' && k<='9') idx = parseInt(k,10)-1;
+    if(idx>=0 && idx<q.options.length){
+      const multiple = q.correct && q.correct.length>1;
+      if(multiple){
+        const inputs = byQSA('input[type="checkbox"]', questionHost);
+        const target = inputs[idx]; if(!target) return;
+        target.checked = !target.checked; target.dispatchEvent(new Event('change', { bubbles:true }));
+      }else{
+        const inputs = byQSA('input[type="radio"][name="mc"]', questionHost);
+        const target = inputs[idx]; if(!target) return;
+        target.checked = true; target.dispatchEvent(new Event('change', { bubbles:true }));
+      }
+      updateNavButtons();
+    }
+  } else if(q.type==='TF'){
+    if(k==='t' || k==='f'){
+      const val = (k==='t');
+      const inputs = byQSA('input[type="radio"][name="tf"]', questionHost);
+      const target = inputs.find(n=> (n.getAttribute('data-bool')==='true')===val);
+      if(target){ target.checked = true; target.dispatchEvent(new Event('change', { bubbles:true })); updateNavButtons(); }
+    }
+  } else if(q.type==='YN'){
+    if(k==='y' || k==='n'){
+      const val = (k==='y');
+      const inputs = byQSA('input[type="radio"][name="yn"]', questionHost);
+      const target = inputs.find(n=> (n.getAttribute('data-bool')==='true')===val);
+      if(target){ target.checked = true; target.dispatchEvent(new Event('change', { bubbles:true })); updateNavButtons(); }
+    }
   }
 }
 });
@@ -644,6 +722,10 @@ finishBtn?.addEventListener('click', (e)=>{ finishQuiz(false); try{e.currentTarg
 
 // Back to Menu during quiz
 backDuringQuiz?.addEventListener('click', (e)=>{
+  if(S.mode==='quiz'){
+    const confirmLeave = confirm('Leave quiz and return to menu? Your progress will be lost.');
+    if(!confirmLeave) return;
+  }
   if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
   setMode('idle');
   try{e.currentTarget.blur();}catch{}

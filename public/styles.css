@@ -70,25 +70,30 @@ body{
 .icon-btn:focus-visible{outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow)}
 
 /* Ensure badge-style padding is visible in all themes */
-.site-header .brand-link{
-  padding:12px 18px; /* base padding */
-  border-radius:16px;
-  background:var(--panel-2);
-  border:1px solid var(--field-border);
-  box-shadow:0 6px 18px rgba(0,0,0,.06);
-}
+/* Default: no badge on dark; light will style explicitly */
 
 /* Light mode hero (brand) padding + contrast */
-body[data-theme="light"] .brand-link{
-  padding:12px 18px; /* visibly larger */
-  margin:2px 0 0 2px; /* breathing room from header edges */
-  border-radius:18px;
-  background:#e9eef7; /* solid, contrasted to white header */
-  border:2px solid var(--field-border);
-  box-shadow:0 8px 20px rgba(0,0,0,.10);
+/* Light mode: modern soft pill around brand */
+body[data-theme="light"] .site-header .brand-link{
+  padding:12px 18px;
+  margin:2px 0 0 2px;
+  border-radius:24px; /* softer edges */
+  background:linear-gradient(180deg, #f4f7fb 0%, #e9eef7 100%);
+  border:1px solid var(--field-border); /* lighter, modern */
+  box-shadow:0 8px 22px rgba(0,0,0,.08);
 }
 body[data-theme="light"] .brand-link:hover{ filter:brightness(1.02); }
 body[data-theme="light"] .brand-logo{ filter:drop-shadow(0 2px 6px rgba(0,0,0,.18)); }
+
+/* Dark mode: explicitly remove badge to keep it clean */
+body[data-theme="dark"] .site-header .brand-link{
+  padding:0;
+  margin:0;
+  background:transparent;
+  border:0;
+  box-shadow:none;
+  border-radius:0;
+}
 
 /* Layout */
 .container{max-width:1060px; margin:24px auto; padding:0 16px}
@@ -314,3 +319,7 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
   .card{padding:14px}
 }
 #quizView #questionHost + .row{margin-top:12px}
+#quizView .quiz-nav-row{margin-top:12px}
+@media (max-width:600px){
+  #quizView .quiz-nav-row{position:sticky; bottom:0; background:var(--panel); padding-top:10px; margin-left:-16px; margin-right:-16px; padding-left:16px; padding-right:16px; border-top:1px solid var(--border)}
+}

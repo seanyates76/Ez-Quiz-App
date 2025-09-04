@@ -77,9 +77,10 @@
       </div>
       <div class="quiz-header-row">
         <div id="timer" class="timer" aria-live="polite"></div>
+        <div class="chip" id="qChip" aria-live="polite">0/0</div>
       </div>
       <div id="questionHost"></div>
-      <div class="row gap">
+      <div class="row gap quiz-nav-row">
         <button id="prevBtn" class="btn">Previous</button>
         <button id="nextBtn" class="btn success">Next</button>
         <button id="finishBtn" class="btn primary">Finish</button>
@@ -212,6 +213,12 @@
             Duration (mm:ss)
             <input type="text" id="timerDuration" inputmode="numeric" placeholder="05:00" />
           </label>
+        </fieldset>
+
+        <fieldset class="fieldgroup">
+          <legend>Quiz Behavior</legend>
+          <label><input type="checkbox" id="autoStart" /> Auto‑start after generate</label>
+          <label><input type="checkbox" id="requireAnswer" /> Require answer to advance</label>
         </fieldset>
 
         <fieldset class="fieldgroup">
