@@ -48,6 +48,12 @@
               <label for="editor" class="lbl">Editor (paste MC/TF/YN/MT lines)</label>
               <textarea id="editor" class="editor" rows="10" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
               <div id="status" class="status" aria-live="polite"></div>
+              <div class="row gap" style="margin-top:8px">
+                <button id="loadBtn" class="btn">Load .txt</button>
+                <input id="fileInput" type="file" accept=".txt" style="display:none" />
+                <button id="demoBtn" class="btn">Use Demo Set</button>
+                <button id="clearBtn" class="btn">Clear</button>
+              </div>
             </div>
 
             <div class="col">

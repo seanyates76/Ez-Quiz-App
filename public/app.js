@@ -75,6 +75,11 @@ const topicInput = $('topicInput');
 const countInput = $('countInput');
 const difficultyInput = $('difficultyInput');
 const advancedToggleBtn = $('advancedToggleBtn');
+// Advanced import buttons
+const loadBtn = $('loadBtn');
+const fileInput = $('fileInput');
+const demoBtn = $('demoBtn');
+const clearBtn = $('clearBtn');
 
 // State
 window.EZQ = window.EZQ || {};
@@ -251,6 +256,45 @@ function syncSettingsFromUI(){ S.settings.timerEnabled=!!(timerEnabledEl?.checke
 
 // Generator flow (manual or AI)
 function wireGenerator(){
+// File loader
+loadBtn?.addEventListener('click', ()=> fileInput?.click());
+fileInput?.addEventListener('change', ()=>{
+  const f = fileInput.files && fileInput.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const text = String(reader.result || '');
+    if(editor) editor.value = text;
+    if(mirror) mirror.value = text;
+    runParseFlow(text);
+    showStatus(`Loaded ${f.name} (${text.length} chars)`);
+  };
+  reader.onerror = () => { showStatus('Failed to read file'); };
+  reader.readAsText(f);
+});
+
+// Demo set
+demoBtn?.addEventListener('click', ()=>{
+  const demo = [
+    'MC|Which planet is known as the Red Planet?|A) Venus;B) Mars;C) Jupiter;D) Saturn|B',
+    'MC|Select prime numbers.|A) 2;B) 4;C) 5;D) 9|A,C',
+    'TF|The Pacific Ocean is larger than the Atlantic.|T',
+    'YN|Is 0 an even number?|Y',
+    'MT|Match ports to services.|1) 22;2) 53|A) SSH;B) DNS|1-A,2-B',
+    'TF|Lightning never strikes the same place twice.|F',
+  ].join('\n');
+  if(editor) editor.value = demo;
+  if(mirror) mirror.value = demo;
+  runParseFlow(demo);
+});
+
+// Clear
+clearBtn?.addEventListener('click', ()=>{
+  if(editor) editor.value = '';
+  if(mirror) mirror.value = '';
+  if(startBtn) startBtn.disabled = true;
+  showStatus('Cleared.');
+});
 generateBtn?.addEventListener('click', async ()=>{
 // If there is editor content, use manual flow
 const editorText = (editor?.value || '').trim();
@@ -348,7 +392,10 @@ if(remain<=0){ clearInterval(timerInterval); timerInterval=null; finishQuiz(true
 function updateNavButtons(){
 const i=S.quiz.index, total=S.quiz.questions.length;
 if(prevBtn) prevBtn.disabled = i<=0;
-if(nextBtn) nextBtn.disabled = i>=total-1;
+if(nextBtn){
+  nextBtn.disabled = i>=total-1;
+  if(i>=total-1){ nextBtn.classList.add('is-hidden'); } else { nextBtn.classList.remove('is-hidden'); }
+}
   if(finishBtn){
     if(i>=total-1){
       finishBtn.classList.remove('is-hidden');
