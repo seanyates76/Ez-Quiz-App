@@ -67,20 +67,9 @@ const prompt = [
 `- No blank lines or extra prose.`,
 ].join('\n');
 
-// Lazy require to avoid cold start cost if OPTIONS
-let GoogleGenerativeAI;
 try {
-  // Load Gemini SDK (note: no leading space in package name)
-  ({ GoogleGenerativeAI } = require('@google/generative-ai'));
-} catch (e) {
-  return {
-  statusCode: 500,
-  headers: corsHeaders,
-  body: JSON.stringify({ error: 'Failed to load @google/generative-ai' }),
-  };
-}
-
-try {
+// Dynamic ESM import inside handler (works in CJS on Node 18)
+const { GoogleGenerativeAI } = await import('@google/generative-ai');
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
 
