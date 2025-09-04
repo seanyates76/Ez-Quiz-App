@@ -772,7 +772,11 @@ function renderResults(){
   // Default: missed-only unless user opts to show all
   if(showAllChk && showAllChk.dataset.init!=="1"){ showAllChk.checked = false; showAllChk.dataset.init = "1"; }
   const showMissedOnly = !(showAllChk && showAllChk.checked);
-  const view = showMissedOnly ? items.filter(it=>!it.isCorrect) : items;
+  let view = showMissedOnly ? items.filter(it=>!it.isCorrect) : items.slice();
+  if(!showMissedOnly){
+    // When showing all, list missed first for easier review
+    view.sort((a,b)=> Number(a.isCorrect) - Number(b.isCorrect));
+  }
 
   if(!view.length){
     missedList.innerHTML = `<div class="missed-item"><em>${showMissedOnly ? 'No missed questions 🎉' : 'No questions'}</em></div>`;
