@@ -39,6 +39,7 @@ const prevBtn = $('prevBtn');
 const nextBtn = $('nextBtn');
 const finishBtn = $('finishBtn');
 const progBar = $('progBar');
+const qCounter = $('qCounter');
 
 const resultsView = $('resultsView');
 const resultsSummary = $('resultsSummary');
@@ -344,14 +345,15 @@ function updateNavButtons(){
 const i=S.quiz.index, total=S.quiz.questions.length;
 if(prevBtn) prevBtn.disabled = i<=0;
 if(nextBtn) nextBtn.disabled = i>=total-1;
- if(finishBtn){
-   if(i>=total-1){
-     finishBtn.classList.remove('is-hidden');
-   }else{
-     finishBtn.classList.add('is-hidden');
-   }
- }
- updateProgress();
+  if(finishBtn){
+    if(i>=total-1){
+      finishBtn.classList.remove('is-hidden');
+    }else{
+      finishBtn.classList.add('is-hidden');
+    }
+  }
+  updateProgress();
+  updateCounter();
 }
 
 function renderCurrentQuestion(){
@@ -456,6 +458,14 @@ function updateProgress(){
   if(!progBar || !total){ if(progBar) progBar.style.width='0%'; return; }
   const pct = Math.max(0, Math.min(100, Math.round(((S.quiz.index+1)/total)*100)));
   progBar.style.width = pct + '%';
+}
+
+function updateCounter(){
+  const total = S.quiz.questions.length;
+  if(!qCounter){ return; }
+  if(!total){ qCounter.textContent = '0/0'; return; }
+  const n = clamp(S.quiz.index + 1, 0, total);
+  qCounter.textContent = `${n}/${total}`;
 }
 }
 

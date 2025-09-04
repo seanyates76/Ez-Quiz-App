@@ -156,6 +156,13 @@ details.advanced > summary{display:none}
 
 /* Progress bar */
 .quiz-header-row{display:flex; align-items:center; gap:12px; margin:6px 0 12px}
+.chip{
+  display:inline-flex; align-items:center; justify-content:center;
+  height:28px; min-width:64px; padding:0 10px;
+  border-radius:999px; font-weight:600; font-size:14px;
+  background:var(--panel-2); color:var(--text);
+  border:1px solid var(--field-border);
+}
 .prog{flex:1; height:8px; background:var(--panel-2); border:1px solid var(--field-border); border-radius:999px; overflow:hidden}
 .prog-bar{height:100%; width:0%; background:linear-gradient(90deg, var(--primary), #8bb6ff); transition:width .25s ease}
 
