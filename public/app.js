@@ -95,6 +95,35 @@ S.settings = S.settings || { theme: 'dark', timerEnabled: false, countdown: fals
 let timerInterval = null;
 let pausedAt = 0, elapsedOffset = 0, remainingOnPause = 0;
 
+// Veil loader with quirky messages (8× slower)
+const MESSAGES = [
+  'Sharpening pencils…',
+  'Arguing about the correct answer… politely.',
+  'Counting to four. Repeatedly.',
+  'Shuffling options without dropping any.',
+  'Checking for trick questions…',
+  'Teaching the quiz to behave.',
+  'Wrangling multiple choices…',
+];
+let veilTimer = null;
+function showVeil(startAt=0){
+  const veil = document.getElementById('veil');
+  const msg  = document.getElementById('veilMsg');
+  if (!veil || !msg) return;
+  let i = startAt % MESSAGES.length;
+  msg.textContent = MESSAGES[i++];
+  veil.hidden = false;
+  // was 900ms → now 7200ms (8× slower)
+  veilTimer = setInterval(()=>{ msg.textContent = MESSAGES[i++ % MESSAGES.length]; }, 7200);
+}
+function hideVeil(doneText){
+  const veil = document.getElementById('veil');
+  const msg  = document.getElementById('veilMsg');
+  if (veilTimer) { clearInterval(veilTimer); veilTimer = null; }
+  if (msg && doneText) msg.textContent = doneText;
+  setTimeout(()=>{ if (veil) veil.hidden = true; }, 250);
+}
+
 // Persistence
 const STORAGE_KEYS = { theme: 'ezq.theme', settings: 'ezq.settings' };
 function saveSettingsToStorage(){ try{ localStorage.setItem(STORAGE_KEYS.theme, S.settings.theme); localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify({ timerEnabled: !!S.settings.timerEnabled, countdown: !!S.settings.countdown, durationMs: Number(S.settings.durationMs||0) })); }catch{} }
