@@ -24,6 +24,33 @@ const parts=s.split(':'); if(parts.length===2){ const mm=parseInt(parts[0],10)||
 const mm=parseInt(s,10)||0; return mm*60*1000;
 }
 
+// Topic formatting helpers
+function titleCase(str){
+  return String(str||'')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ');
+}
+function singularize(word){
+  const w = String(word||'');
+  if(/ies$/i.test(w)) return w.replace(/ies$/i,'y');
+  if(/(xes|zes|sses)$/i.test(w)) return w.replace(/es$/i,'');
+  if(/s$/i.test(w) && !/ss$/i.test(w)) return w.replace(/s$/i,'');
+  return w;
+}
+function formatTopicLabel(raw){
+  if(!raw) return '';
+  // strip extension if filename-like
+  const base = String(raw).replace(/\.[a-zA-Z0-9]{1,5}$/,'');
+  const parts = base.trim().split(/\s+/);
+  if(parts.length){
+    const last = parts.pop();
+    parts.push(singularize(last));
+  }
+  return titleCase(parts.join(' '));
+}
+
 // Elements
 const generatorCard = $('generatorCard');
 const editor = $('editor');
@@ -414,10 +441,13 @@ if(S.settings.timerEnabled){
   }
 }
 
-setMode('quiz');
- if (quizTitleEl) { const t=S.quiz.topic?`(${S.quiz.topic}) `:''; quizTitleEl.textContent = `${t}Quiz`; }
-renderCurrentQuestion();
-updateNavButtons();
+ setMode('quiz');
+ if (quizTitleEl) {
+   const pretty = formatTopicLabel(S.quiz.topic||'');
+   quizTitleEl.textContent = pretty ? `${pretty} Quiz` : 'Quiz';
+ }
+ renderCurrentQuestion();
+ updateNavButtons();
  updateProgress();
 }
 function tickStopwatch(){ const elapsed = Date.now() - S.quiz.startedAt - elapsedOffset; if(timerEl) timerEl.textContent = formatDuration(elapsed); }
