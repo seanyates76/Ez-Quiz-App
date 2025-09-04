@@ -173,6 +173,13 @@ details.advanced > summary{display:none}
 .prog{flex:1; height:8px; background:var(--panel-2); border:1px solid var(--field-border); border-radius:999px; overflow:hidden}
 .prog-bar{height:100%; width:0%; background:linear-gradient(90deg, var(--primary), #8bb6ff); transition:width .25s ease}
 
+/* Quiz title row */
+.quiz-title-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px}
+.quiz-title-row h2{margin:0}
+
+/* Inline progress spacing inside question */
+#quizView .qwrap .prog{margin:6px 0 10px}
+
 /* Quiz Options (polish) */
 #quizView .options{display:grid; gap:10px}
 #quizView .options{margin-bottom:12px}

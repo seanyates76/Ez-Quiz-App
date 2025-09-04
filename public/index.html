@@ -71,14 +71,12 @@
 
     <!-- Quiz View -->
     <section id="quizView" class="card is-hidden" aria-labelledby="quizTitle">
-      <h2 id="quizTitle">Quiz</h2>
-      <div class="quiz-header-row">
-        <div class="chip" id="qCounter" aria-live="polite">0/0</div>
-        <div id="timer" class="timer" aria-live="polite"></div>
-        <div class="prog" id="progWrap" aria-hidden="false">
-          <div class="prog-bar" id="progBar" style="width:0%"></div>
-        </div>
+      <div class="quiz-title-row">
+        <h2 id="quizTitle">Quiz</h2>
         <button id="backDuringQuiz" class="btn" type="button" title="Back to Menu">Back to Menu</button>
+      </div>
+      <div class="quiz-header-row">
+        <div id="timer" class="timer" aria-live="polite"></div>
       </div>
       <div id="questionHost"></div>
       <div class="row gap">

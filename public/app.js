@@ -66,8 +66,6 @@ const quizTitleEl = $('quizTitle');
 const prevBtn = $('prevBtn');
 const nextBtn = $('nextBtn');
 const finishBtn = $('finishBtn');
-const progBar = $('progBar');
-const qCounter = $('qCounter');
 const backDuringQuiz = $('backDuringQuiz');
 
 const resultsView = $('resultsView');
@@ -360,8 +358,9 @@ generateBtn?.addEventListener('click', async ()=>{
 // If there is editor content, use manual flow
 const editorText = (editor?.value || '').trim();
 if(editorText.length){
-runParseFlow(editorText, topicInput?.value || 'Custom');
-return;
+  runParseFlow(editorText, topicInput?.value || 'Custom');
+  if (S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
+  return;
 }
 // Otherwise attempt AI generation using toolbar or Prompt Builder fields
 const topic = (topicInput?.value || pbTopic?.value || 'General knowledge').trim();
@@ -382,6 +381,7 @@ if(editor) editor.value = lines;
 if(mirror) mirror.value = lines;
 const title = (out && out.title) ? out.title : topic;
 runParseFlow(lines, title);
+if (S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
 }catch(err){
   const msg = String(err && err.message || err || 'Error');
   let pretty = msg;
@@ -473,7 +473,6 @@ if(nextBtn){
     }
   }
   updateProgress();
-  updateCounter();
 }
 
 function renderCurrentQuestion(){
@@ -527,6 +526,14 @@ if(q.type==='MC'){
 
 html += `</div>`;
 questionHost.innerHTML = html;
+// Insert progress bar between counter and text
+const qwrapProg = document.createElement('div');
+qwrapProg.className = 'prog';
+qwrapProg.id = 'progWrap';
+qwrapProg.innerHTML = '<div class="prog-bar" id="progBar" style="width:0%"></div>';
+const hdrEl = questionHost.querySelector('.qhdr');
+const qtextEl = questionHost.querySelector('.qtext');
+if(hdrEl && qtextEl){ hdrEl.after(qwrapProg); }
 updateProgress();
 
 if(q.type==='MC'){
@@ -581,17 +588,10 @@ if(q.type==='MC'){
 
 function updateProgress(){
   const total = S.quiz.questions.length;
-  if(!progBar || !total){ if(progBar) progBar.style.width='0%'; return; }
+  const el = document.getElementById('progBar');
+  if(!el || !total){ if(el) el.style.width='0%'; return; }
   const pct = Math.max(0, Math.min(100, Math.round(((S.quiz.index+1)/total)*100)));
-  progBar.style.width = pct + '%';
-}
-
-function updateCounter(){
-  const total = S.quiz.questions.length;
-  if(!qCounter){ return; }
-  if(!total){ qCounter.textContent = '0/0'; return; }
-  const n = clamp(S.quiz.index + 1, 0, total);
-  qCounter.textContent = `${n}/${total}`;
+  el.style.width = pct + '%';
 }
 }
 
