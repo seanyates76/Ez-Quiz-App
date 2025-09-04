@@ -40,6 +40,7 @@ const nextBtn = $('nextBtn');
 const finishBtn = $('finishBtn');
 const progBar = $('progBar');
 const qCounter = $('qCounter');
+const backDuringQuiz = $('backDuringQuiz');
 
 const resultsView = $('resultsView');
 const resultsSummary = $('resultsSummary');
@@ -499,6 +500,12 @@ if(e.key === 'Enter' || e.key === 'ArrowRight'){
 
 // Finish → Results
 finishBtn?.addEventListener('click', ()=> finishQuiz(false));
+
+// Back to Menu during quiz
+backDuringQuiz?.addEventListener('click', ()=>{
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  setMode('idle');
+});
 function finishQuiz(auto=false){
 if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
 S.quiz.finishedAt = Date.now();
