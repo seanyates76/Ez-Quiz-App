@@ -246,7 +246,7 @@ details.advanced > summary{display:none}
 /* Color coding for user's answers */
 .user-ans.ans-correct{ color: var(--success); font-weight:600 }
 .user-ans.ans-wrong{ color: var(--danger); font-weight:600 }
-.user-ans .ans-text{ color:#fff; font-weight:500 }
+.user-ans .ans-text{ color:var(--text); font-weight:500 }
 
 /* Split button + menu */
 .split{position:relative; display:inline-flex; align-items:stretch; min-width:260px; white-space:nowrap}
@@ -304,10 +304,40 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 /* Small screens polish */
  @media (max-width:600px){
   .site-header{padding:10px 12px}
-  .icon-btn{padding:9px 12px; font-size:18px}
-  .btn{min-width:100%; width:100%}
+  .icon-btn{padding:8px 10px; font-size:16px}
+  /* Global button scale down */
+  .btn{padding:10px 12px; font-size:14px; min-width:0}
+  /* Generator toolbar keeps full-width buttons in stacked layout */
+  .gen-toolbar .btn{width:100%}
+  /* Quiz nav buttons share space neatly */
+  #quizView .quiz-nav-row .btn{flex:1 1 0; min-width:0}
+  /* Results actions: avoid oversized buttons */
+  .results-actions .btn{padding:10px 12px; font-size:14px}
   .grid{gap:12px}
   .card{padding:14px}
+}
+
+/* Extra small screens */
+@media (max-width:480px){
+  .brand-logo{height:38px}
+  .gen-toolbar{gap:8px}
+  .toolbar-input{min-height:38px; font-size:14px}
+  .quiz-title-row h2{font-size:18px}
+  .btn{padding:9px 10px; font-size:13px}
+  #quizView .quiz-nav-row .btn{padding:10px 10px}
+  .chip{min-width:52px; height:24px; font-size:12px; padding:0 8px}
+  .split{min-width:0}
+  .split > .btn:first-child{flex:12 1 0}
+  .split > .split-caret{flex:1 1 0; padding:0 6px}
+}
+
+@media (max-width:360px){
+  .header-actions{gap:8px}
+  .header-actions .icon-btn{padding:6px 8px; font-size:14px}
+  /* Collapse Prev/Next labels to icons on extra narrow screens */
+  #prevBtn, #nextBtn{font-size:0}
+  #prevBtn::before{content:'◀'; font-size:14px}
+  #nextBtn::before{content:'▶'; font-size:14px}
 }
 #quizView #questionHost + .row{margin-top:12px}
 #quizView .quiz-nav-row{margin-top:12px}
