@@ -218,6 +218,14 @@ details.advanced > summary{display:none}
   padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--panel-2)
 }
 
+/* Split button + menu */
+.split{position:relative; display:inline-flex; align-items:stretch}
+.split > .btn:first-child{border-top-right-radius:8px; border-bottom-right-radius:8px}
+.split > .split-caret{width:38px; padding:0; display:inline-flex; align-items:center; justify-content:center}
+.menu{position:absolute; top:100%; right:0; background:var(--panel); border:1px solid var(--border); border-radius:10px; min-width:180px; padding:6px; box-shadow:0 10px 24px rgba(0,0,0,.35); z-index:20}
+.menu .menu-item{display:block; width:100%; text-align:left; background:transparent; color:var(--text); border:0; padding:8px 10px; border-radius:8px; cursor:pointer}
+.menu .menu-item:hover{background:var(--panel-2)}
+
 /* Modals */
 .modal{position:fixed; inset:0; display:none}
 .modal.is-open{display:block}

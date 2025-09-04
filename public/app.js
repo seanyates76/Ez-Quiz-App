@@ -47,6 +47,10 @@ const resultsSummary = $('resultsSummary');
 const missedList = $('missedList');
 const retakeBtn = $('retakeBtn');
 const backToMenuBtn = $('backToMenuBtn');
+const missedOnlyChk = $('missedOnlyChk');
+const retakeMenuBtn = $('retakeMenuBtn');
+const retakeMenu = $('retakeMenu');
+const retakeMissedBtn = $('retakeMissedBtn');
 
 const helpBtn = $('helpBtn');
 const settingsBtn = $('settingsBtn');
@@ -599,13 +603,17 @@ for(let i=0;i<total;i++){
   const q=S.quiz.questions[i], a=S.quiz.answers[i];
   const correctView=viewCorrect(q), userView=viewUser(q,a);
   const isCorrect=compareQA(q,a);
-  if(!isCorrect){ missed.push({ idx:i+1, text:q.text, userView, correctView }); }
+  if(!isCorrect){ missed.push({ idx:i+1, text:q.text, userView, correctView, i }); }
 }
 
 if(!missed.length){
   missedList.innerHTML = `<div class="missed-item"><em>No missed questions 🎉</em></div>`;
+  if(missedOnlyChk){ missedOnlyChk.checked=false; missedOnlyChk.disabled=true; }
+  if(retakeMenuBtn){ retakeMenuBtn.disabled=true; }
   return;
 }
+if(missedOnlyChk){ missedOnlyChk.disabled=false; }
+if(retakeMenuBtn){ retakeMenuBtn.disabled=false; }
 missedList.innerHTML = missed.map(item => `
   <div class="missed-item">
     <div><strong>Q${item.idx}.</strong> ${escapeHTML(item.text)}</div>
@@ -647,13 +655,34 @@ return false;
 }
 
 // Results actions
-retakeBtn?.addEventListener('click', () => {
-  if (!Array.isArray(S.quiz?.questions) || S.quiz.questions.length === 0) {
-    setMode('idle');
-    return;
+function getMissedIndexes(){
+  const idxs=[]; const qs=S.quiz.questions, ans=S.quiz.answers;
+  for(let i=0;i<qs.length;i++){ if(!compareQA(qs[i], ans[i])) idxs.push(i); }
+  return idxs;
+}
+
+function retake(missedOnly){
+  if (!Array.isArray(S.quiz?.questions) || S.quiz.questions.length === 0) { setMode('idle'); return; }
+  if(missedOnly){
+    const idxs=getMissedIndexes();
+    if(!idxs.length){ return; }
+    S.quiz.questions = idxs.map(i => S.quiz.questions[i]);
   }
   S.quiz.answers = new Array(S.quiz.questions.length).fill(null);
   beginQuiz();
+}
+
+retakeBtn?.addEventListener('click', () => { retake(!!(missedOnlyChk && missedOnlyChk.checked)); });
+retakeMissedBtn?.addEventListener('click', () => { retake(true); });
+retakeMenuBtn?.addEventListener('click', ()=>{
+  if(!retakeMenu) return; const hidden = retakeMenu.hasAttribute('hidden');
+  if(hidden){ retakeMenu.removeAttribute('hidden'); retakeMenuBtn?.setAttribute('aria-expanded','true'); }
+  else { retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false'); }
+});
+document.addEventListener('click', (e)=>{
+  if(!retakeMenu || retakeMenu.hasAttribute('hidden')) return;
+  const t=e.target; if(t===retakeMenuBtn || retakeMenu.contains(t)) return;
+  retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false');
 });
 
 backToMenuBtn?.addEventListener('click', () => {

@@ -94,7 +94,14 @@
       <div id="resultsSummary" class="results-summary"></div>
       <div id="missedList" class="results-missed"></div>
       <div class="row gap">
-        <button id="retakeBtn" class="btn">Retake</button>
+        <div class="split">
+          <button id="retakeBtn" class="btn">Retake</button>
+          <button id="retakeMenuBtn" class="btn split-caret" aria-haspopup="menu" aria-expanded="false" title="More retake options">▾</button>
+          <div id="retakeMenu" class="menu" role="menu" hidden>
+            <button id="retakeMissedBtn" class="menu-item" role="menuitem">Take missed quiz</button>
+          </div>
+        </div>
+        <label class="inline"><input type="checkbox" id="missedOnlyChk"> Missed only</label>
         <button id="backToMenuBtn" class="btn">Back to Menu</button>
       </div>
     </section>
