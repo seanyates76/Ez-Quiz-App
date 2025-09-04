@@ -89,10 +89,15 @@
 
     <!-- Results View -->
     <section id="resultsView" class="card is-hidden" aria-labelledby="resultsTitle">
-      <h2 id="resultsTitle">Results</h2>
+      <div class="results-header-row">
+        <h2 id="resultsTitle">Results</h2>
+        <label class="inline"><input type="checkbox" id="showAllChk"> Show all</label>
+      </div>
       <div id="resultsSummary" class="results-summary"></div>
       <div id="missedList" class="results-missed"></div>
       <div class="row gap results-actions">
+        <button id="backToMenuBtn" class="btn">Back to Menu</button>
+        <span class="flex-spacer"></span>
         <div class="split">
           <button id="retakeBtn" class="btn">Retake</button>
           <button id="retakeMenuBtn" class="btn split-caret" aria-haspopup="menu" aria-expanded="false" title="More retake options">▾</button>
@@ -100,8 +105,6 @@
             <button id="retakeMissedBtn" class="menu-item" role="menuitem">Take missed quiz</button>
           </div>
         </div>
-        <label class="inline"><input type="checkbox" id="showAllChk"> Show all</label>
-        <button id="backToMenuBtn" class="btn">Back to Menu</button>
       </div>
     </section>
   </main>

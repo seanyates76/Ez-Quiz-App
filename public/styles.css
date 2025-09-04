@@ -46,6 +46,7 @@ body{
   font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   color:var(--text);
   background:var(--bg);
+  display:flex; flex-direction:column; min-height:100vh;
 }
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
@@ -86,6 +87,7 @@ body[data-theme="dark"] .site-header .brand-link{
 
 /* Layout */
 .container{max-width:1060px; margin:24px auto; padding:0 16px}
+#app{flex:1}
 .card{
   background:var(--panel); border:1px solid var(--border); border-radius:16px;
   padding:16px; margin-bottom:16px; box-shadow:0 6px 18px rgba(0,0,0,.2);
@@ -236,12 +238,14 @@ details.advanced > summary{display:none}
 }
 
 /* Results */
+.results-header-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 8px}
 .results-summary{margin-bottom:12px}
 .results-missed{display:grid; gap:10px}
 .results-missed .missed-item{
   padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--panel-2)
 }
-.results-actions{margin-top:14px}
+.results-actions{margin-top:14px; align-items:center}
+.results-actions .flex-spacer{flex:1 1 0}
 
 /* Color coding for user's answers */
 .user-ans.ans-correct{ color: var(--success); font-weight:600 }
@@ -284,6 +288,9 @@ details.advanced > summary{display:none}
   box-shadow:0 8px 20px rgba(0,0,0,.25);
 }
 #bmacBtn:focus-visible{outline:3px solid var(--ring); outline-offset:2px}
+
+/* Footer centering */
+footer.container{ text-align:center }
 
 /* Veil loader */
 .veil{position:fixed; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; z-index:100}
