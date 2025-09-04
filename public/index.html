@@ -11,7 +11,9 @@
 <body data-theme="dark">
   <header class="site-header" role="banner">
     <div class="brand">
-      <a href="/" class="brand-link" aria-label="EZ Quiz Home">EZ-Quiz</a>
+      <a href="/" class="brand-link" aria-label="EZ Quiz Home">
+        <img src="icons/brand-title-source.png" alt="EZ Quiz" class="brand-logo" />
+      </a>
     </div>
     <nav class="header-actions" aria-label="Utility">
       <button id="helpBtn" class="icon-btn" title="Help" aria-haspopup="dialog" aria-controls="helpModal">?</button>
@@ -22,30 +24,41 @@
 
   <main class="container" id="app" role="main">
     <!-- Generator Card -->
-    <section id="generatorCard" class="card" aria-labelledby="genTitle">
-      <h1 id="genTitle" class="hero">Build a Quiz</h1>
+    <section id="generatorCard" class="card">
 
-      <div class="grid">
-        <div class="col">
-          <label for="editor" class="lbl">Editor (paste MC/TF/YN/MT lines)</label>
-          <textarea id="editor" class="editor" rows="10" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
-          <div id="status" class="status" aria-live="polite"></div>
-        </div>
-
-        <div class="col">
-          <label for="mirror" class="lbl">Mirror</label>
-          <textarea id="mirror" class="mirror" rows="10" readonly></textarea>
-          <div class="row gap">
-            <button id="generateBtn" class="btn primary">Generate</button>
-            <button id="startBtn" class="btn" disabled>Start</button>
-          </div>
-        </div>
+      <!-- Top toolbar (simple generate form) -->
+      <div class="gen-toolbar" role="group" aria-label="Generate toolbar">
+        <input id="topicInput" type="text" class="toolbar-input" placeholder="Topic (e.g., World History)" />
+        <input id="countInput" type="number" class="toolbar-input narrow" min="1" step="1" value="10" />
+        <select id="difficultyInput" class="toolbar-input narrow" aria-label="Difficulty">
+          <option value="medium" selected>Medium</option>
+          <option value="easy">Easy</option>
+          <option value="hard">Hard</option>
+        </select>
+        <button id="generateBtn" class="btn primary">Generate</button>
+        <button id="advancedToggleBtn" class="btn">Advanced ▾</button>
       </div>
 
+      <!-- Advanced authoring (manual paste + preview) -->
       <details id="manualMenu" class="advanced">
         <summary>Advanced</summary>
         <div class="advanced-body">
-          <p>Optional power tools live here. (Prompt Builder ✨ in header.)</p>
+          <div class="grid">
+            <div class="col">
+              <label for="editor" class="lbl">Editor (paste MC/TF/YN/MT lines)</label>
+              <textarea id="editor" class="editor" rows="10" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
+              <div id="status" class="status" aria-live="polite"></div>
+            </div>
+
+            <div class="col">
+              <label for="mirror" class="lbl">Mirror</label>
+              <textarea id="mirror" class="mirror" rows="10" readonly></textarea>
+              <div class="row gap">
+                <button id="startBtn" class="btn" disabled>Start</button>
+              </div>
+            </div>
+          </div>
+          <p style="margin-top:8px">Optional power tools live here. (Prompt Builder ✨ in header.)</p>
         </div>
       </details>
     </section>
@@ -211,5 +224,12 @@
   </div>
 
   <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

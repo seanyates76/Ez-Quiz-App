@@ -67,6 +67,12 @@ const pbCount = $('pbCount');
 const pbCancel = $('pbCancel');
 const pbCopy = $('pbCopy');
 
+// Toolbar inputs on landing
+const topicInput = $('topicInput');
+const countInput = $('countInput');
+const difficultyInput = $('difficultyInput');
+const advancedToggleBtn = $('advancedToggleBtn');
+
 // State
 window.EZQ = window.EZQ || {};
 const S = window.EZQ;
@@ -107,6 +113,14 @@ document.addEventListener('click', (e)=>{ const t=e.target; if(t && t.matches('.
 
 // Reset
 resetApp?.addEventListener('click', ()=>{ try{ localStorage.clear(); }catch{} location.reload(); });
+
+// Advanced panel toggle button mirrors <summary>
+advancedToggleBtn?.addEventListener('click', ()=>{
+  const d = document.getElementById('manualMenu');
+  if(!d) return;
+  const open = d.hasAttribute('open');
+  if(open) d.removeAttribute('open'); else d.setAttribute('open','');
+});
 
 // Prompt builder (unchanged copy logic – kept for parity)
 function buildPromptTemplate(topic, count){
@@ -240,9 +254,9 @@ if(editorText.length){
 runParseFlow(editorText);
 return;
 }
-// Otherwise attempt AI generation using Prompt Builder fields
-const topic = (pbTopic?.value || 'General knowledge').trim();
-const count = Math.max(1, parseInt(pbCount?.value || '10', 10));
+// Otherwise attempt AI generation using toolbar or Prompt Builder fields
+const topic = (topicInput?.value || pbTopic?.value || 'General knowledge').trim();
+const count = Math.max(1, parseInt((countInput?.value || pbCount?.value || '10'), 10));
 try{
 showStatus('Generating via AI…');
 generateBtn.disabled = true;
@@ -527,6 +541,20 @@ if(q.type==='MT'){
 return false;
 }
 
+// Results actions
+retakeBtn?.addEventListener('click', () => {
+  if (!Array.isArray(S.quiz?.questions) || S.quiz.questions.length === 0) {
+    setMode('idle');
+    return;
+  }
+  S.quiz.answers = new Array(S.quiz.questions.length).fill(null);
+  beginQuiz();
+});
+
+backToMenuBtn?.addEventListener('click', () => {
+  setMode('idle');
+});
+
 // Timer pause/resume
 function pauseTimerIfQuiz(){
 if(S.mode!=='quiz') return;
@@ -569,6 +597,10 @@ loadSettingsFromStorage();
 applyTheme(S.settings.theme);
 reflectSettingsIntoUI();
 wireSettingsPanel();
+
+// Ensure Advanced panel starts closed regardless of prior state
+const adv=document.getElementById('manualMenu');
+if(adv) adv.removeAttribute('open');
 
 if(S.mode==='generated' && startBtn) startBtn.disabled = !S.quiz.questions?.length;
 wireGenerator();

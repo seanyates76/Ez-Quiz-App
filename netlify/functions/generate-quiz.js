@@ -70,13 +70,14 @@ const prompt = [
 // Lazy require to avoid cold start cost if OPTIONS
 let GoogleGenerativeAI;
 try {
-({ GoogleGenerativeAI } = require(' @google/generative-ai'));
+  // Load Gemini SDK (note: no leading space in package name)
+  ({ GoogleGenerativeAI } = require('@google/generative-ai'));
 } catch (e) {
-return {
-statusCode: 500,
-headers: corsHeaders,
-body: JSON.stringify({ error: 'Failed to load @google/generative-ai' }),
-};
+  return {
+  statusCode: 500,
+  headers: corsHeaders,
+  body: JSON.stringify({ error: 'Failed to load @google/generative-ai' }),
+  };
 }
 
 try {
