@@ -135,12 +135,17 @@ function viewUser(q,a){ if(q.type==='MC'){ const arr=Array.isArray(a)?a:[]; retu
 export function finishQuiz(auto=false){ if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } S.quiz.finishedAt = Date.now(); let score=0; const qs=S.quiz.questions, ans=S.quiz.answers; for(let i=0;i<qs.length;i++){ const q=qs[i], a=ans[i]; if(q.type==='MC'){ const user=Array.isArray(a)?a.slice().sort((x,y)=>x-y):[]; const correct=(q.correct||[]).slice().sort((x,y)=>x-y); if(user.length && arraysEqual(user, correct)) score++; } else if(q.type==='TF' || q.type==='YN'){ if(typeof a==='boolean' && a===q.correct) score++; } else if(q.type==='MT'){ const user=Array.isArray(a)?a:[]; const target=new Array(q.left.length).fill(-1); q.pairs.forEach(([li,ri])=>{ target[li]=ri; }); if(user.length===target.length && arraysEqual(user, target)) score++; } } S.quiz.score=score; renderResults(); setMode('results'); }
 
 export function renderResults(){
-  const resultsSummary=el('resultsSummary'); const missedList=el('missedList'); const showAllChk=el('showAllChk');
+  const resultsSummary=el('resultsSummary'); const missedList=el('missedList');
+  const chip=el('resultsChip'); const filterMissed=el('filterMissed'); const filterAll=el('filterAll');
   const total=S.quiz.questions.length; const duration = S.quiz.finishedAt && S.quiz.startedAt ? (S.quiz.finishedAt - S.quiz.startedAt - 0) : 0;
-  resultsSummary.innerHTML = `<p><strong>Score:</strong> ${S.quiz.score}/${total}</p><p><strong>Time:</strong> ${formatDuration(Math.max(0,duration))}</p>`;
+  const chipText = `${S.quiz.score}/${total} • ${formatDuration(Math.max(0,duration))}`;
+  if(chip) chip.textContent = chipText;
+  // Legacy score/time block removed in favor of compact summary chip in header
+  if(resultsSummary) resultsSummary.innerHTML = '';
   const items=[]; for(let i=0;i<total;i++){ const q=S.quiz.questions[i], a=S.quiz.answers[i]; const correctView=viewCorrect(q), userView=viewUser(q,a); const isCorrect=compareQA(q,a); items.push({ idx:i+1, text:q.text, userView, correctView, isCorrect }); }
-  if(showAllChk && showAllChk.dataset.init!=="1"){ showAllChk.checked=false; showAllChk.dataset.init="1"; }
-  const showMissedOnly = !(showAllChk && showAllChk.checked);
+  // Determine filter state from buttons (default Missed)
+  const isAll = !!(filterAll && filterAll.classList.contains('active'));
+  const showMissedOnly = !isAll;
   let view = showMissedOnly ? items.filter(it=>!it.isCorrect) : items.slice();
   if(!showMissedOnly){ view.sort((a,b)=> Number(a.isCorrect) - Number(b.isCorrect)); }
   if(!view.length){ missedList.innerHTML = `<div class="missed-item"><em>${showMissedOnly ? 'No missed questions 🎉' : 'No questions'}</em></div>`; return; }
@@ -149,7 +154,7 @@ export function renderResults(){
     const a = S.quiz.answers[item.idx-1];
     const userDetail = buildUserAnswerDetail(q,a);
     const correctDetail = buildCorrectAnswerDetail(q);
-    return `<div class="missed-item">`
+    return `<div class="missed-item ${item.isCorrect ? 'is-correct' : 'is-wrong'}">`
       + `<div><strong>Q${item.idx}.</strong> ${escapeHTML(item.text)}</div>`
       + `<div class="user-ans ${item.isCorrect ? 'ans-correct' : 'ans-wrong'}"><strong>Your answer:</strong> ${userDetail}</div>`
       + `<div><strong>Correct:</strong> ${correctDetail}</div>`
@@ -223,15 +228,23 @@ function buildCorrectAnswerDetail(q){
 }
 
 export function wireResultsControls(){
-  const retakeBtn=el('retakeBtn'); const retakeMissedBtn=el('retakeMissedBtn'); const retakeMenuBtn=el('retakeMenuBtn'); const retakeMenu=el('retakeMenu'); const backToMenuBtn=el('backToMenuBtn'); const showAllChk=el('showAllChk');
+  const retakeBtn=el('retakeBtn'); const retakeMissedBtn=el('retakeMissedBtn'); const retakeMenuBtn=el('retakeMenuBtn'); const retakeMenu=el('retakeMenu'); const backToMenuBtn=el('backToMenuBtn');
+  const filterMissed=el('filterMissed'); const filterAll=el('filterAll');
   function getMissedIndexes(){ const idxs=[]; const qs=S.quiz.questions, ans=S.quiz.answers; for(let i=0;i<qs.length;i++){ if(!compareQA(qs[i], ans[i])) idxs.push(i); } return idxs; }
   function retake(missedOnly){ if (!Array.isArray(S.quiz?.questions) || S.quiz.questions.length === 0) { setMode('idle'); return; } if(missedOnly){ const idxs=getMissedIndexes(); if(!idxs.length){ return; } S.quiz.questions = idxs.map(i => S.quiz.questions[i]); } S.quiz.answers = new Array(S.quiz.questions.length).fill(null); beginQuiz(); }
-  retakeBtn?.addEventListener('click', ()=>{ retake(!(showAllChk && showAllChk.checked)); });
+  retakeBtn?.addEventListener('click', ()=>{ const isAll = !!(filterAll && filterAll.classList.contains('active')); retake(!isAll); });
   retakeMissedBtn?.addEventListener('click', ()=> retake(true));
   retakeMenuBtn?.addEventListener('click', ()=>{ if(!retakeMenu) return; const hidden = retakeMenu.hasAttribute('hidden'); if(hidden){ retakeMenu.removeAttribute('hidden'); retakeMenuBtn?.setAttribute('aria-expanded','true'); } else { retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false'); } });
   document.addEventListener('click', (e)=>{ if(!retakeMenu || retakeMenu.hasAttribute('hidden')) return; const t=e.target; if(t===retakeMenuBtn || retakeMenu.contains(t)) return; retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false'); });
   backToMenuBtn?.addEventListener('click', ()=> setMode('idle'));
-  showAllChk?.addEventListener('change', ()=> renderResults());
+  // Filter chips
+  function setFilter(isAll){
+    if(filterMissed){ filterMissed.classList.toggle('active', !isAll); filterMissed.setAttribute('aria-pressed', String(!isAll)); }
+    if(filterAll){ filterAll.classList.toggle('active', !!isAll); filterAll.setAttribute('aria-pressed', String(!!isAll)); }
+    renderResults();
+  }
+  filterMissed?.addEventListener('click', ()=> setFilter(false));
+  filterAll?.addEventListener('click', ()=> setFilter(true));
 }
 
 export function pauseTimerIfQuiz(){ if(S.mode!=='quiz') return; if(!timerInterval) return; pausedAt = Date.now(); if(S.settings.timerEnabled){ if(S.settings.countdown && S.quiz.endAt){ remainingOnPause = Math.max(0, S.quiz.endAt - Date.now()); } } clearInterval(timerInterval); timerInterval=null; }

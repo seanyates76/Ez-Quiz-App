@@ -12,6 +12,10 @@
   --success-press:#16a34a;
   --ring:#9ec1ff;
   --border:#2a3244;
+  /* brand accents */
+  /* EZ gold accent (logo-inspired) */
+  --brand:#FFC94A;
+  --brand-press:#E5B03F;
 
   /* polish tokens */
   --field-border:#33405a;
@@ -33,6 +37,8 @@ body[data-theme="light"]{
   --success-press:#1a8e45;
   --ring:#6ea3ff;
   --border:#dbe2ef;
+  --brand:#FFC94A;
+  --brand-press:#E5B03F;
 
   --field-border:#cfd8ea;
   --field-hover:#e8edf6;
@@ -91,6 +97,13 @@ body[data-theme="dark"] .site-header .brand-link{
 .card{
   background:var(--panel); border:1px solid var(--border); border-radius:16px;
   padding:16px; margin-bottom:16px; box-shadow:0 6px 18px rgba(0,0,0,.2);
+}
+/* Keep quiz runner comfortably large on desktop */
+@media (min-width: 900px){
+  #quizView{ max-width: 920px; min-width: 760px; margin-left:auto; margin-right:auto }
+}
+@media (min-width: 1400px){
+  #quizView{ max-width: 960px }
 }
 .hero{margin:0 0 12px 0}
 
@@ -237,15 +250,40 @@ details.advanced > summary{display:none}
   #quizView .mtrow{grid-template-columns:1fr}
 }
 
+/* Desktop sizing polish for quiz runner */
+@media (min-width:1024px){
+  #quizView .qtext{font-size:18px; line-height:1.55}
+  #quizView label.opt{padding:12px 14px}
+  #quizView label.opt span{font-size:16px}
+  #quizView .mtrow{grid-template-columns:1fr 260px}
+}
+
 /* Results */
 .results-header-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 8px}
+.results-header-left{display:flex; align-items:center; gap:10px}
+.results-filter{display:flex; gap:8px}
+.chip-btn{
+  appearance:none; border:1px solid var(--field-border); background:var(--panel-2); color:var(--text);
+  border-radius:999px; padding:6px 10px; cursor:pointer; font-size:13px; line-height:1; font-weight:600;
+}
+.chip-btn:hover{filter:brightness(1.06)}
+.chip-btn:focus-visible{outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow)}
+.chip-btn.active{ background:var(--primary); color:#fff; border-color:transparent }
 .results-summary{margin-bottom:12px}
 .results-missed{display:grid; gap:10px}
 .results-missed .missed-item{
-  padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--panel-2)
+  padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--panel-2);
+  border-left:4px solid transparent;
 }
+.results-missed .missed-item.is-correct{ border-left-color: var(--success) }
+.results-missed .missed-item.is-wrong{ border-left-color: var(--danger) }
 .results-actions{margin-top:14px; align-items:center}
 .results-actions .flex-spacer{flex:1 1 0}
+
+/* Brand accent on Retake button */
+#retakeBtn.btn{background:var(--brand); border-color:transparent; color:#fff}
+#retakeBtn.btn:hover{filter:brightness(1.05)}
+#retakeBtn.btn:active{background:var(--brand-press)}
 
 /* Color coding for user's answers */
 .user-ans.ans-correct{ color: var(--success); font-weight:600 }
@@ -302,6 +340,8 @@ footer.container{
   margin-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
 }
 @media (max-width:600px){
+  /* Sticky actions at bottom on results screen */
+  #resultsView .results-actions{position:sticky; bottom:0; background:var(--panel); padding-top:10px; margin-left:-16px; margin-right:-16px; padding-left:16px; padding-right:16px; border-top:1px solid var(--border)}
   footer.container{
     padding-bottom: 12px;
     margin-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
