@@ -14,7 +14,10 @@ for = "/*"
   Referrer-Policy = "strict-origin-when-cross-origin"
   Permissions-Policy = "geolocation=(), microphone=(), camera=()"
   Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
-  Content-Security-Policy = "default-src 'self'; script-src 'self' https://cdnjs.buymeacoffee.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self'; frame-src https://www.buymeacoffee.com https://buymeacoffee.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+  # Allow the Buy Me a Coffee widget script (cdnjs) and its iframe (www.buymeacoffee.com).
+  # Some widgets may make XHR/fetch calls back to buymeacoffee.com; include it in connect-src.
+  # Fonts/images may come from generic https CDNs; allowed via https: schemes.
+  Content-Security-Policy = "default-src 'self'; script-src 'self' https://cdnjs.buymeacoffee.com https://www.buymeacoffee.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https://www.buymeacoffee.com https://buymeacoffee.com; frame-src https://www.buymeacoffee.com https://buymeacoffee.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
 
 # API redirects
 
