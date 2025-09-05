@@ -164,20 +164,20 @@ function buildUserAnswerDetail(q,a){
     return arr.map(idx => {
       const letter = String.fromCharCode(65+idx);
       const text = q.options && q.options[idx] ? q.options[idx] : '';
-      return `${letter} <span class="ans-text">(${escapeHTML(text)})</span>`;
+      return `${letter} — <span class="ans-text">${escapeHTML(text)}</span>`;
     }).join(', ');
   }
   if(q.type==='TF'){
     if(typeof a!=='boolean') return '';
     const letter = a ? 'T':'F';
     const text = a ? 'True':'False';
-    return `${letter} <span class="ans-text">(${text})</span>`;
+    return `${letter} — <span class="ans-text">${text}</span>`;
   }
   if(q.type==='YN'){
     if(typeof a!=='boolean') return '';
     const letter = a ? 'Y':'N';
     const text = a ? 'Yes':'No';
-    return `${letter} <span class="ans-text">(${text})</span>`;
+    return `${letter} — <span class="ans-text">${text}</span>`;
   }
   if(q.type==='MT'){
     const arr=Array.isArray(a)?a:[];
@@ -185,7 +185,7 @@ function buildUserAnswerDetail(q,a){
       if(ri<0) return `${li+1}-?`;
       const letter=String.fromCharCode(65+ri);
       const text = q.right && q.right[ri] ? q.right[ri] : '';
-      return `${li+1}-${letter} <span class="ans-text">(${escapeHTML(text)})</span>`;
+      return `${li+1}-${letter} — <span class="ans-text">${escapeHTML(text)}</span>`;
     }).join(', ');
   }
   return '';
@@ -198,25 +198,25 @@ function buildCorrectAnswerDetail(q){
     return arr.map(idx => {
       const letter = String.fromCharCode(65+idx);
       const text = q.options && q.options[idx] ? q.options[idx] : '';
-      return `${letter} <span class="ans-text">(${escapeHTML(text)})</span>`;
+      return `${letter} — <span class="ans-text">${escapeHTML(text)}</span>`;
     }).join(', ');
   }
   if(q.type==='TF'){
     const letter = q.correct ? 'T':'F';
     const text = q.correct ? 'True':'False';
-    return `${letter} <span class="ans-text">(${text})</span>`;
+    return `${letter} — <span class="ans-text">${text}</span>`;
   }
   if(q.type==='YN'){
     const letter = q.correct ? 'Y':'N';
     const text = q.correct ? 'Yes':'No';
-    return `${letter} <span class="ans-text">(${text})</span>`;
+    return `${letter} — <span class="ans-text">${text}</span>`;
   }
   if(q.type==='MT'){
     const pairs = Array.isArray(q.pairs)?q.pairs:[];
     return pairs.map(([li,ri]) => {
       const letter = String.fromCharCode(65+ri);
       const text = q.right && q.right[ri] ? q.right[ri] : '';
-      return `${li+1}-${letter} <span class="ans-text">(${escapeHTML(text)})</span>`;
+      return `${li+1}-${letter} — <span class="ans-text">${escapeHTML(text)}</span>`;
     }).join(', ');
   }
   return '';
