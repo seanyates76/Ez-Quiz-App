@@ -13,8 +13,9 @@
   --ring:#9ec1ff;
   --border:#2a3244;
   /* brand accents */
-  --brand:#FF8A3D;
-  --brand-press:#E07732;
+  /* EZ gold accent (logo-inspired) */
+  --brand:#FFC94A;
+  --brand-press:#E5B03F;
 
   /* polish tokens */
   --field-border:#33405a;
@@ -36,8 +37,8 @@ body[data-theme="light"]{
   --success-press:#1a8e45;
   --ring:#6ea3ff;
   --border:#dbe2ef;
-  --brand:#FF8A3D;
-  --brand-press:#E07732;
+  --brand:#FFC94A;
+  --brand-press:#E5B03F;
 
   --field-border:#cfd8ea;
   --field-hover:#e8edf6;
