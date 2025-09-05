@@ -250,7 +250,9 @@ details.advanced > summary{display:none}
 /* Color coding for user's answers */
 .user-ans.ans-correct{ color: var(--success); font-weight:600 }
 .user-ans.ans-wrong{ color: var(--danger); font-weight:600 }
-.user-ans .ans-text{ color:var(--text); font-weight:500 }
+/* Sub‑answer text (the part that used to be in parentheses): smaller and not bold */
+.ans-text{ color:var(--text); font-weight:400; font-size:.94em; opacity:.9 }
+.user-ans .ans-text{ color:var(--text) }
 
 /* Split button + menu */
 .split{position:relative; display:inline-flex; align-items:stretch; min-width:260px; white-space:nowrap}
