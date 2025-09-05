@@ -142,30 +142,20 @@
       </header>
       <div class="modal__body">
         <section>
-          <h4>Quick Start</h4>
+          <h4>Make a Quiz (Fast)</h4>
           <ol>
-            <li>Paste or load a <em>.txt</em> file into the <strong>Editor</strong>, or click <strong>Use Demo Set</strong>.</li>
-            <li>Click <strong>Generate</strong> to parse and preview; then click <strong>Start</strong> to begin.</li>
-            <li>During the quiz, use <kbd>Enter</kbd> for Next and <kbd>Backspace</kbd> for Previous.</li>
+            <li>Type a <strong>Topic</strong> at the top.</li>
+            <li>Pick a <strong>Length</strong> and <strong>Difficulty</strong>.</li>
+            <li>Click <strong>Generate</strong>, then <strong>Start</strong>.</li>
           </ol>
+          <p>Tip: Want to try it first? Click <strong>Use Demo Set</strong>.</p>
         </section>
 
         <section>
-          <h4>Question Formats</h4>
+          <h4>Answering Questions</h4>
           <ul>
-            <li><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> (multiple: <code>|A,C</code>)</li>
-            <li><code>TF|Statement.|T</code> (or <code>F</code>)</li>
-            <li><code>YN|Question?|Y</code> (or <code>N</code>)</li>
-            <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
-          </ul>
-          <p>Use the exact delimiters shown: pipes <code>|</code>, semicolons <code>;</code>, and labels like <code>A)</code> or <code>1)</code>.</p>
-        </section>
-
-        <section>
-          <h4>Quiz Controls</h4>
-          <ul>
-            <li><strong>MC</strong>: click options (multiple selections allowed if the answer has multiple letters).</li>
-            <li><strong>TF/YN</strong>: use the on‑screen buttons or keys (<kbd>T/F</kbd>, <kbd>Y/N</kbd>).</li>
+            <li><strong>Multiple choice</strong>: click one or more options (some questions have multiple correct answers).</li>
+            <li><strong>True/False</strong> and <strong>Yes/No</strong>: use the on‑screen buttons or keys (<kbd>T/F</kbd>, <kbd>Y/N</kbd>).</li>
             <li><strong>Keyboard</strong>: <kbd>Enter</kbd>/<kbd>→</kbd> for Next, <kbd>Backspace</kbd>/<kbd>←</kbd> for Previous.</li>
           </ul>
         </section>
@@ -173,45 +163,51 @@
         <section>
           <h4>Results &amp; Retake</h4>
           <ul>
-            <li>Missed questions are shown first by default; toggle <strong>Show all</strong> to see everything.</li>
-            <li><strong>Retake</strong> repeats the quiz; use the caret to <strong>Retake missed only</strong>.</li>
-            <li>Your answer list shows both the letter and the answer text.</li>
+            <li>See your score and time; missed questions show first by default.</li>
+            <li>Toggle <strong>Show all</strong> to list everything (missed items stay highlighted).</li>
+            <li>Use <strong>Retake</strong> or the menu caret to <strong>Retake missed only</strong>.</li>
           </ul>
         </section>
 
         <section>
-          <h4>Timer &amp; Settings</h4>
+          <h4>Timer &amp; Preferences</h4>
           <ul>
-            <li>Enable a timer in <strong>Settings</strong>; choose <em>Stopwatch</em> or <em>Countdown</em>.</li>
-            <li>Set duration as <code>mm:ss</code> for countdown.</li>
-            <li>Optional: <strong>Require answer to advance</strong> and <strong>Auto‑start after generate</strong>.</li>
+            <li>Open <strong>Settings</strong> to enable a timer (Stopwatch or Countdown).</li>
+            <li>Set countdown as <code>mm:ss</code>. Options like <strong>Auto‑start</strong> and <strong>Require answer</strong> are available.</li>
+            <li>Theme and preferences save automatically; use <strong>Reset App</strong> to clear them.</li>
           </ul>
         </section>
 
         <section>
-          <h4>Saving &amp; Reset</h4>
-          <ul>
-            <li>Theme and timer preferences save automatically and persist across reloads.</li>
-            <li>Use <strong>Reset App</strong> in Settings to clear saved preferences.</li>
-          </ul>
+          <h4>Manual Entry (Optional)</h4>
+          <p>Prefer to paste your own questions? Use the <strong>Editor</strong> under <em>Advanced</em>, then click <strong>Generate</strong> → <strong>Start</strong>.</p>
+          <details>
+            <summary>Formats at a glance</summary>
+            <ul>
+              <li><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> (multiple: <code>|A,C</code>)</li>
+              <li><code>TF|Statement.|T</code> (or <code>F</code>)</li>
+              <li><code>YN|Question?|Y</code> (or <code>N</code>)</li>
+              <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
+            </ul>
+            <p>Use the exact delimiters shown: pipes <code>|</code>, semicolons <code>;</code>, and labels like <code>A)</code> or <code>1)</code>.</p>
+          </details>
         </section>
 
         <section>
           <h4>Advanced</h4>
           <ul>
-            <li><strong>Prompt Builder ✨</strong>: open, enter a Topic and Length, then <strong>Copy</strong> to get a ready‑made prompt you can use in your AI tool; paste the resulting lines into the Editor.</li>
-            <li><strong>Generate from Topic</strong>: the <strong>Generate</strong> button can fetch quiz lines if a backend is configured; otherwise, paste lines or use the Demo.</li>
-            <li><strong>Formatting tips</strong>: no extra numbering or commentary; one question per line; MC answers can be single (<code>A</code>) or multiple (<code>A,C</code>).</li>
+            <li><strong>Prompt Builder ✨</strong>: enter a Topic and Length, then <strong>Copy</strong> a ready‑made prompt for your AI tool; paste the generated lines into the Editor.</li>
+            <li><strong>Generate from Topic</strong>: when available, the <strong>Generate</strong> button can create quiz lines for you; otherwise, paste lines or use the Demo.</li>
           </ul>
         </section>
 
         <section>
           <h4>Troubleshooting</h4>
           <ul>
-            <li><strong>Parser errors</strong>: check delimiters/labels and remove extra bullets or numbering.</li>
-            <li><strong>Start disabled</strong>: ensure at least one valid line was parsed in the Editor.</li>
-            <li><strong>Timer not showing</strong>: enable it and set a duration (for countdown).</li>
-            <li><strong>Stuck/needs refresh</strong>: use <strong>Reset App</strong> in Settings.</li>
+            <li><strong>Generate isn’t producing questions?</strong> Try the <strong>Demo</strong>, or paste questions into the Editor and click <strong>Generate</strong>.</li>
+            <li><strong>Start is disabled?</strong> Make sure at least one valid question is parsed (check the status message under the Editor).</li>
+            <li><strong>Timer not visible?</strong> Enable it in Settings and set a duration for countdown.</li>
+            <li><strong>Need a fresh start?</strong> Use <strong>Reset App</strong> in Settings.</li>
           </ul>
         </section>
       </div>
