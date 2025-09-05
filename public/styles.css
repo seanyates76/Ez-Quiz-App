@@ -97,6 +97,10 @@ body[data-theme="dark"] .site-header .brand-link{
   background:var(--panel); border:1px solid var(--border); border-radius:16px;
   padding:16px; margin-bottom:16px; box-shadow:0 6px 18px rgba(0,0,0,.2);
 }
+/* Keep quiz runner comfortably large on desktop */
+@media (min-width: 900px){
+  #quizView{ max-width: 820px; margin-left:auto; margin-right:auto }
+}
 .hero{margin:0 0 12px 0}
 
 /* Landing hero removed in favor of header logo */
