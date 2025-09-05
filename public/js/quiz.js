@@ -148,10 +148,11 @@ export function renderResults(){
     const q = S.quiz.questions[item.idx-1];
     const a = S.quiz.answers[item.idx-1];
     const userDetail = buildUserAnswerDetail(q,a);
+    const correctDetail = buildCorrectAnswerDetail(q);
     return `<div class="missed-item">`
       + `<div><strong>Q${item.idx}.</strong> ${escapeHTML(item.text)}</div>`
       + `<div class="user-ans ${item.isCorrect ? 'ans-correct' : 'ans-wrong'}"><strong>Your answer:</strong> ${userDetail}</div>`
-      + `<div><strong>Correct:</strong> ${escapeHTML(item.correctView)}</div>`
+      + `<div><strong>Correct:</strong> ${correctDetail}</div>`
       + `</div>`;
   }).join('');
 }
@@ -183,6 +184,37 @@ function buildUserAnswerDetail(q,a){
     return arr.map((ri,li)=>{
       if(ri<0) return `${li+1}-?`;
       const letter=String.fromCharCode(65+ri);
+      const text = q.right && q.right[ri] ? q.right[ri] : '';
+      return `${li+1}-${letter} <span class="ans-text">(${escapeHTML(text)})</span>`;
+    }).join(', ');
+  }
+  return '';
+}
+
+function buildCorrectAnswerDetail(q){
+  if(!q) return '';
+  if(q.type==='MC'){
+    const arr=Array.isArray(q.correct)?q.correct:[];
+    return arr.map(idx => {
+      const letter = String.fromCharCode(65+idx);
+      const text = q.options && q.options[idx] ? q.options[idx] : '';
+      return `${letter} <span class="ans-text">(${escapeHTML(text)})</span>`;
+    }).join(', ');
+  }
+  if(q.type==='TF'){
+    const letter = q.correct ? 'T':'F';
+    const text = q.correct ? 'True':'False';
+    return `${letter} <span class="ans-text">(${text})</span>`;
+  }
+  if(q.type==='YN'){
+    const letter = q.correct ? 'Y':'N';
+    const text = q.correct ? 'Yes':'No';
+    return `${letter} <span class="ans-text">(${text})</span>`;
+  }
+  if(q.type==='MT'){
+    const pairs = Array.isArray(q.pairs)?q.pairs:[];
+    return pairs.map(([li,ri]) => {
+      const letter = String.fromCharCode(65+ri);
       const text = q.right && q.right[ri] ? q.right[ri] : '';
       return `${li+1}-${letter} <span class="ans-text">(${escapeHTML(text)})</span>`;
     }).join(', ');

@@ -31,8 +31,8 @@
         <input id="topicInput" type="text" class="toolbar-input" placeholder="Topic (e.g., World History)" />
         <input id="countInput" type="number" class="toolbar-input narrow" min="1" step="1" value="10" />
         <select id="difficultyInput" class="toolbar-input narrow" aria-label="Difficulty">
-          <option value="medium" selected>Medium</option>
           <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
           <option value="hard">Hard</option>
         </select>
         <button id="generateBtn" class="btn primary">Generate</button>
@@ -137,58 +137,88 @@
     <div class="modal__backdrop" data-close="helpModal"></div>
     <div class="modal__dialog" role="document">
       <header class="modal__header">
-        <h3 id="helpTitle">Help &amp; FAQ</h3>
+        <h3 id="helpTitle">Help</h3>
         <button id="helpClose" class="icon-btn" title="Close">✕</button>
       </header>
       <div class="modal__body">
         <section>
-          <h4>Getting Started</h4>
+          <h4>Make a Quiz (Fast)</h4>
           <ol>
-            <li>Paste quiz lines into the <em>Editor</em> (left) or use ✨ Prompt Builder to generate them.</li>
-            <li>Click <strong>Generate</strong> to parse and preview; then <strong>Start</strong> to begin.</li>
-            <li>Use <kbd>Enter</kbd> for Next, <kbd>Backspace</kbd> for Previous during the quiz.</li>
+            <li>Type a <strong>Topic</strong> at the top.</li>
+            <li>Pick a <strong>Length</strong> and <strong>Difficulty</strong>.</li>
+            <li>Click <strong>Generate</strong>, then <strong>Start</strong>.</li>
           </ol>
+          <p>Tip: Want to try it first? Click <strong>Use Demo Set</strong>.</p>
         </section>
 
         <section>
-          <h4>Accepted Line Formats</h4>
+          <h4>Answering Questions</h4>
           <ul>
-            <li><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> (multiple: <code>|A,C</code>)</li>
-            <li><code>TF|Statement.|T</code> (or <code>F</code>)</li>
-            <li><code>YN|Question?|Y</code> (or <code>N</code>)</li>
-            <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
-          </ul>
-          <p>Delimiter rules are strict: use the shown pipes <code>|</code>, semicolons <code>;</code>, and labels.</p>
-        </section>
-
-        <section>
-          <h4>Using AI (✨ Prompt Builder)</h4>
-          <p>Open ✨, set a topic and length, then <strong>Copy</strong>. Paste into ChatGPT/Gemini and bring the generated lines back into the Editor.</p>
-        </section>
-
-        <section>
-          <h4>Saving &amp; Settings</h4>
-          <ul>
-            <li>Theme and timer settings persist automatically across reloads.</li>
-            <li><strong>Reset App</strong> (Settings → Advanced) clears saved settings and reloads.</li>
+            <li><strong>Multiple choice</strong>: click one or more options (some questions have multiple correct answers).</li>
+            <li><strong>True/False</strong> and <strong>Yes/No</strong>: use the on‑screen buttons or keys (<kbd>T/F</kbd>, <kbd>Y/N</kbd>).</li>
+            <li><strong>Keyboard</strong>: <kbd>Enter</kbd>/<kbd>→</kbd> for Next, <kbd>Backspace</kbd>/<kbd>←</kbd> for Previous.</li>
           </ul>
         </section>
 
         <section>
-          <h4>Shortcuts</h4>
+          <h4>Results &amp; Retake</h4>
           <ul>
-            <li>Open Prompt Builder: <kbd>Ctrl/Cmd + P</kbd></li>
-            <li>During quiz: <kbd>Enter</kbd> = Next, <kbd>Backspace</kbd> = Previous</li>
+            <li>See your score and time; missed questions show first by default.</li>
+            <li>Toggle <strong>Show all</strong> to list everything (missed items stay highlighted).</li>
+            <li>Use <strong>Retake</strong> or the menu caret to <strong>Retake missed only</strong>.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Timer &amp; Preferences</h4>
+          <ul>
+            <li>Open <strong>Settings</strong> to enable a timer (Stopwatch or Countdown).</li>
+            <li>Set countdown as <code>mm:ss</code>. Options like <strong>Auto‑start</strong> and <strong>Require answer</strong> are available.</li>
+            <li>Theme and preferences save automatically; use <strong>Reset App</strong> to clear them.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Manual Entry (Optional)</h4>
+          <p>Prefer to paste your own questions? Use the <strong>Editor</strong> under <em>Advanced</em>, then click <strong>Generate</strong> → <strong>Start</strong>.</p>
+          <details>
+            <summary>Formats at a glance</summary>
+            <ul>
+              <li><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> (multiple: <code>|A,C</code>)</li>
+              <li><code>TF|Statement.|T</code> (or <code>F</code>)</li>
+              <li><code>YN|Question?|Y</code> (or <code>N</code>)</li>
+              <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
+            </ul>
+            <p>Use the exact delimiters shown: pipes <code>|</code>, semicolons <code>;</code>, and labels like <code>A)</code> or <code>1)</code>.</p>
+          </details>
+        </section>
+
+        <section>
+          <h4>Advanced</h4>
+          <ul>
+            <li><strong>Prompt Builder ✨</strong>: enter a Topic and Length, then <strong>Copy</strong> a ready‑made prompt for your AI tool; paste the generated lines into the Editor.</li>
+            <li><strong>Generate from Topic</strong>: when available, the <strong>Generate</strong> button can create quiz lines for you; otherwise, paste lines or use the Demo.</li>
           </ul>
         </section>
 
         <section>
           <h4>Troubleshooting</h4>
           <ul>
-            <li><strong>Parser errors?</strong> Check delimiters and labels (e.g., <code>A)</code>, <code>1)</code>).</li>
-            <li><strong>Start disabled?</strong> Ensure at least one valid question parsed.</li>
-            <li><strong>Timer?</strong> Enable in Settings; set duration as <code>mm:ss</code> for countdown.</li>
-            <li><strong>Reset?</strong> Use Reset App to clear saved theme/timer.</li>
+            <li><strong>Generate isn’t producing questions?</strong> Try the <strong>Demo</strong>, or paste questions into the Editor and click <strong>Generate</strong>.</li>
+            <li><strong>Start is disabled?</strong> Make sure at least one valid question is parsed (check the status message under the Editor).</li>
+            <li><strong>Timer not visible?</strong> Enable it in Settings and set a duration for countdown.</li>
+            <li><strong>Need a fresh start?</strong> Use <strong>Reset App</strong> in Settings.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>FAQs</h4>
+          <ul>
+            <li><strong>Can I retake only missed questions?</strong> Yes — open Results and use the caret next to Retake.</li>
+            <li><strong>Does it work offline?</strong> Yes. It’s a PWA; once loaded, it works without internet.</li>
+            <li><strong>Where do my settings go?</strong> Theme and timer preferences are saved locally in your browser.</li>
+            <li><strong>How do I import my own quiz?</strong> Click Load .txt or paste lines into the Editor under Advanced, then Generate → Start.</li>
+            <li><strong>Which question types are supported?</strong> Multiple choice (single/multiple), True/False, Yes/No, and Matching.</li>
           </ul>
         </section>
       </div>
@@ -259,34 +289,61 @@
   </div>
 
   <script type="module" src="js/main.js"></script>
-  <!-- Buy Me a Coffee widget (desktop only); button above acts as fallback -->
+  <!-- Buy Me a Coffee widget: use official snippet on desktop, fallback ☕ on mobile/tablet -->
   <script>
     (function(){
-      function hideFallbackIfWidget(){
-        var iframe = document.querySelector('iframe[src*="buymeacoffee.com"]');
-        var btn = document.getElementById('bmacBtn');
-        if(iframe && btn){ btn.style.display = 'none'; }
+      var mq = window.matchMedia('(min-width: 768px)');
+      var WIDGET_SRC = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js';
+
+      function getWidgetIframe(){
+        return document.querySelector('iframe[src*="buymeacoffee.com"]');
       }
-      function loadBMCWidget(){
-        if(!window.matchMedia('(min-width: 768px)').matches) return;
-        if(document.querySelector('script[data-bmc-widget]')) return;
+      function getWidgetScript(){
+        return document.querySelector('script[src="'+WIDGET_SRC+'"]');
+      }
+      function show(el){ if(el) el.style.display = ''; }
+      function hide(el){ if(el) el.style.display = 'none'; }
+
+      function syncSupportUI(){
+        var btn = document.getElementById('bmacBtn');
+        var iframe = getWidgetIframe();
+        if(mq.matches){
+          if(iframe){ hide(btn); show(iframe); }
+          else { show(btn); }
+        } else {
+          if(iframe){ hide(iframe); }
+          show(btn);
+        }
+      }
+
+      function injectOfficialSnippet(){
+        if(!mq.matches) return; // desktop only
+        if(getWidgetScript()) { syncSupportUI(); return; }
         var s = document.createElement('script');
-        s.src = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js';
-        s.setAttribute('data-bmc-widget','1');
+        s.src = WIDGET_SRC;
         s.setAttribute('data-name','BMC-Widget');
+        s.setAttribute('data-cfasync','false');
         s.setAttribute('data-id','seanyates78');
-        s.setAttribute('data-description','Support me on Buy Me a Coffee!');
-        s.setAttribute('data-message','Like EZ Quiz Web? Thanks for your support! ☕️');
-        s.setAttribute('data-color','#D8C3A5');
+        s.setAttribute('data-description','Support me on Buy me a coffee!');
+        s.setAttribute('data-message','Want to support the developer? Buy me a coffee here! :)');
+        s.setAttribute('data-color','#5F7FFF');
         s.setAttribute('data-position','Right');
         s.setAttribute('data-x_margin','18');
         s.setAttribute('data-y_margin','18');
-        s.onload = hideFallbackIfWidget;
+        s.onload = syncSupportUI;
         (document.body || document.head).appendChild(s);
       }
-      window.addEventListener('load', function(){ setTimeout(function(){ loadBMCWidget(); hideFallbackIfWidget(); }, 200); });
-      var mo = new MutationObserver(hideFallbackIfWidget);
+
+      window.addEventListener('load', function(){ setTimeout(function(){ injectOfficialSnippet(); syncSupportUI(); }, 200); });
+
+      var mo = new MutationObserver(syncSupportUI);
       mo.observe(document.documentElement, { childList:true, subtree:true });
+
+      if(typeof mq.addEventListener === 'function'){
+        mq.addEventListener('change', function(){ injectOfficialSnippet(); syncSupportUI(); });
+      } else if(typeof mq.addListener === 'function'){
+        mq.addListener(function(){ injectOfficialSnippet(); syncSupportUI(); });
+      }
     })();
   </script>
   <script>
