@@ -89,8 +89,14 @@
     <!-- Results View -->
     <section id="resultsView" class="card is-hidden" aria-labelledby="resultsTitle">
       <div class="results-header-row">
-        <h2 id="resultsTitle">Results</h2>
-        <label class="inline"><input type="checkbox" id="showAllChk"> Show all</label>
+        <div class="results-header-left">
+          <h2 id="resultsTitle">Results</h2>
+          <span id="resultsChip" class="chip" aria-live="polite"></span>
+        </div>
+        <div class="results-filter" role="group" aria-label="Results filter">
+          <button id="filterMissed" class="chip-btn active" aria-pressed="true">Missed</button>
+          <button id="filterAll" class="chip-btn" aria-pressed="false">All</button>
+        </div>
       </div>
       <div id="resultsSummary" class="results-summary"></div>
       <div id="missedList" class="results-missed"></div>
