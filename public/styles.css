@@ -12,6 +12,9 @@
   --success-press:#16a34a;
   --ring:#9ec1ff;
   --border:#2a3244;
+  /* brand accents */
+  --brand:#FF8A3D;
+  --brand-press:#E07732;
 
   /* polish tokens */
   --field-border:#33405a;
@@ -33,6 +36,8 @@ body[data-theme="light"]{
   --success-press:#1a8e45;
   --ring:#6ea3ff;
   --border:#dbe2ef;
+  --brand:#FF8A3D;
+  --brand-press:#E07732;
 
   --field-border:#cfd8ea;
   --field-hover:#e8edf6;
@@ -237,6 +242,14 @@ details.advanced > summary{display:none}
   #quizView .mtrow{grid-template-columns:1fr}
 }
 
+/* Desktop sizing polish for quiz runner */
+@media (min-width:1024px){
+  #quizView .qtext{font-size:18px; line-height:1.55}
+  #quizView label.opt{padding:12px 14px}
+  #quizView label.opt span{font-size:16px}
+  #quizView .mtrow{grid-template-columns:1fr 260px}
+}
+
 /* Results */
 .results-header-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 8px}
 .results-header-left{display:flex; align-items:center; gap:10px}
@@ -258,6 +271,11 @@ details.advanced > summary{display:none}
 .results-missed .missed-item.is-wrong{ border-left-color: var(--danger) }
 .results-actions{margin-top:14px; align-items:center}
 .results-actions .flex-spacer{flex:1 1 0}
+
+/* Brand accent on Retake button */
+#retakeBtn.btn{background:var(--brand); border-color:transparent; color:#fff}
+#retakeBtn.btn:hover{filter:brightness(1.05)}
+#retakeBtn.btn:active{background:var(--brand-press)}
 
 /* Color coding for user's answers */
 .user-ans.ans-correct{ color: var(--success); font-weight:600 }

@@ -140,7 +140,8 @@ export function renderResults(){
   const total=S.quiz.questions.length; const duration = S.quiz.finishedAt && S.quiz.startedAt ? (S.quiz.finishedAt - S.quiz.startedAt - 0) : 0;
   const chipText = `${S.quiz.score}/${total} • ${formatDuration(Math.max(0,duration))}`;
   if(chip) chip.textContent = chipText;
-  resultsSummary.innerHTML = `<p><strong>Score:</strong> ${S.quiz.score}/${total}</p><p><strong>Time:</strong> ${formatDuration(Math.max(0,duration))}</p>`;
+  // Legacy score/time block removed in favor of compact summary chip in header
+  if(resultsSummary) resultsSummary.innerHTML = '';
   const items=[]; for(let i=0;i<total;i++){ const q=S.quiz.questions[i], a=S.quiz.answers[i]; const correctView=viewCorrect(q), userView=viewUser(q,a); const isCorrect=compareQA(q,a); items.push({ idx:i+1, text:q.text, userView, correctView, isCorrect }); }
   // Determine filter state from buttons (default Missed)
   const isAll = !!(filterAll && filterAll.classList.contains('active'));
