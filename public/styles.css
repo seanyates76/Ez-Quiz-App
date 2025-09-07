@@ -143,6 +143,33 @@ body[data-theme="dark"] .site-header .brand-link{
   .gen-toolbar .btn{min-width:100%}
 }
 
+/* Keep count+diff side-by-side on small phones; move Generate below if needed */
+@media (max-width:600px){
+  .gen-toolbar{
+    grid-template-columns: 1fr 90px 120px;
+    grid-template-areas:
+      "topic topic topic"
+      "count diff gen"
+      "options options options";
+  }
+  #difficultyInput{ max-width:120px; width:100%; }
+  #countInput{ max-width:90px; width:100%; }
+}
+
+/* On extra-narrow, keep count+diff together and push Generate to its own row */
+@media (max-width:480px){
+  .gen-toolbar{
+    grid-template-columns: 1fr 90px 120px;
+    grid-template-areas:
+      "topic topic topic"
+      "count diff diff"
+      "gen gen gen"
+      "options options options";
+  }
+  #difficultyInput{ max-width:120px; width:100%; }
+  #countInput{ max-width:90px; width:100%; }
+}
+
 /* Very narrow: stack all (<360px) */
 @media (max-width:360px){
   .gen-toolbar{
