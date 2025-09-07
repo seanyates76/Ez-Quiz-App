@@ -16,7 +16,11 @@ function getWidgetScript(){ return document.querySelector(`script[src="${WIDGET_
 function getWidgetIframe(){ return document.querySelector('iframe[src*="buymeacoffee.com"]'); }
 
 function ensureWidgetScript(){
-  if(getWidgetScript()) return;
+  // If iframe already present, widget is visible
+  if(getWidgetIframe()) return;
+  // If script exists but iframe is gone (previously closed), re-inject a fresh script
+  const existing = getWidgetScript();
+  if(existing && existing.parentElement){ try{ existing.parentElement.removeChild(existing); }catch{} }
   const s=document.createElement('script');
   s.src=WIDGET_SRC; s.async=true; s.setAttribute('data-name','BMC-Widget'); s.setAttribute('data-cfasync','false');
   s.setAttribute('data-id', BMC_ID);
@@ -49,7 +53,11 @@ export function maybeShowBmcAfterCompletion(){
 export function wireSupportUI(){
   // Always-visible Support button
   const btn = document.getElementById('bmacBtn');
-  if(btn){ btn.id = 'supportBtn'; btn.textContent = 'Support'; btn.addEventListener('click', ()=>{ markSupportClicked(); }); }
+  if(btn){
+    btn.id = 'supportBtn';
+    btn.textContent = 'Support';
+    btn.addEventListener('click', ()=>{ try{ showBmcBanner(); }catch{} markSupportClicked(); });
+  }
 
   // Clicks to buymeacoffee links set clicked
   document.addEventListener('click', (e)=>{
