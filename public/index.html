@@ -356,13 +356,5 @@
   </div>
 
   <script type="module" src="js/main.js"></script>
-  <!-- Support logic now lives in js/support.js, injected via js/main.js -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-      });
-    }
-  </script>
 </body>
 </html>
