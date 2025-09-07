@@ -435,13 +435,7 @@ details.advanced > summary{display:none}
 .block{display:block}
 .fieldgroup{border:1px solid var(--border); border-radius:12px; padding:10px; margin-bottom:10px}
 
-/* Floating BuyMeACoffee */
-#bmacBtn.bmac{
-  position:fixed; right:16px; bottom:16px; padding:12px 14px; border-radius:999px;
-  background:var(--primary); color:#fff; text-decoration:none; border:0;
-  box-shadow:0 8px 20px rgba(0,0,0,.25);
-}
-#bmacBtn:focus-visible{outline:3px solid var(--ring); outline-offset:2px}
+/* Reserved space for optional floating actions (none by default) */
 
 /* Footer centering */
 footer.container{
