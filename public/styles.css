@@ -134,7 +134,7 @@ body[data-theme="dark"] .site-header .brand-link{
 /* Tablet/narrow: keep length+difficulty side-by-side */
 @media (max-width:820px){
   .gen-toolbar{
-    grid-template-columns:1fr 100px 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     grid-template-areas:
       "topic topic topic"
       "count diff gen"
@@ -143,31 +143,31 @@ body[data-theme="dark"] .site-header .brand-link{
   .gen-toolbar .btn{min-width:100%}
 }
 
-/* Keep count+diff side-by-side on small phones; move Generate below if needed */
+/* Small phones: let count+diff fill evenly; put Generate below */
 @media (max-width:600px){
   .gen-toolbar{
-    grid-template-columns: 1fr 90px 120px;
+    gap:8px;
+    grid-template-columns: 1fr 1fr;
     grid-template-areas:
-      "topic topic topic"
-      "count diff gen"
-      "options options options";
+      "topic topic"
+      "count diff"
+      "gen gen"
+      "options options";
   }
-  #difficultyInput{ max-width:120px; width:100%; }
-  #countInput{ max-width:90px; width:100%; }
+  .gen-toolbar .toolbar-input.narrow{ max-width:none; width:100%; }
 }
 
 /* On extra-narrow, keep count+diff together and push Generate to its own row */
 @media (max-width:480px){
   .gen-toolbar{
-    grid-template-columns: 1fr 90px 120px;
+    grid-template-columns: 1fr 1fr;
     grid-template-areas:
-      "topic topic topic"
-      "count diff diff"
-      "gen gen gen"
-      "options options options";
+      "topic topic"
+      "count diff"
+      "gen gen"
+      "options options";
   }
-  #difficultyInput{ max-width:120px; width:100%; }
-  #countInput{ max-width:90px; width:100%; }
+  .gen-toolbar .toolbar-input.narrow{ max-width:none; width:100%; }
 }
 
 /* Very narrow: stack all (<360px) */
