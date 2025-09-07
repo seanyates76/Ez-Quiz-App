@@ -13,6 +13,7 @@ function getEls(){
     timerDurationEl: $('timerDuration'),
     autoStartEl: $('autoStart'),
     requireAnswerEl: $('requireAnswer'),
+    alwaysShowAdvancedEl: $('alwaysShowAdvanced'),
   };
 }
 
@@ -27,10 +28,7 @@ function init(){
   wireQuizControls();
   wireResultsControls();
 
-  // Ensure Advanced panel starts closed regardless of prior state
-  const adv=document.getElementById('manualMenu'); if(adv) adv.removeAttribute('open');
   setMode('idle');
 }
 
 document.addEventListener('DOMContentLoaded', init);
-

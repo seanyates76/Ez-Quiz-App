@@ -1,6 +1,12 @@
 import { S, STORAGE_KEYS } from './state.js';
 import { msToMmSs, mmSsToMs } from './utils.js';
 
+// Cookie helpers for persistent flags (1 year)
+const COOKIE_ALWAYSSHOWADV = 'ezq.alwaysShowAdvanced';
+function setCookie(name, value){ try{ document.cookie = `${name}=${encodeURIComponent(String(value))}; Max-Age=31536000; Path=/; SameSite=Lax`; }catch{} }
+function getCookie(name){ try{ return document.cookie.split(';').map(s=>s.trim()).filter(Boolean).map(s=>s.split('='))
+  .reduce((acc,[k,v])=>{ acc[decodeURIComponent(k)] = decodeURIComponent(v||''); return acc; }, {})[name] || ''; }catch{ return ''; } }
+
 export function saveSettingsToStorage(){
   try{
     localStorage.setItem(STORAGE_KEYS.theme, S.settings.theme);
@@ -19,6 +25,8 @@ export function loadSettingsFromStorage(){
   try{ const raw=localStorage.getItem(STORAGE_KEYS.settings); if(raw){ const obj=JSON.parse(raw);
     S.settings.timerEnabled=!!obj.timerEnabled; S.settings.countdown=!!obj.countdown; S.settings.durationMs=Number(obj.durationMs||0);
     if(obj.autoStart!==undefined) S.settings.autoStart=!!obj.autoStart; S.settings.requireAnswer=!!obj.requireAnswer; } }catch{}
+  // Load cookie-backed flags
+  try{ const adv = getCookie(COOKIE_ALWAYSSHOWADV); if(adv){ S.settings.alwaysShowAdvanced = adv === 'true'; } }catch{}
 }
 
 export function applyTheme(theme){ const t=(theme==='light'||theme==='dark')?theme:'dark'; S.settings.theme=t; document.body.setAttribute('data-theme', t); saveSettingsToStorage(); }
@@ -30,6 +38,7 @@ export function reflectSettingsIntoUI(els){
   if(els.timerDurationEl) els.timerDurationEl.value=msToMmSs(S.settings.durationMs);
   if(els.autoStartEl) els.autoStartEl.checked=!!S.settings.autoStart;
   if(els.requireAnswerEl) els.requireAnswerEl.checked=!!S.settings.requireAnswer;
+  if(els.alwaysShowAdvancedEl) els.alwaysShowAdvancedEl.checked=!!S.settings.alwaysShowAdvanced;
 }
 
 export function wireSettingsPanel(els){
@@ -39,5 +48,8 @@ export function wireSettingsPanel(els){
   els.timerDurationEl?.addEventListener('input', ()=>{ S.settings.durationMs=mmSsToMs(els.timerDurationEl.value); saveSettingsToStorage(); });
   els.autoStartEl?.addEventListener('change', ()=>{ S.settings.autoStart=!!els.autoStartEl.checked; saveSettingsToStorage(); });
   els.requireAnswerEl?.addEventListener('change', ()=>{ S.settings.requireAnswer=!!els.requireAnswerEl.checked; saveSettingsToStorage(); });
+  els.alwaysShowAdvancedEl?.addEventListener('change', ()=>{ S.settings.alwaysShowAdvanced = !!els.alwaysShowAdvancedEl.checked; try{ setCookie(COOKIE_ALWAYSSHOWADV, String(!!S.settings.alwaysShowAdvanced)); }catch{} });
 }
 
+// Expose cookie helpers for other modules
+export function getAlwaysShowAdvanced(){ return !!S.settings.alwaysShowAdvanced; }

@@ -1,10 +1,10 @@
-export async function generateWithAI(topic, count){
+export async function generateWithAI(topic, count, opts = {}){
   const controller = new AbortController();
   const id = setTimeout(()=>controller.abort(), 30000);
   try{
     const res = await fetch('/api/generate', {
       method: 'POST', headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ topic, count }), signal: controller.signal
+      body: JSON.stringify({ topic, count, ...opts }), signal: controller.signal
     });
     clearTimeout(id);
     if(!res.ok){
@@ -16,4 +16,3 @@ export async function generateWithAI(topic, count){
     return { lines: String(data.lines || '').trim(), title: String(data.title || '') };
   }catch(err){ clearTimeout(id); throw err; }
 }
-

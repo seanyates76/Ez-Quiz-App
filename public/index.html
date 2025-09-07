@@ -36,16 +36,45 @@
           <option value="hard">Hard</option>
         </select>
         <button id="generateBtn" class="btn primary">Generate</button>
-        <button id="advancedToggleBtn" class="btn">Advanced ▾</button>
+        <button id="optionsBtn" class="btn" aria-haspopup="true" aria-expanded="false" aria-controls="optionsPanel">Options ▾</button>
       </div>
 
-      <!-- Advanced authoring (manual paste + preview) -->
-      <details id="manualMenu" class="advanced">
-        <summary>Advanced</summary>
-        <div class="advanced-body">
+      <!-- Options Drop-Down (includes Advanced) -->
+      <div id="optionsPanel" class="options-panel" role="region" aria-label="Options" hidden>
+        <div class="options-regular">
+          <div class="row gap wrap">
+            <label class="opt-switch"><input type="checkbox" id="optTimerEnabled" /> <span>Timer</span></label>
+            <label class="opt-switch"><input type="checkbox" id="optCountdownMode" /> <span>Countdown</span></label>
+            <label class="inline small-field">Duration (mm:ss)
+              <input type="text" id="optTimerDuration" inputmode="numeric" placeholder="05:00" />
+            </label>
+          </div>
+          <div class="row gap wrap" style="margin-top:8px">
+            <span class="lbl">Theme</span>
+            <label><input type="radio" name="optTheme" value="dark" /> Dark</label>
+            <label><input type="radio" name="optTheme" value="light" /> Light</label>
+          </div>
+          <div class="row gap wrap" style="margin-top:8px">
+            <span class="lbl">Question Types</span>
+            <label><input type="checkbox" id="qtMC" checked /> MC</label>
+            <label><input type="checkbox" id="qtTF" checked /> TF</label>
+            <label><input type="checkbox" id="qtYN" checked /> YN</label>
+            <label><input type="checkbox" id="qtMT" checked /> MT</label>
+          </div>
+          <div class="row gap" style="margin-top:8px">
+            <label class="opt-switch"><input type="checkbox" id="optSaveDefault" /> <span>Save as default</span></label>
+            <span class="muted small">Settings auto‑save as you change them.</span>
+          </div>
+        </div>
+        <div class="divider" role="separator" aria-orientation="horizontal"></div>
+        <div class="advanced-disclosure" role="button" tabindex="0" aria-expanded="false" aria-controls="advancedBlock">
+          <span>Advanced options</span>
+          <span class="caret" aria-hidden="true">▼</span>
+        </div>
+        <div id="advancedBlock" class="advanced-body" hidden>
           <div class="grid">
             <div class="col">
-              <label for="editor" class="lbl">Editor (paste MC/TF/YN/MT lines)</label>
+              <label for="editor" class="lbl">Prompt Editor</label>
               <textarea id="editor" class="editor" rows="10" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
               <div id="status" class="status" aria-live="polite"></div>
               <div class="row gap" style="margin-top:8px">
@@ -54,19 +83,28 @@
                 <button id="demoBtn" class="btn">Use Demo Set</button>
                 <button id="clearBtn" class="btn">Clear</button>
               </div>
+              <details class="parser-ref" style="margin-top:8px">
+                <summary>Parser reference</summary>
+                <ul>
+                  <li><code>MC|Question?|A) 1;B) 2|A</code> (multiple: <code>A,C</code>)</li>
+                  <li><code>TF|Statement.|T</code></li>
+                  <li><code>YN|Question?|Y</code></li>
+                  <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
+                </ul>
+              </details>
             </div>
-
             <div class="col">
-              <label for="mirror" class="lbl">Mirror</label>
-              <textarea id="mirror" class="mirror" rows="10" readonly></textarea>
-              <div class="row gap">
+              <label class="lbl">Debug / Mirror</label>
+              <label class="opt-switch"><input type="checkbox" id="mirrorToggle" /> <span>Show live mirror</span></label>
+              <textarea id="mirror" class="mirror" rows="10" readonly hidden></textarea>
+              <div class="row gap" style="margin-top:8px">
                 <button id="startBtn" class="btn" disabled>Start</button>
               </div>
             </div>
           </div>
           <p style="margin-top:8px">Optional power tools live here. (Prompt Builder ✨ in header.)</p>
         </div>
-      </details>
+      </div>
     </section>
 
     <!-- Quiz View -->
@@ -266,8 +304,16 @@
           <label><input type="radio" name="theme" value="light" /> Light</label>
         </fieldset>
 
+        <fieldset class="fieldgroup">
+          <legend>Advanced</legend>
+          <label><input type="checkbox" id="alwaysShowAdvanced" /> Always show advanced options</label>
+        </fieldset>
+
         <div class="row">
           <button id="resetApp" class="btn danger">Reset App</button>
+        </div>
+        <div class="row" style="justify-content:flex-end; margin-top:8px">
+          <label class="muted small"><input type="checkbox" checked disabled /> Beta version</label>
         </div>
       </div>
       <footer class="modal__footer">
