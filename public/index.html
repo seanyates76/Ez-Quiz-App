@@ -193,85 +193,93 @@
       </header>
       <div class="modal__body">
         <section>
-          <h4>Make a Quiz (Fast)</h4>
-          <ol>
-            <li>Type a <strong>Topic</strong> at the top.</li>
-            <li>Pick a <strong>Length</strong> and <strong>Difficulty</strong>.</li>
-            <li>Click <strong>Generate</strong>, then <strong>Start</strong>.</li>
-          </ol>
-          <p>Tip: Want to try it first? Click <strong>Use Demo Set</strong>.</p>
-        </section>
-
-        <section>
-          <h4>Answering Questions</h4>
+          <h4>Getting Started</h4>
           <ul>
-            <li><strong>Multiple choice</strong>: click one or more options (some questions have multiple correct answers).</li>
-            <li><strong>True/False</strong> and <strong>Yes/No</strong>: use the on‑screen buttons or keys (<kbd>T/F</kbd>, <kbd>Y/N</kbd>).</li>
-            <li><strong>Keyboard</strong>: <kbd>Enter</kbd>/<kbd>→</kbd> for Next, <kbd>Backspace</kbd>/<kbd>←</kbd> for Previous.</li>
+            <li>Enter a Topic, set Length and Difficulty, and select Generate.</li>
+            <li>Click Start to begin. No account is required.</li>
           </ul>
         </section>
 
         <section>
-          <h4>Results &amp; Retake</h4>
+          <h4>Creating Quizzes</h4>
           <ul>
-            <li>See your score and time; missed questions show first by default.</li>
-            <li>Toggle <strong>Show all</strong> to list everything (missed items stay highlighted).</li>
-            <li>Use <strong>Retake</strong> or the menu caret to <strong>Retake missed only</strong>.</li>
+            <li>Use Options to configure Timer, Theme, and Question Types.</li>
+            <li>Open Options → Advanced options to access the Prompt Editor and tools.</li>
+            <li>Supported types: Multiple Choice (single/multiple), True/False, Yes/No, Matching.</li>
           </ul>
         </section>
 
         <section>
-          <h4>Timer &amp; Preferences</h4>
+          <h4>AI Generation</h4>
           <ul>
-            <li>Open <strong>Settings</strong> to enable a timer (Stopwatch or Countdown).</li>
-            <li>Set countdown as <code>mm:ss</code>. Options like <strong>Auto‑start</strong> and <strong>Require answer</strong> are available.</li>
-            <li>Theme and preferences save automatically; use <strong>Reset App</strong> to clear them.</li>
+            <li>Generate sends Topic, Length, Difficulty, and selected types to the AI.</li>
+            <li>If nothing returns, try again shortly (rate limits), use Demo Set, or paste your own lines.</li>
           </ul>
         </section>
 
         <section>
-          <h4>Manual Entry (Optional)</h4>
-          <p>Prefer to paste your own questions? Use the <strong>Editor</strong> under <em>Advanced</em>, then click <strong>Generate</strong> → <strong>Start</strong>.</p>
-          <details>
-            <summary>Formats at a glance</summary>
-            <ul>
-              <li><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> (multiple: <code>|A,C</code>)</li>
-              <li><code>TF|Statement.|T</code> (or <code>F</code>)</li>
-              <li><code>YN|Question?|Y</code> (or <code>N</code>)</li>
-              <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
-            </ul>
-            <p>Use the exact delimiters shown: pipes <code>|</code>, semicolons <code>;</code>, and labels like <code>A)</code> or <code>1)</code>.</p>
-          </details>
+          <h4>Taking Quizzes</h4>
+          <ul>
+            <li>Keyboard shortcuts: Enter/Right = Next; Backspace/Left = Previous.</li>
+            <li>Answer hotkeys: MC (A–D), True/False (T/F), Yes/No (Y/N).</li>
+            <li>Require answer to advance: Settings → Quiz Behavior.</li>
+          </ul>
         </section>
 
         <section>
-          <h4>Advanced</h4>
+          <h4>Timer &amp; Settings</h4>
           <ul>
-            <li><strong>Prompt Builder ✨</strong>: enter a Topic and Length, then <strong>Copy</strong> a ready‑made prompt for your AI tool; paste the generated lines into the Editor.</li>
-            <li><strong>Generate from Topic</strong>: when available, the <strong>Generate</strong> button can create quiz lines for you; otherwise, paste lines or use the Demo.</li>
+            <li>Timer: Stopwatch or Countdown (mm:ss) in Settings.</li>
+            <li>Preferences are stored locally. Use Reset App to clear.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Results &amp; Retakes</h4>
+          <ul>
+            <li>Results show score, time, and a Missed/All filter (Missed first by default).</li>
+            <li>Retake missed only: use the caret next to Retake.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Import/Export</h4>
+          <ul>
+            <li>Import: Options → Advanced options → Load .txt, or paste into the editor.</li>
+            <li>Export: Copy from the editor or mirror into a .txt file.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Data &amp; Privacy</h4>
+          <ul>
+            <li>Settings are stored in your browser.</li>
+            <li>AI generation sends Topic and settings to the configured provider. See Privacy for details.</li>
+            <li>Works offline once loaded (PWA). AI generation requires connectivity.</li>
           </ul>
         </section>
 
         <section>
           <h4>Troubleshooting</h4>
           <ul>
-            <li><strong>Generate isn’t producing questions?</strong> Try the <strong>Demo</strong>, or paste questions into the Editor and click <strong>Generate</strong>.</li>
-            <li><strong>Start is disabled?</strong> Make sure at least one valid question is parsed (check the status message under the Editor).</li>
-            <li><strong>Timer not visible?</strong> Enable it in Settings and set a duration for countdown.</li>
-            <li><strong>Need a fresh start?</strong> Use <strong>Reset App</strong> in Settings.</li>
+            <li>Start is disabled: no valid questions parsed yet. Use Demo Set or check the status under the editor.</li>
+            <li>Timer isn’t visible: enable it in Settings and set a duration for countdown.</li>
+            <li>Support banner doesn’t appear: extensions may block third-party widgets. The Support button is always available.</li>
           </ul>
         </section>
 
         <section>
-          <h4>FAQs</h4>
-          <ul>
-            <li><strong>Why the golden button?</strong> The <em>Retake</em> button uses a subtle EZ‑gold accent to encourage a quick retry — it’s just a friendly nudge and doesn’t change how the quiz works.</li>
-            <li><strong>Can I retake only missed questions?</strong> Yes — open Results and use the caret next to Retake.</li>
-            <li><strong>Does it work offline?</strong> Yes. It’s a PWA; once loaded, it works without internet.</li>
-            <li><strong>Where do my settings go?</strong> Theme and timer preferences are saved locally in your browser.</li>
-            <li><strong>How do I import my own quiz?</strong> Click Load .txt or paste lines into the Editor under Advanced, then Generate → Start.</li>
-            <li><strong>Which question types are supported?</strong> Multiple choice (single/multiple), True/False, Yes/No, and Matching.</li>
-          </ul>
+          <h4>Parser Reference</h4>
+          <details>
+            <summary>Formats</summary>
+            <ul>
+              <li><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> (multiple: <code>A,C</code>)</li>
+              <li><code>TF|Statement.|T</code> (or <code>F</code>)</li>
+              <li><code>YN|Question?|Y</code> (or <code>N</code>)</li>
+              <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
+            </ul>
+            <p>Use the exact delimiters shown: pipes <code>|</code>, semicolons <code>;</code>, and labels like <code>A)</code> or <code>1)</code>.</p>
+          </details>
         </section>
       </div>
       <footer class="modal__footer">
