@@ -49,7 +49,14 @@ export function wireSettingsPanel(els){
   els.autoStartEl?.addEventListener('change', ()=>{ S.settings.autoStart=!!els.autoStartEl.checked; saveSettingsToStorage(); });
   els.requireAnswerEl?.addEventListener('change', ()=>{ S.settings.requireAnswer=!!els.requireAnswerEl.checked; saveSettingsToStorage(); });
   els.alwaysShowAdvancedEl?.addEventListener('change', ()=>{ S.settings.alwaysShowAdvanced = !!els.alwaysShowAdvancedEl.checked; try{ setCookie(COOKIE_ALWAYSSHOWADV, String(!!S.settings.alwaysShowAdvanced)); }catch{} });
+
+  // Optional tester control: reset support prompts
+  const resetSupportBtn = document.getElementById('resetSupportPrompts');
+  if(resetSupportBtn){ resetSupportBtn.addEventListener('click', ()=>{ try{ window.EZQ_support && window.EZQ_support.resetSupportPrompts(); }catch{} }); }
 }
 
 // Expose cookie helpers for other modules
 export function getAlwaysShowAdvanced(){ return !!S.settings.alwaysShowAdvanced; }
+
+// Lightweight dynamic import for support module in browser
+function requireSupportModule(){ return window.EZQ_support || {}; }

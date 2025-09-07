@@ -316,6 +316,13 @@
           <label><input type="checkbox" id="alwaysShowAdvanced" /> Always show advanced options</label>
         </fieldset>
 
+        <fieldset class="fieldgroup">
+          <legend>Support</legend>
+          <div class="row">
+            <button id="resetSupportPrompts" class="btn">Reset support prompts</button>
+          </div>
+        </fieldset>
+
         <div class="row">
           <button id="resetApp" class="btn danger">Reset App</button>
         </div>
@@ -349,63 +356,7 @@
   </div>
 
   <script type="module" src="js/main.js"></script>
-  <!-- Buy Me a Coffee widget: use official snippet on desktop, fallback ☕ on mobile/tablet -->
-  <script>
-    (function(){
-      var mq = window.matchMedia('(min-width: 768px)');
-      var WIDGET_SRC = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js';
-
-      function getWidgetIframe(){
-        return document.querySelector('iframe[src*="buymeacoffee.com"]');
-      }
-      function getWidgetScript(){
-        return document.querySelector('script[src="'+WIDGET_SRC+'"]');
-      }
-      function show(el){ if(el) el.style.display = ''; }
-      function hide(el){ if(el) el.style.display = 'none'; }
-
-      function syncSupportUI(){
-        var btn = document.getElementById('bmacBtn');
-        var iframe = getWidgetIframe();
-        if(mq.matches){
-          if(iframe){ hide(btn); show(iframe); }
-          else { show(btn); }
-        } else {
-          if(iframe){ hide(iframe); }
-          show(btn);
-        }
-      }
-
-      function injectOfficialSnippet(){
-        if(!mq.matches) return; // desktop only
-        if(getWidgetScript()) { syncSupportUI(); return; }
-        var s = document.createElement('script');
-        s.src = WIDGET_SRC;
-        s.setAttribute('data-name','BMC-Widget');
-        s.setAttribute('data-cfasync','false');
-        s.setAttribute('data-id','seanyates78');
-        s.setAttribute('data-description','Support me on Buy me a coffee!');
-        s.setAttribute('data-message','Want to support the developer? Buy me a coffee here! :)');
-        s.setAttribute('data-color','#5F7FFF');
-        s.setAttribute('data-position','Right');
-        s.setAttribute('data-x_margin','18');
-        s.setAttribute('data-y_margin','18');
-        s.onload = syncSupportUI;
-        (document.body || document.head).appendChild(s);
-      }
-
-      window.addEventListener('load', function(){ setTimeout(function(){ injectOfficialSnippet(); syncSupportUI(); }, 200); });
-
-      var mo = new MutationObserver(syncSupportUI);
-      mo.observe(document.documentElement, { childList:true, subtree:true });
-
-      if(typeof mq.addEventListener === 'function'){
-        mq.addEventListener('change', function(){ injectOfficialSnippet(); syncSupportUI(); });
-      } else if(typeof mq.addListener === 'function'){
-        mq.addListener(function(){ injectOfficialSnippet(); syncSupportUI(); });
-      }
-    })();
-  </script>
+  <!-- Support logic now lives in js/support.js, injected via js/main.js -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
