@@ -1,5 +1,6 @@
 import { S } from './state.js';
 import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel } from './utils.js';
+import { maybeShowBmcAfterCompletion } from './support.js';
 
 // Elements helper
 const el = (id) => $(id);
@@ -132,7 +133,7 @@ function compareQA(q, a){ if(q.type==='MC'){ const user=Array.isArray(a)?a.slice
 function viewCorrect(q){ if(q.type==='MC'){ return indexesToLetters(q.correct).join(','); } if(q.type==='TF'){ return q.correct ? 'T' : 'F'; } if(q.type==='YN'){ return q.correct ? 'Y' : 'N'; } if(q.type==='MT'){ return q.pairs.map(([li,ri]) => `${li+1}-${String.fromCharCode(65+ri)}`).join(','); } return ''; }
 function viewUser(q,a){ if(q.type==='MC'){ const arr=Array.isArray(a)?a:[]; return indexesToLetters(arr).join(','); } if(q.type==='TF'){ if(typeof a!=='boolean') return ''; return a?'T':'F'; } if(q.type==='YN'){ if(typeof a!=='boolean') return ''; return a?'Y':'N'; } if(q.type==='MT'){ const arr=Array.isArray(a)?a:[]; return arr.map((ri,li)=> (ri<0?`${li+1}-?`:`${li+1}-${String.fromCharCode(65+ri)}`)).join(','); } return ''; }
 
-export function finishQuiz(auto=false){ if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } S.quiz.finishedAt = Date.now(); let score=0; const qs=S.quiz.questions, ans=S.quiz.answers; for(let i=0;i<qs.length;i++){ const q=qs[i], a=ans[i]; if(q.type==='MC'){ const user=Array.isArray(a)?a.slice().sort((x,y)=>x-y):[]; const correct=(q.correct||[]).slice().sort((x,y)=>x-y); if(user.length && arraysEqual(user, correct)) score++; } else if(q.type==='TF' || q.type==='YN'){ if(typeof a==='boolean' && a===q.correct) score++; } else if(q.type==='MT'){ const user=Array.isArray(a)?a:[]; const target=new Array(q.left.length).fill(-1); q.pairs.forEach(([li,ri])=>{ target[li]=ri; }); if(user.length===target.length && arraysEqual(user, target)) score++; } } S.quiz.score=score; renderResults(); setMode('results'); }
+export function finishQuiz(auto=false){ if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } S.quiz.finishedAt = Date.now(); let score=0; const qs=S.quiz.questions, ans=S.quiz.answers; for(let i=0;i<qs.length;i++){ const q=qs[i], a=ans[i]; if(q.type==='MC'){ const user=Array.isArray(a)?a.slice().sort((x,y)=>x-y):[]; const correct=(q.correct||[]).slice().sort((x,y)=>x-y); if(user.length && arraysEqual(user, correct)) score++; } else if(q.type==='TF' || q.type==='YN'){ if(typeof a==='boolean' && a===q.correct) score++; } else if(q.type==='MT'){ const user=Array.isArray(a)?a:[]; const target=new Array(q.left.length).fill(-1); q.pairs.forEach(([li,ri])=>{ target[li]=ri; }); if(user.length===target.length && arraysEqual(user, target)) score++; } } S.quiz.score=score; renderResults(); setMode('results'); try{ maybeShowBmcAfterCompletion(); }catch{} }
 
 export function renderResults(){
   const resultsSummary=el('resultsSummary'); const missedList=el('missedList');

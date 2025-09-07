@@ -42,11 +42,13 @@ body: JSON.stringify({ error: 'Invalid JSON' }),
 
 const topic = String(payload.topic || '').trim() || 'General knowledge';
 const count = Math.max(1, Math.min(50, parseInt(payload.count || 10, 10)));
+const types = Array.isArray(payload.types) ? payload.types.filter(t=> /^(MC|TF|YN|MT)$/i.test(String(t))) : undefined;
+const difficulty = (payload.difficulty && String(payload.difficulty).toLowerCase()) || undefined;
 const provider = String(payload.provider || process.env.AI_PROVIDER || 'gemini');
 const model = String(payload.model || '');
 
 try {
-  const { title, lines, provider: usedProvider, model: usedModel } = await generateLines({ provider, model, topic, count, env: process.env });
+  const { title, lines, provider: usedProvider, model: usedModel } = await generateLines({ provider, model, topic, count, types, difficulty, env: process.env });
   return {
     statusCode: 200,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -61,7 +63,7 @@ try {
   const canFallbackToGemini = primary !== 'gemini' && !!process.env.GEMINI_API_KEY;
   if (canFallbackToGemini) {
     try {
-      const { title, lines, provider: usedProvider, model: usedModel } = await generateLines({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-1.5-flash', topic, count, env: process.env });
+      const { title, lines, provider: usedProvider, model: usedModel } = await generateLines({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-1.5-flash', topic, count, types, difficulty, env: process.env });
       return {
         statusCode: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

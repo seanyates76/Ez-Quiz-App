@@ -3,6 +3,7 @@ import { $, byQSA } from './utils.js';
 import { parseEditorInput } from './parser.js';
 import { generateWithAI } from './api.js';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
+import { applyTheme, saveSettingsToStorage, getAlwaysShowAdvanced } from './settings.js';
 
 export function runParseFlow(sourceText, topicLabel, fullTitle){
   const mirror = $('mirror');
@@ -36,7 +37,26 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const fileInput = $('fileInput');
   const demoBtn = $('demoBtn');
   const clearBtn = $('clearBtn');
-  const advancedToggleBtn = $('advancedToggleBtn');
+  const optionsBtn = $('optionsBtn');
+  const optionsPanel = $('optionsPanel');
+  const advDisclosure = document.querySelector('.advanced-disclosure');
+  const advBlock = $('advancedBlock');
+  const mirrorToggle = $('mirrorToggle');
+  const mirrorBox = document.getElementById('mirrorBox');
+  const difficultyInput = $('difficultyInput');
+
+  // Options: controls
+  const optTimerEnabled = $('optTimerEnabled');
+  const optCountdownMode = $('optCountdownMode');
+  const optTimerDuration = $('optTimerDuration');
+  const optThemeRadios = byQSA('input[name="optTheme"]');
+  const optSaveDefault = $('optSaveDefault');
+  // Types checkboxes
+  const qtMC = $('qtMC');
+  const qtTF = $('qtTF');
+  const qtYN = $('qtYN');
+  const qtMT = $('qtMT');
+  const startBtn2 = $('startBtn');
 
   loadBtn?.addEventListener('click', ()=> fileInput?.click());
   fileInput?.addEventListener('change', ()=>{
@@ -67,11 +87,14 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
     const topic = topicRaw || 'General knowledge';
     let count = parseInt((countInput?.value || pbCount?.value || '10'), 10); if(!Number.isFinite(count)) count = 10; count = Math.max(1, Math.min(50, count)); if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
+    // Gather options
+    const types = [ qtMC?.checked ? 'MC':null, qtTF?.checked? 'TF':null, qtYN?.checked? 'YN':null, qtMT?.checked? 'MT':null ].filter(Boolean);
+    const difficulty = (difficultyInput?.value || 'medium');
     try{
       statusBox && (statusBox.textContent = 'Generating via AI…');
       generateBtn.disabled = true;
       showVeil(Math.floor(Math.random()*MESSAGES.length));
-      const out = await generateWithAI(topic, count);
+      const out = await generateWithAI(topic, count, { types, difficulty });
       const lines = out && out.lines || '';
       if(!lines){ statusBox && (statusBox.textContent = 'AI did not return any lines. Try again or use the Prompt Builder.'); generateBtn.disabled = false; hideVeil('Nothing yet…'); return; }
       if(editor) editor.value = lines; if(mirror) mirror.value = lines;
@@ -85,10 +108,59 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     }finally{ generateBtn.disabled = false; hideVeil('Done'); }
   });
 
-  // Advanced toggle
-  advancedToggleBtn?.addEventListener('click', ()=>{ const d = $('manualMenu'); if(!d) return; const open = d.hasAttribute('open'); if(open) d.removeAttribute('open'); else d.setAttribute('open',''); });
+  // Options drop-down toggle
+  function reflectOptionsFromSettings(){
+    if(optTimerEnabled) optTimerEnabled.checked = !!S.settings.timerEnabled;
+    if(optCountdownMode) optCountdownMode.checked = !!S.settings.countdown;
+    if(optTimerDuration){
+      const ms = Number(S.settings.durationMs||0);
+      if(ms>0){ const total = Math.floor(ms/1000); const mm = Math.floor(total/60); const ss = total%60; optTimerDuration.value = String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'); }
+      else { optTimerDuration.value = ''; }
+    }
+    optThemeRadios.forEach(r=>{ r.checked = (r.value===S.settings.theme); });
+    if(mirrorToggle) mirrorToggle.checked = !mirror?.hasAttribute('hidden');
+  }
+  function openOptions(){ if(!optionsPanel) return; optionsPanel.hidden = false; optionsBtn?.setAttribute('aria-expanded','true'); reflectOptionsFromSettings(); if(advDisclosure && advBlock){ const shouldOpen = !!getAlwaysShowAdvanced(); advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false'); advBlock.hidden = !shouldOpen; } document.addEventListener('keydown', onEscCloseOptions); document.addEventListener('click', onDocClick, true); }
+  function closeOptions(){ if(!optionsPanel) return; optionsPanel.hidden = true; optionsBtn?.setAttribute('aria-expanded','false'); document.removeEventListener('keydown', onEscCloseOptions); document.removeEventListener('click', onDocClick, true); optionsBtn?.focus(); }
+  function onEscCloseOptions(e){ if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }}
+  optionsBtn?.addEventListener('click', ()=>{ if(optionsPanel?.hidden){ openOptions(); } else { closeOptions(); } });
+  // Click-away to close
+  function onDocClick(e){
+    if(!optionsPanel || optionsPanel.hidden) return;
+    const t = e.target;
+    if(t===optionsBtn || optionsBtn?.contains(t)) return;
+    if(optionsPanel.contains(t)) return;
+    closeOptions();
+  }
+  // Click-away listener is attached only while open (see openOptions/closeOptions)
+
+  // Advanced disclosure behavior
+  function toggleAdvanced(open){ if(!advDisclosure||!advBlock) return; const willOpen = (open===undefined) ? (advDisclosure.getAttribute('aria-expanded')!=='true') : !!open; advDisclosure.setAttribute('aria-expanded', String(willOpen)); advBlock.hidden = !willOpen; }
+  advDisclosure?.addEventListener('click', ()=> toggleAdvanced());
+  advDisclosure?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleAdvanced(); } else if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }});
+
+  // Mirror toggle
+  // Debounced mirror toggle; keep container height stable
+  let mirrorToggleBusy = false;
+  mirrorToggle?.addEventListener('change', ()=>{
+    if(mirrorToggleBusy) return;
+    mirrorToggleBusy = true;
+    const on = !!mirrorToggle.checked;
+    if(mirrorBox){ mirrorBox.setAttribute('data-on', on ? 'true':'false'); }
+    setTimeout(()=>{ mirrorToggleBusy = false; }, 180);
+  });
+
+  // Options: Settings wiring
+  optTimerEnabled?.addEventListener('change', ()=>{ S.settings.timerEnabled=!!optTimerEnabled.checked; saveSettingsToStorage(); });
+  optCountdownMode?.addEventListener('change', ()=>{ S.settings.countdown=!!optCountdownMode.checked; saveSettingsToStorage(); });
+  optTimerDuration?.addEventListener('input', ()=>{ const s=(optTimerDuration.value||'').trim(); let ms=0; if(s){ const parts=s.split(':'); if(parts.length===2){ const mm=parseInt(parts[0],10)||0; const ss=parseInt(parts[1],10)||0; ms=(mm*60+ss)*1000; } } S.settings.durationMs=ms; saveSettingsToStorage(); });
+  optThemeRadios.forEach(r=> r.addEventListener('change', ()=>{ if(r.checked){ applyTheme(r.value); }}));
+  optSaveDefault?.addEventListener('change', ()=>{ saveSettingsToStorage(); });
+
+  // Start button in Advanced
+  startBtn2?.addEventListener('click', ()=>{ if(S.quiz?.questions?.length){ syncSettingsFromUI(); beginQuiz(); } });
   // Enter triggers generate
   topicInput?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); generateBtn?.click(); } });
   countInput?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); generateBtn?.click(); } });
+  difficultyInput?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); generateBtn?.click(); } });
 }
-

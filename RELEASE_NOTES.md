@@ -69,3 +69,21 @@ PWA cache bump
 Versioned assets
 - index.html now references `style.css?v=1.1.3` and `app.js?v=1.1.3` to bypass long-lived CDN/browser caches
 - SW fetch handler serves versioned .css/.js from cached base files when offline
+EZ Quiz Web v1.2.0-beta.1
+==========================
+
+Release date: 2025-09-07
+
+Highlights
+- Clean default face: inline Topic, Length, Difficulty with responsive layout.
+- Options hub: new drop-down with Timer, Theme, Question Types, and Save default.
+- Advanced only when you want it: disclosure row with caret, ARIA + keyboard friendly, ESC to close.
+- Editor + Mirror: 66/34 side-by-side with shared headers and balanced heights; stacks under 768px.
+- Smarter generation: types and difficulty flow through to API; providers instructed to use only selected types.
+- Support: always-visible Support button; Buy Me a Coffee banner after 1st and every 4th completion; async load; ESC to dismiss; persistent suppression after click.
+- Settings: “Always show advanced options” and “Reset support prompts”; Beta indicator at the bottom.
+
+Notes
+- Banner cadence does not show again once clicked on that device (can be reset in Settings).
+- Question Types currently constrain generation; they do not filter manually pasted lines.
+- CSP allows buymeacoffee widget/script domains; widget loads only when needed.

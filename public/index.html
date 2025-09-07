@@ -36,37 +36,82 @@
           <option value="hard">Hard</option>
         </select>
         <button id="generateBtn" class="btn primary">Generate</button>
-        <button id="advancedToggleBtn" class="btn">Advanced ▾</button>
+        <button id="optionsBtn" class="btn" aria-haspopup="true" aria-expanded="false" aria-controls="optionsPanel">Options ▾</button>
       </div>
 
-      <!-- Advanced authoring (manual paste + preview) -->
-      <details id="manualMenu" class="advanced">
-        <summary>Advanced</summary>
-        <div class="advanced-body">
-          <div class="grid">
-            <div class="col">
-              <label for="editor" class="lbl">Editor (paste MC/TF/YN/MT lines)</label>
-              <textarea id="editor" class="editor" rows="10" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
-              <div id="status" class="status" aria-live="polite"></div>
-              <div class="row gap" style="margin-top:8px">
-                <button id="loadBtn" class="btn">Load .txt</button>
-                <input id="fileInput" type="file" accept=".txt" style="display:none" />
-                <button id="demoBtn" class="btn">Use Demo Set</button>
-                <button id="clearBtn" class="btn">Clear</button>
-              </div>
+      <!-- Options Drop-Down (includes Advanced) -->
+      <div id="optionsPanel" class="options-panel" role="region" aria-label="Options" hidden>
+        <div class="options-regular">
+          <div class="row gap wrap">
+            <label class="opt-switch"><input type="checkbox" id="optTimerEnabled" /> <span>Timer</span></label>
+            <label class="opt-switch"><input type="checkbox" id="optCountdownMode" /> <span>Countdown</span></label>
+            <label class="inline small-field">Duration (mm:ss)
+              <input type="text" id="optTimerDuration" inputmode="numeric" placeholder="05:00" />
+            </label>
+          </div>
+          <div class="row gap wrap" style="margin-top:8px">
+            <span class="lbl">Theme</span>
+            <label><input type="radio" name="optTheme" value="dark" /> Dark</label>
+            <label><input type="radio" name="optTheme" value="light" /> Light</label>
+          </div>
+          <div class="row gap wrap" style="margin-top:8px">
+            <span class="lbl">Question Types</span>
+            <label><input type="checkbox" id="qtMC" checked /> MC</label>
+            <label><input type="checkbox" id="qtTF" checked /> TF</label>
+            <label><input type="checkbox" id="qtYN" checked /> YN</label>
+            <label><input type="checkbox" id="qtMT" checked /> MT</label>
+          </div>
+          <div class="row gap" style="margin-top:8px">
+            <label class="opt-switch"><input type="checkbox" id="optSaveDefault" /> <span>Save as default</span></label>
+            <span class="muted small">Settings auto‑save as you change them.</span>
+          </div>
+        </div>
+        <div class="divider" role="separator" aria-orientation="horizontal"></div>
+        <div class="advanced-disclosure" role="button" tabindex="0" aria-expanded="false" aria-controls="advancedBlock">
+          <span>Advanced options</span>
+          <span class="caret" aria-hidden="true">▼</span>
+        </div>
+        <div id="advancedBlock" class="advanced-body" hidden>
+          <div class="adv-head">
+            <h5 class="adv-title">Prompt Editor</h5>
+            <div class="adv-title-right">
+              <h5 class="adv-title">Debug / Mirror</h5>
+              <label class="opt-switch small"><input type="checkbox" id="mirrorToggle" /> <span>Show</span></label>
             </div>
-
-            <div class="col">
-              <label for="mirror" class="lbl">Mirror</label>
-              <textarea id="mirror" class="mirror" rows="10" readonly></textarea>
-              <div class="row gap">
-                <button id="startBtn" class="btn" disabled>Start</button>
+          </div>
+          <div class="adv-panels">
+            <div class="adv-left">
+              <textarea id="editor" class="editor" rows="12" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
+            </div>
+            <div class="adv-right">
+              <div id="mirrorBox" class="mirror-box" data-on="false">
+                <textarea id="mirror" class="mirror" rows="12" readonly></textarea>
               </div>
             </div>
           </div>
+          <div class="adv-actions">
+            <div class="row gap">
+              <button id="loadBtn" class="btn">Load .txt</button>
+              <input id="fileInput" type="file" accept=".txt" style="display:none" />
+              <button id="demoBtn" class="btn">Use Demo Set</button>
+              <button id="clearBtn" class="btn">Clear</button>
+            </div>
+            <div class="row gap">
+              <button id="startBtn" class="btn" disabled>Start</button>
+            </div>
+          </div>
+          <details class="parser-ref" style="margin-top:8px">
+            <summary>Parser reference</summary>
+            <ul>
+              <li><code>MC|Question?|A) 1;B) 2|A</code> (multiple: <code>A,C</code>)</li>
+              <li><code>TF|Statement.|T</code></li>
+              <li><code>YN|Question?|Y</code></li>
+              <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
+            </ul>
+          </details>
           <p style="margin-top:8px">Optional power tools live here. (Prompt Builder ✨ in header.)</p>
         </div>
-      </details>
+      </div>
     </section>
 
     <!-- Quiz View -->
@@ -266,8 +311,23 @@
           <label><input type="radio" name="theme" value="light" /> Light</label>
         </fieldset>
 
+        <fieldset class="fieldgroup">
+          <legend>Advanced</legend>
+          <label><input type="checkbox" id="alwaysShowAdvanced" /> Always show advanced options</label>
+        </fieldset>
+
+        <fieldset class="fieldgroup">
+          <legend>Support</legend>
+          <div class="row">
+            <button id="resetSupportPrompts" class="btn">Reset support prompts</button>
+          </div>
+        </fieldset>
+
         <div class="row">
           <button id="resetApp" class="btn danger">Reset App</button>
+        </div>
+        <div class="row" style="justify-content:flex-end; margin-top:8px">
+          <label class="muted small"><input type="checkbox" checked disabled /> Beta version</label>
         </div>
       </div>
       <footer class="modal__footer">
@@ -296,63 +356,7 @@
   </div>
 
   <script type="module" src="js/main.js"></script>
-  <!-- Buy Me a Coffee widget: use official snippet on desktop, fallback ☕ on mobile/tablet -->
-  <script>
-    (function(){
-      var mq = window.matchMedia('(min-width: 768px)');
-      var WIDGET_SRC = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js';
-
-      function getWidgetIframe(){
-        return document.querySelector('iframe[src*="buymeacoffee.com"]');
-      }
-      function getWidgetScript(){
-        return document.querySelector('script[src="'+WIDGET_SRC+'"]');
-      }
-      function show(el){ if(el) el.style.display = ''; }
-      function hide(el){ if(el) el.style.display = 'none'; }
-
-      function syncSupportUI(){
-        var btn = document.getElementById('bmacBtn');
-        var iframe = getWidgetIframe();
-        if(mq.matches){
-          if(iframe){ hide(btn); show(iframe); }
-          else { show(btn); }
-        } else {
-          if(iframe){ hide(iframe); }
-          show(btn);
-        }
-      }
-
-      function injectOfficialSnippet(){
-        if(!mq.matches) return; // desktop only
-        if(getWidgetScript()) { syncSupportUI(); return; }
-        var s = document.createElement('script');
-        s.src = WIDGET_SRC;
-        s.setAttribute('data-name','BMC-Widget');
-        s.setAttribute('data-cfasync','false');
-        s.setAttribute('data-id','seanyates78');
-        s.setAttribute('data-description','Support me on Buy me a coffee!');
-        s.setAttribute('data-message','Want to support the developer? Buy me a coffee here! :)');
-        s.setAttribute('data-color','#5F7FFF');
-        s.setAttribute('data-position','Right');
-        s.setAttribute('data-x_margin','18');
-        s.setAttribute('data-y_margin','18');
-        s.onload = syncSupportUI;
-        (document.body || document.head).appendChild(s);
-      }
-
-      window.addEventListener('load', function(){ setTimeout(function(){ injectOfficialSnippet(); syncSupportUI(); }, 200); });
-
-      var mo = new MutationObserver(syncSupportUI);
-      mo.observe(document.documentElement, { childList:true, subtree:true });
-
-      if(typeof mq.addEventListener === 'function'){
-        mq.addEventListener('change', function(){ injectOfficialSnippet(); syncSupportUI(); });
-      } else if(typeof mq.addListener === 'function'){
-        mq.addListener(function(){ injectOfficialSnippet(); syncSupportUI(); });
-      }
-    })();
-  </script>
+  <!-- Support logic now lives in js/support.js, injected via js/main.js -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

@@ -1,9 +1,15 @@
 'use strict';
 
 // Utility: build strict prompt compatible with front-end parser
-function buildPrompt(topic, count){
+function buildPrompt(topic, count, types, difficulty){
+  const allowed = Array.isArray(types) && types.length ? types.map(t=>t.toUpperCase()).filter(t=>/^(MC|TF|YN|MT)$/.test(t)) : ['MC','TF','YN','MT'];
+  const allowLine = `Allowed question types: ${allowed.join(', ')} (use only these).`;
+  const diff = (difficulty && String(difficulty).toLowerCase()) || '';
+  const diffLine = diff ? `Target approximate difficulty: ${diff}.` : '';
   return [
     `Task: Produce a quiz about ${topic}.`,
+    allowLine,
+    diffLine,
     `Output format:`,
     `1) First line must be: TITLE: <Professional Title>`,
     `   - Use Title Case, depluralize the last word if plural (e.g., "Histories" -> "History", "Ports" -> "Port").`,
@@ -17,6 +23,7 @@ function buildPrompt(topic, count){
     `Hard rules:`,
     `- Output only plain text. No numbering, bullet points, or commentary.`,
     `- Exactly 1 title line starting with "TITLE:" plus ${count} quiz lines.`,
+    `- Use only allowed types: ${allowed.join(', ')}.`,
     `- MC correct field may be single (A) or multiple (A,C).`,
     `- No blank lines.`,
   ].join('\n');
@@ -39,12 +46,12 @@ function normalizeOutputToLines(text, count){
   return { title, lines: lines.join('\n') };
 }
 
-async function geminiGenerate({ apiKey, model = 'gemini-1.5-flash', topic, count }){
+async function geminiGenerate({ apiKey, model = 'gemini-1.5-flash', topic, count, types, difficulty }){
   if(!apiKey) throw new Error('Missing GEMINI_API_KEY');
   const { GoogleGenerativeAI } = await import('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(apiKey);
   const m = genAI.getGenerativeModel({ model });
-  const prompt = buildPrompt(topic, count);
+  const prompt = buildPrompt(topic, count, types, difficulty);
   const result = await m.generateContent({
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: { temperature: 0.6, topK: 32, topP: 0.9, maxOutputTokens: 1024 },
@@ -53,9 +60,9 @@ async function geminiGenerate({ apiKey, model = 'gemini-1.5-flash', topic, count
   return normalizeOutputToLines(text, count);
 }
 
-async function openaiGenerate({ apiKey, model = 'gpt-4o-mini', topic, count }){
+async function openaiGenerate({ apiKey, model = 'gpt-4o-mini', topic, count, types, difficulty }){
   if(!apiKey) throw new Error('Missing OPENAI_API_KEY');
-  const prompt = buildPrompt(topic, count);
+  const prompt = buildPrompt(topic, count, types, difficulty);
   const resp = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -85,24 +92,26 @@ async function openaiGenerate({ apiKey, model = 'gpt-4o-mini', topic, count }){
   return normalizeOutputToLines(text, count);
 }
 
-function echoGenerate({ topic, count }){
+function echoGenerate({ topic, count, types }){
   // Deterministic stub for testing/no-key scenarios
   const out = [];
   const t = topic || 'General knowledge';
+  const allowed = Array.isArray(types) && types.length ? types.map(x=>x.toUpperCase()).filter(x=>/^(MC|TF|YN|MT)$/.test(x)) : ['MC','TF','YN','MT'];
+  const pickType = (i)=> allowed[i % allowed.length];
   for(let i=0;i<count;i++){
-    const j = (i%4);
-    if(j===0) out.push(`MC|${t}: Sample MC ${i+1}?|A) One;B) Two;C) Three;D) Four|A`);
-    else if(j===1) out.push(`TF|${t}: Sample TF ${i+1}.|T`);
-    else if(j===2) out.push(`YN|${t}: Sample YN ${i+1}?|Y`);
+    const tt = pickType(i);
+    if(tt==='MC') out.push(`MC|${t}: Sample MC ${i+1}?|A) One;B) Two;C) Three;D) Four|A`);
+    else if(tt==='TF') out.push(`TF|${t}: Sample TF ${i+1}.|T`);
+    else if(tt==='YN') out.push(`YN|${t}: Sample YN ${i+1}?|Y`);
     else out.push(`MT|${t}: Match ${i+1}.|1) L1;2) L2|A) R1;B) R2|1-A,2-B`);
   }
   return out.join('\n');
 }
 
-async function generateLines({ provider, model, topic, count, env }){
+async function generateLines({ provider, model, topic, count, types, difficulty, env }){
   const p = (provider || (env.AI_PROVIDER || 'gemini')).toLowerCase();
   const n = Math.max(1, Math.min(50, parseInt(count||10,10)));
-  const args = { topic, count: n };
+  const args = { topic, count: n, types, difficulty };
   try{
     if(p==='gemini'){
       const { title, lines } = await geminiGenerate({ apiKey: env.GEMINI_API_KEY, model: model || env.GEMINI_MODEL || 'gemini-1.5-flash', ...args });
