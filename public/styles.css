@@ -134,13 +134,14 @@ body[data-theme="dark"] .site-header .brand-link{
 /* Tablet/narrow: keep length+difficulty side-by-side */
 @media (max-width:820px){
   .gen-toolbar{
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr auto; /* count and diff equal; gen hugs content */
     grid-template-areas:
       "topic topic topic"
       "count diff gen"
       "options options options";
   }
-  .gen-toolbar .btn{min-width:100%}
+  .gen-toolbar .toolbar-input.narrow{ max-width:none; width:100%; }
+  .gen-toolbar .btn{ min-width:0 }
 }
 
 /* Small phones: let count+diff fill evenly; put Generate below */
