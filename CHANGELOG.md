@@ -1,6 +1,16 @@
 Changelog
 =========
 
+2025-09-07 — 1.2.0-beta.1
+- New Options drop-down replaces Advanced button; houses Timer, Theme, Question Types, and Save default.
+- Advanced panel moved under a disclosure (“Advanced options”); full keyboard/ARIA support; caret animates on expand/collapse.
+- Prompt Editor + Mirror now align side-by-side (66/34) with shared headers, min-heights, and mobile stack <768px.
+- Mobile generation bar keeps Length + Difficulty side-by-side down to 360px; stacks below.
+- Generation pipeline: Difficulty and selected Question Types flow to the API; providers prompt restricted to allowed types; echo respects types.
+- BMC support: always-visible Support button; banner appears after 1st and every 4th completion; ESC closes; script loads only on demand; persistent suppression after click.
+- Settings: “Always show advanced options” (cookie-based); Support → “Reset support prompts”; Beta label added.
+- Accessibility & polish: visible focus outlines; ESC to close Options and return focus; click-away close; subtle expand/collapse animations.
+
 2025-09-04
 - Refactor: switched to native ES modules under `public/js/*` with `js/main.js` entry. Service worker updated to pre‑cache modules. No behavioral changes intended.
 - Results UX:
