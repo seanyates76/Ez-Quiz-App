@@ -42,6 +42,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const advDisclosure = document.querySelector('.advanced-disclosure');
   const advBlock = $('advancedBlock');
   const mirrorToggle = $('mirrorToggle');
+  const mirrorBox = document.getElementById('mirrorBox');
   const difficultyInput = $('difficultyInput');
 
   // Options: controls
@@ -139,7 +140,15 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   advDisclosure?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleAdvanced(); } else if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }});
 
   // Mirror toggle
-  mirrorToggle?.addEventListener('change', ()=>{ if(!mirror) return; if(mirrorToggle.checked) mirror.removeAttribute('hidden'); else mirror.setAttribute('hidden',''); });
+  // Debounced mirror toggle; keep container height stable
+  let mirrorToggleBusy = false;
+  mirrorToggle?.addEventListener('change', ()=>{
+    if(mirrorToggleBusy) return;
+    mirrorToggleBusy = true;
+    const on = !!mirrorToggle.checked;
+    if(mirrorBox){ mirrorBox.setAttribute('data-on', on ? 'true':'false'); }
+    setTimeout(()=>{ mirrorToggleBusy = false; }, 180);
+  });
 
   // Options: Settings wiring
   optTimerEnabled?.addEventListener('change', ()=>{ S.settings.timerEnabled=!!optTimerEnabled.checked; saveSettingsToStorage(); });

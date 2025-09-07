@@ -178,6 +178,41 @@ body[data-theme="dark"] .site-header .brand-link{
 .advanced-body{padding:10px; background:var(--panel-2); border-radius:12px; animation:fadeSlide .22s ease}
 @keyframes fadeSlide{from{opacity:0; transform:translateY(-4px)} to{opacity:1; transform:none}}
 .row.wrap{flex-wrap:wrap}
+
+/* Advanced: side-by-side editor + mirror */
+.adv-head{display:grid; grid-template-columns: 2fr 1fr; align-items:baseline; gap:12px; margin-bottom:8px}
+.adv-title{margin:0; font-size:15px}
+.adv-title-right{display:flex; align-items:baseline; gap:10px; justify-content:space-between}
+.adv-panels{display:grid; grid-template-columns: 2fr 1fr; gap:12px}
+.adv-left, .adv-right{min-width:0}
+.adv-actions{display:grid; grid-template-columns: 2fr 1fr; gap:12px; margin-top:10px}
+.adv-actions .row{margin-top:0}
+
+/* Keep boxes visually in sync */
+:root{ --adv-box-min: 260px; }
+.adv-panels .editor,
+.adv-panels .mirror-box{ min-height: var(--adv-box-min); }
+.adv-panels .editor{ width:100%; height:auto; line-height:1.45 }
+.mirror-box{ border:1px solid var(--field-border); background:var(--field); border-radius:12px; padding:0; display:flex; }
+.mirror-box textarea{ border:0; background:transparent; padding:12px; width:100%; height:auto; line-height:1.45; resize:vertical }
+.mirror-box[data-on="false"] textarea{ visibility:hidden; pointer-events:none }
+
+/* Keep focus ring visible when focusing textarea inside mirror */
+.mirror-box textarea:focus{ outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow) }
+
+/* Mirror toggle size harmony */
+.opt-switch.small{ padding:6px 8px }
+.opt-switch.small input{ transform:scale(0.95) }
+
+/* Stack below ~768px */
+@media (max-width: 768px){
+  .adv-head{ grid-template-columns: 1fr; align-items:center }
+  .adv-title-right{ justify-content:flex-start }
+  .adv-panels{ grid-template-columns: 1fr }
+  .adv-actions{ grid-template-columns: 1fr }
+  .adv-panels .editor,
+  .adv-panels .mirror-box{ min-height: 0 }
+}
 @media (max-width:560px){
   .gen-toolbar{grid-template-columns:1fr;}
 }

@@ -72,36 +72,43 @@
           <span class="caret" aria-hidden="true">▼</span>
         </div>
         <div id="advancedBlock" class="advanced-body" hidden>
-          <div class="grid">
-            <div class="col">
-              <label for="editor" class="lbl">Prompt Editor</label>
-              <textarea id="editor" class="editor" rows="10" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
-              <div id="status" class="status" aria-live="polite"></div>
-              <div class="row gap" style="margin-top:8px">
-                <button id="loadBtn" class="btn">Load .txt</button>
-                <input id="fileInput" type="file" accept=".txt" style="display:none" />
-                <button id="demoBtn" class="btn">Use Demo Set</button>
-                <button id="clearBtn" class="btn">Clear</button>
-              </div>
-              <details class="parser-ref" style="margin-top:8px">
-                <summary>Parser reference</summary>
-                <ul>
-                  <li><code>MC|Question?|A) 1;B) 2|A</code> (multiple: <code>A,C</code>)</li>
-                  <li><code>TF|Statement.|T</code></li>
-                  <li><code>YN|Question?|Y</code></li>
-                  <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
-                </ul>
-              </details>
+          <div class="adv-head">
+            <h5 class="adv-title">Prompt Editor</h5>
+            <div class="adv-title-right">
+              <h5 class="adv-title">Debug / Mirror</h5>
+              <label class="opt-switch small"><input type="checkbox" id="mirrorToggle" /> <span>Show</span></label>
             </div>
-            <div class="col">
-              <label class="lbl">Debug / Mirror</label>
-              <label class="opt-switch"><input type="checkbox" id="mirrorToggle" /> <span>Show live mirror</span></label>
-              <textarea id="mirror" class="mirror" rows="10" readonly hidden></textarea>
-              <div class="row gap" style="margin-top:8px">
-                <button id="startBtn" class="btn" disabled>Start</button>
+          </div>
+          <div class="adv-panels">
+            <div class="adv-left">
+              <textarea id="editor" class="editor" rows="12" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
+            </div>
+            <div class="adv-right">
+              <div id="mirrorBox" class="mirror-box" data-on="false">
+                <textarea id="mirror" class="mirror" rows="12" readonly></textarea>
               </div>
             </div>
           </div>
+          <div class="adv-actions">
+            <div class="row gap">
+              <button id="loadBtn" class="btn">Load .txt</button>
+              <input id="fileInput" type="file" accept=".txt" style="display:none" />
+              <button id="demoBtn" class="btn">Use Demo Set</button>
+              <button id="clearBtn" class="btn">Clear</button>
+            </div>
+            <div class="row gap">
+              <button id="startBtn" class="btn" disabled>Start</button>
+            </div>
+          </div>
+          <details class="parser-ref" style="margin-top:8px">
+            <summary>Parser reference</summary>
+            <ul>
+              <li><code>MC|Question?|A) 1;B) 2|A</code> (multiple: <code>A,C</code>)</li>
+              <li><code>TF|Statement.|T</code></li>
+              <li><code>YN|Question?|Y</code></li>
+              <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
+            </ul>
+          </details>
           <p style="margin-top:8px">Optional power tools live here. (Prompt Builder ✨ in header.)</p>
         </div>
       </div>
