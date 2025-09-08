@@ -19,6 +19,33 @@ for = "/*"
   # Fonts/images may come from generic https CDNs; allowed via https: schemes.
   Content-Security-Policy = "default-src 'self'; script-src 'self' https://cdnjs.buymeacoffee.com https://www.buymeacoffee.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https://www.buymeacoffee.com https://buymeacoffee.com; frame-src https://www.buymeacoffee.com https://buymeacoffee.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
 
+# Ensure fresh HTML/app shell while allowing long-lived assets
+[[headers]]
+for = "/index.html"
+  [headers.values]
+  Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+for = "/"
+  [headers.values]
+  Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+for = "/js/*"
+  [headers.values]
+  Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/icons/*"
+  [headers.values]
+  Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/styles.css"
+  [headers.values]
+  # Consider versioning or querystrings when updating styles.css frequently
+  Cache-Control = "public, max-age=31536000, immutable"
+
 # API redirects
 
 [[redirects]]
