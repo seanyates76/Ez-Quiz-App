@@ -199,17 +199,58 @@
         <section>
           <h4>Getting Started</h4>
           <ul>
-            <li>Enter a Topic, set Length and Difficulty, and select Generate.</li>
-            <li>Click Start to begin. No account is required.</li>
+            <li>Enter a topic in <em>Topic (e.g. Animals)</em>, set Length and Difficulty.</li>
+            <li>Click <strong>Start</strong> to generate and begin the quiz, or open <strong>Options</strong> for more controls.</li>
           </ul>
         </section>
 
         <section>
-          <h4>Creating Quizzes</h4>
+          <h4>Generate vs Start</h4>
           <ul>
-            <li>Use Options to configure Timer, Theme, and Question Types.</li>
-            <li>Open Options → Advanced options to access the Prompt Editor and tools.</li>
+            <li><strong>Start</strong> (default): generates → parses → starts the quiz.</li>
+            <li><strong>Generate</strong> (Options → Advanced open): fills the <em>Editor</em> and <em>Mirror</em> only; the quiz starts when you click <strong>Start</strong>.</li>
+            <li>Re‑using <strong>Generate</strong> clears the editor and creates a fresh set.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Options &amp; Advanced</h4>
+          <ul>
+            <li>Options: Timer, Theme, Question Types, and Defaults.</li>
+            <li>Advanced options: <strong>Editor</strong> (paste or load .txt), <strong>Mirror</strong> (raw lines), <strong>Copy prompts</strong>, <strong>Export .txt</strong>.</li>
             <li>Supported types: Multiple Choice (single/multiple), True/False, Yes/No, Matching.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Defaults</h4>
+          <ul>
+            <li><strong>Save as default</strong> stores your Count, Difficulty, and Types for next time.</li>
+            <li>Use <strong>Reset defaults</strong> to clear saved generation defaults.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Timer &amp; Settings</h4>
+          <ul>
+            <li>Stopwatch or Countdown (mm:ss) in Settings; preferences persist locally.</li>
+            <li>Optional: Require answer to advance; Auto‑start after generate (Start mode only).</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Taking Quizzes</h4>
+          <ul>
+            <li>Navigation: Enter/Right = Next; Backspace/Left = Previous.</li>
+            <li>Answers: MC (A–D or 1–4), True/False (T/F), Yes/No (Y/N).</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Results &amp; Retakes</h4>
+          <ul>
+            <li>Results show score, time, and Missed/All (Missed first by default).</li>
+            <li>Retake missed only: use the caret next to <em>Retake</em>.</li>
           </ul>
         </section>
 
@@ -217,58 +258,7 @@
           <h4>AI Generation</h4>
           <ul>
             <li>Generate sends Topic, Length, Difficulty, and selected types to the AI.</li>
-            <li>If nothing returns, try again shortly (rate limits), use Demo Set, or paste your own lines.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h4>Taking Quizzes</h4>
-          <ul>
-            <li>Keyboard shortcuts: Enter/Right = Next; Backspace/Left = Previous.</li>
-            <li>Answer hotkeys: MC (A–D), True/False (T/F), Yes/No (Y/N).</li>
-            <li>Require answer to advance: Settings → Quiz Behavior.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h4>Timer &amp; Settings</h4>
-          <ul>
-            <li>Timer: Stopwatch or Countdown (mm:ss) in Settings.</li>
-            <li>Preferences are stored locally. Use Reset App to clear.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h4>Results &amp; Retakes</h4>
-          <ul>
-            <li>Results show score, time, and a Missed/All filter (Missed first by default).</li>
-            <li>Retake missed only: use the caret next to Retake.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h4>Import/Export</h4>
-          <ul>
-            <li>Import: Options → Advanced options → Load .txt, or paste into the editor.</li>
-            <li>Export: Copy from the editor or mirror into a .txt file.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h4>Data &amp; Privacy</h4>
-          <ul>
-            <li>Settings are stored in your browser.</li>
-            <li>AI generation sends Topic and settings to the configured provider. See Privacy for details.</li>
-            <li>Works offline once loaded (PWA). AI generation requires connectivity.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h4>Troubleshooting</h4>
-          <ul>
-            <li>Start is disabled: no valid questions parsed yet. Use Demo Set or check the status under the editor.</li>
-            <li>Timer isn’t visible: enable it in Settings and set a duration for countdown.</li>
-            <li>Support banner doesn’t appear: extensions may block third-party widgets. The Support button is always available.</li>
+            <li>If nothing returns, try again shortly (rate limits), use Demo Set, or paste lines into the editor.</li>
           </ul>
         </section>
 
