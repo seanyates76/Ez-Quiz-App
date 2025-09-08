@@ -8,11 +8,12 @@
  * page for navigation requests when offline.
  */
 
-const CACHE_NAME = 'ezquiz-cache-v52';
+const CACHE_NAME = 'ezquiz-cache-v54';
 const RELATIVE_URLS = [
   'index.html',
   'styles.css',
   'js/main.js',
+  'js/auto-refresh.js',
   'js/state.js',
   'js/utils.js',
   'js/parser.js',
@@ -58,33 +59,74 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  if (event.request.url.includes('/.netlify/functions/')) {
-    return; // let network handle serverless calls uncached
+// Optional control messages for instant activation/cache clear
+self.addEventListener('message', (event) => {
+  const msg = event && event.data;
+  if (msg === 'SKIP_WAITING') self.skipWaiting();
+  if (msg === 'CLEAR_CACHES') {
+    event.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))));
   }
-  if (event.request.method !== 'GET') return;
+});
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.url.includes('/.netlify/functions/')) return; // let network handle serverless calls
+  if (req.method !== 'GET') return;
+
+  // Network-first for navigations (guarantee fresh HTML when online)
+  if (req.mode === 'navigate') {
+    event.respondWith((async () => {
+      try {
+        const fresh = await fetch(req, { cache: 'no-store' });
+        // refresh cached index for offline
+        try {
+          const cache = await caches.open(CACHE_NAME);
+          const indexUrl = new URL('index.html', self.registration.scope).toString();
+          cache.put(indexUrl, fresh.clone());
+        } catch {}
+        return fresh;
+      } catch (e) {
+        const indexUrl = new URL('index.html', self.registration.scope).toString();
+        const offline = await caches.match(indexUrl);
+        if (offline) return offline;
+        throw e;
+      }
+    })());
+    return;
+  }
+
+  // For CSS/JS: try network (no-store) first, fallback to cache
+  const url = new URL(req.url);
+  const isCode = url.pathname.endsWith('.css') || url.pathname.endsWith('.js');
+  if (isCode) {
+    event.respondWith((async () => {
+      try {
+        const fresh = await fetch(req, { cache: 'no-store' });
+        try { const cache = await caches.open(CACHE_NAME); cache.put(req, fresh.clone()); } catch {}
+        return fresh;
+      } catch (e) {
+        const cached = await caches.match(req);
+        if (cached) return cached;
+        // Try queryless fallback for versioned files
+        if (url.search) {
+          const bareUrl = new URL(url.pathname, self.registration.scope).toString();
+          const alt = await caches.match(bareUrl);
+          if (alt) return alt;
+        }
+        throw e;
+      }
+    })());
+    return;
+  }
+
+  // Everything else: cache-first with network fallback
   event.respondWith((async () => {
-    const req = event.request;
-    const url = new URL(req.url);
-    // Try match with queryless URL for versioned css/js requests
-    let alt;
-    if (url.search && (url.pathname.endsWith('.css') || url.pathname.endsWith('.js'))) {
-      const bareUrl = new URL(url.pathname, self.registration.scope).toString();
-      alt = await caches.match(bareUrl);
-    }
     const cached = await caches.match(req);
     if (cached) return cached;
-    if (alt) return alt;
     try {
-      const resp = await fetch(req);
-      return resp;
+      return await fetch(req);
     } catch (e) {
-      if (req.mode === 'navigate') {
-        const indexUrl = new URL('index.html', self.registration.scope).toString();
-        const indexResp = await caches.match(indexUrl);
-        if (indexResp) return indexResp;
-      }
-      throw e;
+      return Response.error();
     }
   })());
 });
