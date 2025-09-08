@@ -98,10 +98,16 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   generateBtn?.addEventListener('click', async ()=>{
     const mode = generateBtn?.getAttribute('data-mode') || 'start';
     const editorText = (editor?.value || '').trim();
-    if(editorText.length){
+    // In Start mode, respect existing editor content (manual flow)
+    if(mode==='start' && editorText.length){
       runParseFlow(editorText, topicInput?.value || 'Custom', '');
-      if(mode==='start' && S.quiz.questions && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); }
+      if(S.quiz.questions && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); }
       return;
+    }
+    // In Generate mode, always regenerate fresh content: clear editor/mirror first
+    if(mode==='generate'){
+      if(editor) editor.value = '';
+      if(mirror) mirror.value = '';
     }
     const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
     const topic = topicRaw || 'General knowledge';
