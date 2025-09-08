@@ -44,6 +44,8 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const mirrorToggle = $('mirrorToggle');
   const mirrorBox = document.getElementById('mirrorBox');
   const difficultyInput = $('difficultyInput');
+  const copyPromptsBtn = $('copyPromptsBtn');
+  const exportTxtBtn = $('exportTxtBtn');
 
   // Options: controls
   const optTimerEnabled = $('optTimerEnabled');
@@ -57,6 +59,16 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const qtYN = $('qtYN');
   const qtMT = $('qtMT');
   const startBtn2 = $('startBtn');
+
+  // Primary action mode machine
+  function setPrimaryAction(mode){
+    const m = (mode === 'generate') ? 'generate' : 'start';
+    (window.EZQ.ui = window.EZQ.ui || {}).primaryMode = m;
+    generateBtn?.setAttribute('data-mode', m);
+    if (generateBtn) generateBtn.textContent = (m === 'generate') ? 'Generate' : 'Start';
+  }
+  // Initialize primary action based on advanced visibility
+  setPrimaryAction(advBlock && !advBlock.hidden ? 'generate' : 'start');
 
   loadBtn?.addEventListener('click', ()=> fileInput?.click());
   fileInput?.addEventListener('change', ()=>{
@@ -82,8 +94,13 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   clearBtn?.addEventListener('click', ()=>{ if(editor) editor.value = ''; if(mirror) mirror.value = ''; const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); });
 
   generateBtn?.addEventListener('click', async ()=>{
+    const mode = generateBtn?.getAttribute('data-mode') || 'start';
     const editorText = (editor?.value || '').trim();
-    if(editorText.length){ runParseFlow(editorText, topicInput?.value || 'Custom', ''); return; }
+    if(editorText.length){
+      runParseFlow(editorText, topicInput?.value || 'Custom', '');
+      if(mode==='start' && S.quiz.questions && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); }
+      return;
+    }
     const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
     const topic = topicRaw || 'General knowledge';
     let count = parseInt((countInput?.value || pbCount?.value || '10'), 10); if(!Number.isFinite(count)) count = 10; count = Math.max(1, Math.min(50, count)); if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
@@ -100,7 +117,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       if(editor) editor.value = lines; if(mirror) mirror.value = lines;
       const title = (out && out.title) ? out.title : '';
       runParseFlow(lines, topic, title);
-      if (S.settings.autoStart && S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
+      if (mode==='start' && S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
     }catch(err){
       const msg = String(err && err.message || err || 'Error'); let pretty = msg;
       try { const parsed = JSON.parse(msg); const status = parsed.status; const body = parsed.body; if(status === 429 || /quota|rate limit/i.test(JSON.stringify(body))){ pretty = 'Rate limit hit. Please wait ~30s and try again.'; } else if (typeof body === 'object' && body && body.error){ pretty = body.error; } } catch {}
@@ -120,8 +137,8 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     optThemeRadios.forEach(r=>{ r.checked = (r.value===S.settings.theme); });
     if(mirrorToggle) mirrorToggle.checked = !mirror?.hasAttribute('hidden');
   }
-  function openOptions(){ if(!optionsPanel) return; optionsPanel.hidden = false; optionsBtn?.setAttribute('aria-expanded','true'); reflectOptionsFromSettings(); if(advDisclosure && advBlock){ const shouldOpen = !!getAlwaysShowAdvanced(); advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false'); advBlock.hidden = !shouldOpen; } document.addEventListener('keydown', onEscCloseOptions); document.addEventListener('click', onDocClick, true); }
-  function closeOptions(){ if(!optionsPanel) return; optionsPanel.hidden = true; optionsBtn?.setAttribute('aria-expanded','false'); document.removeEventListener('keydown', onEscCloseOptions); document.removeEventListener('click', onDocClick, true); optionsBtn?.focus(); }
+  function openOptions(){ if(!optionsPanel) return; optionsPanel.hidden = false; optionsBtn?.setAttribute('aria-expanded','true'); reflectOptionsFromSettings(); if(advDisclosure && advBlock){ const shouldOpen = !!getAlwaysShowAdvanced(); advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false'); advBlock.hidden = !shouldOpen; setPrimaryAction(shouldOpen? 'generate':'start'); } document.addEventListener('keydown', onEscCloseOptions); document.addEventListener('click', onDocClick, true); }
+  function closeOptions(){ if(!optionsPanel) return; optionsPanel.hidden = true; optionsBtn?.setAttribute('aria-expanded','false'); document.removeEventListener('keydown', onEscCloseOptions); document.removeEventListener('click', onDocClick, true); setPrimaryAction('start'); optionsBtn?.focus(); }
   function onEscCloseOptions(e){ if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }}
   optionsBtn?.addEventListener('click', ()=>{ if(optionsPanel?.hidden){ openOptions(); } else { closeOptions(); } });
   // Click-away to close
@@ -135,9 +152,10 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   // Click-away listener is attached only while open (see openOptions/closeOptions)
 
   // Advanced disclosure behavior
-  function toggleAdvanced(open){ if(!advDisclosure||!advBlock) return; const willOpen = (open===undefined) ? (advDisclosure.getAttribute('aria-expanded')!=='true') : !!open; advDisclosure.setAttribute('aria-expanded', String(willOpen)); advBlock.hidden = !willOpen; }
+  function toggleAdvanced(open){ if(!advDisclosure||!advBlock) return; const willOpen = (open===undefined) ? (advDisclosure.getAttribute('aria-expanded')!=='true') : !!open; advDisclosure.setAttribute('aria-expanded', String(willOpen)); advBlock.hidden = !willOpen; setPrimaryAction(willOpen? 'generate':'start'); }
   advDisclosure?.addEventListener('click', ()=> toggleAdvanced());
   advDisclosure?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleAdvanced(); } else if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }});
+  if(advBlock){ const mo = new MutationObserver(()=>{ setPrimaryAction(advBlock.hidden ? 'start':'generate'); }); mo.observe(advBlock, { attributes:true, attributeFilter:['hidden','class','style'] }); }
 
   // Mirror toggle
   // Debounced mirror toggle; keep container height stable
@@ -159,6 +177,10 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
 
   // Start button in Advanced
   startBtn2?.addEventListener('click', ()=>{ if(S.quiz?.questions?.length){ syncSettingsFromUI(); beginQuiz(); } });
+  // Copy / Export actions in Advanced
+  function getMirrorText(){ return (mirror?.value || '').trim(); }
+  copyPromptsBtn?.addEventListener('click', ()=>{ const t=getMirrorText(); if(!t){ statusBox && (statusBox.textContent='Nothing to copy. Generate first.'); return; } navigator.clipboard.writeText(t).then(()=>{ statusBox && (statusBox.textContent='Copied prompts.'); }).catch(()=>{ statusBox && (statusBox.textContent='Copy failed.'); }); });
+  exportTxtBtn?.addEventListener('click', ()=>{ const t=getMirrorText(); if(!t){ statusBox && (statusBox.textContent='Nothing to export. Generate first.'); return; } const blob=new Blob([t],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='quiz-prompts.txt'; a.click(); URL.revokeObjectURL(url); statusBox && (statusBox.textContent='Exported quiz-prompts.txt'); });
   // Enter triggers generate
   topicInput?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); generateBtn?.click(); } });
   countInput?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); generateBtn?.click(); } });

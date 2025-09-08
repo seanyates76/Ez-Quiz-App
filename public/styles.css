@@ -516,3 +516,11 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 @media (max-width:600px){
   #quizView .quiz-nav-row{position:sticky; bottom:0; background:var(--panel); padding-top:10px; margin-left:-16px; margin-right:-16px; padding-left:16px; padding-right:16px; border-top:1px solid var(--border)}
 }
+/* Minimal helpers for action row and ghost buttons */
+.btn-primary{ background:#007bff; color:#fff; border:none }
+.btn-primary:focus{ outline:2px solid #111; outline-offset:2px }
+.action-row{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap }
+.advanced-actions{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:8px }
+.btn-ghost{ background:transparent; border:1px solid var(--border); color:inherit }
+.hidden{ display:none }
+.is-open{ display:block }

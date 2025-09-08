@@ -28,7 +28,7 @@
 
       <!-- Top toolbar (simple generate form) -->
       <div class="gen-toolbar" role="group" aria-label="Generate toolbar">
-        <input id="topicInput" type="text" class="toolbar-input" placeholder="Topic (e.g., World History)" />
+        <input id="topicInput" type="text" class="toolbar-input" placeholder="Animals" />
         <input id="countInput" type="number" class="toolbar-input narrow" min="1" step="1" value="10" />
         <select id="difficultyInput" class="toolbar-input narrow" aria-label="Difficulty">
           <option value="easy">Easy</option>
@@ -98,6 +98,10 @@
             </div>
             <div class="row gap">
               <button id="startBtn" class="btn" disabled>Start</button>
+            </div>
+            <div class="advanced-actions">
+              <button id="copyPromptsBtn" class="btn btn-ghost">Copy prompts</button>
+              <button id="exportTxtBtn" class="btn btn-ghost">Export .txt</button>
             </div>
           </div>
           <details class="parser-ref" style="margin-top:8px">
@@ -173,7 +177,7 @@
   </footer>
 
   <!-- Official Buy Me a Coffee widget -->
-  <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="seanyates78" data-description="Support me on Buy me a coffee!" data-message="Like EZ-Quiz? Thanks for your support!" data-color="#5F7FFF" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+  <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="seanyates78" data-description="Support me on Buy me a coffee!" data-message="Like EZ-Quiz? Thanks for your support!" data-color="#DDB892" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
 
   <!-- Veil Loader -->
   <div id="veil" class="veil" hidden aria-live="polite" aria-busy="true">
