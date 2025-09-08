@@ -199,7 +199,7 @@
         <section>
           <h4>Getting Started</h4>
           <ul>
-            <li>Enter a topic in <em>Topic (e.g. Animals)</em>, set Length and Difficulty.</li>
+            <li>Enter a topic in the <em>Topic</em> field, set Length and Difficulty.</li>
             <li>Click <strong>Start</strong> to generate and begin the quiz, or open <strong>Options</strong> for more controls.</li>
           </ul>
         </section>
@@ -262,10 +262,38 @@
           </ul>
         </section>
 
+        <!-- Stacked accordions at bottom: What's New, FAQ, Parser Reference -->
         <section>
-          <h4>Parser Reference</h4>
-          <details>
-            <summary>Formats</summary>
+          <details class="help-accordion">
+            <summary>What's New</summary>
+            <ul>
+              <li><strong>Start vs Generate:</strong> Start runs the quiz; Generate fills Editor + Mirror.</li>
+              <li><strong>Options panel:</strong> Timer, Theme, Types, and Advanced tools in one place.</li>
+              <li><strong>Advanced:</strong> Editor, Mirror, Copy prompts, Export .txt.</li>
+              <li><strong>Defaults:</strong> Save Count/Difficulty/Types; Reset defaults clears them.</li>
+              <li><strong>Navigation polish:</strong> Equal-width fields on mobile; clearer focus.</li>
+            </ul>
+          </details>
+        </section>
+
+        <section>
+          <details class="help-accordion">
+            <summary>FAQ</summary>
+            <ul>
+              <li><strong>How do I start?</strong> Enter a topic, set Length/Difficulty, click Start.</li>
+              <li><strong>What does Generate do?</strong> With Advanced open, it fills Editor + Mirror only.</li>
+              <li><strong>Can I paste my own quiz?</strong> Yes — use the Editor under Advanced.</li>
+              <li><strong>Which types are supported?</strong> Multiple Choice, True/False, Yes/No, Matching.</li>
+              <li><strong>How do I export?</strong> Advanced → Export .txt, or copy from Mirror.</li>
+              <li><strong>AI returned nothing.</strong> Try again in ~30s (rate limits) or use Demo.</li>
+              <li><strong>Do settings persist?</strong> Yes, locally. Reset defaults clears generation prefs.</li>
+            </ul>
+          </details>
+        </section>
+
+        <section>
+          <details class="help-accordion">
+            <summary>Parser Reference</summary>
             <ul>
               <li><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> (multiple: <code>A,C</code>)</li>
               <li><code>TF|Statement.|T</code> (or <code>F</code>)</li>

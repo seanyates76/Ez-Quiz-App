@@ -13,5 +13,19 @@ export function wireModals({ onPause, onResume }){
     btn?.addEventListener('click', ()=>{ closeModal(modalId); if(onResume) onResume(); });
   });
   document.addEventListener('click', (e)=>{ const t=e.target; if(t && t.matches('.modal__backdrop')){ const id=t.getAttribute('data-close'); if(id){ closeModal(id); if(onResume) onResume(); } } });
-}
 
+  // Help accordion: only one open at a time
+  const helpModal = document.getElementById('helpModal');
+  if(helpModal){
+    const syncAccordion = (ev)=>{
+      const all = Array.from(helpModal.querySelectorAll('details.help-accordion'));
+      const opened = ev?.target;
+      if(opened && opened.hasAttribute('open')){
+        all.forEach(d=>{ if(d!==opened) d.removeAttribute('open'); });
+      }
+    };
+    helpModal.addEventListener('toggle', (e)=>{
+      if(e.target && e.target.matches('details.help-accordion')) syncAccordion(e);
+    });
+  }
+}
