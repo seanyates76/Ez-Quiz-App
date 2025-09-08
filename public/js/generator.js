@@ -148,6 +148,8 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     if(!optionsPanel || optionsPanel.hidden) return;
     const t = e.target;
     if(t===optionsBtn || optionsBtn?.contains(t)) return;
+    // Do not close when clicking the primary Generate/Start button
+    if(t===generateBtn || generateBtn?.contains(t)) return;
     if(optionsPanel.contains(t)) return;
     // Allow clicks on primary toolbar inputs without closing Options
     const allow = [topicInput, countInput, difficultyInput].filter(Boolean);
