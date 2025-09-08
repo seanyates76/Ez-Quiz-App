@@ -27,5 +27,10 @@ export function wireModals({ onPause, onResume }){
     helpModal.addEventListener('toggle', (e)=>{
       if(e.target && e.target.matches('details.help-accordion')) syncAccordion(e);
     });
+    const backBtn = document.getElementById('helpBackToTop');
+    backBtn?.addEventListener('click', ()=>{
+      const body = helpModal.querySelector('.modal__body');
+      try{ body?.scrollTo({ top: 0, behavior: 'smooth' }); }catch{ if(body) body.scrollTop = 0; }
+    });
   }
 }
