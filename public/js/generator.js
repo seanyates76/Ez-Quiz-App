@@ -4,6 +4,7 @@ import { parseEditorInput } from './parser.js';
 import { generateWithAI } from './api.js';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
 import { applyTheme, saveSettingsToStorage, getAlwaysShowAdvanced } from './settings.js';
+import { STORAGE_KEYS } from './state.js';
 
 export function runParseFlow(sourceText, topicLabel, fullTitle){
   const mirror = $('mirror');
@@ -53,6 +54,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const optTimerDuration = $('optTimerDuration');
   const optThemeRadios = byQSA('input[name="optTheme"]');
   const optSaveDefault = $('optSaveDefault');
+  const resetDefaultsBtn = $('resetDefaultsBtn');
   // Types checkboxes
   const qtMC = $('qtMC');
   const qtTF = $('qtTF');
@@ -173,13 +175,39 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   optCountdownMode?.addEventListener('change', ()=>{ S.settings.countdown=!!optCountdownMode.checked; saveSettingsToStorage(); });
   optTimerDuration?.addEventListener('input', ()=>{ S.settings.durationMs = mmSsToMs(optTimerDuration.value||''); saveSettingsToStorage(); });
   optThemeRadios.forEach(r=> r.addEventListener('change', ()=>{ if(r.checked){ applyTheme(r.value); }}));
-  optSaveDefault?.addEventListener('change', ()=>{ saveSettingsToStorage(); });
+  optSaveDefault?.addEventListener('change', ()=>{
+    // Treat as action: save current generation defaults
+    saveDefaults(getCurrentGenDefaults());
+    // optional: leave checked state alone
+    saveSettingsToStorage();
+  });
+  resetDefaultsBtn?.addEventListener('click', ()=>{ clearDefaults(); applyDefaultsToUI(); });
 
   // Start button in Advanced
   startBtn2?.addEventListener('click', ()=>{ if(S.quiz?.questions?.length){ syncSettingsFromUI(); beginQuiz(); } });
   // Copy / Export actions in Advanced
   function getMirrorText(){ return (mirror?.value || '').trim(); }
   copyPromptsBtn?.addEventListener('click', ()=>{ const t=getMirrorText(); if(!t){ statusBox && (statusBox.textContent='Nothing to copy. Generate first.'); return; } navigator.clipboard.writeText(t).then(()=>{ statusBox && (statusBox.textContent='Copied prompts.'); }).catch(()=>{ statusBox && (statusBox.textContent='Copy failed.'); }); });
+  // Defaults storage (types, difficulty, count)
+  function loadDefaults(){
+    try{ const raw=localStorage.getItem(STORAGE_KEYS.defaults); if(!raw) return null; const obj=JSON.parse(raw); return obj && typeof obj==='object' ? obj : null; }catch{ return null; }
+  }
+  function saveDefaults(obj){ try{ localStorage.setItem(STORAGE_KEYS.defaults, JSON.stringify(obj||{})); statusBox && (statusBox.textContent='Defaults saved.'); }catch{} }
+  function clearDefaults(){ try{ localStorage.removeItem(STORAGE_KEYS.defaults); statusBox && (statusBox.textContent='Defaults cleared.'); }catch{} }
+  function getCurrentGenDefaults(){
+    let count = parseInt(countInput?.value||'10',10); if(!Number.isFinite(count)) count=10; count=Math.max(1, Math.min(200, count));
+    const difficulty = (difficultyInput?.value||'medium');
+    const types = { MC: !!qtMC?.checked, TF: !!qtTF?.checked, YN: !!qtYN?.checked, MT: !!qtMT?.checked };
+    return { count, difficulty, types };
+  }
+  function applyDefaultsToUI(){
+    const d = loadDefaults(); if(!d) return;
+    if(typeof d.count==='number' && countInput){ countInput.value = String(Math.max(1, Math.min(200, d.count))); }
+    if(typeof d.difficulty==='string' && difficultyInput){ difficultyInput.value = d.difficulty; }
+    if(d.types){ if(qtMC) qtMC.checked = !!d.types.MC; if(qtTF) qtTF.checked = !!d.types.TF; if(qtYN) qtYN.checked = !!d.types.YN; if(qtMT) qtMT.checked = !!d.types.MT; }
+  }
+  // Apply on init
+  applyDefaultsToUI();
   exportTxtBtn?.addEventListener('click', ()=>{ const t=getMirrorText(); if(!t){ statusBox && (statusBox.textContent='Nothing to export. Generate first.'); return; } const blob=new Blob([t],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='quiz-prompts.txt'; a.click(); URL.revokeObjectURL(url); statusBox && (statusBox.textContent='Exported quiz-prompts.txt'); });
   // Enter triggers generate
   topicInput?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); generateBtn?.click(); } });
