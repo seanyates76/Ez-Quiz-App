@@ -18,7 +18,6 @@
     <nav class="header-actions" aria-label="Utility">
       <button id="helpBtn" class="icon-btn" title="Help" aria-haspopup="dialog" aria-controls="helpModal">?</button>
       <button id="settingsBtn" class="icon-btn" title="Settings" aria-haspopup="dialog" aria-controls="settingsModal">⚙</button>
-      <button id="promptBtn" class="icon-btn" title="Prompt Builder" aria-haspopup="dialog" aria-controls="promptModal">✨</button>
     </nav>
   </header>
 
@@ -343,24 +342,7 @@
     </div>
   </div>
 
-  <!-- Prompt Builder Modal -->
-  <div id="promptModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="promptTitle" aria-hidden="true">
-    <div class="modal__backdrop" data-close="promptModal"></div>
-    <div class="modal__dialog" role="document">
-      <header class="modal__header">
-        <h3 id="promptTitle">Prompt Builder ✨</h3>
-        <button id="promptClose" class="icon-btn" title="Close">✕</button>
-      </header>
-      <div class="modal__body">
-        <label class="block">Topic <input id="pbTopic" type="text" placeholder="CompTIA A+ 2025 Core 1" /></label>
-        <label class="block">Length <input id="pbCount" type="number" min="1" step="1" value="30" /></label>
-      </div>
-      <footer class="modal__footer">
-        <button id="pbCancel" class="btn">Cancel</button>
-        <button id="pbCopy" class="btn primary">Copy Prompt</button>
-      </footer>
-    </div>
-  </div>
+  
 
   <script type="module" src="js/main.js"></script>
   <script type="module" src="js/auto-refresh.js"></script>
