@@ -1,5 +1,5 @@
 import { S } from './state.js';
-import { $, byQSA } from './utils.js';
+import { $, byQSA, mmSsToMs } from './utils.js';
 import { parseEditorInput } from './parser.js';
 import { generateWithAI } from './api.js';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
@@ -153,7 +153,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   // Options: Settings wiring
   optTimerEnabled?.addEventListener('change', ()=>{ S.settings.timerEnabled=!!optTimerEnabled.checked; saveSettingsToStorage(); });
   optCountdownMode?.addEventListener('change', ()=>{ S.settings.countdown=!!optCountdownMode.checked; saveSettingsToStorage(); });
-  optTimerDuration?.addEventListener('input', ()=>{ const s=(optTimerDuration.value||'').trim(); let ms=0; if(s){ const parts=s.split(':'); if(parts.length===2){ const mm=parseInt(parts[0],10)||0; const ss=parseInt(parts[1],10)||0; ms=(mm*60+ss)*1000; } } S.settings.durationMs=ms; saveSettingsToStorage(); });
+  optTimerDuration?.addEventListener('input', ()=>{ S.settings.durationMs = mmSsToMs(optTimerDuration.value||''); saveSettingsToStorage(); });
   optThemeRadios.forEach(r=> r.addEventListener('change', ()=>{ if(r.checked){ applyTheme(r.value); }}));
   optSaveDefault?.addEventListener('change', ()=>{ saveSettingsToStorage(); });
 
