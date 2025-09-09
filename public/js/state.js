@@ -4,4 +4,4 @@ S.quiz = S.quiz || { questions: [], index: 0, answers: [], score: 0, startedAt: 
 S.settings = S.settings || { theme: 'dark', timerEnabled: false, countdown: false, durationMs: 0, autoStart: true, requireAnswer: false, alwaysShowAdvanced: false };
 S.ui = S.ui || { primaryMode: 'start' };
 
-export const STORAGE_KEYS = { theme: 'ezq.theme', settings: 'ezq.settings', defaults: 'ezq.defaults' };
+export const STORAGE_KEYS = { theme: 'ezq.theme', settings: 'ezq.settings', defaults: 'ezq.defaults', last: 'ezq.last' };

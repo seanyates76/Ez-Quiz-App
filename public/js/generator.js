@@ -17,6 +17,8 @@ export function runParseFlow(sourceText, topicLabel, fullTitle){
   if (fullTitle) { S.quiz.title = String(fullTitle).trim(); } else { S.quiz.title = S.quiz.title || ''; }
   S.mode = 'generated';
   if(mirror) mirror.value = sourceText;
+  // Persist last quiz lines for quick restore
+  try{ localStorage.setItem('ezq.last', String(sourceText||'')); }catch{}
 
   const statusBox = $('status');
   if(errors.length){ statusBox && (statusBox.textContent = `Parsed ${questions.length} question(s). ${errors.length} error(s). ${errors.slice(0,5).join(' | ')}`); }
@@ -38,6 +40,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const fileInput = $('fileInput');
   const demoBtn = $('demoBtn');
   const clearBtn = $('clearBtn');
+  const loadLastBtn = $('loadLastBtn');
   const optionsBtn = $('optionsBtn');
   const optionsPanel = $('optionsPanel');
   const advDisclosure = document.querySelector('.advanced-disclosure');
@@ -94,6 +97,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   });
 
   clearBtn?.addEventListener('click', ()=>{ if(editor) editor.value = ''; if(mirror) mirror.value = ''; const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); });
+  loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } if(editor) editor.value = last; if(mirror) mirror.value = last; if(mirrorBox){ mirrorBox.setAttribute('data-on','true'); } const mt=$('mirrorToggle'); if(mt){ mt.checked=true; } runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
 
   generateBtn?.addEventListener('click', async ()=>{
     const mode = generateBtn?.getAttribute('data-mode') || 'start';
@@ -172,6 +176,16 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   advDisclosure?.addEventListener('click', ()=> toggleAdvanced());
   advDisclosure?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleAdvanced(); } else if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }});
   if(advBlock){ const mo = new MutationObserver(()=>{ setPrimaryAction(advBlock.hidden ? 'start':'generate'); }); mo.observe(advBlock, { attributes:true, attributeFilter:['hidden','class','style'] }); }
+
+  // Focus trap for Options panel when open
+  function trapFocusOptions(e){
+    if(!optionsPanel || optionsPanel.hidden) return; if(e.key!=='Tab') return;
+    const els = Array.from(optionsPanel.querySelectorAll('button,[href],input,textarea,select,[tabindex]:not([tabindex="-1"])'));
+    if(!els.length) return; const first=els[0], last=els[els.length-1];
+    if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+  }
+  document.addEventListener('keydown', trapFocusOptions);
 
   // Mirror toggle
   // Debounced mirror toggle; keep container height stable

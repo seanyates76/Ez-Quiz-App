@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2025-09-08 — 1.2.0-beta.3
+- Feedback: inline panel cooldown (30s), honeypot, unified CORS; a11y (aria-modal, title, focus trap); mail fallback on error; closes after ~1.4s.
+- Mirror: reliable visibility toggle; hide container when off; apply state on Options open.
+- SW/refresh: poll only when tab is visible; 60s interval.
+- Advanced Editor: added “Load last quiz”; persist last lines locally.
+- Options: focus trap while open.
+
 2025-09-08 — 1.2.0-beta.2
 - Generator: Advanced/Generate always fills Editor + Mirror; runner starts only on Start.
 - Options UX: outside-click ignores Topic/Length/Difficulty; Generate clicks no longer close Options.

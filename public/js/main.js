@@ -89,7 +89,7 @@ function init(){
         const res = await fetch('/.netlify/functions/send-feedback', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ message:text, email:em, hp:(trap?.value||'') }) });
         const data = await res.json().catch(()=>({}));
         if(res.ok && data && data.success){ if(status) status.textContent='Feedback sent — thank you!'; setLastTs(now); msg.value=''; updateCount(); setTimeout(()=>{ setOpen(false); if(status) status.textContent=''; }, 1400); }
-        else { if(status) status.textContent='Error sending feedback. Please try again later.'; }
+        else { if(status) status.innerHTML='Error sending feedback. Please try again later. <a href="mailto:ez.quizapp@gmail.com">Email us</a>.'; }
       }catch{ if(status) status.textContent='Network error. Please try again.'; }
       finally{ if(send) send.disabled=false; }
     }
