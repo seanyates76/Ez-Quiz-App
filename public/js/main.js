@@ -35,6 +35,18 @@ function init(){
     });
   }
 
+  // Floating actions: hide Support FAB if official widget iframe is present
+  (function initFabs(){
+    const coffeeFab = document.getElementById('coffeeFab');
+    if(!coffeeFab) return;
+    const hasWidget = () => !!document.querySelector('iframe[src*="buymeacoffee.com"]');
+    const sync = () => { if(hasWidget()){ coffeeFab.style.display='none'; } else { coffeeFab.style.display=''; } };
+    // Initial and observe
+    sync();
+    const mo = new MutationObserver(sync);
+    mo.observe(document.documentElement, { childList:true, subtree:true });
+  })();
+
   setMode('idle');
 }
 

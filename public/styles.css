@@ -438,6 +438,22 @@ details.advanced > summary{display:none}
 
 /* Reserved space for optional floating actions (none by default) */
 
+/* Floating Actions Stack */
+.fab-stack{ position:fixed; right:1rem; bottom:1rem; display:grid; gap:.5rem; z-index:9999 }
+.fab{
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:.6rem .8rem; border-radius:999px;
+  background:var(--panel-2); color:var(--text); border:1px solid var(--border);
+  box-shadow:0 6px 18px rgba(0,0,0,.22);
+  text-decoration:none; font-weight:600; line-height:1; outline:none;
+  transition:transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+.fab:hover{ transform:translateY(-1px); box-shadow:0 8px 22px rgba(0,0,0,.26) }
+.fab:active{ transform:translateY(0); box-shadow:0 4px 12px rgba(0,0,0,.20) }
+.fab:focus-visible{ outline:2px solid var(--ring); outline-offset:3px }
+.fab .fab-label{ display:inline }
+@media (max-width:420px){ .fab .fab-label{ display:none } .fab{ padding-inline:.7rem } }
+@media (prefers-reduced-motion:reduce){ .fab{ transition:none } }
 /* Footer centering */
 footer.container{
   text-align:center;

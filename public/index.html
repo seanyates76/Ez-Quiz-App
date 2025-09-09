@@ -281,7 +281,7 @@
             <summary>FAQ</summary>
             <ul>
               <li><strong>Why is the Start button disabled?</strong> <em>Answer:</em> No valid questions have been parsed yet. Click Generate (with Advanced open), use Demo, or paste valid lines into the Editor, then press Start.</li>
-              <li><strong>Why did Generate start my quiz?</strong> <em>Answer:</em> Generate only fills the Editor when Advanced is open. Open Options → Advanced, then click Generate; the quiz begins only when you press Start.</li>
+              <li><strong>Why didn't the Generate button start my quiz?</strong> <em>Answer:</em> Either press the <strong>Start</strong> button in Advanced options, or close Advanced and click <em>Start</em> in the creation bar.</li>
               <li><strong>Why did AI return no lines for my topic?</strong> <em>Answer:</em> This is often a temporary rate limit. Wait ~30 seconds and try again, or reduce Length and simplify the topic; Demo/Editor are reliable backups.</li>
               <li><strong>Why is my Mirror empty or hidden?</strong> <em>Answer:</em> The Mirror appears after content exists. Generate or Load .txt, and ensure the mirror toggle in Advanced is on.</li>
               <li><strong>Why does the Options panel keep closing?</strong> <em>Answer:</em> It closes on outside clicks by design. Clicking inside Topic, Length, or Difficulty will not close it; reopen Options if it collapses.</li>
@@ -368,5 +368,32 @@
 
   <script type="module" src="js/main.js"></script>
   <script type="module" src="js/auto-refresh.js"></script>
+
+  <!-- Floating actions: Feedback + Coffee -->
+  <div id="floatingActions" class="fab-stack" aria-label="Quick actions">
+    <a
+      id="feedbackFab"
+      class="fab"
+      href="mailto:ez.quizapp@gmail.com"
+      aria-label="Send feedback via email"
+      title="Send Feedback"
+    >
+      💬
+      <span class="fab-label">Feedback</span>
+    </a>
+    <!-- Support link kept as fallback; auto-hidden if official BMC widget is present -->
+    <a
+      id="coffeeFab"
+      class="fab"
+      href="https://buymeacoffee.com/seanyates78"
+      target="_blank"
+      rel="noopener"
+      aria-label="Buy Me a Coffee"
+      title="Buy Me a Coffee"
+    >
+      ☕
+      <span class="fab-label">Support</span>
+    </a>
+  </div>
 </body>
 </html>
