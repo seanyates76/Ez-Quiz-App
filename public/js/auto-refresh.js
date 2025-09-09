@@ -5,24 +5,27 @@
   let currentTag = null;
 
   async function checkForUpdate(){
+    // Avoid noisy network errors when offline
+    if(typeof navigator !== 'undefined' && navigator && navigator.onLine === false) return;
     try{
-      const res = await fetch(window.location.pathname || '/', {
-        method: 'HEAD',
+      const url = window.location.pathname || '/';
+      const res = await fetch(url, {
+        method: 'GET',
         cache: 'no-store',
+        headers: { 'Accept': 'text/html' },
       });
+      if(!res.ok) return;
       const tag = res.headers.get('etag')
         || res.headers.get('last-modified')
         || res.headers.get('x-nf-request-id');
       if(currentTag && tag && tag !== currentTag){
-        // Force refresh to pick up new index and assets
         window.location.reload(true);
         return;
       }
       currentTag = tag;
-    }catch{ /* ignore transient network errors */ }
+    }catch{ /* silently ignore */ }
   }
 
   checkForUpdate();
   setInterval(checkForUpdate, CHECK_INTERVAL);
 })();
-
