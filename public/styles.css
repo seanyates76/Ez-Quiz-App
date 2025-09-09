@@ -555,3 +555,7 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 .is-open{ display:block }
 /* Help accents */
 .modal__body em{ font-style:normal; font-weight:600; color:var(--muted) }
+
+/* Update banner */
+.update-banner{ display:flex; align-items:center; gap:10px; padding:8px 10px; margin:-4px 0 8px 0; border:1px solid var(--field-border); background:var(--panel-2); border-radius:10px }
+.update-banner.hidden{ display:none }

@@ -96,6 +96,16 @@ function init(){
     send?.addEventListener('click', sendFeedback);
   })();
 
+  // Update banner wiring
+  (function initUpdateBanner(){
+    const banner = document.getElementById('updateBanner');
+    const btn = document.getElementById('updateRefreshBtn');
+    function showIfReady(){ try{ const flag=localStorage.getItem('ezq.update.ready'); if(flag==='1' && banner){ banner.classList.remove('hidden'); } }catch{} }
+    btn?.addEventListener('click', ()=>{ try{ localStorage.removeItem('ezq.update.ready'); }catch{} window.location.reload(true); });
+    // Show on load if we happen to be idle
+    showIfReady();
+  })();
+
   setMode('idle');
 }
 

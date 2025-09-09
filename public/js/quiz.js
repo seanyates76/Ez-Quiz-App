@@ -15,8 +15,12 @@ export function setMode(mode){
     generatorCard?.classList.add('is-hidden'); quizView?.classList.add('is-hidden'); resultsView?.classList.remove('is-hidden'); document.body.classList.add('is-quiz');
   }else{
     generatorCard?.classList.remove('is-hidden'); quizView?.classList.add('is-hidden'); resultsView?.classList.add('is-hidden'); document.body.classList.remove('is-quiz');
-    // If an update is ready, apply it when returning to main menu
-    try{ const flag = localStorage.getItem('ezq.update.ready'); if(flag==='1'){ localStorage.removeItem('ezq.update.ready'); window.location.reload(true); return; } }catch{}
+    // If an update is ready, show banner when returning to main menu
+    try{
+      const flag = localStorage.getItem('ezq.update.ready');
+      const banner = document.getElementById('updateBanner');
+      if(flag==='1' && banner){ banner.classList.remove('hidden'); }
+    }catch{}
   }
 }
 
