@@ -373,8 +373,8 @@
     <a
       id="feedbackFab"
       class="fab"
-      href="mailto:ez.quizapp@gmail.com"
-      aria-label="Send feedback via email"
+      href="#feedback"
+      aria-label="Open feedback panel"
       title="Send Feedback"
     >
       💬
@@ -393,6 +393,23 @@
       ☕
       <span class="fab-label">Support</span>
     </a>
+  </div>
+
+  <!-- Inline Feedback Panel -->
+  <div id="feedbackPanel" class="fab-panel hidden" role="dialog" aria-label="Send feedback">
+    <div class="fab-panel__row">
+      <textarea id="feedbackMessage" class="fab-input" rows="4" maxlength="500" placeholder="Your feedback (required)" aria-label="Feedback message"></textarea>
+    </div>
+    <div class="fab-panel__row">
+      <input id="feedbackEmail" class="fab-input" type="email" placeholder="Email (optional)" aria-label="Your email (optional)" />
+    </div>
+    <div class="fab-panel__row" style="align-items:center">
+      <span id="feedbackCount" class="muted small">0/500</span>
+      <span class="flex-spacer"></span>
+      <button id="feedbackCancel" class="btn" type="button">Cancel</button>
+      <button id="feedbackSend" class="btn primary" type="button">Send</button>
+    </div>
+    <div id="feedbackStatus" class="status" aria-live="polite"></div>
   </div>
 </body>
 </html>

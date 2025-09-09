@@ -4,7 +4,7 @@ functions = "netlify/functions"
 
 [functions]
 node_bundler = "esbuild"
-external_node_modules = ["@google/generative-ai"]
+external_node_modules = ["@google/generative-ai", "nodemailer"]
 
 # Security headers (incl. CSP allowances for Buy Me a Coffee widget)
 [[headers]]

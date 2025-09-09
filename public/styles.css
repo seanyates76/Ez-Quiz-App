@@ -454,6 +454,19 @@ details.advanced > summary{display:none}
 .fab .fab-label{ display:inline }
 @media (max-width:420px){ .fab .fab-label{ display:none } .fab{ padding-inline:.7rem } }
 @media (prefers-reduced-motion:reduce){ .fab{ transition:none } }
+
+/* Feedback inline panel */
+.fab-panel{
+  position:fixed; right:1rem; bottom:5.5rem; z-index:9999;
+  background:var(--panel); color:var(--text);
+  border:1px solid var(--border); border-radius:14px; padding:10px; width:min(92vw, 340px);
+  box-shadow:0 10px 28px rgba(0,0,0,.35);
+}
+.fab-panel.hidden{ display:none }
+.fab-panel__row{ display:flex; gap:8px; margin-bottom:8px }
+.fab-input{ width:100%; border:1px solid var(--field-border); background:var(--field); color:var(--text); border-radius:10px; padding:10px }
+.fab-input:focus{ outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow) }
+.flex-spacer{ flex:1 1 0 }
 /* Footer centering */
 footer.container{
   text-align:center;
