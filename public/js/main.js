@@ -63,6 +63,18 @@ function init(){
     updateCount();
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && panel && !panel.classList.contains('hidden')){ e.stopPropagation(); setOpen(false); } });
 
+    // Basic focus trap when panel is open
+    const focusables = () => panel?.querySelectorAll('button,[href],input,textarea,select,[tabindex]:not([tabindex="-1"])') || [];
+    function trapFocus(e){
+      if(!panel || panel.classList.contains('hidden')) return;
+      if(e.key !== 'Tab') return;
+      const els = Array.from(focusables()); if(!els.length) return;
+      const first = els[0], last = els[els.length-1];
+      if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+    }
+    document.addEventListener('keydown', trapFocus);
+
     async function sendFeedback(){
       if(!msg) return; const text=(msg.value||'').trim(); const em=(email?.value||'').trim();
       if(!text){ if(status) status.textContent='Message required'; return; }

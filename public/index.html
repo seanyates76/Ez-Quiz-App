@@ -396,7 +396,8 @@
   </div>
 
   <!-- Inline Feedback Panel -->
-  <div id="feedbackPanel" class="fab-panel hidden" role="dialog" aria-label="Send feedback">
+  <div id="feedbackPanel" class="fab-panel hidden" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+    <h2 id="feedbackTitle" class="sr-only">Send feedback</h2>
     <div class="fab-panel__row">
       <textarea id="feedbackMessage" class="fab-input" rows="4" maxlength="500" placeholder="Your feedback (required)" aria-label="Feedback message"></textarea>
     </div>

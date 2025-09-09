@@ -2,32 +2,30 @@
 
 const nodemailer = require('nodemailer');
 
+const H = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Content-Type': 'application/json',
+};
+const reply = (code, body) => ({ statusCode: code, headers: H, body: typeof body === 'string' ? body : JSON.stringify(body) });
+
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type' }, body: '' };
-  }
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
+  if (event.httpMethod === 'OPTIONS') return reply(204, '');
+  if (event.httpMethod !== 'POST') return reply(405, 'Method Not Allowed');
   try {
     const { message = '', email = '', hp = '' } = JSON.parse(event.body || '{}');
     const msg = String(message || '').trim();
     const fromEmail = String(email || '').trim();
     const trap = String(hp || '').trim();
-    if (!msg) return { statusCode: 400, body: 'Message required' };
-    // Honeypot: silently drop
-    if (trap) return { statusCode: 200, body: JSON.stringify({ success: true }) };
+    if (!msg) return reply(400, 'Message required');
+    // Honeypot: silently succeed
+    if (trap) return reply(200, { success: true });
 
     const user = process.env.FEEDBACK_EMAIL;
     const pass = process.env.FEEDBACK_PASS;
-    if (!user || !pass) {
-      return { statusCode: 500, body: JSON.stringify({ success: false, error: 'Missing mail credentials' }) };
-    }
+    if (!user || !pass) return reply(500, { success: false, error: 'Missing mail credentials' });
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user, pass },
-    });
+    const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user, pass } });
 
     await transporter.sendMail({
       from: `EZ-Quiz Feedback <${user}>`,
@@ -37,8 +35,8 @@ exports.handler = async (event) => {
       replyTo: fromEmail || undefined,
     });
 
-    return { statusCode: 200, body: JSON.stringify({ success: true }) };
-  } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ success: false, error: 'Mailer error' }) };
+    return reply(200, { success: true });
+  } catch {
+    return reply(500, { success: false, error: 'Mailer error' });
   }
 };
