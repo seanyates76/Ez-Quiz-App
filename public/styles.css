@@ -524,3 +524,5 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 .btn-ghost{ background:transparent; border:1px solid var(--border); color:inherit }
 .hidden{ display:none }
 .is-open{ display:block }
+/* Help accents */
+.modal__body em{ font-style:normal; font-weight:600; color:var(--muted) }
