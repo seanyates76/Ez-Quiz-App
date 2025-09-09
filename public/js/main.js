@@ -48,6 +48,12 @@ function init(){
     const send = document.getElementById('feedbackSend');
     const cancel = document.getElementById('feedbackCancel');
     const status = document.getElementById('feedbackStatus');
+    const trap = document.getElementById('feedbackTrap');
+
+    const COOLDOWN_MS = 30000;
+    const LS_KEY_LAST = 'ezq.fb.last';
+    function getLastTs(){ try{ return parseInt(localStorage.getItem(LS_KEY_LAST)||'0',10)||0; }catch{ return 0; } }
+    function setLastTs(t){ try{ localStorage.setItem(LS_KEY_LAST, String(t)); }catch{} }
 
     function setOpen(open){ if(!panel) return; panel.classList.toggle('hidden', !open); if(open){ msg?.focus(); } }
     function updateCount(){ if(!msg||!count) return; const n=(msg.value||'').length; count.textContent = `${n}/500`; }
@@ -60,11 +66,17 @@ function init(){
     async function sendFeedback(){
       if(!msg) return; const text=(msg.value||'').trim(); const em=(email?.value||'').trim();
       if(!text){ if(status) status.textContent='Message required'; return; }
+      const last = getLastTs(); const now=Date.now();
+      if(now - last < COOLDOWN_MS){
+        const remain = Math.ceil((COOLDOWN_MS - (now-last))/1000);
+        if(status) status.textContent = `Please wait ${remain}s before sending again.`;
+        return;
+      }
       if(status) status.textContent='Sending…'; send && (send.disabled=true);
       try{
-        const res = await fetch('/.netlify/functions/send-feedback', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ message:text, email:em }) });
+        const res = await fetch('/.netlify/functions/send-feedback', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ message:text, email:em, hp:(trap?.value||'') }) });
         const data = await res.json().catch(()=>({}));
-        if(res.ok && data && data.success){ if(status) status.textContent='Feedback sent — thank you!'; msg.value=''; updateCount(); setTimeout(()=>{ setOpen(false); if(status) status.textContent=''; }, 900); }
+        if(res.ok && data && data.success){ if(status) status.textContent='Feedback sent — thank you!'; setLastTs(now); msg.value=''; updateCount(); setTimeout(()=>{ setOpen(false); if(status) status.textContent=''; }, 1400); }
         else { if(status) status.textContent='Error sending feedback. Please try again later.'; }
       }catch{ if(status) status.textContent='Network error. Please try again.'; }
       finally{ if(send) send.disabled=false; }

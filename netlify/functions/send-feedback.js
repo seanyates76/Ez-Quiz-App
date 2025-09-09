@@ -10,10 +10,13 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
   try {
-    const { message = '', email = '' } = JSON.parse(event.body || '{}');
+    const { message = '', email = '', hp = '' } = JSON.parse(event.body || '{}');
     const msg = String(message || '').trim();
     const fromEmail = String(email || '').trim();
+    const trap = String(hp || '').trim();
     if (!msg) return { statusCode: 400, body: 'Message required' };
+    // Honeypot: silently drop
+    if (trap) return { statusCode: 200, body: JSON.stringify({ success: true }) };
 
     const user = process.env.FEEDBACK_EMAIL;
     const pass = process.env.FEEDBACK_PASS;
@@ -39,4 +42,3 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ success: false, error: 'Mailer error' }) };
   }
 };
-

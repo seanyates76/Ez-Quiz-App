@@ -400,6 +400,8 @@
     <div class="fab-panel__row">
       <textarea id="feedbackMessage" class="fab-input" rows="4" maxlength="500" placeholder="Your feedback (required)" aria-label="Feedback message"></textarea>
     </div>
+    <!-- Honeypot for spam bots: hidden field should remain empty -->
+    <input id="feedbackTrap" class="sr-only" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" />
     <div class="fab-panel__row">
       <input id="feedbackEmail" class="fab-input" type="email" placeholder="Email (optional)" aria-label="Your email (optional)" />
     </div>
