@@ -21,8 +21,14 @@
         || res.headers.get('last-modified')
         || res.headers.get('x-nf-request-id');
       if(currentTag && tag && tag !== currentTag){
-        window.location.reload(true);
-        return;
+        // Only reload automatically while on main menu (idle)
+        const mode = (window.EZQ && window.EZQ.mode) || 'idle';
+        if(mode === 'idle'){
+          window.location.reload(true);
+          return;
+        }
+        // Otherwise, mark update to apply when returning to main menu
+        try{ localStorage.setItem('ezq.update.ready','1'); }catch{}
       }
       currentTag = tag;
     }catch{ /* silently ignore */ }
