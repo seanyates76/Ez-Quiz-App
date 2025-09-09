@@ -143,9 +143,12 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       else { optTimerDuration.value = ''; }
     }
     optThemeRadios.forEach(r=>{ r.checked = (r.value===S.settings.theme); });
-    if(mirrorToggle) mirrorToggle.checked = !mirror?.hasAttribute('hidden');
+    // Sync mirror toggle from container state
+    const isOn = !!(mirrorBox && mirrorBox.getAttribute('data-on') === 'true');
+    if(mirrorToggle) mirrorToggle.checked = isOn;
   }
-  function openOptions(){ if(!optionsPanel) return; optionsPanel.hidden = false; optionsBtn?.setAttribute('aria-expanded','true'); reflectOptionsFromSettings(); if(advDisclosure && advBlock){ const shouldOpen = !!getAlwaysShowAdvanced(); advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false'); advBlock.hidden = !shouldOpen; setPrimaryAction(shouldOpen? 'generate':'start'); } document.addEventListener('keydown', onEscCloseOptions); document.addEventListener('click', onDocClick, true); }
+  function applyMirrorToggle(){ const on = !!mirrorToggle?.checked; if(mirrorBox){ mirrorBox.setAttribute('data-on', on ? 'true':'false'); } }
+  function openOptions(){ if(!optionsPanel) return; optionsPanel.hidden = false; optionsBtn?.setAttribute('aria-expanded','true'); reflectOptionsFromSettings(); applyMirrorToggle(); if(advDisclosure && advBlock){ const shouldOpen = !!getAlwaysShowAdvanced(); advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false'); advBlock.hidden = !shouldOpen; setPrimaryAction(shouldOpen? 'generate':'start'); } document.addEventListener('keydown', onEscCloseOptions); document.addEventListener('click', onDocClick, true); }
   function closeOptions(){ if(!optionsPanel) return; optionsPanel.hidden = true; optionsBtn?.setAttribute('aria-expanded','false'); document.removeEventListener('keydown', onEscCloseOptions); document.removeEventListener('click', onDocClick, true); setPrimaryAction('start'); optionsBtn?.focus(); }
   function onEscCloseOptions(e){ if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }}
   optionsBtn?.addEventListener('click', ()=>{ if(optionsPanel?.hidden){ openOptions(); } else { closeOptions(); } });

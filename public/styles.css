@@ -224,7 +224,7 @@ body[data-theme="dark"] .site-header .brand-link{
 .adv-panels .editor{ width:100%; height:auto; line-height:1.45 }
 .mirror-box{ border:1px solid var(--field-border); background:var(--field); border-radius:12px; padding:0; display:flex; }
 .mirror-box textarea{ border:0; background:transparent; padding:12px; width:100%; height:auto; line-height:1.45; resize:vertical }
-.mirror-box[data-on="false"] textarea{ visibility:hidden; pointer-events:none }
+.mirror-box[data-on="false"]{ display:none }
 
 /* Keep focus ring visible when focusing textarea inside mirror */
 .mirror-box textarea:focus{ outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow) }
