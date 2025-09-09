@@ -35,16 +35,10 @@ function init(){
     });
   }
 
-  // Floating actions: hide Support FAB if official widget iframe is present
+  // Floating actions: fixed position, always visible
   (function initFabs(){
-    const coffeeFab = document.getElementById('coffeeFab');
-    if(!coffeeFab) return;
-    const hasWidget = () => !!document.querySelector('iframe[src*="buymeacoffee.com"]');
-    const sync = () => { if(hasWidget()){ coffeeFab.style.display='none'; } else { coffeeFab.style.display=''; } };
-    // Initial and observe
-    sync();
-    const mo = new MutationObserver(sync);
-    mo.observe(document.documentElement, { childList:true, subtree:true });
+    const container = document.getElementById('floatingActions');
+    if(container) container.style.bottom = '1rem';
   })();
 
   setMode('idle');
