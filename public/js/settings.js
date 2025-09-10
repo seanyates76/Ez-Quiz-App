@@ -29,7 +29,28 @@ export function loadSettingsFromStorage(){
   try{ const adv = getCookie(COOKIE_ALWAYSSHOWADV); if(adv){ S.settings.alwaysShowAdvanced = adv === 'true'; } }catch{}
 }
 
-export function applyTheme(theme){ const t=(theme==='light'||theme==='dark')?theme:'dark'; S.settings.theme=t; document.body.setAttribute('data-theme', t); saveSettingsToStorage(); }
+export function applyTheme(theme){
+  const t=(theme==='light'||theme==='dark')?theme:'dark';
+  S.settings.theme=t;
+  document.body.setAttribute('data-theme', t);
+  // Swap brand logo asset based on theme, with graceful fallback if light asset is missing
+  try{
+    const img = document.querySelector('.brand-logo');
+    if(img){
+      const darkSvg = 'icons/brand-title-source.svg';
+      const lightSvg = 'icons/brand-title-light.svg';
+      const darkPng = 'icons/brand-title-source.png';
+      const lightPng = 'icons/brand-title-light.png';
+      const pref = (t==='light') ? [lightSvg, lightPng, darkPng] : [darkSvg, darkPng];
+      const current = img.getAttribute('src') || '';
+      if(!pref.includes(current)){
+        // Probe in order and set the first that loads
+        (function tryNext(list){ if(!list.length) return; const url=list[0]; const p=new Image(); p.onload=()=>img.setAttribute('src', url); p.onerror=()=>tryNext(list.slice(1)); p.src=url; })(pref);
+      }
+    }
+  }catch{}
+  saveSettingsToStorage();
+}
 
 export function reflectSettingsIntoUI(els){
   els.themeRadios.forEach(r=>{ r.checked=(r.value===S.settings.theme); });

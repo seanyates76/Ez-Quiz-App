@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="128" viewBox="0 0 512 128" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="EZ Quiz">
+  <defs>
+    <style>
+      .t{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; font-weight: 800; letter-spacing: 0.5px; }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" fill="none"/>
+  <!-- EZ -->
+  <text x="20" y="86" font-size="72" class="t" fill="#FFFFFF">EZ</text>
+  <!-- Lightning bolt between EZ and QUIZ -->
+  <g transform="translate(150,18)">
+    <path d="M32 0 L0 58 H24 L14 92 L64 36 H40 L52 0 Z" fill="#FFC94A" stroke="#E5B03F" stroke-width="2"/>
+  </g>
+  <!-- QUIZ (light theme variant: #333333) -->
+  <text x="220" y="86" font-size="72" class="t" fill="#333333">QUIZ</text>
+</svg>
+
