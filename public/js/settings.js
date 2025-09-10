@@ -41,18 +41,14 @@ export function applyTheme(theme){
       const lightPng = 'icons/brand-title-source-light.png';
       const darkSvg = 'icons/brand-title-source.svg';
       const lightSvg = 'icons/brand-title-light.svg';
-      // Prefer PNG (brand assets) with SVG as fallback
-      const pref = (t==='light') ? [lightPng, lightSvg, darkPng] : [darkPng, darkSvg];
-      const current = img.getAttribute('src') || '';
-      if(!pref.includes(current)){
-        (function tryNext(list){
-          if(!list.length) return;
-          const url = list[0];
-          const p = new Image();
-          p.onload = () => img.setAttribute('src', url);
-          p.onerror = () => tryNext(list.slice(1));
-          p.src = url;
-        })(pref);
+      function setFirstAvailable(list){
+        (function tryNext(arr){ if(!arr.length) return; const url=arr[0]; const p=new Image(); p.onload=()=>img.setAttribute('src', url); p.onerror=()=>tryNext(arr.slice(1)); p.src=url; })(list);
+      }
+      if(t==='light'){
+        // Always try to use light asset first; fallback to dark
+        setFirstAvailable([lightPng, lightSvg, darkPng]);
+      } else {
+        setFirstAvailable([darkPng, darkSvg]);
       }
     }
   }catch{}
