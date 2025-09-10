@@ -37,15 +37,22 @@ export function applyTheme(theme){
   try{
     const img = document.querySelector('.brand-logo');
     if(img){
-      const darkSvg = 'icons/brand-title-source.svg';
-      const lightSvg = 'icons/brand-title-light.svg';
       const darkPng = 'icons/brand-title-source.png';
       const lightPng = 'icons/brand-title-light.png';
-      const pref = (t==='light') ? [lightSvg, lightPng, darkPng] : [darkSvg, darkPng];
+      const darkSvg = 'icons/brand-title-source.svg';
+      const lightSvg = 'icons/brand-title-light.svg';
+      // Prefer PNG (brand assets) with SVG as fallback
+      const pref = (t==='light') ? [lightPng, lightSvg, darkPng] : [darkPng, darkSvg];
       const current = img.getAttribute('src') || '';
       if(!pref.includes(current)){
-        // Probe in order and set the first that loads
-        (function tryNext(list){ if(!list.length) return; const url=list[0]; const p=new Image(); p.onload=()=>img.setAttribute('src', url); p.onerror=()=>tryNext(list.slice(1)); p.src=url; })(pref);
+        (function tryNext(list){
+          if(!list.length) return;
+          const url = list[0];
+          const p = new Image();
+          p.onload = () => img.setAttribute('src', url);
+          p.onerror = () => tryNext(list.slice(1));
+          p.src = url;
+        })(pref);
       }
     }
   }catch{}
