@@ -38,7 +38,7 @@ export function applyTheme(theme){
     const img = document.querySelector('.brand-logo');
     if(img){
       const darkPng = 'icons/brand-title-source.png';
-      const lightPng = 'icons/brand-title-light.png';
+      const lightPng = 'icons/brand-title-source-light.png';
       const darkSvg = 'icons/brand-title-source.svg';
       const lightSvg = 'icons/brand-title-light.svg';
       // Prefer PNG (brand assets) with SVG as fallback
