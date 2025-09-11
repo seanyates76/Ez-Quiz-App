@@ -144,7 +144,10 @@ export function renderResults(){
   const resultsSummary=el('resultsSummary'); const missedList=el('missedList');
   const chip=el('resultsChip'); const filterMissed=el('filterMissed'); const filterAll=el('filterAll');
   const total=S.quiz.questions.length; const duration = S.quiz.finishedAt && S.quiz.startedAt ? (S.quiz.finishedAt - S.quiz.startedAt - 0) : 0;
-  const chipText = `${S.quiz.score}/${total} • ${formatDuration(Math.max(0,duration))}`;
+  const showTime = !!(S.settings && S.settings.timerEnabled);
+  const chipText = showTime
+    ? `${S.quiz.score}/${total} • ${formatDuration(Math.max(0,duration))}`
+    : `${S.quiz.score}/${total}`;
   if(chip) chip.textContent = chipText;
   // Legacy score/time block removed in favor of compact summary chip in header
   if(resultsSummary) resultsSummary.innerHTML = '';
