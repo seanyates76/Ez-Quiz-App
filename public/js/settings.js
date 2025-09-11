@@ -33,33 +33,22 @@ export function applyTheme(theme){
   const t=(theme==='light'||theme==='dark')?theme:'dark';
   S.settings.theme=t;
   document.body.setAttribute('data-theme', t);
-  // Swap brand logo asset based on theme, with graceful fallback if light asset is missing
+  // Swap brand logo asset based on theme, with simple, explicit mapping
   try{
     const img = document.querySelector('.brand-logo');
     if(img){
-      const darkPng = 'icons/brand-title-source.png';
-      const lightPng = 'icons/brand-title-source-light.png';
-      const darkSvg = 'icons/brand-title-source.svg';
-      const lightSvg = 'icons/brand-title-light.svg';
+      const darkPng = 'icons/brand-title-source.png'; // intended for dark theme (wide, transparent)
+      const lightPng = 'icons/brand-title-source-light.png'; // intended for light theme (square or light variant)
       // Append a small cache-busting token so new assets show after deploy
       const BUST = 'v=brand-20250911r';
       const withBust = (url) => url.includes('?') ? url : `${url}?${BUST}`;
-      function setFirstAvailable(list){
-        (function tryNext(arr){
-          if(!arr.length) return;
-          const url=arr[0];
-          const p=new Image();
-          p.onload=()=>img.setAttribute('src', withBust(url));
-          p.onerror=()=>tryNext(arr.slice(1));
-          p.src=url;
-        })(list);
-      }
-      if(t==='light'){
-        // Always try to use light asset first; fallback to dark
-        setFirstAvailable([lightPng, lightSvg, darkPng]);
-      } else {
-        setFirstAvailable([darkPng, darkSvg]);
-      }
+
+      const pick = t === 'light' ? lightPng : darkPng;
+      const fallback = darkPng; // in case light file is missing
+      const test = new Image();
+      test.onload = () => { img.setAttribute('src', withBust(pick)); };
+      test.onerror = () => { img.setAttribute('src', withBust(fallback)); };
+      test.src = pick;
     }
   }catch{}
   saveSettingsToStorage();
