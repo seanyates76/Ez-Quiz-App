@@ -8,7 +8,7 @@
  * page for navigation requests when offline.
  */
 
-const CACHE_NAME = 'ezquiz-cache-v55';
+const CACHE_NAME = 'ezquiz-cache-v56';
 const RELATIVE_URLS = [
   'index.html',
   'styles.css',
@@ -31,6 +31,7 @@ const RELATIVE_URLS = [
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/brand-title-source.png',
+  'icons/brand-title-source-light.png',
   'icons/favicon.ico',
   'icons/favicon-16.png',
   'icons/favicon-32.png'

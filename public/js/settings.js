@@ -45,10 +45,9 @@ export function applyTheme(theme){
 
       const pick = t === 'light' ? lightPng : darkPng;
       const fallback = darkPng; // in case light file is missing
-      const test = new Image();
-      test.onload = () => { img.setAttribute('src', withBust(pick)); };
-      test.onerror = () => { img.setAttribute('src', withBust(fallback)); };
-      test.src = pick;
+      // Set immediately; if it fails, fallback to the other.
+      img.onerror = () => { img.onerror = null; img.setAttribute('src', withBust(fallback)); };
+      img.setAttribute('src', withBust(pick));
     }
   }catch{}
   saveSettingsToStorage();
