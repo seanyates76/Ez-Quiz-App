@@ -79,7 +79,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   fileInput?.addEventListener('change', ()=>{
     const f = fileInput.files && fileInput.files[0]; if(!f) return;
     const reader = new FileReader();
-    reader.onload = () => { const text = String(reader.result || ''); if(editor) editor.value = text; if(mirror) mirror.value = text; if(mirrorBox){ mirrorBox.setAttribute('data-on','true'); } const mt=$('mirrorToggle'); if(mt){ mt.checked=true; } runParseFlow(text, f.name || 'Imported', ''); statusBox && (statusBox.textContent = `Loaded ${f.name} (${text.length} chars)`); };
+    reader.onload = () => { const text = String(reader.result || ''); if(editor) editor.value = text; if(mirror) mirror.value = text; /* mirror stays hidden by default */ runParseFlow(text, f.name || 'Imported', ''); statusBox && (statusBox.textContent = `Loaded ${f.name} (${text.length} chars)`); };
     reader.onerror = () => { statusBox && (statusBox.textContent = 'Failed to read file'); };
     reader.readAsText(f);
   });
@@ -93,11 +93,11 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       'MT|Match ports to services.|1) 22;2) 53|A) SSH;B) DNS|1-A,2-B',
       'TF|Lightning never strikes the same place twice.|F',
     ].join('\n');
-    if(editor) editor.value = demo; if(mirror) mirror.value = demo; if(mirrorBox){ mirrorBox.setAttribute('data-on','true'); } const mt=$('mirrorToggle'); if(mt){ mt.checked=true; } runParseFlow(demo, 'Demo', '');
+    if(editor) editor.value = demo; if(mirror) mirror.value = demo; /* mirror stays hidden by default */ runParseFlow(demo, 'Demo', '');
   });
 
   clearBtn?.addEventListener('click', ()=>{ if(editor) editor.value = ''; if(mirror) mirror.value = ''; const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); });
-  loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } if(editor) editor.value = last; if(mirror) mirror.value = last; if(mirrorBox){ mirrorBox.setAttribute('data-on','true'); } const mt=$('mirrorToggle'); if(mt){ mt.checked=true; } runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
+  loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } if(editor) editor.value = last; if(mirror) mirror.value = last; /* mirror stays hidden by default */ runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
 
   generateBtn?.addEventListener('click', async ()=>{
     const mode = generateBtn?.getAttribute('data-mode') || 'start';
@@ -126,7 +126,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       const out = await generateWithAI(topic, count, { types, difficulty });
       const lines = out && out.lines || '';
       if(!lines){ statusBox && (statusBox.textContent = 'AI did not return any lines. Try again or use the Prompt Builder.'); generateBtn.disabled = false; hideVeil('Nothing yet…'); return; }
-      if(editor) editor.value = lines; if(mirror) mirror.value = lines; if(mirrorBox){ mirrorBox.setAttribute('data-on','true'); } const mt=$('mirrorToggle'); if(mt){ mt.checked=true; }
+      if(editor) editor.value = lines; if(mirror) mirror.value = lines; /* mirror stays hidden by default */
       const title = (out && out.title) ? out.title : '';
       runParseFlow(lines, topic, title);
       if (mode==='start' && S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
