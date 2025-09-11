@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2025-09-11 — 1.2.0-beta.4
+- Fix (Results → Retake): Main “Retake” now always restarts the full quiz, independent of the Results filter (Missed/All).
+- Add (State): Preserve the original full question set on parse; full retakes restore from this source after any missed-only runs.
+- UX: “Take missed quiz” remains available under the Retake caret and only retakes missed questions from the last attempt.
+- Footer: Version number is now clickable and links to the full changelog.
+- PWA: Service worker cache bumped to v58 to ensure updated JS assets are picked up offline.
+
 2025-09-08 — 1.2.0-beta.3
 - Feedback: inline panel cooldown (30s), honeypot, unified CORS; a11y (aria-modal, title, focus trap); mail fallback on error; closes after ~1.4s.
 - Mirror: reliable visibility toggle; hide container when off; apply state on Options open.

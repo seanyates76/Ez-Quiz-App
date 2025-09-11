@@ -11,6 +11,8 @@ export function runParseFlow(sourceText, topicLabel, fullTitle){
   const startBtn = $('startBtn');
   const { questions, errors } = parseEditorInput(sourceText);
   S.quiz.questions = questions;
+  // Preserve the full original question set for future full retakes
+  S.quiz.originalQuestions = Array.isArray(questions) ? questions.slice() : [];
   S.quiz.index = 0;
   S.quiz.answers = new Array(questions.length).fill(null);
   if (topicLabel) { S.quiz.topic = String(topicLabel).trim(); }

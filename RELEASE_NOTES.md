@@ -78,12 +78,28 @@ Highlights
 - Clean default face: inline Topic, Length, Difficulty with responsive layout.
 - Options hub: new drop-down with Timer, Theme, Question Types, and Save default.
 - Advanced only when you want it: disclosure row with caret, ARIA + keyboard friendly, ESC to close.
-- Editor + Mirror: 66/34 side-by-side with shared headers and balanced heights; stacks under 768px.
-- Smarter generation: types and difficulty flow through to API; providers instructed to use only selected types.
-- Support: always-visible Support button; Buy Me a Coffee banner after 1st and every 4th completion; async load; ESC to dismiss; persistent suppression after click.
-- Settings: “Always show advanced options” and “Reset support prompts”; Beta indicator at the bottom.
+  - Editor + Mirror: 66/34 side-by-side with shared headers and balanced heights; stacks under 768px.
+  - Smarter generation: types and difficulty flow through to API; providers instructed to use only selected types.
+  - Support: always-visible Support button; Buy Me a Coffee banner after 1st and every 4th completion; async load; ESC to dismiss; persistent suppression after click.
+  - Settings: “Always show advanced options” and “Reset support prompts”; Beta indicator at the bottom.
 
 Notes
 - Banner cadence does not show again once clicked on that device (can be reset in Settings).
 - Question Types currently constrain generation; they do not filter manually pasted lines.
 - CSP allows buymeacoffee widget/script domains; widget loads only when needed.
+
+EZ Quiz Web v1.2.0-beta.4
+==========================
+
+Release date: 2025-09-11
+
+Fixes & improvements
+- Retake behavior: Main “Retake” always restarts the full quiz, regardless of whether “Missed” or “All” is selected in Results.
+- Missed-only option: “Take missed quiz” (under the Retake caret) continues to run only the missed questions from the last attempt.
+- Original set preserved: The original question set is stored when a quiz is parsed; full retakes restore from this source even after taking a missed-only run.
+- Footer link: The version label is now clickable and links to the full CHANGELOG for quick tester review.
+- Offline update: Service worker cache bumped to v58 to pick up the latest JS changes offline.
+
+Tester tips
+- To retake the full quiz, click “Retake”. To retake only missed questions, use the caret next to Retake and choose “Take missed quiz”.
+- If you previously ran “missed-only”, “Retake” will still restore and run the complete original set.

@@ -50,6 +50,7 @@ Notes
 - Clipboard: uses `navigator.clipboard.writeText` when available (secure contexts), with a fallback on user action.
 
 Changelog (highlights)
+- 1.2.0-beta.4: Retake always restarts the full quiz; “Take missed quiz” under the caret runs missed only. Original question set is preserved on parse so full Retake restores even after missed‑only runs. Footer version now links to the full changelog. SW cache bumped for offline freshness.
 - ✨ Prompt builder popover with Topic/Length and copy‑to‑clipboard.
 - New header wordmark with adaptive mobile layout.
 - Color‑coded status line and improved import UX (drag‑drop + clear).

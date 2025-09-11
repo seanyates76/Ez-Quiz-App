@@ -240,8 +240,23 @@ export function wireResultsControls(){
   const retakeBtn=el('retakeBtn'); const retakeMissedBtn=el('retakeMissedBtn'); const retakeMenuBtn=el('retakeMenuBtn'); const retakeMenu=el('retakeMenu'); const backToMenuBtn=el('backToMenuBtn');
   const filterMissed=el('filterMissed'); const filterAll=el('filterAll');
   function getMissedIndexes(){ const idxs=[]; const qs=S.quiz.questions, ans=S.quiz.answers; for(let i=0;i<qs.length;i++){ if(!compareQA(qs[i], ans[i])) idxs.push(i); } return idxs; }
-  function retake(missedOnly){ if (!Array.isArray(S.quiz?.questions) || S.quiz.questions.length === 0) { setMode('idle'); return; } if(missedOnly){ const idxs=getMissedIndexes(); if(!idxs.length){ return; } S.quiz.questions = idxs.map(i => S.quiz.questions[i]); } S.quiz.answers = new Array(S.quiz.questions.length).fill(null); beginQuiz(); }
-  retakeBtn?.addEventListener('click', ()=>{ const isAll = !!(filterAll && filterAll.classList.contains('active')); retake(!isAll); });
+  function retake(missedOnly){
+    if (!Array.isArray(S.quiz?.questions) || S.quiz.questions.length === 0) { setMode('idle'); return; }
+    if (missedOnly) {
+      const idxs = getMissedIndexes();
+      if (!idxs.length) { return; }
+      S.quiz.questions = idxs.map(i => S.quiz.questions[i]);
+    } else {
+      // Restore full original set if available
+      if (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) {
+        S.quiz.questions = S.quiz.originalQuestions.slice();
+      }
+    }
+    S.quiz.answers = new Array(S.quiz.questions.length).fill(null);
+    beginQuiz();
+  }
+  // Main Retake should always retake the full quiz
+  retakeBtn?.addEventListener('click', ()=>{ retake(false); });
   retakeMissedBtn?.addEventListener('click', ()=> retake(true));
   retakeMenuBtn?.addEventListener('click', ()=>{ if(!retakeMenu) return; const hidden = retakeMenu.hasAttribute('hidden'); if(hidden){ retakeMenu.removeAttribute('hidden'); retakeMenuBtn?.setAttribute('aria-expanded','true'); } else { retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false'); } });
   document.addEventListener('click', (e)=>{ if(!retakeMenu || retakeMenu.hasAttribute('hidden')) return; const t=e.target; if(t===retakeMenuBtn || retakeMenu.contains(t)) return; retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false'); });
