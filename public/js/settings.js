@@ -40,7 +40,7 @@ export function applyTheme(theme){
       const darkPng = 'icons/brand-title-source.png'; // intended for dark theme (wide, transparent)
       const lightPng = 'icons/brand-title-source-light.png'; // intended for light theme (square or light variant)
       // Append a small cache-busting token so new assets show after deploy
-      const BUST = 'v=brand-20250911r';
+      const BUST = 'v=brand-20250911s';
       const withBust = (url) => url.includes('?') ? url : `${url}?${BUST}`;
 
       const pick = t === 'light' ? lightPng : darkPng;
