@@ -264,62 +264,55 @@ function getRTGlobal(){ const g = (window.__EZQ__ = window.__EZQ__ || {}); if(!g
 function updateRetakeUI(){
   const g = getRTGlobal();
   const scope = g.retakeScope === 'all' ? 'all' : 'missed';
-  const pillsWrap = document.getElementById('retakeScope');
-  const primary = document.getElementById('retakeBtn');
-  const carrot = document.getElementById('retakeCarrot');
-  const hint = document.getElementById('retakeHint');
   const total = Array.isArray(S.quiz?.questions) ? S.quiz.questions.length : 0;
   const missed = getMissedIndexes().length;
 
-  // Pills state and handlers (idempotent)
-  if (pillsWrap){
-    const pills = Array.from(pillsWrap.querySelectorAll('.pill[data-scope]'));
-    pills.forEach(p => {
-      const s = (p.getAttribute('data-scope')||'').toLowerCase();
-      const active = s === scope;
-      p.classList.toggle('is-active', active);
-      p.setAttribute('aria-selected', String(active));
-      if(!p.__rtBound){
-        p.addEventListener('click', ()=>{ getRTGlobal().retakeScope = s === 'all' ? 'all' : 'missed'; updateRetakeUI(); });
-        p.setAttribute('tabindex','0');
-        p.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); p.click(); }});
-        p.__rtBound = true;
-      }
-    });
+  const root = document.getElementById('retakeControl');
+  const primary = document.getElementById('retakePrimary');
+  const caret = document.getElementById('retakeCaret');
+  const label = document.getElementById('retakeLabel');
+  const menu = document.getElementById('retakeMenu');
+  const switchBtn = document.getElementById('retakeSwitch');
+  if(!root || !primary || !caret || !label || !menu || !switchBtn) return;
+
+  // Label and switch text
+  label.textContent = `Retake: ${scope==='all' ? 'All' : 'Missed'}`;
+  const opp = scope === 'all' ? 'missed' : 'all';
+  switchBtn.textContent = `Switch to ${opp==='all' ? 'All' : 'Missed'}`;
+
+  // Disabled state for primary
+  let disable = false, title='';
+  if (total === 0){ disable = true; title = 'Nothing to retake'; }
+  else if (scope === 'missed' && missed === 0){ disable = true; title = 'No missed questions'; }
+  primary.disabled = !!disable;
+  if(title) primary.setAttribute('title', title); else primary.removeAttribute('title');
+
+  // Bind actions once
+  if(!primary.__rtBound){
+    primary.addEventListener('click', ()=>{ if(primary.disabled) return; runRetake(scope); });
+    primary.__rtBound = true;
+  }
+  if(!caret.__rtBound){
+    caret.addEventListener('click', ()=> toggleRetakeMenu());
+    caret.__rtBound = true;
+  }
+  if(!switchBtn.__rtBound){
+    switchBtn.addEventListener('click', ()=>{ g.retakeScope = opp; updateRetakeUI(); hideRetakeMenu(); });
+    switchBtn.__rtBound = true;
   }
 
-  // Primary label + disabled states
-  if (primary){
-    primary.textContent = scope === 'all' ? 'Retake All' : 'Retake Missed';
-    primary.setAttribute('aria-describedby', 'retakeHint');
-    let disable = false, title='';
-    if (total === 0){ disable = true; title = 'Nothing to retake'; }
-    else if (scope === 'missed' && missed === 0){ disable = true; title = 'No missed questions'; }
-    primary.disabled = !!disable;
-    if(title) primary.setAttribute('title', title); else primary.removeAttribute('title');
-    if(!primary.__rtBound){ primary.addEventListener('click', ()=>{ if(primary.disabled){ return; } runRetake(scope); }); primary.__rtBound = true; }
+  // Outside click / ESC to close
+  if(!root.__rtDismissBound){
+    document.addEventListener('click', (e)=>{ if(!menu.classList.contains('hidden')){ if(!root.contains(e.target)){ hideRetakeMenu(); } } });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ hideRetakeMenu(); } });
+    root.__rtDismissBound = true;
   }
 
-  // Carrot opposite action
-  if (carrot){
-    const opp = scope === 'all' ? 'missed' : 'all';
-    const label = opp === 'all' ? 'Retake All (opposite)' : 'Retake Missed (opposite)';
-    carrot.setAttribute('aria-label', label);
-    carrot.disabled = total === 0;
-    if(!carrot.__rtBound){
-      const trigger = ()=>{ if(carrot.disabled){ return; } runRetake(opp); };
-      carrot.addEventListener('click', trigger);
-      carrot.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); trigger(); }});
-      carrot.__rtBound = true;
-    }
-  }
+  // Sync expanded state
+  caret.setAttribute('aria-expanded', String(!menu.classList.contains('hidden')));
 
-  // Hint text
-  if (hint){
-    const opp = scope === 'all' ? 'missed' : 'all';
-    hint.textContent = 'Opposite: ' + (opp === 'all' ? 'Retake All' : 'Retake Missed');
-    if (total === 0) hint.textContent = 'Nothing to retake';
-  }
+  function toggleRetakeMenu(){ const isHidden = menu.classList.contains('hidden'); menu.classList.toggle('hidden', !isHidden); caret.setAttribute('aria-expanded', String(isHidden)); if(isHidden){ switchBtn.focus(); } }
+  function hideRetakeMenu(){ if(!menu.classList.contains('hidden')){ menu.classList.add('hidden'); caret.setAttribute('aria-expanded','false'); } }
 }
 
 export function wireResultsControls(){

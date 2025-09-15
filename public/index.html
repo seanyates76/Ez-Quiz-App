@@ -159,15 +159,33 @@
       <div class="row gap results-actions">
         <button id="backToMenuBtn" class="btn">Back to Menu</button>
         <span class="flex-spacer"></span>
-        <div class="retake-controls" role="group" aria-label="Retake options">
-          <div id="retakeScope" role="tablist" aria-label="Retake scope">
-            <button class="pill" role="tab" data-scope="missed" aria-selected="true">Missed</button>
-            <button class="pill" role="tab" data-scope="all" aria-selected="false">All</button>
-          </div>
-          <div class="retake-actions">
-            <button id="retakeBtn" class="btn primary" aria-describedby="retakeHint">Retake Missed</button>
-            <button id="retakeCarrot" class="btn btn-ghost" aria-label="Retake All (opposite)" title="Opposite action">▾</button>
-            <div id="retakeHint" class="muted small">Opposite: Retake All</div>
+        <div id="retakeControl" class="retake-control" role="group" aria-label="Retake options">
+          <button id="retakePrimary"
+                  class="retake-primary"
+                  type="button"
+                  aria-label="Retake selected">
+            <span class="retake-label" id="retakeLabel">Retake: Missed</span>
+          </button>
+
+          <span class="retake-sep" aria-hidden="true">|</span>
+
+          <button id="retakeCaret"
+                  class="retake-caret"
+                  type="button"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  aria-label="Change retake scope">
+            ▾
+          </button>
+
+          <div id="retakeMenu"
+               class="retake-menu hidden"
+               role="menu"
+               aria-labelledby="retakeCaret">
+            <button class="retake-menu-item"
+                    id="retakeSwitch"
+                    role="menuitem"
+                    type="button">Switch to All</button>
           </div>
         </div>
       </div>
