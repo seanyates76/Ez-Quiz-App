@@ -169,6 +169,8 @@ export function renderResults(){
       + `<div><strong>Correct:</strong> ${correctDetail}</div>`
       + `</div>`;
   }).join('');
+  // Sync retake controls UI when results are shown/updated
+  try{ updateRetakeUI(); }catch{}
 }
 
 function buildUserAnswerDetail(q,a){
@@ -236,32 +238,95 @@ function buildCorrectAnswerDetail(q){
   return '';
 }
 
-export function wireResultsControls(){
-  const retakeBtn=el('retakeBtn'); const retakeMissedBtn=el('retakeMissedBtn'); const retakeMenuBtn=el('retakeMenuBtn'); const retakeMenu=el('retakeMenu'); const backToMenuBtn=el('backToMenuBtn');
-  const filterMissed=el('filterMissed'); const filterAll=el('filterAll');
-  function getMissedIndexes(){ const idxs=[]; const qs=S.quiz.questions, ans=S.quiz.answers; for(let i=0;i<qs.length;i++){ if(!compareQA(qs[i], ans[i])) idxs.push(i); } return idxs; }
-  function retake(missedOnly){
-    if (!Array.isArray(S.quiz?.questions) || S.quiz.questions.length === 0) { setMode('idle'); return; }
-    if (missedOnly) {
-      const idxs = getMissedIndexes();
-      if (!idxs.length) { return; }
-      S.quiz.questions = idxs.map(i => S.quiz.questions[i]);
-    } else {
-      // Restore full original set if available
-      if (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) {
-        S.quiz.questions = S.quiz.originalQuestions.slice();
-      }
+// Determine missed indexes from last completed attempt (incorrect or unanswered)
+function getMissedIndexes(){ const idxs=[]; const qs=S.quiz.questions, ans=S.quiz.answers; for(let i=0;i<qs.length;i++){ if(!compareQA(qs[i], ans[i])) idxs.push(i); } return idxs; }
+
+// Public retake runner wired to existing flow
+function runRetake(scope){
+  const total = Array.isArray(S.quiz?.questions) ? S.quiz.questions.length : 0;
+  if (total === 0) { try{ const h=$('retakeHint'); if(h) h.textContent='Retake unavailable'; }catch{} return; }
+  if (scope === 'missed') {
+    const idxs = getMissedIndexes();
+    if (!idxs.length) { return; }
+    S.quiz.questions = idxs.map(i => S.quiz.questions[i]);
+  } else {
+    if (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) {
+      S.quiz.questions = S.quiz.originalQuestions.slice();
     }
-    S.quiz.answers = new Array(S.quiz.questions.length).fill(null);
-    beginQuiz();
   }
-  // Main Retake should always retake the full quiz
-  retakeBtn?.addEventListener('click', ()=>{ retake(false); });
-  retakeMissedBtn?.addEventListener('click', ()=> retake(true));
-  retakeMenuBtn?.addEventListener('click', ()=>{ if(!retakeMenu) return; const hidden = retakeMenu.hasAttribute('hidden'); if(hidden){ retakeMenu.removeAttribute('hidden'); retakeMenuBtn?.setAttribute('aria-expanded','true'); } else { retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false'); } });
-  document.addEventListener('click', (e)=>{ if(!retakeMenu || retakeMenu.hasAttribute('hidden')) return; const t=e.target; if(t===retakeMenuBtn || retakeMenu.contains(t)) return; retakeMenu.setAttribute('hidden',''); retakeMenuBtn?.setAttribute('aria-expanded','false'); });
+  S.quiz.answers = new Array(S.quiz.questions.length).fill(null);
+  beginQuiz();
+}
+
+// Expose scope and runner on a lightweight global per spec
+function getRTGlobal(){ const g = (window.__EZQ__ = window.__EZQ__ || {}); if(!g.retakeScope) g.retakeScope = 'missed'; g.runRetake = runRetake; return g; }
+
+function updateRetakeUI(){
+  const g = getRTGlobal();
+  const scope = g.retakeScope === 'all' ? 'all' : 'missed';
+  const pillsWrap = document.getElementById('retakeScope');
+  const primary = document.getElementById('retakeBtn');
+  const carrot = document.getElementById('retakeCarrot');
+  const hint = document.getElementById('retakeHint');
+  const total = Array.isArray(S.quiz?.questions) ? S.quiz.questions.length : 0;
+  const missed = getMissedIndexes().length;
+
+  // Pills state and handlers (idempotent)
+  if (pillsWrap){
+    const pills = Array.from(pillsWrap.querySelectorAll('.pill[data-scope]'));
+    pills.forEach(p => {
+      const s = (p.getAttribute('data-scope')||'').toLowerCase();
+      const active = s === scope;
+      p.classList.toggle('is-active', active);
+      p.setAttribute('aria-selected', String(active));
+      if(!p.__rtBound){
+        p.addEventListener('click', ()=>{ getRTGlobal().retakeScope = s === 'all' ? 'all' : 'missed'; updateRetakeUI(); });
+        p.setAttribute('tabindex','0');
+        p.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); p.click(); }});
+        p.__rtBound = true;
+      }
+    });
+  }
+
+  // Primary label + disabled states
+  if (primary){
+    primary.textContent = scope === 'all' ? 'Retake All' : 'Retake Missed';
+    primary.setAttribute('aria-describedby', 'retakeHint');
+    let disable = false, title='';
+    if (total === 0){ disable = true; title = 'Nothing to retake'; }
+    else if (scope === 'missed' && missed === 0){ disable = true; title = 'No missed questions'; }
+    primary.disabled = !!disable;
+    if(title) primary.setAttribute('title', title); else primary.removeAttribute('title');
+    if(!primary.__rtBound){ primary.addEventListener('click', ()=>{ if(primary.disabled){ return; } runRetake(scope); }); primary.__rtBound = true; }
+  }
+
+  // Carrot opposite action
+  if (carrot){
+    const opp = scope === 'all' ? 'missed' : 'all';
+    const label = opp === 'all' ? 'Retake All (opposite)' : 'Retake Missed (opposite)';
+    carrot.setAttribute('aria-label', label);
+    carrot.disabled = total === 0;
+    if(!carrot.__rtBound){
+      const trigger = ()=>{ if(carrot.disabled){ return; } runRetake(opp); };
+      carrot.addEventListener('click', trigger);
+      carrot.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); trigger(); }});
+      carrot.__rtBound = true;
+    }
+  }
+
+  // Hint text
+  if (hint){
+    const opp = scope === 'all' ? 'missed' : 'all';
+    hint.textContent = 'Opposite: ' + (opp === 'all' ? 'Retake All' : 'Retake Missed');
+    if (total === 0) hint.textContent = 'Nothing to retake';
+  }
+}
+
+export function wireResultsControls(){
+  const backToMenuBtn=el('backToMenuBtn');
+  const filterMissed=el('filterMissed'); const filterAll=el('filterAll');
   backToMenuBtn?.addEventListener('click', ()=> setMode('idle'));
-  // Filter chips
+  // Results filter chips (unchanged)
   function setFilter(isAll){
     if(filterMissed){ filterMissed.classList.toggle('active', !isAll); filterMissed.setAttribute('aria-pressed', String(!isAll)); }
     if(filterAll){ filterAll.classList.toggle('active', !!isAll); filterAll.setAttribute('aria-pressed', String(!!isAll)); }
@@ -269,6 +334,8 @@ export function wireResultsControls(){
   }
   filterMissed?.addEventListener('click', ()=> setFilter(false));
   filterAll?.addEventListener('click', ()=> setFilter(true));
+  // Initialize retake UI once controls exist
+  try{ updateRetakeUI(); }catch{}
 }
 
 export function pauseTimerIfQuiz(){ if(S.mode!=='quiz') return; if(!timerInterval) return; pausedAt = Date.now(); if(S.settings.timerEnabled){ if(S.settings.countdown && S.quiz.endAt){ remainingOnPause = Math.max(0, S.quiz.endAt - Date.now()); } } clearInterval(timerInterval); timerInterval=null; }

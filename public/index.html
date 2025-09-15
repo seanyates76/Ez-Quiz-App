@@ -159,11 +159,15 @@
       <div class="row gap results-actions">
         <button id="backToMenuBtn" class="btn">Back to Menu</button>
         <span class="flex-spacer"></span>
-        <div class="split">
-          <button id="retakeBtn" class="btn">Retake</button>
-          <button id="retakeMenuBtn" class="btn split-caret" aria-haspopup="menu" aria-expanded="false" title="More retake options">▾</button>
-          <div id="retakeMenu" class="menu" role="menu" hidden>
-            <button id="retakeMissedBtn" class="menu-item" role="menuitem">Take missed quiz</button>
+        <div class="retake-controls" role="group" aria-label="Retake options">
+          <div id="retakeScope" role="tablist" aria-label="Retake scope">
+            <button class="pill" role="tab" data-scope="missed" aria-selected="true">Missed</button>
+            <button class="pill" role="tab" data-scope="all" aria-selected="false">All</button>
+          </div>
+          <div class="retake-actions">
+            <button id="retakeBtn" class="btn primary" aria-describedby="retakeHint">Retake Missed</button>
+            <button id="retakeCarrot" class="btn btn-ghost" aria-label="Retake All (opposite)" title="Opposite action">▾</button>
+            <div id="retakeHint" class="muted small">Opposite: Retake All</div>
           </div>
         </div>
       </div>
