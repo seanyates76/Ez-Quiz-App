@@ -271,14 +271,21 @@ function updateRetakeUI(){
   const primary = document.getElementById('retakePrimary');
   const caret = document.getElementById('retakeCaret');
   const label = document.getElementById('retakeLabel');
-  const menu = document.getElementById('retakeMenu');
-  const switchBtn = document.getElementById('retakeSwitch');
-  if(!root || !primary || !caret || !label || !menu || !switchBtn) return;
+  if(!root || !primary || !caret || !label) return;
 
-  // Label and switch text
+  // Bind scope to results filter if present (source of truth for default)
+  try{
+    const fm = document.getElementById('filterMissed');
+    const fa = document.getElementById('filterAll');
+    const isAll = !!(fa && fa.classList.contains('active'));
+    g.retakeScope = isAll ? 'all' : 'missed';
+  }catch{}
+
+  // Label and caret aria
   label.textContent = `Retake: ${scope==='all' ? 'All' : 'Missed'}`;
   const opp = scope === 'all' ? 'missed' : 'all';
-  switchBtn.textContent = `Switch to ${opp==='all' ? 'All' : 'Missed'}`;
+  const caretAria = opp==='all' ? 'Retake All (opposite)' : 'Retake Missed (opposite)';
+  caret.setAttribute('aria-label', caretAria);
 
   // Disabled state for primary
   let disable = false, title='';
@@ -293,26 +300,11 @@ function updateRetakeUI(){
     primary.__rtBound = true;
   }
   if(!caret.__rtBound){
-    caret.addEventListener('click', ()=> toggleRetakeMenu());
+    const triggerOpp = ()=>{ if(total===0) return; runRetake(opp); };
+    caret.addEventListener('click', triggerOpp);
+    caret.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); triggerOpp(); }});
     caret.__rtBound = true;
   }
-  if(!switchBtn.__rtBound){
-    switchBtn.addEventListener('click', ()=>{ g.retakeScope = opp; updateRetakeUI(); hideRetakeMenu(); });
-    switchBtn.__rtBound = true;
-  }
-
-  // Outside click / ESC to close
-  if(!root.__rtDismissBound){
-    document.addEventListener('click', (e)=>{ if(!menu.classList.contains('hidden')){ if(!root.contains(e.target)){ hideRetakeMenu(); } } });
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ hideRetakeMenu(); } });
-    root.__rtDismissBound = true;
-  }
-
-  // Sync expanded state
-  caret.setAttribute('aria-expanded', String(!menu.classList.contains('hidden')));
-
-  function toggleRetakeMenu(){ const isHidden = menu.classList.contains('hidden'); menu.classList.toggle('hidden', !isHidden); caret.setAttribute('aria-expanded', String(isHidden)); if(isHidden){ switchBtn.focus(); } }
-  function hideRetakeMenu(){ if(!menu.classList.contains('hidden')){ menu.classList.add('hidden'); caret.setAttribute('aria-expanded','false'); } }
 }
 
 export function wireResultsControls(){

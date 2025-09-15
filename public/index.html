@@ -161,7 +161,7 @@
         <span class="flex-spacer"></span>
         <div id="retakeControl" class="retake-control" role="group" aria-label="Retake options">
           <button id="retakePrimary"
-                  class="retake-primary"
+                  class="btn brand retake-primary"
                   type="button"
                   aria-label="Retake selected">
             <span class="retake-label" id="retakeLabel">Retake: Missed</span>
@@ -170,23 +170,11 @@
           <span class="retake-sep" aria-hidden="true">|</span>
 
           <button id="retakeCaret"
-                  class="retake-caret"
+                  class="btn btn-ghost retake-caret"
                   type="button"
-                  aria-haspopup="menu"
-                  aria-expanded="false"
-                  aria-label="Change retake scope">
+                  aria-label="Retake All (opposite)">
             ▾
           </button>
-
-          <div id="retakeMenu"
-               class="retake-menu hidden"
-               role="menu"
-               aria-labelledby="retakeCaret">
-            <button class="retake-menu-item"
-                    id="retakeSwitch"
-                    role="menuitem"
-                    type="button">Switch to All</button>
-          </div>
         </div>
       </div>
     </section>
