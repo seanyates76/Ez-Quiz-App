@@ -484,6 +484,8 @@ footer.container{
     padding-bottom: 12px;
     margin-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
   }
+  /* Raise floating actions to avoid footer overlap on small screens */
+  .fab-stack{ bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* Veil loader */

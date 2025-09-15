@@ -104,8 +104,10 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   generateBtn?.addEventListener('click', async ()=>{
     const mode = generateBtn?.getAttribute('data-mode') || 'start';
     const editorText = (editor?.value || '').trim();
-    // In Start mode, respect existing editor content (manual flow)
-    if(mode==='start' && editorText.length){
+    const topicTyped = (topicInput?.value || '').trim();
+    // Start mode: generate a new quiz if a topic is provided; only use existing
+    // editor content when no topic is given (explicit manual flow).
+    if(mode==='start' && editorText.length && !topicTyped){
       runParseFlow(editorText, topicInput?.value || 'Custom', '');
       if(S.quiz.questions && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); }
       return;
@@ -128,7 +130,16 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       const out = await generateWithAI(topic, count, { types, difficulty });
       const lines = out && out.lines || '';
       if(!lines){ statusBox && (statusBox.textContent = 'AI did not return any lines. Try again or use the Prompt Builder.'); generateBtn.disabled = false; hideVeil('Nothing yet…'); return; }
-      if(editor) editor.value = lines; if(mirror) mirror.value = lines; /* mirror stays hidden by default */
+      if(editor) editor.value = lines;
+      if(mirror) mirror.value = lines; /* mirror stays hidden by default */
+      // Auto-show Mirror when content exists so it’s visible on mobile too
+      try{
+        if(mirrorBox){
+          mirrorBox.setAttribute('data-on','true');
+        }
+        const mt = document.getElementById('mirrorToggle');
+        if(mt && 'checked' in mt){ mt.checked = true; }
+      }catch{}
       const title = (out && out.title) ? out.title : '';
       runParseFlow(lines, topic, title);
       if (mode==='start' && S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
