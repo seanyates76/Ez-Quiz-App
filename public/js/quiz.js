@@ -294,13 +294,23 @@ function updateRetakeUI(){
   primary.disabled = !!disable;
   if(title) primary.setAttribute('title', title); else primary.removeAttribute('title');
 
-  // Bind actions once
+  // Bind actions once (compute scope at click time to stay in sync)
   if(!primary.__rtBound){
-    primary.addEventListener('click', ()=>{ if(primary.disabled) return; runRetake(scope); });
+    primary.addEventListener('click', ()=>{
+      if(primary.disabled) return;
+      const curr = (getRTGlobal().retakeScope === 'all') ? 'all' : 'missed';
+      runRetake(curr);
+    });
     primary.__rtBound = true;
   }
   if(!caret.__rtBound){
-    const triggerOpp = ()=>{ if(total===0) return; runRetake(opp); };
+    const triggerOpp = ()=>{
+      const totalNow = Array.isArray(S.quiz?.questions) ? S.quiz.questions.length : 0;
+      if(totalNow===0) return;
+      const curr = (getRTGlobal().retakeScope === 'all') ? 'all' : 'missed';
+      const opposite = curr === 'all' ? 'missed' : 'all';
+      runRetake(opposite);
+    };
     caret.addEventListener('click', triggerOpp);
     caret.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); triggerOpp(); }});
     caret.__rtBound = true;
