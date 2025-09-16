@@ -1,6 +1,10 @@
 import { S } from './state.js';
 import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel, mmSsToMs, showUpdateBannerIfReady, bindOnce } from './utils.js';
 
+// Retake scope constants
+const RETAKE_MISSED = 'missed';
+const RETAKE_ALL = 'all';
+
 // Elements helper
 const el = (id) => $(id);
 
@@ -259,7 +263,7 @@ function runRetake(scope){
 }
 
 // Expose scope and runner on a lightweight global per spec
-function getRTGlobal(){ const g = (window.__EZQ__ = window.__EZQ__ || {}); if(!g.retakeScope) g.retakeScope = 'missed'; g.runRetake = runRetake; return g; }
+function getRTGlobal(){ const g = (window.__EZQ__ = window.__EZQ__ || {}); if(!g.retakeScope) g.retakeScope = RETAKE_MISSED; g.runRetake = runRetake; return g; }
 
 function updateRetakeUI(){
   const g = getRTGlobal();
@@ -279,21 +283,21 @@ function updateRetakeUI(){
     const fm = document.getElementById('filterMissed');
     const fa = document.getElementById('filterAll');
     const isAll = !!(fa && fa.classList.contains('active'));
-    g.retakeScope = isAll ? 'all' : 'missed';
+    g.retakeScope = isAll ? RETAKE_ALL : RETAKE_MISSED;
   }catch{}
 
   // Label and caret aria
-  const scope = g.retakeScope === 'all' ? 'all' : 'missed';
-  label.textContent = `Retake: ${scope==='all' ? 'All' : 'Missed'}`;
-  const opp = scope === 'all' ? 'missed' : 'all';
-  const caretAria = opp==='all' ? 'Retake All (opposite)' : 'Retake Missed (opposite)';
+  const scope = g.retakeScope === RETAKE_ALL ? RETAKE_ALL : RETAKE_MISSED;
+  label.textContent = `Retake: ${scope===RETAKE_ALL ? 'All' : 'Missed'}`;
+  const opp = scope === RETAKE_ALL ? RETAKE_MISSED : RETAKE_ALL;
+  const caretAria = opp===RETAKE_ALL ? 'Retake All (opposite)' : 'Retake Missed (opposite)';
   caret.setAttribute('aria-label', caretAria);
-  switchBtn.textContent = opp==='all' ? 'Retake All' : 'Retake Missed';
+  switchBtn.textContent = opp===RETAKE_ALL ? 'Retake All' : 'Retake Missed';
 
   // Disabled state for primary
   let disable = false, title='';
   if (total === 0){ disable = true; title = 'Nothing to retake'; }
-  else if (scope === 'missed' && missed === 0){ disable = true; title = 'No missed questions'; }
+  else if (scope === RETAKE_MISSED && missed === 0){ disable = true; title = 'No missed questions'; }
   primary.disabled = !!disable;
   root.classList.toggle('is-disabled', !!disable);
   if(title) primary.setAttribute('title', title); else primary.removeAttribute('title');
@@ -301,7 +305,7 @@ function updateRetakeUI(){
   // Bind actions once (compute scope at click time to stay in sync)
   bindOnce(primary, 'click', ()=>{
       if(primary.disabled) return;
-      const curr = (getRTGlobal().retakeScope === 'all') ? 'all' : 'missed';
+      const curr = (getRTGlobal().retakeScope === RETAKE_ALL) ? RETAKE_ALL : RETAKE_MISSED;
       runRetake(curr);
   });
   const toggle = ()=>{ const isHidden = menu.classList.contains('hidden'); menu.classList.toggle('hidden', !isHidden); caret.setAttribute('aria-expanded', String(isHidden)); if(isHidden){ switchBtn.focus(); } };
@@ -311,8 +315,8 @@ function updateRetakeUI(){
       if(e) e.preventDefault();
       const totalNow = Array.isArray(S.quiz?.questions) ? S.quiz.questions.length : 0;
       if(totalNow===0) return; // both disabled state
-      const curr = (getRTGlobal().retakeScope === 'all') ? 'all' : 'missed';
-      const opposite = curr === 'all' ? 'missed' : 'all';
+      const curr = (getRTGlobal().retakeScope === RETAKE_ALL) ? RETAKE_ALL : RETAKE_MISSED;
+      const opposite = curr === RETAKE_ALL ? RETAKE_MISSED : RETAKE_ALL;
       // Close menu first for immediate visual feedback
       menu.classList.add('hidden'); caret.setAttribute('aria-expanded','false');
       // Set scope to opposite for consistency and run
