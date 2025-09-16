@@ -15,6 +15,8 @@ export function runParseFlow(sourceText, topicLabel, fullTitle){
   S.quiz.originalQuestions = Array.isArray(questions) ? questions.slice() : [];
   // Map current question indexes to original indexes (identity on first parse)
   S.quiz.indexMap = questions.map((_, i) => i);
+  // Reset original answers snapshot (one slot per original question)
+  S.quiz.originalAnswers = new Array(questions.length).fill(null);
   S.quiz.index = 0;
   S.quiz.answers = new Array(questions.length).fill(null);
   if (topicLabel) { S.quiz.topic = String(topicLabel).trim(); }

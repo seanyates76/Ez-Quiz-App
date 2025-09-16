@@ -138,7 +138,40 @@ function compareQA(q, a){ if(q.type==='MC'){ const user=Array.isArray(a)?a.slice
 function viewCorrect(q){ if(q.type==='MC'){ return indexesToLetters(q.correct).join(','); } if(q.type==='TF'){ return q.correct ? 'T' : 'F'; } if(q.type==='YN'){ return q.correct ? 'Y' : 'N'; } if(q.type==='MT'){ return q.pairs.map(([li,ri]) => `${li+1}-${String.fromCharCode(65+ri)}`).join(','); } return ''; }
 function viewUser(q,a){ if(q.type==='MC'){ const arr=Array.isArray(a)?a:[]; return indexesToLetters(arr).join(','); } if(q.type==='TF'){ if(typeof a!=='boolean') return ''; return a?'T':'F'; } if(q.type==='YN'){ if(typeof a!=='boolean') return ''; return a?'Y':'N'; } if(q.type==='MT'){ const arr=Array.isArray(a)?a:[]; return arr.map((ri,li)=> (ri<0?`${li+1}-?`:`${li+1}-${String.fromCharCode(65+ri)}`)).join(','); } return ''; }
 
-export function finishQuiz(auto=false){ if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } S.quiz.finishedAt = Date.now(); let score=0; const qs=S.quiz.questions, ans=S.quiz.answers; for(let i=0;i<qs.length;i++){ const q=qs[i], a=ans[i]; if(q.type==='MC'){ const user=Array.isArray(a)?a.slice().sort((x,y)=>x-y):[]; const correct=(q.correct||[]).slice().sort((x,y)=>x-y); if(user.length && arraysEqual(user, correct)) score++; } else if(q.type==='TF' || q.type==='YN'){ if(typeof a==='boolean' && a===q.correct) score++; } else if(q.type==='MT'){ const user=Array.isArray(a)?a:[]; const target=new Array(q.left.length).fill(-1); q.pairs.forEach(([li,ri])=>{ target[li]=ri; }); if(user.length===target.length && arraysEqual(user, target)) score++; } } S.quiz.score=score; renderResults(); setMode('results'); }
+export function finishQuiz(auto=false){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  S.quiz.finishedAt = Date.now();
+  let score=0; const qs=S.quiz.questions, ans=S.quiz.answers;
+  for(let i=0;i<qs.length;i++){
+    const q=qs[i], a=ans[i];
+    if(q.type==='MC'){
+      const user=Array.isArray(a)?a.slice().sort((x,y)=>x-y):[];
+      const correct=(q.correct||[]).slice().sort((x,y)=>x-y);
+      if(user.length && arraysEqual(user, correct)) score++;
+    } else if(q.type==='TF' || q.type==='YN'){
+      if(typeof a==='boolean' && a===q.correct) score++;
+    } else if(q.type==='MT'){
+      const user=Array.isArray(a)?a:[];
+      const target=new Array(q.left.length).fill(-1);
+      q.pairs.forEach(([li,ri])=>{ target[li]=ri; });
+      if(user.length===target.length && arraysEqual(user, target)) score++;
+    }
+  }
+  // Merge current run answers into originalAnswers snapshot
+  const baseQs = (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) ? S.quiz.originalQuestions : S.quiz.questions;
+  const baseLen = baseQs.length;
+  if(!Array.isArray(S.quiz.originalAnswers) || S.quiz.originalAnswers.length !== baseLen){
+    S.quiz.originalAnswers = new Array(baseLen).fill(null);
+  }
+  const map = (Array.isArray(S.quiz.indexMap) && S.quiz.indexMap.length) ? S.quiz.indexMap : S.quiz.questions.map((_,i)=>i);
+  for(let i=0;i<ans.length;i++){
+    const oi = map[i];
+    if(Number.isInteger(oi) && oi>=0 && oi<baseLen){ S.quiz.originalAnswers[oi] = ans[i]; }
+  }
+  S.quiz.score=score;
+  renderResults();
+  setMode('results');
+}
 
 export function renderResults(){
   const resultsSummary=el('resultsSummary'); const missedList=el('missedList');
@@ -158,10 +191,16 @@ export function renderResults(){
   const indexMap = (Array.isArray(S.quiz.indexMap) && S.quiz.indexMap.length)
     ? S.quiz.indexMap
     : S.quiz.questions.map((_,i)=>i);
-  const answersFull = new Array(baseQs.length).fill(null);
-  for(let i=0;i<S.quiz.answers.length;i++){
-    const origIdx = indexMap[i];
-    if(Number.isInteger(origIdx) && origIdx>=0 && origIdx<baseQs.length){ answersFull[origIdx] = S.quiz.answers[i]; }
+  // Prefer persistent originalAnswers when available; fallback to mapping current run
+  let answersFull;
+  if (Array.isArray(S.quiz.originalAnswers) && S.quiz.originalAnswers.length === baseQs.length) {
+    answersFull = S.quiz.originalAnswers.slice();
+  } else {
+    answersFull = new Array(baseQs.length).fill(null);
+    for(let i=0;i<S.quiz.answers.length;i++){
+      const origIdx = indexMap[i];
+      if(Number.isInteger(origIdx) && origIdx>=0 && origIdx<baseQs.length){ answersFull[origIdx] = S.quiz.answers[i]; }
+    }
   }
   const items=[]; for(let i=0;i<baseQs.length;i++){ const q=baseQs[i], a=answersFull[i]; const correctView=viewCorrect(q), userView=viewUser(q,a); const isCorrect=compareQA(q,a); items.push({ idx:i+1, text:q.text, userView, correctView, isCorrect }); }
   // Determine filter state from buttons (default Missed)
