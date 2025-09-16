@@ -151,7 +151,19 @@ export function renderResults(){
   if(chip) chip.textContent = chipText;
   // Legacy score/time block removed in favor of compact summary chip in header
   if(resultsSummary) resultsSummary.innerHTML = '';
-  const items=[]; for(let i=0;i<total;i++){ const q=S.quiz.questions[i], a=S.quiz.answers[i]; const correctView=viewCorrect(q), userView=viewUser(q,a); const isCorrect=compareQA(q,a); items.push({ idx:i+1, text:q.text, userView, correctView, isCorrect }); }
+  // Build results relative to the original question set, even after a retake
+  const baseQs = (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length)
+    ? S.quiz.originalQuestions
+    : S.quiz.questions;
+  const indexMap = (Array.isArray(S.quiz.indexMap) && S.quiz.indexMap.length)
+    ? S.quiz.indexMap
+    : S.quiz.questions.map((_,i)=>i);
+  const answersFull = new Array(baseQs.length).fill(null);
+  for(let i=0;i<S.quiz.answers.length;i++){
+    const origIdx = indexMap[i];
+    if(Number.isInteger(origIdx) && origIdx>=0 && origIdx<baseQs.length){ answersFull[origIdx] = S.quiz.answers[i]; }
+  }
+  const items=[]; for(let i=0;i<baseQs.length;i++){ const q=baseQs[i], a=answersFull[i]; const correctView=viewCorrect(q), userView=viewUser(q,a); const isCorrect=compareQA(q,a); items.push({ idx:i+1, text:q.text, userView, correctView, isCorrect }); }
   // Determine filter state from buttons (default Missed)
   const isAll = !!(filterAll && filterAll.classList.contains('active'));
   const showMissedOnly = !isAll;
@@ -253,9 +265,12 @@ function runRetake(scope){
     const idxs = getMissedIndexes();
     if (!idxs.length) { return; }
     S.quiz.questions = idxs.map(i => S.quiz.questions[i]);
+    const priorMap = Array.isArray(S.quiz.indexMap) ? S.quiz.indexMap : S.quiz.questions.map((_,i)=>i);
+    S.quiz.indexMap = idxs.map(i => priorMap[i]);
   } else {
     if (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) {
       S.quiz.questions = S.quiz.originalQuestions.slice();
+      S.quiz.indexMap = S.quiz.originalQuestions.map((_, i) => i);
     }
   }
   S.quiz.answers = new Array(S.quiz.questions.length).fill(null);
