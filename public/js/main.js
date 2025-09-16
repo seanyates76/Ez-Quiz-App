@@ -50,12 +50,25 @@ function init(){
     const status = document.getElementById('feedbackStatus');
     const trap = document.getElementById('feedbackTrap');
 
+    function updateFabReserve(){
+      try{
+        const root = document.documentElement;
+        const fab = document.getElementById('floatingActions');
+        const panelEl = document.getElementById('feedbackPanel');
+        let reserve = 0;
+        if(fab){ reserve = Math.max(reserve, fab.offsetHeight + 24); }
+        if(panelEl && !panelEl.classList.contains('hidden')){ reserve = Math.max(reserve, panelEl.offsetHeight + 24); }
+        reserve = Math.max(96, reserve);
+        root.style.setProperty('--fab-reserve', reserve + 'px');
+      }catch{}
+    }
+
     const COOLDOWN_MS = 30000;
     const LS_KEY_LAST = 'ezq.fb.last';
     function getLastTs(){ try{ return parseInt(localStorage.getItem(LS_KEY_LAST)||'0',10)||0; }catch{ return 0; } }
     function setLastTs(t){ try{ localStorage.setItem(LS_KEY_LAST, String(t)); }catch{} }
 
-    function setOpen(open){ if(!panel) return; panel.classList.toggle('hidden', !open); if(open){ msg?.focus(); } }
+    function setOpen(open){ if(!panel) return; panel.classList.toggle('hidden', !open); updateFabReserve(); if(open){ msg?.focus(); } }
     function updateCount(){ if(!msg||!count) return; const n=(msg.value||'').length; count.textContent = `${n}/500`; }
     btn?.addEventListener('click', (e)=>{ e.preventDefault(); setOpen(!panel || panel.classList.contains('hidden')); });
     cancel?.addEventListener('click', ()=> setOpen(false));
@@ -74,6 +87,7 @@ function init(){
       else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
     }
     document.addEventListener('keydown', trapFocus);
+    window.addEventListener('resize', updateFabReserve);
 
     async function sendFeedback(){
       if(!msg) return; const text=(msg.value||'').trim(); const em=(email?.value||'').trim();
@@ -94,6 +108,8 @@ function init(){
       finally{ if(send) send.disabled=false; }
     }
     send?.addEventListener('click', sendFeedback);
+    // Initial measurement
+    updateFabReserve();
   })();
 
   // Update banner wiring
