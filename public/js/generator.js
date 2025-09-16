@@ -133,13 +133,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       if(editor) editor.value = lines;
       if(mirror) mirror.value = lines; /* mirror stays hidden by default */
       // Auto-show Mirror when content exists so it’s visible on mobile too
-      try{
-        if(mirrorBox){
-          mirrorBox.setAttribute('data-on','true');
-        }
-        const mt = document.getElementById('mirrorToggle');
-        if(mt && 'checked' in mt){ mt.checked = true; }
-      }catch{}
+      try{ setMirrorVisible(true); }catch{}
       const title = (out && out.title) ? out.title : '';
       runParseFlow(lines, topic, title);
       if (mode==='start' && S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
@@ -162,9 +156,9 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     optThemeRadios.forEach(r=>{ r.checked = (r.value===S.settings.theme); });
     // Sync mirror toggle from container state
     const isOn = !!(mirrorBox && mirrorBox.getAttribute('data-on') === 'true');
-    if(mirrorToggle) mirrorToggle.checked = isOn;
+    setMirrorVisible(isOn);
   }
-  function applyMirrorToggle(){ const on = !!mirrorToggle?.checked; if(mirrorBox){ mirrorBox.setAttribute('data-on', on ? 'true':'false'); } }
+  function applyMirrorToggle(){ const on = !!mirrorToggle?.checked; setMirrorVisible(on); }
   function openOptions(){ if(!optionsPanel) return; optionsPanel.hidden = false; optionsBtn?.setAttribute('aria-expanded','true'); reflectOptionsFromSettings(); applyMirrorToggle(); if(advDisclosure && advBlock){ const shouldOpen = !!getAlwaysShowAdvanced(); advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false'); advBlock.hidden = !shouldOpen; setPrimaryAction(shouldOpen? 'generate':'start'); } document.addEventListener('keydown', onEscCloseOptions); document.addEventListener('click', onDocClick, true); }
   function closeOptions(){ if(!optionsPanel) return; optionsPanel.hidden = true; optionsBtn?.setAttribute('aria-expanded','false'); document.removeEventListener('keydown', onEscCloseOptions); document.removeEventListener('click', onDocClick, true); setPrimaryAction('start'); optionsBtn?.focus(); }
   function onEscCloseOptions(e){ if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }}
@@ -201,13 +195,13 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   document.addEventListener('keydown', trapFocusOptions);
 
   // Mirror toggle
+  function setMirrorVisible(on){ if(mirrorBox){ mirrorBox.setAttribute('data-on', on ? 'true':'false'); } if(mirrorToggle){ mirrorToggle.checked = !!on; } }
   // Debounced mirror toggle; keep container height stable
   let mirrorToggleBusy = false;
   mirrorToggle?.addEventListener('change', ()=>{
     if(mirrorToggleBusy) return;
     mirrorToggleBusy = true;
-    const on = !!mirrorToggle.checked;
-    if(mirrorBox){ mirrorBox.setAttribute('data-on', on ? 'true':'false'); }
+    setMirrorVisible(!!mirrorToggle.checked);
     setTimeout(()=>{ mirrorToggleBusy = false; }, 180);
   });
 

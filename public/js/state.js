@@ -5,3 +5,14 @@ S.settings = S.settings || { theme: 'dark', timerEnabled: true, countdown: false
 S.ui = S.ui || { primaryMode: 'start' };
 
 export const STORAGE_KEYS = { theme: 'ezq.theme', settings: 'ezq.settings', defaults: 'ezq.defaults', last: 'ezq.last' };
+
+// Bridge: unify __EZQ__ with EZQ so both references point to the same object.
+try {
+  if (!Object.getOwnPropertyDescriptor(window, '__EZQ__')) {
+    Object.defineProperty(window, '__EZQ__', {
+      configurable: true,
+      get() { return window.EZQ; },
+      set(v) { if (v && typeof v === 'object') Object.assign(window.EZQ, v); },
+    });
+  }
+} catch {}

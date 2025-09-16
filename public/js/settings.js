@@ -5,8 +5,8 @@ import { msToMmSs, mmSsToMs } from './utils.js';
 const COOKIE_ALWAYSSHOWADV = 'ezq.alwaysShowAdvanced';
 function setCookie(name, value){
   try{
-    // Use Secure + SameSite=Lax for Brave/modern privacy defaults
-    document.cookie = `${name}=${encodeURIComponent(String(value))}; Max-Age=31536000; Path=/; SameSite=Lax; Secure`;
+    const secure = (typeof location !== 'undefined' && location.protocol === 'https:') ? '; Secure' : '';
+    document.cookie = `${name}=${encodeURIComponent(String(value))}; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
   }catch{}
 }
 function getCookie(name){ try{ return document.cookie.split(';').map(s=>s.trim()).filter(Boolean).map(s=>s.split('='))

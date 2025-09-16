@@ -12,3 +12,13 @@ export function msToMmSs(ms){ if(!ms || ms<=0) return ''; const mm = Math.floor(
 export function mmSsToMs(txt){ const s=(txt||'').trim(); if(!s) return 0; const parts=s.split(':'); if(parts.length===2){ const mm=parseInt(parts[0],10)||0; const ss=parseInt(parts[1],10)||0; return (mm*60+ss)*1000; } const mm=parseInt(s,10)||0; return mm*60*1000; }
 export function formatTopicLabel(raw){ if(!raw) return ''; const base = String(raw).replace(/\.[a-zA-Z0-9]{1,5}$/,''); const parts = base.trim().split(/\s+/); return parts.map(w=> w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' '); }
 
+// UI helpers
+export function showUpdateBannerIfReady(){
+  try{
+    const flag = localStorage.getItem('ezq.update.ready');
+    if(flag === '1'){
+      const banner = document.getElementById('updateBanner');
+      if(banner){ banner.classList.remove('hidden'); }
+    }
+  }catch{}
+}

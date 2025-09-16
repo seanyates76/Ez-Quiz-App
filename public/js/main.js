@@ -1,5 +1,5 @@
 import { S } from './state.js';
-import { $, byQSA } from './utils.js';
+import { $, byQSA, showUpdateBannerIfReady } from './utils.js';
 import { loadSettingsFromStorage, applyTheme, reflectSettingsIntoUI, wireSettingsPanel } from './settings.js';
 import { wireModals } from './modals.js';
 import { wireGenerator } from './generator.js';
@@ -98,12 +98,10 @@ function init(){
 
   // Update banner wiring
   (function initUpdateBanner(){
-    const banner = document.getElementById('updateBanner');
     const btn = document.getElementById('updateRefreshBtn');
-    function showIfReady(){ try{ const flag=localStorage.getItem('ezq.update.ready'); if(flag==='1' && banner){ banner.classList.remove('hidden'); } }catch{} }
     btn?.addEventListener('click', ()=>{ try{ localStorage.removeItem('ezq.update.ready'); }catch{} window.location.reload(true); });
     // Show on load if we happen to be idle
-    showIfReady();
+    showUpdateBannerIfReady();
   })();
 
   setMode('idle');

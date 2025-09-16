@@ -1,5 +1,5 @@
 import { S } from './state.js';
-import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel, mmSsToMs } from './utils.js';
+import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel, mmSsToMs, showUpdateBannerIfReady } from './utils.js';
 
 // Elements helper
 const el = (id) => $(id);
@@ -16,11 +16,7 @@ export function setMode(mode){
   }else{
     generatorCard?.classList.remove('is-hidden'); quizView?.classList.add('is-hidden'); resultsView?.classList.add('is-hidden'); document.body.classList.remove('is-quiz');
     // If an update is ready, show banner when returning to main menu
-    try{
-      const flag = localStorage.getItem('ezq.update.ready');
-      const banner = document.getElementById('updateBanner');
-      if(flag==='1' && banner){ banner.classList.remove('hidden'); }
-    }catch{}
+    showUpdateBannerIfReady();
   }
 }
 
