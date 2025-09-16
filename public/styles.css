@@ -70,9 +70,9 @@ body{
 body[data-theme="light"] .brand-logo{
   transform-origin:left top;
   transform: translate(
-    calc(var(--header-h, 64px) * -0.10),
-    calc(var(--header-h, 64px) * 0.10)
-  ) scale(1.25);
+    calc(var(--header-h, 64px) * -0.17),
+    calc(var(--header-h, 64px) * 0.05)
+  ) scale(1.20);
 }
 .header-actions{display:flex; gap:10px}
 .icon-btn{
