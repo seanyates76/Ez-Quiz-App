@@ -384,6 +384,17 @@ function updateRetakeUI(){
   }
   const toggle = ()=>{
     const isHidden = menu.classList.contains('hidden');
+    if(isHidden){
+      // Decide drop direction based on available space
+      try{
+        const ctrl = document.getElementById('retakeControl');
+        const rect = ctrl ? ctrl.getBoundingClientRect() : caret.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom - 8;
+        const approxMenuH = 160; // conservative estimate
+        if(spaceBelow < approxMenuH){ menu.classList.add('drop-up'); }
+        else { menu.classList.remove('drop-up'); }
+      }catch{}
+    }
     menu.classList.toggle('hidden', !isHidden);
     caret.setAttribute('aria-expanded', String(isHidden));
     if(isHidden){

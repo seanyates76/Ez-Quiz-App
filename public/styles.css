@@ -314,6 +314,7 @@ body[data-theme="dark"] .site-header .brand-link{
   border-radius:.75rem; padding:.25rem; z-index:1000;
   box-shadow:0 8px 24px rgba(0,0,0,.28);
 }
+.retake-menu.drop-up{ top:auto; bottom: calc(100% + .5rem); }
 .retake-menu.hidden{ display:none }
 .retake-menu-item{
   width:100%; text-align:left; border:0; background:transparent;
@@ -588,6 +589,8 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
     margin-left:0; margin-right:0; padding-left:16px; padding-right:16px;
     border-top:1px solid var(--border);
   }
+  /* Give Results extra breathing room so dropdowns aren't clipped near bottom */
+  #resultsView{ padding-bottom: 96px; }
 }
 /* Minimal helpers for action row and ghost buttons */
 .btn-primary{ background:#007bff; color:#fff; border:none }
