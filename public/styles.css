@@ -511,14 +511,15 @@ footer.container{
   margin-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
 }
 @media (max-width:600px){
+  :root{ --fab-offset-mobile: 112px; }
   /* Sticky actions at bottom on results screen */
   #resultsView .results-actions{position:sticky; bottom:0; background:var(--panel); padding-top:10px; margin-left:-16px; margin-right:-16px; padding-left:16px; padding-right:16px; border-top:1px solid var(--border)}
-  /* Restore footer spacing to default; do not add extra margin on mobile */
-  footer.container{ padding-bottom: 12px; margin-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+  /* Ensure footer remains visible above FABs and gesture area */
+  footer.container{ padding-bottom: 12px; margin-bottom: calc(var(--fab-offset-mobile, 112px) + 24px + env(safe-area-inset-bottom, 0px)); }
   /* Move floating buttons just above the footer on small screens */
-  .fab-stack{ bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+  .fab-stack{ bottom: calc(var(--fab-offset-mobile, 112px) + env(safe-area-inset-bottom, 0px)); }
   /* Keep feedback panel comfortably above the raised FABs and footer */
-  .fab-panel{ bottom: calc(88px + 4.5rem + env(safe-area-inset-bottom, 0px)); }
+  .fab-panel{ bottom: calc(var(--fab-offset-mobile, 112px) + 4.5rem + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* Veil loader */
