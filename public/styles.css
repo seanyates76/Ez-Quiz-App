@@ -297,10 +297,23 @@ body[data-theme="dark"] .site-header .brand-link{
 
 /* Pills (retake scope) */
 /* Retake control: single bubble with pipe separator */
-.retake-control{ display:inline-flex; align-items:center; gap:.25rem }
+.retake-control{ position:relative; display:inline-flex; align-items:center; gap:.25rem }
 .retake-primary{ display:inline-flex; align-items:center }
 .retake-caret{ padding:8px 10px }
 .retake-sep{ opacity:.6; user-select:none }
+.retake-menu{
+  position:absolute; right:0; top:100%; margin-top:.5rem; min-width:10rem;
+  border:1px solid var(--border); background:var(--panel);
+  border-radius:.75rem; padding:.25rem; z-index:30;
+  box-shadow:0 8px 24px rgba(0,0,0,.28);
+}
+.retake-menu.hidden{ display:none }
+.retake-menu-item{
+  width:100%; text-align:left; border:0; background:transparent;
+  color:var(--text);
+  padding:.5rem .75rem; border-radius:.5rem; cursor:pointer;
+}
+.retake-menu-item:hover,.retake-menu-item:focus{ background:var(--field-hover); outline:none }
 
 /* Brand (EZ orange/yellow) button variant */
 .btn.brand{ background:var(--brand); border-color:transparent; color:#111 }

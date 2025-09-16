@@ -271,7 +271,9 @@ function updateRetakeUI(){
   const primary = document.getElementById('retakePrimary');
   const caret = document.getElementById('retakeCaret');
   const label = document.getElementById('retakeLabel');
-  if(!root || !primary || !caret || !label) return;
+  const menu = document.getElementById('retakeMenu');
+  const switchBtn = document.getElementById('retakeSwitch');
+  if(!root || !primary || !caret || !label || !menu || !switchBtn) return;
 
   // Bind scope to results filter if present (source of truth for default)
   try{
@@ -286,6 +288,7 @@ function updateRetakeUI(){
   const opp = scope === 'all' ? 'missed' : 'all';
   const caretAria = opp==='all' ? 'Retake All (opposite)' : 'Retake Missed (opposite)';
   caret.setAttribute('aria-label', caretAria);
+  switchBtn.textContent = opp==='all' ? 'Retake All' : 'Retake Missed';
 
   // Disabled state for primary
   let disable = false, title='';
@@ -304,16 +307,29 @@ function updateRetakeUI(){
     primary.__rtBound = true;
   }
   if(!caret.__rtBound){
-    const triggerOpp = ()=>{
-      const totalNow = Array.isArray(S.quiz?.questions) ? S.quiz.questions.length : 0;
-      if(totalNow===0) return;
+    const toggle = ()=>{ const isHidden = menu.classList.contains('hidden'); menu.classList.toggle('hidden', !isHidden); caret.setAttribute('aria-expanded', String(isHidden)); if(isHidden){ switchBtn.focus(); } };
+    caret.addEventListener('click', toggle);
+    caret.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(); }});
+    caret.__rtBound = true;
+  }
+  if(!switchBtn.__rtBound){
+    const runOpp = ()=>{
       const curr = (getRTGlobal().retakeScope === 'all') ? 'all' : 'missed';
       const opposite = curr === 'all' ? 'missed' : 'all';
+      if(total===0) return; // both disabled state
+      menu.classList.add('hidden'); caret.setAttribute('aria-expanded','false');
       runRetake(opposite);
     };
-    caret.addEventListener('click', triggerOpp);
-    caret.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); triggerOpp(); }});
-    caret.__rtBound = true;
+    switchBtn.addEventListener('click', runOpp);
+    switchBtn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); runOpp(); }});
+    switchBtn.__rtBound = true;
+  }
+
+  // Dismiss on outside click / Esc
+  if(!root.__rtDismissBound){
+    document.addEventListener('click', (e)=>{ if(!menu.classList.contains('hidden')){ if(!root.contains(e.target)){ menu.classList.add('hidden'); caret.setAttribute('aria-expanded','false'); } } });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ if(!menu.classList.contains('hidden')){ menu.classList.add('hidden'); caret.setAttribute('aria-expanded','false'); } }});
+    root.__rtDismissBound = true;
   }
 }
 
