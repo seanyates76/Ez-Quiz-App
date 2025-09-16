@@ -62,7 +62,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const optCountdownMode = $('optCountdownMode');
   const optTimerDuration = $('optTimerDuration');
   const optThemeRadios = byQSA('input[name="optTheme"]');
-  const optSaveDefault = $('optSaveDefault');
+  const saveDefaultsBtn = $('saveDefaultsBtn');
   const resetDefaultsBtn = $('resetDefaultsBtn');
   // Types checkboxes
   const qtMC = $('qtMC');
@@ -214,10 +214,9 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   optCountdownMode?.addEventListener('change', ()=>{ S.settings.countdown=!!optCountdownMode.checked; saveSettingsToStorage(); });
   optTimerDuration?.addEventListener('input', ()=>{ S.settings.durationMs = mmSsToMs(optTimerDuration.value||''); saveSettingsToStorage(); });
   optThemeRadios.forEach(r=> r.addEventListener('change', ()=>{ if(r.checked){ applyTheme(r.value); }}));
-  optSaveDefault?.addEventListener('change', ()=>{
-    // Treat as action: save current generation defaults
+  saveDefaultsBtn?.addEventListener('click', ()=>{
+    // Save current generation defaults (Count/Difficulty/Types)
     saveDefaults(getCurrentGenDefaults());
-    // optional: leave checked state alone
     saveSettingsToStorage();
   });
   resetDefaultsBtn?.addEventListener('click', ()=>{ clearDefaults(); applyDefaultsToUI(); });
