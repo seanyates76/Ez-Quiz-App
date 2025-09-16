@@ -64,6 +64,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const optThemeRadios = byQSA('input[name="optTheme"]');
   const saveDefaultsBtn = $('saveDefaultsBtn');
   const resetDefaultsBtn = $('resetDefaultsBtn');
+  const defaultsStatus = $('defaultsStatus');
   // Types checkboxes
   const qtMC = $('qtMC');
   const qtTF = $('qtTF');
@@ -218,8 +219,10 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     // Save current generation defaults (Count/Difficulty/Types)
     saveDefaults(getCurrentGenDefaults());
     saveSettingsToStorage();
+    if(defaultsStatus){ defaultsStatus.textContent = 'Defaults saved.'; }
   });
   resetDefaultsBtn?.addEventListener('click', ()=>{ clearDefaults(); applyDefaultsToUI(); });
+  resetDefaultsBtn?.addEventListener('click', ()=>{ if(defaultsStatus){ defaultsStatus.textContent = 'Defaults cleared.'; } });
 
   // Start button in Advanced
   startBtn2?.addEventListener('click', ()=>{ if(S.quiz?.questions?.length){ syncSettingsFromUI(); beginQuiz(); } });

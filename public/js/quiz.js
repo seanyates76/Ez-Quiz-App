@@ -178,10 +178,6 @@ export function renderResults(){
   const chip=el('resultsChip'); const filterMissed=el('filterMissed'); const filterAll=el('filterAll');
   const total=S.quiz.questions.length; const duration = S.quiz.finishedAt && S.quiz.startedAt ? (S.quiz.finishedAt - S.quiz.startedAt - 0) : 0;
   const showTime = !!(S.settings && S.settings.timerEnabled);
-  const chipText = showTime
-    ? `${S.quiz.score}/${total} • ${formatDuration(Math.max(0,duration))}`
-    : `${S.quiz.score}/${total}`;
-  if(chip) chip.textContent = chipText;
   // Legacy score/time block removed in favor of compact summary chip in header
   if(resultsSummary) resultsSummary.innerHTML = '';
   // Build results relative to the original question set, even after a retake
@@ -202,8 +198,18 @@ export function renderResults(){
       if(Number.isInteger(origIdx) && origIdx>=0 && origIdx<baseQs.length){ answersFull[origIdx] = S.quiz.answers[i]; }
     }
   }
-  const items=[]; for(let i=0;i<baseQs.length;i++){ const q=baseQs[i], a=answersFull[i]; const correctView=viewCorrect(q), userView=viewUser(q,a); const isCorrect=compareQA(q,a); items.push({ idx:i+1, text:q.text, userView, correctView, isCorrect }); }
-  // Determine filter state from buttons (default Missed)
+  let correctCountFull = 0;
+  const items=[]; for(let i=0;i<baseQs.length;i++){ const q=baseQs[i], a=answersFull[i]; const correctView=viewCorrect(q), userView=viewUser(q,a); const isCorrect=compareQA(q,a); if(isCorrect) correctCountFull++; items.push({ idx:i+1, text:q.text, userView, correctView, isCorrect }); }
+  // Apply desired filter preference if set (e.g., from retake action)
+  try{
+    if(S.ui && S.ui.nextResultsFilter){
+      const wantAll = S.ui.nextResultsFilter === 'all';
+      if(filterMissed){ filterMissed.classList.toggle('active', !wantAll); filterMissed.setAttribute('aria-pressed', String(!wantAll)); }
+      if(filterAll){ filterAll.classList.toggle('active', wantAll); filterAll.setAttribute('aria-pressed', String(wantAll)); }
+      S.ui.nextResultsFilter = '';
+    }
+  }catch{}
+  // Determine filter state from buttons (default comes from HTML)
   const isAll = !!(filterAll && filterAll.classList.contains('active'));
   const showMissedOnly = !isAll;
   let view = showMissedOnly ? items.filter(it=>!it.isCorrect) : items.slice();
@@ -226,6 +232,11 @@ export function renderResults(){
   }).join('');
   // Sync retake controls UI when results are shown/updated
   try{ updateRetakeUI(); }catch{}
+  // Update chip after we know full correctness
+  const chipText = showTime
+    ? `${correctCountFull}/${baseQs.length} • ${formatDuration(Math.max(0,duration))}`
+    : `${correctCountFull}/${baseQs.length}`;
+  if(chip) chip.textContent = chipText;
 }
 
 function buildUserAnswerDetail(q,a){
@@ -306,11 +317,13 @@ function runRetake(scope){
     S.quiz.questions = idxs.map(i => S.quiz.questions[i]);
     const priorMap = Array.isArray(S.quiz.indexMap) ? S.quiz.indexMap : S.quiz.questions.map((_,i)=>i);
     S.quiz.indexMap = idxs.map(i => priorMap[i]);
+    try{ S.ui.nextResultsFilter = 'missed'; }catch{}
   } else {
     if (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) {
       S.quiz.questions = S.quiz.originalQuestions.slice();
       S.quiz.indexMap = S.quiz.originalQuestions.map((_, i) => i);
     }
+    try{ S.ui.nextResultsFilter = 'all'; }catch{}
   }
   S.quiz.answers = new Array(S.quiz.questions.length).fill(null);
   beginQuiz();
@@ -362,7 +375,24 @@ function updateRetakeUI(){
       const curr = (getRTGlobal().retakeScope === RETAKE_ALL) ? RETAKE_ALL : RETAKE_MISSED;
       runRetake(curr);
   });
-  const toggle = ()=>{ const isHidden = menu.classList.contains('hidden'); menu.classList.toggle('hidden', !isHidden); caret.setAttribute('aria-expanded', String(isHidden)); if(isHidden){ switchBtn.focus(); } };
+  function trapMenuFocus(e){
+    if(e.key !== 'Tab') return;
+    const focusables = [switchBtn];
+    const first = focusables[0], last = focusables[focusables.length-1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
+  const toggle = ()=>{
+    const isHidden = menu.classList.contains('hidden');
+    menu.classList.toggle('hidden', !isHidden);
+    caret.setAttribute('aria-expanded', String(isHidden));
+    if(isHidden){
+      switchBtn.focus();
+      document.addEventListener('keydown', trapMenuFocus, true);
+    } else {
+      document.removeEventListener('keydown', trapMenuFocus, true);
+    }
+  };
   bindOnce(caret, 'click', toggle, '__rtCaret');
   bindOnce(caret, 'keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(); }}, '__rtCaretKey');
   bindOnce(switchBtn, 'click', (e)=>{
@@ -373,6 +403,7 @@ function updateRetakeUI(){
       const opposite = curr === RETAKE_ALL ? RETAKE_MISSED : RETAKE_ALL;
       // Close menu first for immediate visual feedback
       menu.classList.add('hidden'); caret.setAttribute('aria-expanded','false');
+      document.removeEventListener('keydown', trapMenuFocus, true);
       // Set scope to opposite for consistency and run
       getRTGlobal().retakeScope = opposite;
       runRetake(opposite);
