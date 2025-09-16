@@ -66,6 +66,14 @@ body{
 .brand-link{display:inline-flex; align-items:center; text-decoration:none}
 .brand-logo{height:44px; width:auto; display:block}
 @media (min-width:900px){ .brand-logo{ height:48px } }
+/* Light theme brand: enlarge and nudge (to compensate for asset crop) */
+body[data-theme="light"] .brand-logo{
+  transform-origin:left top;
+  transform: translate(
+    calc(var(--header-h, 64px) * -0.10),
+    calc(var(--header-h, 64px) * 0.10)
+  ) scale(1.25);
+}
 .header-actions{display:flex; gap:10px}
 .icon-btn{
   appearance:none; border:1px solid var(--border); background:var(--panel-2);
