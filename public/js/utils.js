@@ -22,3 +22,12 @@ export function showUpdateBannerIfReady(){
     }
   }catch{}
 }
+
+// Event helper: bind once per element/property name
+export function bindOnce(el, type, handler, flagName){
+  if(!el) return;
+  const key = flagName || (`__bound_${type}`);
+  if(el[key]) return;
+  el.addEventListener(type, handler);
+  el[key] = true;
+}

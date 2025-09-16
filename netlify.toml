@@ -12,7 +12,7 @@ for = "/*"
   [headers.values]
   X-Content-Type-Options = "nosniff"
   Referrer-Policy = "strict-origin-when-cross-origin"
-  Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+  Permissions-Policy = "geolocation=(), microphone=(), camera=(), browsing-topics=()"
   Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
   # Allow the Buy Me a Coffee widget script (cdnjs) and its iframe (www.buymeacoffee.com).
   # Some widgets may make XHR/fetch calls back to buymeacoffee.com; include it in connect-src.

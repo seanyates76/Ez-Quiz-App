@@ -1,5 +1,5 @@
 import { S } from './state.js';
-import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel, mmSsToMs, showUpdateBannerIfReady } from './utils.js';
+import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel, mmSsToMs, showUpdateBannerIfReady, bindOnce } from './utils.js';
 
 // Elements helper
 const el = (id) => $(id);
@@ -299,22 +299,15 @@ function updateRetakeUI(){
   if(title) primary.setAttribute('title', title); else primary.removeAttribute('title');
 
   // Bind actions once (compute scope at click time to stay in sync)
-  if(!primary.__rtBound){
-    primary.addEventListener('click', ()=>{
+  bindOnce(primary, 'click', ()=>{
       if(primary.disabled) return;
       const curr = (getRTGlobal().retakeScope === 'all') ? 'all' : 'missed';
       runRetake(curr);
-    });
-    primary.__rtBound = true;
-  }
-  if(!caret.__rtBound){
-    const toggle = ()=>{ const isHidden = menu.classList.contains('hidden'); menu.classList.toggle('hidden', !isHidden); caret.setAttribute('aria-expanded', String(isHidden)); if(isHidden){ switchBtn.focus(); } };
-    caret.addEventListener('click', toggle);
-    caret.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(); }});
-    caret.__rtBound = true;
-  }
-  if(!switchBtn.__rtBound){
-    const runOpp = (e)=>{
+  });
+  const toggle = ()=>{ const isHidden = menu.classList.contains('hidden'); menu.classList.toggle('hidden', !isHidden); caret.setAttribute('aria-expanded', String(isHidden)); if(isHidden){ switchBtn.focus(); } };
+  bindOnce(caret, 'click', toggle, '__rtCaret');
+  bindOnce(caret, 'keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(); }}, '__rtCaretKey');
+  bindOnce(switchBtn, 'click', (e)=>{
       if(e) e.preventDefault();
       const totalNow = Array.isArray(S.quiz?.questions) ? S.quiz.questions.length : 0;
       if(totalNow===0) return; // both disabled state
@@ -325,11 +318,8 @@ function updateRetakeUI(){
       // Set scope to opposite for consistency and run
       getRTGlobal().retakeScope = opposite;
       runRetake(opposite);
-    };
-    switchBtn.addEventListener('click', runOpp);
-    switchBtn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); runOpp(e); }});
-    switchBtn.__rtBound = true;
-  }
+  }, '__rtSwitch');
+  bindOnce(switchBtn, 'keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); const click = new Event('click', { bubbles:true }); switchBtn.dispatchEvent(click); }}, '__rtSwitchKey');
 
   // Dismiss on outside click / Esc
   if(!root.__rtDismissBound){
