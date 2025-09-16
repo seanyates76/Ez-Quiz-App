@@ -295,6 +295,7 @@ function updateRetakeUI(){
   if (total === 0){ disable = true; title = 'Nothing to retake'; }
   else if (scope === 'missed' && missed === 0){ disable = true; title = 'No missed questions'; }
   primary.disabled = !!disable;
+  root.classList.toggle('is-disabled', !!disable);
   if(title) primary.setAttribute('title', title); else primary.removeAttribute('title');
 
   // Bind actions once (compute scope at click time to stay in sync)

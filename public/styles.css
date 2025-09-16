@@ -297,10 +297,17 @@ body[data-theme="dark"] .site-header .brand-link{
 
 /* Pills (retake scope) */
 /* Retake control: single bubble with pipe separator */
-.retake-control{ position:relative; display:inline-flex; align-items:center; gap:.25rem }
-.retake-primary{ display:inline-flex; align-items:center }
-.retake-caret{ padding:8px 10px }
-.retake-sep{ opacity:.6; user-select:none }
+.retake-control{
+  position:relative; display:inline-flex; align-items:center; gap:.25rem;
+  background:var(--brand); color:#111; border:1px solid transparent; border-radius:9999px;
+  padding:4px 6px; box-shadow:0 6px 18px rgba(0,0,0,.18);
+}
+.retake-control.is-disabled{ opacity:.7 }
+.retake-primary{ display:inline-flex; align-items:center; background:transparent; border:0; color:inherit; padding:6px 10px; border-radius:9999px; cursor:pointer; }
+.retake-caret{ background:transparent; border:0; color:inherit; padding:6px 8px; border-radius:9999px; cursor:pointer; }
+.retake-primary:focus-visible,.retake-caret:focus-visible{ outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow) }
+.retake-primary[disabled]{ cursor:not-allowed }
+.retake-sep{ opacity:.55; user-select:none }
 .retake-menu{
   position:absolute; right:0; top:100%; margin-top:.5rem; min-width:10rem;
   border:1px solid var(--border); background:var(--panel);
@@ -316,6 +323,7 @@ body[data-theme="dark"] .site-header .brand-link{
 .retake-menu-item:hover,.retake-menu-item:focus{ background:var(--field-hover); outline:none }
 
 /* Brand (EZ orange/yellow) button variant */
+/* Brand (EZ orange/yellow) button variant for general use; inside retake-control we already style container */
 .btn.brand{ background:var(--brand); border-color:transparent; color:#111 }
 .btn.brand:hover{ filter:brightness(1.02) }
 .btn.brand:active{ background:var(--brand-press) }
