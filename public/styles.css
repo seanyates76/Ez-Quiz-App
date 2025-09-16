@@ -521,9 +521,6 @@ footer.container{
 }
 @media (max-width:600px){
   :root{ --fab-offset-mobile: 112px; }
-  /* Sticky actions at bottom on results screen */
-  #resultsView .results-actions{position:sticky; bottom:0; background:var(--panel); padding-top:10px; margin-left:-16px; margin-right:-16px; padding-left:16px; padding-right:16px; border-top:1px solid var(--border)}
-  /* Footer spacing is handled globally via --fab-reserve */
 }
 
 /* Veil loader */
