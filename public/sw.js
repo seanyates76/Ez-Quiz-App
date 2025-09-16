@@ -8,7 +8,7 @@
  * page for navigation requests when offline.
  */
 
-const CACHE_NAME = 'ezquiz-cache-v69';
+const CACHE_NAME = 'ezquiz-cache-v70';
 const RELATIVE_URLS = [
   'index.html',
   'styles.css',
@@ -24,9 +24,9 @@ const RELATIVE_URLS = [
   'js/generator.js',
   'js/quiz.js',
   // Versioned assets to avoid stale caches on first offline load
-  'styles.css?v=1.2.1',
-  'js/main.js?v=1.2.1',
-  'js/auto-refresh.js?v=1.2.1',
+  'styles.css?v=1.2.2',
+  'js/main.js?v=1.2.2',
+  'js/auto-refresh.js?v=1.2.2',
   'manifest.webmanifest',
   'sw.js',
   'icons/icon-192.png',

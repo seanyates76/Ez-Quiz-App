@@ -318,15 +318,20 @@ function updateRetakeUI(){
     caret.__rtBound = true;
   }
   if(!switchBtn.__rtBound){
-    const runOpp = ()=>{
+    const runOpp = (e)=>{
+      if(e) e.preventDefault();
+      const totalNow = Array.isArray(S.quiz?.questions) ? S.quiz.questions.length : 0;
+      if(totalNow===0) return; // both disabled state
       const curr = (getRTGlobal().retakeScope === 'all') ? 'all' : 'missed';
       const opposite = curr === 'all' ? 'missed' : 'all';
-      if(total===0) return; // both disabled state
+      // Close menu first for immediate visual feedback
       menu.classList.add('hidden'); caret.setAttribute('aria-expanded','false');
+      // Set scope to opposite for consistency and run
+      getRTGlobal().retakeScope = opposite;
       runRetake(opposite);
     };
     switchBtn.addEventListener('click', runOpp);
-    switchBtn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); runOpp(); }});
+    switchBtn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); runOpp(e); }});
     switchBtn.__rtBound = true;
   }
 
