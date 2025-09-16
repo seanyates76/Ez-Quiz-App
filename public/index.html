@@ -6,7 +6,7 @@
   <title>EZ Quiz</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.3.0" />
+  <link rel="stylesheet" href="styles.css?v=1.3.1" />
 </head>
 <body data-theme="dark">
   <header class="site-header" role="banner">
@@ -363,8 +363,10 @@
 
         <fieldset class="fieldgroup">
           <legend>Quiz Behavior</legend>
-          <label><input type="checkbox" id="autoStart" /> Auto‑start after generate</label>
-          <label><input type="checkbox" id="requireAnswer" /> Require answer to advance</label>
+          <label class="opt-switch"><input type="checkbox" id="autoStart" /> <span>Auto‑start quiz after generation</span></label>
+          <div class="muted small">Start automatically when new questions are ready.</div>
+          <label class="opt-switch"><input type="checkbox" id="requireAnswer" /> <span>Require answer before moving forward</span></label>
+          <div class="muted small">Next is disabled until you choose an answer.</div>
         </fieldset>
 
         <fieldset class="fieldgroup">
@@ -394,8 +396,8 @@
 
   
 
-  <script type="module" src="js/main.js?v=1.3.0"></script>
-  <script type="module" src="js/auto-refresh.js?v=1.3.0"></script>
+  <script type="module" src="js/main.js?v=1.3.1"></script>
+  <script type="module" src="js/auto-refresh.js?v=1.3.1"></script>
 
   <!-- Floating actions: Feedback + Coffee -->
   <div id="floatingActions" class="fab-stack" aria-label="Quick actions">
