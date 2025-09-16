@@ -21,6 +21,9 @@
   --field-border:#33405a;
   --field-hover:#121a27;
   --focus-shadow:0 0 0 3px rgba(126, 163, 255, .35);
+  /* Header/brand tuning */
+  --brand-scale: 1.15;         /* requested ~15% larger */
+  --brand-shift: 0.15;         /* shift down 15% of header height */
 }
 
 body[data-theme="light"]{
@@ -64,7 +67,12 @@ body{
   position:sticky; top:0; z-index:50;
 }
 .brand-link{display:inline-flex; align-items:center; text-decoration:none}
-.brand-logo{height:44px; width:auto; display:block}
+.brand-logo{
+  height:44px; width:auto; display:block;
+  transform-origin: left top;
+  transform: translateY(calc(var(--header-h, 64px) * var(--brand-shift))) scale(var(--brand-scale));
+  will-change: transform;
+}
 @media (min-width:900px){ .brand-logo{ height:48px } }
 .header-actions{display:flex; gap:10px}
 .icon-btn{

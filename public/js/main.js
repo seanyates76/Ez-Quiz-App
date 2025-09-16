@@ -18,6 +18,19 @@ function getEls(){
 }
 
 function init(){
+  // Measure header height to support brand transform positioning
+  (function headerMetrics(){
+    function updateHeaderVars(){
+      try{
+        const header = document.querySelector('.site-header');
+        const h = header ? header.offsetHeight : 0;
+        if(h){ document.documentElement.style.setProperty('--header-h', h + 'px'); }
+      }catch{}
+    }
+    updateHeaderVars();
+    window.addEventListener('resize', updateHeaderVars);
+  })();
+
   loadSettingsFromStorage();
   applyTheme(S.settings.theme);
   const els = getEls();
