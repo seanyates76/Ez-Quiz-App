@@ -3,7 +3,12 @@ import { msToMmSs, mmSsToMs } from './utils.js';
 
 // Cookie helpers for persistent flags (1 year)
 const COOKIE_ALWAYSSHOWADV = 'ezq.alwaysShowAdvanced';
-function setCookie(name, value){ try{ document.cookie = `${name}=${encodeURIComponent(String(value))}; Max-Age=31536000; Path=/; SameSite=Lax`; }catch{} }
+function setCookie(name, value){
+  try{
+    // Use Secure + SameSite=Lax for Brave/modern privacy defaults
+    document.cookie = `${name}=${encodeURIComponent(String(value))}; Max-Age=31536000; Path=/; SameSite=Lax; Secure`;
+  }catch{}
+}
 function getCookie(name){ try{ return document.cookie.split(';').map(s=>s.trim()).filter(Boolean).map(s=>s.split('='))
   .reduce((acc,[k,v])=>{ acc[decodeURIComponent(k)] = decodeURIComponent(v||''); return acc; }, {})[name] || ''; }catch{ return ''; } }
 
