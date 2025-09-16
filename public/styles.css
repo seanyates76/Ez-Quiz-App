@@ -582,7 +582,12 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 #quizView #questionHost + .row{margin-top:12px}
 #quizView .quiz-nav-row{margin-top:12px}
 @media (max-width:600px){
-  #quizView .quiz-nav-row{position:sticky; bottom:0; background:var(--panel); padding-top:10px; margin-left:-16px; margin-right:-16px; padding-left:16px; padding-right:16px; border-top:1px solid var(--border)}
+  #quizView .quiz-nav-row{
+    position:sticky; bottom:0; background:var(--panel);
+    padding-top:10px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    margin-left:0; margin-right:0; padding-left:16px; padding-right:16px;
+    border-top:1px solid var(--border);
+  }
 }
 /* Minimal helpers for action row and ghost buttons */
 .btn-primary{ background:#007bff; color:#fff; border:none }

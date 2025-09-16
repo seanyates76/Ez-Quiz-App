@@ -28,10 +28,23 @@ function init(){
   wireQuizControls();
   wireResultsControls();
 
-  // Register service worker (CSP-safe)
+  // Register service worker with gentle update signaling
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+      navigator.serviceWorker.register('sw.js').then((reg) => {
+        try { reg.update(); } catch {}
+        // If there's a waiting worker, ask it to activate
+        if (reg.waiting) { try { reg.waiting.postMessage('SKIP_WAITING'); } catch {} }
+        reg.addEventListener('updatefound', () => {
+          const sw = reg.installing;
+          if (!sw) return;
+          sw.addEventListener('statechange', () => {
+            if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+              try { localStorage.setItem('ezq.update.ready', '1'); } catch {}
+            }
+          });
+        });
+      }).catch(() => {});
     });
   }
 
