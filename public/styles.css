@@ -515,6 +515,8 @@ footer.container{
   padding-bottom:12px;
   /* Reserve space so floating buttons never cover the footer */
   margin-bottom: calc(var(--fab-reserve, 112px) + env(safe-area-inset-bottom, 0px));
+  /* Avoid FAB overlap on the right on narrow screens */
+  padding-right: var(--fab-right-pad, 0px);
 }
 @media (max-width:600px){
   :root{ --fab-offset-mobile: 112px; }

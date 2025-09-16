@@ -60,6 +60,10 @@ function init(){
         if(panelEl && !panelEl.classList.contains('hidden')){ reserve = Math.max(reserve, panelEl.offsetHeight + 24); }
         reserve = Math.max(96, reserve);
         root.style.setProperty('--fab-reserve', reserve + 'px');
+        // Horizontal padding so footer text doesn't sit under FABs
+        let rightPad = 0;
+        if(fab){ rightPad = Math.max(rightPad, fab.getBoundingClientRect().width + 16); }
+        root.style.setProperty('--fab-right-pad', Math.round(rightPad) + 'px');
       }catch{}
     }
 
