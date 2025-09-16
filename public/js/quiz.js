@@ -220,8 +220,11 @@ export function renderResults(){
     return;
   }
   missedList.innerHTML = view.map(item => {
-    const q = S.quiz.questions[item.idx-1];
-    const a = S.quiz.answers[item.idx-1];
+    const q = baseQs[item.idx-1];
+    const a = answersFull[item.idx-1];
+    if(q && q.type==='MT'){
+      return renderMTResult(item.idx, q, a);
+    }
     const userDetail = buildUserAnswerDetail(q,a);
     const correctDetail = buildCorrectAnswerDetail(q);
     return `<div class="missed-item ${item.isCorrect ? 'is-correct' : 'is-wrong'}">`
@@ -302,6 +305,32 @@ function buildCorrectAnswerDetail(q){
     }).join(', ');
   }
   return '';
+}
+
+function renderMTResult(idx, q, a){
+  // Build map of correct right indexes by left index
+  const correctMap = new Array(q.left.length).fill(-1);
+  (Array.isArray(q.pairs)?q.pairs:[]).forEach(([li,ri])=>{ correctMap[li]=ri; });
+  const userArr = Array.isArray(a)?a:[]; // array of ri by li, or -1
+  const toLetter = (ri)=> ri>=0 ? String.fromCharCode(65+ri) : '?';
+  const rightText = (ri)=> (ri>=0 && q.right && q.right[ri]) ? q.right[ri] : '';
+  const rows = q.left.map((lt, li)=>{
+    const u = (userArr[li] != null ? userArr[li] : -1);
+    const c = (correctMap[li] != null ? correctMap[li] : -1);
+    const ok = (u>=0 && u===c);
+    const your = u>=0 ? `${toLetter(u)} — <span class="ans-text">${escapeHTML(rightText(u))}</span>` : `? — <span class="ans-text">No selection</span>`;
+    const corr = c>=0 ? `${toLetter(c)} — <span class="ans-text">${escapeHTML(rightText(c))}</span>` : '';
+    return `
+      <div class="mt-row ${ok?'is-correct':'is-wrong'}">
+        <div class="mt-left"><span class="chip num">${li+1}</span> ${escapeHTML(lt)}</div>
+        <div class="mt-your"><span class="lbl">Your match</span> <span class="chip letter ${ok?'good':'bad'}">${toLetter(u)}</span> ${your}</div>
+        <div class="mt-correct"><span class="lbl">Correct match</span> <span class="chip letter">${toLetter(c)}</span> ${corr}</div>
+      </div>`;
+  }).join('');
+  return `<div class="missed-item ${Array.isArray(a)&&a.length&&a.every((ri,li)=>ri===correctMap[li])?'is-correct':'is-wrong'}">
+    <div><strong>Q${idx}.</strong> ${escapeHTML(q.text)}</div>
+    <div class="mt-result">${rows}</div>
+  </div>`;
 }
 
 // Determine missed indexes from last completed attempt (incorrect or unanswered)
