@@ -260,8 +260,8 @@ function getMissedIndexes(){ const idxs=[]; const qs=S.quiz.questions, ans=S.qui
 // Public retake runner wired to existing flow
 function runRetake(scope){
   const total = Array.isArray(S.quiz?.questions) ? S.quiz.questions.length : 0;
-  if (total === 0) { try{ const h=$('retakeHint'); if(h) h.textContent='Retake unavailable'; }catch{} return; }
-  if (scope === 'missed') {
+  if (total === 0) { return; }
+  if (scope === RETAKE_MISSED) {
     const idxs = getMissedIndexes();
     if (!idxs.length) { return; }
     S.quiz.questions = idxs.map(i => S.quiz.questions[i]);
