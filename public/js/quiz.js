@@ -157,7 +157,11 @@ export function renderResults(){
   const showMissedOnly = !isAll;
   let view = showMissedOnly ? items.filter(it=>!it.isCorrect) : items.slice();
   if(!showMissedOnly){ view.sort((a,b)=> Number(a.isCorrect) - Number(b.isCorrect)); }
-  if(!view.length){ missedList.innerHTML = `<div class="missed-item"><em>${showMissedOnly ? 'No missed questions 🎉' : 'No questions'}</em></div>`; return; }
+  if(!view.length){
+    missedList.innerHTML = `<div class="missed-item"><em>${showMissedOnly ? 'No missed questions 🎉' : 'No questions'}</em></div>`;
+    try{ updateRetakeUI(); }catch{}
+    return;
+  }
   missedList.innerHTML = view.map(item => {
     const q = S.quiz.questions[item.idx-1];
     const a = S.quiz.answers[item.idx-1];
