@@ -267,7 +267,6 @@ function getRTGlobal(){ const g = (window.__EZQ__ = window.__EZQ__ || {}); if(!g
 
 function updateRetakeUI(){
   const g = getRTGlobal();
-  const scope = g.retakeScope === 'all' ? 'all' : 'missed';
   const total = Array.isArray(S.quiz?.questions) ? S.quiz.questions.length : 0;
   const missed = getMissedIndexes().length;
 
@@ -288,6 +287,7 @@ function updateRetakeUI(){
   }catch{}
 
   // Label and caret aria
+  const scope = g.retakeScope === 'all' ? 'all' : 'missed';
   label.textContent = `Retake: ${scope==='all' ? 'All' : 'Missed'}`;
   const opp = scope === 'all' ? 'missed' : 'all';
   const caretAria = opp==='all' ? 'Retake All (opposite)' : 'Retake Missed (opposite)';

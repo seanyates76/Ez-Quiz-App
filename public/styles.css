@@ -311,7 +311,7 @@ body[data-theme="dark"] .site-header .brand-link{
 .retake-menu{
   position:absolute; right:0; top:100%; margin-top:.5rem; min-width:10rem;
   border:1px solid var(--border); background:var(--panel);
-  border-radius:.75rem; padding:.25rem; z-index:30;
+  border-radius:.75rem; padding:.25rem; z-index:1000;
   box-shadow:0 8px 24px rgba(0,0,0,.28);
 }
 .retake-menu.hidden{ display:none }
