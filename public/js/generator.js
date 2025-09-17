@@ -22,7 +22,7 @@ export function runParseFlow(sourceText, topicLabel, fullTitle){
   if (topicLabel) { S.quiz.topic = String(topicLabel).trim(); }
   if (fullTitle) { S.quiz.title = String(fullTitle).trim(); } else { S.quiz.title = S.quiz.title || ''; }
   S.mode = 'generated';
-  if(mirror) mirror.value = sourceText;
+  if(mirror) { mirror.value = sourceText; try{ const box=document.getElementById('mirrorBox'); const empty = !(sourceText||'').trim(); mirror.setAttribute('data-empty', empty?'true':'false'); if(box) box.setAttribute('data-empty', empty?'true':'false'); }catch{} }
   // Persist last quiz lines for quick restore
   try{ localStorage.setItem('ezq.last', String(sourceText||'')); }catch{}
 
@@ -126,7 +126,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     // In Generate mode, always regenerate fresh content: clear editor/mirror first
     if(mode==='generate'){
       if(editor) editor.value = '';
-      if(mirror) mirror.value = '';
+      if(mirror){ mirror.value = ''; try{ const box=document.getElementById('mirrorBox'); mirror.setAttribute('data-empty','true'); if(box) box.setAttribute('data-empty','true'); }catch{} }
     }
     const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
     const topic = topicRaw || 'General knowledge';
@@ -142,7 +142,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       const lines = out && out.lines || '';
       if(!lines){ statusBox && (statusBox.textContent = 'AI did not return any lines. Try again or use the Prompt Builder.'); generateBtn.disabled = false; hideVeil('Nothing yet…'); return; }
       if(editor) editor.value = lines;
-      if(mirror) mirror.value = lines; /* mirror stays hidden by default */
+      if(mirror){ mirror.value = lines; try{ const box=document.getElementById('mirrorBox'); const empty = !(lines||'').trim(); mirror.setAttribute('data-empty', empty?'true':'false'); if(box) box.setAttribute('data-empty', empty?'true':'false'); }catch{} } /* mirror stays hidden by default */
       // Auto-show Mirror when content exists so it’s visible on mobile too
       try{ setMirrorVisible(true); }catch{}
       const title = (out && out.title) ? out.title : '';

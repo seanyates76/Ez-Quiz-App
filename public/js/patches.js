@@ -27,7 +27,11 @@ function wireLockGuards(){
     const toolbar = document.querySelector('.gen-toolbar');
     if(!toolbar) return;
     const controls = toolbar.querySelectorAll('button, input, select');
-    controls.forEach(el=>{ if(el.id!=='optionsBtn'){ el.disabled = !!locked; } });
+    controls.forEach(el=>{
+      // Keep Generate usable even while a quiz is active
+      if(el.id==='generateBtn' || el.id==='optionsBtn') return;
+      el.disabled = !!locked;
+    });
   }
   const mo = new MutationObserver(apply); mo.observe(document.body, { attributes:true, attributeFilter:['data-locked'] });
   apply();
