@@ -6,7 +6,7 @@
   <title>EZ Quiz</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.4.7" />
+  <link rel="stylesheet" href="styles.css?v=1.4.9" />
 </head>
 <body data-theme="dark">
   <header class="site-header" role="banner">
@@ -64,6 +64,7 @@
             <span class="lbl">Theme</span>
             <label><input type="radio" name="optTheme" value="dark" /> Dark</label>
             <label><input type="radio" name="optTheme" value="light" /> Light</label>
+            <label><input type="radio" name="optTheme" value="system" /> System</label>
           </div>
           <div class="row gap wrap" style="margin-top:8px">
             <span class="lbl">Question Types</span>
@@ -351,12 +352,11 @@
         <section>
           <details class="help-accordion">
             <summary>Parser Reference</summary>
-            <div class="parser-ref-list">
-              <div class="ref-item"><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> <span class="hint">multiple: <code>A,C</code></span></div>
-              <div class="ref-item"><code>TF|Statement.|T</code> <span class="hint">or <code>F</code></span></div>
-              <div class="ref-item"><code>YN|Question?|Y</code> <span class="hint">or <code>N</code></span></div>
-              <div class="ref-item"><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></div>
-            </div>
+            <pre class="parser-block" aria-label="Example parser lines">MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A
+TF|Statement.|T
+YN|Question?|Y
+MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
+            <p class="muted small">Tip: For multiple answers, separate with commas (e.g., A,C).</p>
             <p>Use the exact delimiters shown: pipes <code>|</code>, semicolons <code>;</code>, and labels like <code>A)</code> or <code>1)</code>.</p>
           </details>
         </section>
@@ -402,6 +402,7 @@
           <legend>Appearance</legend>
           <label><input type="radio" name="theme" value="dark" checked /> Dark</label>
           <label><input type="radio" name="theme" value="light" /> Light</label>
+          <label><input type="radio" name="theme" value="system" /> System</label>
         </fieldset>
 
         <fieldset class="fieldgroup">

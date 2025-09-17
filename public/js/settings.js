@@ -26,7 +26,7 @@ export function saveSettingsToStorage(){
 }
 
 export function loadSettingsFromStorage(){
-  try{ const t=localStorage.getItem(STORAGE_KEYS.theme); if(t==='light'||t==='dark') S.settings.theme=t; }catch{}
+  try{ const t=localStorage.getItem(STORAGE_KEYS.theme); if(t==='light'||t==='dark'||t==='system') S.settings.theme=t; }catch{}
   try{ const raw=localStorage.getItem(STORAGE_KEYS.settings); if(raw){ const obj=JSON.parse(raw);
     S.settings.timerEnabled=!!obj.timerEnabled; S.settings.countdown=!!obj.countdown; S.settings.durationMs=Number(obj.durationMs||0);
     if(obj.autoStart!==undefined) S.settings.autoStart=!!obj.autoStart; S.settings.requireAnswer=!!obj.requireAnswer; } }catch{}
@@ -34,10 +34,20 @@ export function loadSettingsFromStorage(){
   try{ const adv = getCookie(COOKIE_ALWAYSSHOWADV); if(adv){ S.settings.alwaysShowAdvanced = adv === 'true'; } }catch{}
 }
 
+let _mql;
+function ensureMql(){
+  try{ if(!_mql && window.matchMedia){ _mql = window.matchMedia('(prefers-color-scheme: dark)'); } }catch{}
+  return _mql;
+}
+
 export function applyTheme(theme){
-  const t=(theme==='light'||theme==='dark')?theme:'dark';
+  const t=(theme==='light'||theme==='dark'||theme==='system')?theme:'dark';
   S.settings.theme=t;
-  document.body.setAttribute('data-theme', t);
+  let eff = t;
+  if(t==='system'){
+    const m=ensureMql(); eff = (m && m.matches) ? 'dark' : 'light';
+  }
+  document.body.setAttribute('data-theme', eff);
   // Swap brand logo asset based on theme, with simple, explicit mapping
   try{
     const img = document.querySelector('#brandTitle.brand-logo') || document.querySelector('.brand-logo');
@@ -54,6 +64,20 @@ export function applyTheme(theme){
       if(pick) img.setAttribute('src', withBust(pick));
     }
   }catch{}
+  // If following system, react to changes
+  try{
+    const m=ensureMql();
+    if(m){
+      if(t==='system'){
+        if(!applyTheme._bound){
+          m.addEventListener ? m.addEventListener('change', ()=>{ if(S.settings.theme==='system'){ applyTheme('system'); } })
+                             : m.addListener && m.addListener(()=>{ if(S.settings.theme==='system'){ applyTheme('system'); } });
+          applyTheme._bound = true;
+        }
+      }
+    }
+  }catch{}
+
   saveSettingsToStorage();
 }
 
