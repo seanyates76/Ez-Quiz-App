@@ -27,8 +27,14 @@ export function runParseFlow(sourceText, topicLabel, fullTitle){
   try{ localStorage.setItem('ezq.last', String(sourceText||'')); }catch{}
 
   const statusBox = $('status');
-  if(errors.length){ statusBox && (statusBox.textContent = `Parsed ${questions.length} question(s). ${errors.length} error(s). ${errors.slice(0,5).join(' | ')}`); }
-  else { statusBox && (statusBox.textContent = `Parsed ${questions.length} question(s).`); }
+  if(errors.length){
+    statusBox && (statusBox.textContent = `Parsed ${questions.length} question(s). ${errors.length} error(s). ${errors.slice(0,5).join(' | ')}`);
+    try{ const pe = document.getElementById('parseErrors'); if(pe){ pe.textContent = errors.join(' | '); pe.classList.remove('visually-hidden'); } }catch{}
+  }
+  else {
+    statusBox && (statusBox.textContent = `Parsed ${questions.length} question(s).`);
+    try{ const pe = document.getElementById('parseErrors'); if(pe){ pe.textContent = ''; pe.classList.add('visually-hidden'); } }catch{}
+  }
   if(startBtn) startBtn.disabled = questions.length === 0;
 }
 

@@ -40,19 +40,18 @@ export function applyTheme(theme){
   document.body.setAttribute('data-theme', t);
   // Swap brand logo asset based on theme, with simple, explicit mapping
   try{
-    const img = document.querySelector('.brand-logo');
+    const img = document.querySelector('#brandTitle.brand-logo') || document.querySelector('.brand-logo');
     if(img){
-      const darkPng = 'icons/brand-title-source.png'; // intended for dark theme (wide, transparent)
-      const lightPng = 'icons/brand-title-source-light.png'; // intended for light theme (square or light variant)
-      // Append a small cache-busting token so new assets show after deploy
+      const attrDark = img.getAttribute('data-dark');
+      const attrLight = img.getAttribute('data-light');
+      const darkPng = attrDark || 'icons/brand-title-source.png';
+      const lightPng = attrLight || 'icons/brand-title-source-light.png';
       const BUST = 'v=brand-20250911s';
-      const withBust = (url) => url.includes('?') ? url : `${url}?${BUST}`;
-
+      const withBust = (url) => url && (url.includes('?') ? url : `${url}?${BUST}`);
       const pick = t === 'light' ? lightPng : darkPng;
-      const fallback = darkPng; // in case light file is missing
-      // Set immediately; if it fails, fallback to the other.
-      img.onerror = () => { img.onerror = null; img.setAttribute('src', withBust(fallback)); };
-      img.setAttribute('src', withBust(pick));
+      const fallback = darkPng;
+      img.onerror = () => { img.onerror = null; if(fallback) img.setAttribute('src', withBust(fallback)); };
+      if(pick) img.setAttribute('src', withBust(pick));
     }
   }catch{}
   saveSettingsToStorage();
