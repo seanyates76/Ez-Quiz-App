@@ -227,6 +227,9 @@ body[data-theme="dark"] .site-header .brand-link{
 /* Make Advanced Editor action buttons equal width within their rows */
 .adv-actions .row:first-child .btn{ flex:1 1 0; min-width:0 }
 .advanced-actions .btn{ flex:1 1 0; min-width:0 }
+/* Normalize Advanced action button heights to match wrapped (two-line) labels */
+.adv-actions .btn, .advanced-actions .btn{ min-height: 54px }
+@media (max-width:600px){ .adv-actions .btn, .advanced-actions .btn{ min-height: 52px } }
 
 /* Keep boxes visually in sync */
 :root{ --adv-box-min: 260px; }
@@ -521,6 +524,11 @@ details.help-accordion > *:not(summary){ padding:8px 12px 12px; border-top:1px s
 .modal__body ul{ margin:0 0 0 1.1rem }
 .modal__body li{ margin:6px 0 }
 .modal__body a{ color:var(--primary); text-underline-offset:2px }
+
+/* Parser Reference accordion: no container chrome, plain content */
+details.help-accordion.parser-accordion{ border:0; background:transparent }
+details.help-accordion.parser-accordion > summary{ padding-left:0; padding-right:0 }
+details.help-accordion.parser-accordion > *:not(summary){ padding:0; border-top:0 }
 
 /* FAQ (Q/A, no bullets) */
 .faq-list{ margin:0; }

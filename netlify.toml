@@ -12,7 +12,8 @@ for = "/*"
   [headers.values]
   X-Content-Type-Options = "nosniff"
   Referrer-Policy = "strict-origin-when-cross-origin"
-  Permissions-Policy = "geolocation=(), microphone=(), camera=(), browsing-topics=()"
+  # Avoid unsupported features in some browsers; keep a minimal, widely recognized set
+  Permissions-Policy = "geolocation=(), microphone=(), camera=()"
   Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
   # Tighten CSP: only first-party resources are needed. The Support link is a plain href (no widget scripts/iframes).
   Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
