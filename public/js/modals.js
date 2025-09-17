@@ -1,4 +1,16 @@
-export function openModal(id){ const el=document.getElementById(id); if(!el) return; if(id==='settingsModal'){ /* settings are reflected by caller */ } el.classList.add('is-open'); el.setAttribute('aria-hidden','false'); const f=el.querySelector('button,[href],input,textarea,select,[tabindex]:not([tabindex="-1"])'); if(f) f.focus(); }
+export function openModal(id){
+  const el=document.getElementById(id); if(!el) return;
+  // Close any other open modal to "replace" the view
+  try{
+    const openEls = document.querySelectorAll('.modal.is-open');
+    openEls.forEach(m=>{ if(m && m!==el){ m.classList.remove('is-open'); m.setAttribute('aria-hidden','true'); } });
+  }catch{}
+  if(id==='settingsModal'){ /* settings are reflected by caller */ }
+  el.classList.add('is-open');
+  el.setAttribute('aria-hidden','false');
+  const f=el.querySelector('button,[href],input,textarea,select,[tabindex]:not([tabindex="-1"])');
+  if(f) f.focus();
+}
 export function closeModal(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('is-open'); el.setAttribute('aria-hidden','true'); }
 
 export function wireModals({ onPause, onResume }){
