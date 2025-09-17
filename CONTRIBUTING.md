@@ -17,6 +17,12 @@ Coding guidelines
 - Accessibility: preserve visible focus, ARIA labels/roles, keyboard navigation.
 - Security: do not inject user content with `innerHTML`.
 
+Interactive Editor (beta)
+- Feature flag: toggled via checkbox in Advanced; persist with localStorage only.
+- State: keep GUI state under `window.__EZQ__.ie` and keep it in sync with the raw Editor/Mirror.
+- Scope: MC/TF/YN only. MT may be added later.
+- A11y: form fields must be keyboard‑reachable; validation should not rely on color alone.
+
 Versioning & releases
 - Update the footer version in `public/index.html`, `package.json` version, and add a `CHANGELOG.md` entry.
 - Bump service worker cache and asset query strings to avoid stale clients.

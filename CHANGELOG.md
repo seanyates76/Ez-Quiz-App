@@ -8,6 +8,7 @@ Changelog
 - Accessibility: preserved focus styles and keyboard focus trap in feedback panel.
 - Docs: updated footer version link; no behavior changes to generation or results.
  - Help: polished modal styling; replaced FAQ with concise Q/A format (bold questions, no bullets); modal replace-on-open and entrance transitions.
+ - Added: Interactive Editor (beta) — opt‑in card‑based authoring for MC/TF/YN with validation and live sync to the raw editor.
 
 2025-09-11 — 1.2.0-beta.4
 - Fix (Results → Retake): Main “Retake” now always restarts the full quiz, independent of the Results filter (Missed/All).

@@ -20,7 +20,15 @@ Features
 - Results: Missed or All, color‑coded answers, Retake (full) + Missed only.
 - PWA: offline shell, maskable icons, safe‑area‑aware layout.
 - Floating actions: Feedback panel + Support link.
- - Help & FAQ: Sleek modal with concise Q/A format; smooth transitions; opening a new modal replaces the current one.
+- Help & FAQ: Sleek modal with concise Q/A format; smooth transitions; opening a new modal replaces the current one.
+
+Interactive Editor (beta)
+-------------------------
+- Opt‑in, card‑based authoring for MC/TF/YN.
+- Enable via Options → Advanced → “Interactive Editor (beta)”.
+- Edits stay in sync with the raw Editor/Mirror; the raw parser format remains the source of truth.
+- Inline validation ensures each question has a prompt and a marked correct answer.
+- Default off for now to keep the classic editor front‑and‑center.
 
 Prompt Builder
 - Press Ctrl/Cmd+P or use the ✨ button to copy a ready‑made AI prompt.
