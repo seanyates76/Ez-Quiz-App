@@ -30,6 +30,13 @@ Interactive Editor (beta)
 - Inline validation ensures each question has a prompt and a marked correct answer.
 - Default off for now to keep the classic editor front‑and‑center.
 
+Smoke-test (standalone)
+- Use `ie-smoke.html` to validate the Interactive Editor in isolation (no SW, CSP, or accordions). Open it directly in a browser, toggle the beta editor, and exercise Add/Import/Clear and two‑way sync.
+
+Appearance and options
+- Theme supports Dark, Light, and System (follows OS).
+- Question Types are spelled out (Multiple Choice, True/False, Yes/No, Matching) and render as mobile‑friendly chips.
+
 Prompt Builder
 - Press Ctrl/Cmd+P or use the ✨ button to copy a ready‑made AI prompt.
 - Paste the AI output into the Editor; the Mirror shows raw lines.
