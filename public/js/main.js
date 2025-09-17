@@ -216,7 +216,10 @@ function init(){
       // 4) Handle in-app navigation
       if(S.mode==='quiz'){
         if(S.quiz.index>0){ S.quiz.index -= 1; renderCurrentQuestion(); updateNavButtons(); try{ history.pushState({view:'quiz'}, '', location.href); }catch{} return; }
-        // No previous question: go back to main menu
+        // At first question: simple confirm before leaving
+        const ok = window.confirm('Leave quiz and return to menu? Your progress will be lost.');
+        if(!ok){ try{ history.pushState({view:'quiz'}, '', location.href); }catch{} return; }
+        try{ pauseTimerIfQuiz(); }catch{}
         setMode('idle'); try{ history.pushState({view:'idle'}, '', location.href); }catch{} return;
       }
       if(S.mode==='results'){
