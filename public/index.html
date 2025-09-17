@@ -6,7 +6,7 @@
   <title>EZ Quiz</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.5.0" />
+  <link rel="stylesheet" href="styles.css?v=1.5.1" />
 </head>
 <body data-theme="dark">
   <header class="site-header" role="banner">
@@ -114,10 +114,8 @@
               <input id="fileInput" type="file" accept=".txt" style="display:none" />
               <button id="demoBtn" class="btn">Use Demo Set</button>
               <button id="clearBtn" class="btn">Clear</button>
-              <button id="loadLastBtn" class="btn">Load last quiz</button>
-            </div>
-            <div class="row gap">
               <button id="startBtn" class="btn" aria-describedby="startHelp" disabled>Start</button>
+              <button id="loadLastBtn" class="btn">Load last quiz</button>
             </div>
             <div class="advanced-actions">
               <button id="copyPromptsBtn" class="btn btn-ghost">Copy prompts</button>
@@ -126,12 +124,10 @@
           </div>
           <details class="parser-ref" style="margin-top:8px">
             <summary>Parser reference</summary>
-            <ul>
-              <li><code>MC|Question?|A) 1;B) 2|A</code> (multiple: <code>A,C</code>)</li>
-              <li><code>TF|Statement.|T</code></li>
-              <li><code>YN|Question?|Y</code></li>
-              <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
-            </ul>
+            <pre class="parser-block" aria-label="Example parser lines">MC|Question?|A) Opt1;B) Opt2|A
+TF|Statement.|T
+YN|Question?|Y
+MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           </details>
           <div id="parseErrors" role="alert" aria-live="assertive" class="visually-hidden"></div>
           
@@ -460,10 +456,10 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
 
   
 
-  <script type="module" src="js/main.js?v=1.5.0"></script>
-  <script type="module" src="js/auto-refresh.js?v=1.5.0"></script>
-  <script type="module" src="js/patches.js?v=1.5.0"></script>
-  <script type="module" src="js/editor.gui.js?v=1.5.0"></script>
+  <script type="module" src="js/main.js?v=1.5.1"></script>
+  <script type="module" src="js/auto-refresh.js?v=1.5.1"></script>
+  <script type="module" src="js/patches.js?v=1.5.1"></script>
+  <script type="module" src="js/editor.gui.js?v=1.5.1"></script>
 
   <!-- Floating actions: Feedback + Coffee -->
   <div id="floatingActions" class="fab-stack" aria-label="Quick actions">

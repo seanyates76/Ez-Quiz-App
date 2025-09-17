@@ -231,6 +231,18 @@ body[data-theme="dark"] .site-header .brand-link{
 .adv-actions .btn, .advanced-actions .btn{ min-height: 54px }
 @media (max-width:600px){ .adv-actions .btn, .advanced-actions .btn{ min-height: 52px } }
 
+/* Reconsidered Advanced layout: tidy two-column clusters with graceful wrap */
+.adv-actions > .row:first-child{ display:flex; flex-wrap:wrap; gap:8px }
+.adv-actions > .row:first-child .btn{ flex: 1 1 calc(50% - 8px); min-width: 200px }
+@media (max-width: 820px){ .adv-actions > .row:first-child .btn{ min-width: 160px } }
+@media (max-width: 600px){ .adv-actions > .row:first-child .btn{ flex-basis: 100%; min-width: 0 } }
+/* Start button fills its column for emphasis */
+.adv-actions > .row:nth-child(2) .btn{ width:100% }
+
+/* Copy/Export row as a clean two-up grid */
+.advanced-actions{ display:grid; grid-template-columns: repeat(2, 1fr); gap:8px }
+@media (max-width: 600px){ .advanced-actions{ grid-template-columns: 1fr } }
+
 /* Keep boxes visually in sync */
 :root{ --adv-box-min: 260px; }
 .adv-panels .editor,
@@ -317,10 +329,10 @@ body[data-theme="dark"] .site-header .brand-link{
 .btn.danger{background:var(--danger); color:#fff; border-color:transparent}
 .btn[disabled]{opacity:.6; cursor:not-allowed}
 
-/* Advanced Start: turn blue when ready */
-#startBtn.btn:not([disabled]){ background:var(--primary); border-color:transparent; color:#fff }
-#startBtn.btn:not([disabled]):hover{ filter:brightness(1.05) }
-#startBtn.btn:not([disabled]):active{ background:var(--primary-press) }
+/* Advanced Start: primary styling always (disabled dims via opacity) */
+#startBtn.btn{ background:var(--primary); border-color:transparent; color:#fff }
+#startBtn.btn:hover{ filter:brightness(1.05) }
+#startBtn.btn:active{ background:var(--primary-press) }
 
 /* Pills (retake scope) */
 /* Retake control: single bubble with pipe separator */
@@ -527,7 +539,10 @@ details.help-accordion > *:not(summary){ padding:8px 12px 12px; border-top:1px s
 
 /* Parser Reference accordion: no container chrome, plain content */
 details.help-accordion.parser-accordion{ border:0; background:transparent }
-details.help-accordion.parser-accordion > summary{ padding-left:0; padding-right:0 }
+details.help-accordion.parser-accordion > summary{
+  padding-inline-start: calc(10px + env(safe-area-inset-left, 0px));
+  padding-inline-end: calc(10px + env(safe-area-inset-right, 0px));
+}
 details.help-accordion.parser-accordion > *:not(summary){ padding:0; border-top:0 }
 
 /* FAQ (Q/A, no bullets) */
