@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2025-09-17 — 1.3.0-beta.0
+- UI: removed subtle gradient backdrop behind floating action buttons; kept clean shadows only.
+- Mobile resilience: added Reset App to clear caches and unregister service workers; URL triggers `?clear=1` or `#clear-cache` for stuck clients.
+- Assets: bumped versioned CSS/JS query strings; service worker cache bumped to force fresh loads.
+- Accessibility: preserved focus styles and keyboard focus trap in feedback panel.
+- Docs: updated footer version link; no behavior changes to generation or results.
+
 2025-09-11 — 1.2.0-beta.4
 - Fix (Results → Retake): Main “Retake” now always restarts the full quiz, independent of the Results filter (Missed/All).
 - Add (State): Preserve the original full question set on parse; full retakes restore from this source after any missed-only runs.
