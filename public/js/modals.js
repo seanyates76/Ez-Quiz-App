@@ -2,12 +2,12 @@ export function openModal(id){ const el=document.getElementById(id); if(!el) ret
 export function closeModal(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('is-open'); el.setAttribute('aria-hidden','true'); }
 
 export function wireModals({ onPause, onResume }){
-  const map = { helpBtn:'helpModal', settingsBtn:'settingsModal', promptBtn:'promptModal' };
+  const map = { helpBtn:'helpModal', settingsBtn:'settingsModal', promptBtn:'promptModal', versionInfoBtn:'releaseNotesModal' };
   Object.entries(map).forEach(([btnId, modalId])=>{
     const btn=document.getElementById(btnId);
-    btn?.addEventListener('click', ()=>{ if(onPause) onPause(); openModal(modalId); });
+    btn?.addEventListener('click', (e)=>{ try{ e?.preventDefault?.(); }catch{} if(onPause) onPause(); openModal(modalId); });
   });
-  const closeMap = { helpClose:'helpModal', helpOk:'helpModal', settingsClose:'settingsModal', settingsSave:'settingsModal', promptClose:'promptModal', pbCancel:'promptModal' };
+  const closeMap = { helpClose:'helpModal', helpOk:'helpModal', settingsClose:'settingsModal', settingsSave:'settingsModal', promptClose:'promptModal', pbCancel:'promptModal', releaseNotesClose:'releaseNotesModal', releaseNotesOk:'releaseNotesModal' };
   Object.entries(closeMap).forEach(([btnId, modalId])=>{
     const btn=document.getElementById(btnId);
     btn?.addEventListener('click', ()=>{ closeModal(modalId); if(onResume) onResume(); });
