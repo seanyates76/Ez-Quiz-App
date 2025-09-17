@@ -1,5 +1,6 @@
 import { S } from './state.js';
 import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel, mmSsToMs, showUpdateBannerIfReady, bindOnce } from './utils.js';
+import { openModal, closeModal } from './modals.js';
 
 // Retake scope constants
 const RETAKE_MISSED = 'missed';
@@ -109,7 +110,23 @@ export function wireQuizControls(){
   prevBtn?.addEventListener('click', (e)=>{ S.quiz.index=clamp(S.quiz.index-1,0,S.quiz.questions.length-1); renderCurrentQuestion(); updateNavButtons(); try{e.currentTarget.blur();}catch{} });
   nextBtn?.addEventListener('click', (e)=>{ if(S.settings.requireAnswer && !isCurrentAnswered()) return; S.quiz.index=clamp(S.quiz.index+1,0,S.quiz.questions.length-1); renderCurrentQuestion(); updateNavButtons(); try{e.currentTarget.blur();}catch{} });
   finishBtn?.addEventListener('click', (e)=>{ if(S.settings.requireAnswer && !isCurrentAnswered()) return; finishQuiz(false); try{e.currentTarget.blur();}catch{} });
-  backDuringQuiz?.addEventListener('click', (e)=>{ if(S.mode==='quiz'){ const confirmLeave = confirm('Leave quiz and return to menu? Your progress will be lost.'); if(!confirmLeave) return; } if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } setMode('idle'); try{e.currentTarget.blur();}catch{} });
+  backDuringQuiz?.addEventListener('click', (e)=>{
+    if(S.mode==='quiz'){
+      e.preventDefault();
+      try{ openModal('leaveQuizModal'); }catch{}
+      return;
+    }
+    if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+    setMode('idle'); try{e.currentTarget.blur();}catch{}
+  });
+
+  const leaveBtn = document.getElementById('leaveQuizConfirm');
+  const cancelBtn = document.getElementById('leaveQuizCancel');
+  const xBtn = document.getElementById('leaveQuizClose');
+  function leaveNow(){ if(timerInterval){ clearInterval(timerInterval); timerInterval=null; } setMode('idle'); try{ closeModal('leaveQuizModal'); }catch{} }
+  leaveBtn?.addEventListener('click', leaveNow);
+  cancelBtn?.addEventListener('click', ()=>{ try{ closeModal('leaveQuizModal'); }catch{} });
+  xBtn?.addEventListener('click', ()=>{ try{ closeModal('leaveQuizModal'); }catch{} });
 
   // Keyboard shortcuts
   document.addEventListener('keydown', (e)=>{

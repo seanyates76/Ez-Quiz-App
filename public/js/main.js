@@ -1,7 +1,7 @@
 import { S } from './state.js';
 import { $, byQSA, showUpdateBannerIfReady } from './utils.js';
 import { loadSettingsFromStorage, applyTheme, reflectSettingsIntoUI, wireSettingsPanel } from './settings.js';
-import { wireModals } from './modals.js';
+import { wireModals, openModal } from './modals.js';
 import { wireGenerator } from './generator.js';
 import { setMode, beginQuiz, renderCurrentQuestion, updateNavButtons, updateProgress, wireQuizControls, wireResultsControls, pauseTimerIfQuiz, resumeTimerIfQuiz, syncSettingsFromUI } from './quiz.js';
 
@@ -216,8 +216,11 @@ function init(){
       // 4) Handle in-app navigation
       if(S.mode==='quiz'){
         if(S.quiz.index>0){ S.quiz.index -= 1; renderCurrentQuestion(); updateNavButtons(); try{ history.pushState({view:'quiz'}, '', location.href); }catch{} return; }
-        // No previous question: go back to main menu
-        setMode('idle'); try{ history.pushState({view:'idle'}, '', location.href); }catch{} return;
+        // At first question: confirm before leaving
+        try{ openModal('leaveQuizModal'); }catch{ try{ document.getElementById('leaveQuizModal')?.classList.add('is-open'); }catch{} }
+        // Restore state so another back press remains in-app
+        try{ history.pushState({view:'quiz'}, '', location.href); }catch{}
+        return;
       }
       if(S.mode==='results'){
         // Back from results returns to main menu

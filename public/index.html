@@ -424,6 +424,24 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
     </div>
   </div>
 
+  <!-- Leave Quiz Confirm Modal -->
+  <div id="leaveQuizModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="leaveQuizTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="leaveQuizModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="leaveQuizTitle">Leave Quiz?</h3>
+        <button id="leaveQuizClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <p>Returning to the main menu will discard your current progress.</p>
+      </div>
+      <footer class="modal__footer">
+        <button id="leaveQuizCancel" class="btn">Cancel</button>
+        <button id="leaveQuizConfirm" class="btn danger">Leave</button>
+      </footer>
+    </div>
+  </div>
+
   <!-- Release Notes / What's New Modal -->
   <div id="releaseNotesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="rnTitle" aria-hidden="true">
     <div class="modal__backdrop" data-close="releaseNotesModal"></div>
@@ -460,7 +478,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
 
   
 
-  <script type="module" src="js/main.js?v=1.5.2"></script>
+  <script type="module" src="js/main.js?v=1.5.3"></script>
   <script type="module" src="js/auto-refresh.js?v=1.5.2"></script>
   <script type="module" src="js/patches.js?v=1.5.2"></script>
   <script type="module" src="js/editor.gui.js?v=1.5.2"></script>
