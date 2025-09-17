@@ -757,6 +757,9 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 .ie-valid{ color: var(--success); font-weight:600 }
 .ie-error{ color: var(--danger); font-weight:600 }
 .ie-mono{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.92em }
+/* Drag state */
+.ie-card.drag-over{ outline:2px dashed var(--border) }
+.ie-toolbar .flex-spacer{ flex:1 1 0 }
 
 /* Ensure .hidden truly hides even with inline tweaks */
 .hidden{ display: none !important }

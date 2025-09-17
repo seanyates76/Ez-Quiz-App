@@ -64,15 +64,35 @@ const IE_NS = (()=>{
     mount.innerHTML='';
     // Toolbar
     const bar=document.createElement('div'); bar.className='ie-toolbar';
-    const addBtn=document.createElement('button'); addBtn.className='btn'; addBtn.textContent='Add question';
-    addBtn.addEventListener('click', ()=>{ st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); syncToEditor(); render(); });
-    bar.appendChild(addBtn);
+    const addMC=document.createElement('button'); addMC.className='btn'; addMC.textContent='Add MC';
+    const addTF=document.createElement('button'); addTF.className='btn'; addTF.textContent='Add TF';
+    const addYN=document.createElement('button'); addYN.className='btn'; addYN.textContent='Add YN';
+    const spacer=document.createElement('span'); spacer.className='flex-spacer';
+    const importBtn=document.createElement('button'); importBtn.className='btn btn-ghost'; importBtn.textContent='Import from raw';
+    const clearBtn=document.createElement('button'); clearBtn.className='btn btn-ghost'; clearBtn.textContent='Clear all';
+    addMC.addEventListener('click', ()=>{ st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); syncToEditor(); render(); scrollLast(); });
+    addTF.addEventListener('click', ()=>{ st.model.push({ type:'TF', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); });
+    addYN.addEventListener('click', ()=>{ st.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); });
+    importBtn.addEventListener('click', ()=>{ syncFromEditor(); render(); });
+    clearBtn.addEventListener('click', ()=>{ st.model=[]; syncToEditor(); render(); });
+    bar.append(addMC, addTF, addYN, spacer, importBtn, clearBtn);
     mount.appendChild(bar);
 
     // Cards
     const wrap=document.createElement('div'); wrap.className='ie-grid';
     st.model.forEach((q,idx)=>{
-      const card=document.createElement('div'); card.className='ie-card';
+      const card=document.createElement('div'); card.className='ie-card'; card.setAttribute('draggable','true'); card.dataset.index = String(idx);
+      // DnD
+      card.addEventListener('dragstart', (e)=>{ e.dataTransfer?.setData('text/plain', String(idx)); card.classList.add('dragging'); });
+      card.addEventListener('dragend', ()=> card.classList.remove('dragging'));
+      card.addEventListener('dragover', (e)=>{ e.preventDefault(); card.classList.add('drag-over'); });
+      card.addEventListener('dragleave', ()=> card.classList.remove('drag-over'));
+      card.addEventListener('drop', (e)=>{
+        e.preventDefault(); card.classList.remove('drag-over');
+        const from = parseInt(e.dataTransfer?.getData('text/plain')||'-1',10);
+        const to = parseInt(card.dataset.index||'-1',10);
+        if(isFinite(from)&&isFinite(to)&&from!==to){ const arr=getState().model; const it=arr.splice(from,1)[0]; arr.splice(to,0,it); syncToEditor(); render(); }
+      });
       // Top row: type + actions
       const row=document.createElement('div'); row.className='ie-row';
       const typeSel=document.createElement('select'); typeSel.className='toolbar-input ie-type';
@@ -80,8 +100,9 @@ const IE_NS = (()=>{
       const actions=document.createElement('div'); actions.className='ie-actions';
       const up=document.createElement('button'); up.className='btn btn-ghost'; up.textContent='↑'; up.title='Move up';
       const down=document.createElement('button'); down.className='btn btn-ghost'; down.textContent='↓'; down.title='Move down';
+      const dup=document.createElement('button'); dup.className='btn btn-ghost'; dup.textContent='Duplicate';
       const del=document.createElement('button'); del.className='btn btn-ghost'; del.textContent='Delete';
-      actions.append(up,down,del);
+      actions.append(up,down,dup,del);
       row.append(typeSel, actions);
       card.appendChild(row);
 
@@ -104,7 +125,8 @@ const IE_NS = (()=>{
           rm.addEventListener('click', ()=>{ q.options.splice(i,1); syncToEditor(); render(); });
         });
         const addOpt=document.createElement('button'); addOpt.className='btn'; addOpt.textContent='Add option';
-        addOpt.addEventListener('click', ()=>{ q.options.push({text:'',correct:false}); syncToEditor(); render(); });
+        addOpt.disabled = q.options.length>=8;
+        addOpt.addEventListener('click', ()=>{ if(q.options.length<8){ q.options.push({text:'',correct:false}); syncToEditor(); render(); } });
         area.appendChild(addOpt);
       } else {
         const onel=document.createElement('div'); onel.className='ie-choice';
@@ -126,12 +148,29 @@ const IE_NS = (()=>{
       prompt.addEventListener('input', ()=>{ q.prompt=prompt.value; syncToEditor(); validate(card,q); });
       up.addEventListener('click', ()=>{ if(idx>0){ const a=getState().model; [a[idx-1],a[idx]]=[a[idx],a[idx-1]]; syncToEditor(); render(); }});
       down.addEventListener('click', ()=>{ const a=getState().model; if(idx<a.length-1){ [a[idx+1],a[idx]]=[a[idx],a[idx+1]]; syncToEditor(); render(); }});
+      dup.addEventListener('click', ()=>{ const a=getState().model; a.splice(idx+1,0, JSON.parse(JSON.stringify(q))); syncToEditor(); render(); });
       del.addEventListener('click', ()=>{ const a=getState().model; a.splice(idx,1); syncToEditor(); render(); });
 
       validate(card,q);
       wrap.appendChild(card);
     });
     mount.appendChild(wrap);
+
+    // Summary
+    const summary = document.createElement('div');
+    const total = st.model.length;
+    const okCount = st.model.filter(q=>{
+      if(!q.prompt||!q.prompt.trim()) return false;
+      if(q.type==='MC'){ const filled=q.options.filter(o=>o.text.trim()).length; const corr=q.options.filter(o=>o.correct).length; return filled>=2 && corr>=1; }
+      if(q.type==='TF'||q.type==='YN'){ return typeof q.answer==='boolean'; }
+      return false;
+    }).length;
+    summary.className='ie-mono';
+    summary.textContent = `Questions: ${total} — Valid: ${okCount}`;
+    mount.appendChild(summary);
+  }
+
+  function scrollLast(){ try{ const m=els().mount; const last = m && m.querySelector('.ie-card:last-of-type'); last && last.scrollIntoView({ behavior:'smooth', block:'end' }); }catch{}
   }
 
   function validate(card,q){
