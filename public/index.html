@@ -86,12 +86,17 @@
         </div>
         <div id="advancedBlock" class="advanced-body" hidden>
           <div class="adv-head">
-            <h5 class="adv-title">Prompt Editor</h5>
+            <h5 id="advancedTitle" class="adv-title">Prompt Editor</h5>
             <div class="adv-title-right">
               <h5 class="adv-title">Debug / Mirror</h5>
               <label class="opt-switch small"><input type="checkbox" id="mirrorToggle" /> <span>Show</span></label>
             </div>
           </div>
+          <label class="toggle-row" style="display:inline-flex; align-items:center; gap:8px; margin:4px 0 8px 0">
+            <input id="toggleInteractiveEditor" type="checkbox" />
+            <span>Interactive Editor (beta)</span>
+          </label>
+          <div id="interactiveEditor" class="hidden" aria-labelledby="advancedTitle"></div>
           <div class="adv-panels">
             <div class="adv-left">
               <textarea id="editor" class="editor" rows="12" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
@@ -346,12 +351,12 @@
         <section>
           <details class="help-accordion">
             <summary>Parser Reference</summary>
-            <ul>
-              <li><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> (multiple: <code>A,C</code>)</li>
-              <li><code>TF|Statement.|T</code> (or <code>F</code>)</li>
-              <li><code>YN|Question?|Y</code> (or <code>N</code>)</li>
-              <li><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></li>
-            </ul>
+            <div class="parser-ref-list">
+              <div class="ref-item"><code>MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A</code> <span class="hint">multiple: <code>A,C</code></span></div>
+              <div class="ref-item"><code>TF|Statement.|T</code> <span class="hint">or <code>F</code></span></div>
+              <div class="ref-item"><code>YN|Question?|Y</code> <span class="hint">or <code>N</code></span></div>
+              <div class="ref-item"><code>MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</code></div>
+            </div>
             <p>Use the exact delimiters shown: pipes <code>|</code>, semicolons <code>;</code>, and labels like <code>A)</code> or <code>1)</code>.</p>
           </details>
         </section>
@@ -456,6 +461,7 @@
   <script type="module" src="js/main.js?v=1.4.6"></script>
   <script type="module" src="js/auto-refresh.js?v=1.4.6"></script>
   <script type="module" src="js/patches.js?v=1.4.7"></script>
+  <script type="module" src="js/editor.gui.js?v=1.4.8"></script>
 
   <!-- Floating actions: Feedback + Coffee -->
   <div id="floatingActions" class="fab-stack" aria-label="Quick actions">
