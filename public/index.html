@@ -6,7 +6,7 @@
   <title>EZ Quiz</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.5.1" />
+  <link rel="stylesheet" href="styles.css?v=1.5.2" />
 </head>
 <body data-theme="dark">
   <header class="site-header" role="banner">
@@ -109,13 +109,17 @@
             </div>
           </div>
           <div class="adv-actions">
-            <div class="row gap">
-              <button id="loadBtn" class="btn">Load .txt</button>
-              <input id="fileInput" type="file" accept=".txt" style="display:none" />
-              <button id="demoBtn" class="btn">Use Demo Set</button>
-              <button id="clearBtn" class="btn">Clear</button>
-              <button id="startBtn" class="btn" aria-describedby="startHelp" disabled>Start</button>
-              <button id="loadLastBtn" class="btn">Load last quiz</button>
+            <div class="row gap adv-row">
+              <div class="adv-group files">
+                <button id="loadBtn" class="btn">Load .txt</button>
+                <input id="fileInput" type="file" accept=".txt" style="display:none" />
+                <button id="loadLastBtn" class="btn">Load last quiz</button>
+                <button id="demoBtn" class="btn">Use Demo Set</button>
+              </div>
+              <div class="adv-group run">
+                <button id="clearBtn" class="btn btn-ghost">Clear</button>
+                <button id="startBtn" class="btn" aria-describedby="startHelp" disabled>Start</button>
+              </div>
             </div>
             <div class="advanced-actions">
               <button id="copyPromptsBtn" class="btn btn-ghost">Copy prompts</button>
