@@ -20,6 +20,7 @@ Features
 - Results: Missed or All, color‑coded answers, Retake (full) + Missed only.
 - PWA: offline shell, maskable icons, safe‑area‑aware layout.
 - Floating actions: Feedback panel + Support link.
+ - Help & FAQ: Sleek modal with concise Q/A format; smooth transitions; opening a new modal replaces the current one.
 
 Prompt Builder
 - Press Ctrl/Cmd+P or use the ✨ button to copy a ready‑made AI prompt.

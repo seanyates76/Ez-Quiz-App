@@ -476,7 +476,12 @@ details.advanced > summary{display:none}
   border:1px solid var(--border); border-radius:16px; padding:0 0 12px 0;
   box-shadow:0 20px 60px rgba(0,0,0,.35);
   display:flex; flex-direction:column;
+  /* Subtle entrance transition */
+  transform: translateY(8px) scale(.985);
+  opacity: 0;
+  transition: transform .18s ease, opacity .18s ease;
 }
+.modal.is-open .modal__dialog{ transform:none; opacity:1 }
 .modal__header{
   display:flex; justify-content:space-between; align-items:center;
   padding:12px 12px 8px; border-bottom:1px solid var(--border);
@@ -508,6 +513,11 @@ details.help-accordion > *:not(summary){ padding:8px 12px 12px; border-top:1px s
 .modal__body ul{ margin:0 0 0 1.1rem }
 .modal__body li{ margin:6px 0 }
 .modal__body a{ color:var(--primary); text-underline-offset:2px }
+
+/* FAQ (Q/A, no bullets) */
+.faq-list{ margin:0; }
+.faq-list dt{ font-weight:700; margin:8px 0 4px; }
+.faq-list dd{ margin:0 0 10px 0; color:var(--text); }
 
 /* Reserved space for optional floating actions (none by default) */
 
