@@ -25,6 +25,10 @@
 # - Don’t introduce third‑party scripts without updating CSP (netlify.toml).
 # - Avoid innerHTML for user content; render via text/DOM nodes.
 # - Keep results logic state‑first (don’t infer from DOM).
+# - When you ship user‑visible changes, update the Help modal content in
+#   public/index.html (What’s New, FAQ, Parser Reference) in the same PR so
+#   instructions/screenshots stay accurate. Footer version should match
+#   CHANGELOG.md and link to it.
 #
 # Happy hacking — and thanks for keeping it tidy.
 

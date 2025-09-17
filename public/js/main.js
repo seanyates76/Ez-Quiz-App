@@ -60,6 +60,48 @@ function init(){
     });
   }
 
+  // Emergency: hard-reset caches + service workers when needed
+  async function hardReset() {
+    try { localStorage.clear(); } catch {}
+    try {
+      // Best-effort: ask SWs to clear caches in their context
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const r of regs) {
+          try { r.active && r.active.postMessage('CLEAR_CACHES'); } catch {}
+        }
+      }
+    } catch {}
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+    } catch {}
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister().catch(() => {})));
+      }
+    } catch {}
+    // Small delay to ensure unregister settles before reload
+    setTimeout(() => { try { window.location.reload(true); } catch { window.location.reload(); } }, 200);
+  }
+
+  // Wire Reset App button (Settings → Advanced)
+  (function wireHardReset(){
+    const btn = document.getElementById('resetApp');
+    btn?.addEventListener('click', () => {
+      const ok = window.confirm('Reset app data and refresh? This clears caches, service workers, and local data.');
+      if (ok) hardReset();
+    });
+    // URL triggers for stuck mobile clients
+    try {
+      const q = new URLSearchParams(location.search);
+      if (q.get('clear') === '1' || location.hash === '#clear-cache') hardReset();
+    } catch {}
+  })();
+
   // Floating actions: fixed position, always visible
   (function initFabs(){
     const container = document.getElementById('floatingActions');
