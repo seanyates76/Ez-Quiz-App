@@ -192,6 +192,40 @@ function init(){
   })();
 
   setMode('idle');
+
+  // History/back handling for mobile PWAs and Android back button
+  (function wireHistory(){
+    try{ history.replaceState({ view: S.mode||'idle' }, '', location.pathname + location.search); }catch{}
+    function closeAnyOpenModal(){
+      const open = document.querySelector('.modal.is-open');
+      if(open){ try{ open.classList.remove('is-open'); open.setAttribute('aria-hidden','true'); }catch{} return true; }
+      return false;
+    }
+    function feedbackOpen(){ const p = document.getElementById('feedbackPanel'); return p && !p.classList.contains('hidden'); }
+    function closeFeedback(){ const p = document.getElementById('feedbackPanel'); if(p && !p.classList.contains('hidden')){ p.classList.add('hidden'); return true; } return false; }
+    function optionsOpen(){ const op = document.getElementById('optionsPanel'); return !!(op && !op.hidden); }
+    function closeOptions(){ const op = document.getElementById('optionsPanel'); const btn=document.getElementById('optionsBtn'); if(op && !op.hidden){ op.hidden=true; btn?.setAttribute('aria-expanded','false'); return true; } return false; }
+
+    window.addEventListener('popstate', (e)=>{
+      // 1) Close modal if open
+      if(closeAnyOpenModal()){ try{ history.pushState({view:S.mode}, '', location.href); }catch{} return; }
+      // 2) Close feedback panel if open
+      if(closeFeedback()){ try{ history.pushState({view:S.mode}, '', location.href); }catch{} return; }
+      // 3) Close options panel if open
+      if(closeOptions()){ try{ history.pushState({view:S.mode}, '', location.href); }catch{} return; }
+      // 4) Handle in-app navigation
+      if(S.mode==='quiz'){
+        if(S.quiz.index>0){ S.quiz.index -= 1; renderCurrentQuestion(); updateNavButtons(); try{ history.pushState({view:'quiz'}, '', location.href); }catch{} return; }
+        // No previous question: go back to main menu
+        setMode('idle'); try{ history.pushState({view:'idle'}, '', location.href); }catch{} return;
+      }
+      if(S.mode==='results'){
+        // Back from results returns to main menu
+        setMode('idle'); try{ history.pushState({view:'idle'}, '', location.href); }catch{} return;
+      }
+      // Otherwise, let the browser proceed
+    });
+  })();
 }
 
 document.addEventListener('DOMContentLoaded', init);
