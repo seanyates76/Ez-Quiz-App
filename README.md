@@ -1,66 +1,55 @@
 EZ Quiz Web
-
-Netlify
+===========
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/35b8697e-f228-4b5f-8065-6286e05246c8/deploy-status)](https://app.netlify.com/projects/eq-quiz/deploys)
 
-Fast, offline web quiz supporting MC, TF, YN and MT question types. No backend. Installable PWA. Keyboard friendly.
+Fast, offline web quiz supporting MC, TF, YN and MT. No backend. Installable PWA. Keyboard friendly.
 
 Links
 - Live: https://ez-quiz.app/
 - Support: https://www.buymeacoffee.com/seanyates78
 
-Run locally
-1) Open `index.html` in a browser.
-2) Optional: use a static server for SW/PWA (e.g. `python3 -m http.server`).
+Quick Start
+- Open `public/index.html` directly, or
+- Serve `public/` locally for SW/PWA features: `cd public && python3 -m http.server`
 
 Features
-- Import via file picker or drag‑drop `.txt`.
-- Clear button to reset input.
-- Enter to start/advance; Backspace to go back.
-- Prompt builder (✨) to generate a copyable AI prompt; shortcut Ctrl/Cmd+P.
-- Timer options (elapsed or countdown).
-- Review results (missed or all) with Back to Results/Main Menu.
-- Retake Missed Only from the Missed view.
-- Compact progress bar beside counter/timer.
-- PWA ready: offline app shell, maskable icons, relative paths for GitHub Pages.
- - Buy Me a Coffee widget (bottom-right) with warm beige styling.
+- Generate + Advanced Editor with Mirror; import `.txt` or paste.
+- Keyboard: Enter to start/advance; Backspace to go back.
+- Timer (elapsed or countdown); theme toggle (dark/light).
+- Results: Missed or All, color‑coded answers, Retake (full) + Missed only.
+- PWA: offline shell, maskable icons, safe‑area‑aware layout.
+- Floating actions: Feedback panel + Support link.
 
-Prompt builder
-- Click the ✨ button next to the FAQ in the header (or press Ctrl/Cmd+P).
-- Enter a Topic and desired Length; click Copy to place a ready‑made prompt on your clipboard.
-- Paste that prompt into your AI tool (e.g., ChatGPT), then paste the generated questions into the input area.
+Prompt Builder
+- Press Ctrl/Cmd+P or use the ✨ button to copy a ready‑made AI prompt.
+- Paste the AI output into the Editor; the Mirror shows raw lines.
 
-Question format
-Each line: `TYPE|Question|Options|Answer`
+Question Format
+Each line uses pipes and semicolons: `TYPE|Question|Options|Answer`
 - MC: `MC|Which shape has three sides?|A) Triangle;B) Square|A`
-- MC multi‑answer: `MC|Which numbers are prime?|A) 2;B) 4;C) 5;D) 9|A,C`
+- MC multi: `MC|Which numbers are prime?|A) 2;B) 4;C) 5;D) 9|A,C`
 - TF: `TF|The Sun is a star.|T`
 - YN: `YN|Is 0 an even number?|Y`
-- MT: `MT|Match.|1) 22;2) 53|A) SSH;B) DNS|1-A,2-B`
+- MT: `MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B`
 
-Deploy to Netlify
-- The repo includes `netlify.toml` for security headers and caching.
-- Connect your repository in Netlify (or drag‑drop); build command: none; publish directory: `.`.
-- Add custom domain `ez-quiz.app` and enable HTTPS.
+Deploy (Netlify)
+- Repo includes `netlify.toml` for headers/caching.
+- Build: none. Publish dir: `public/`.
+- Use a custom domain and enable HTTPS.
 
-Notes
-- The service worker uses relative paths and scope for subpath hosting.
-- Security: user content never injected with `innerHTML`; DOM nodes are used to render results.
-- Clipboard: uses `navigator.clipboard.writeText` when available (secure contexts), with a fallback on user action.
+Troubleshooting Updates (Mobile/PWA)
+- If stuck on an old version: open with `?clear=1` (or `#clear-cache`).
+- Or Settings → Reset App: clears caches and unregisters service workers.
+- On iOS/Safari, you may need to remove site data and reopen once.
 
-Changelog (highlights)
-- 1.3.0-beta.0: Removed FAB gradient backdrop; added “Reset App” (clears caches + unregisters SW) and `?clear=1`/`#clear-cache` emergency reset; versioned assets and SW cache bump for reliable mobile updates.
-- ✨ Prompt builder popover with Topic/Length and copy‑to‑clipboard.
-- New header wordmark with adaptive mobile layout.
-- Color‑coded status line and improved import UX (drag‑drop + clear).
-- Keyboard shortcuts: Enter/Backspace and Enter‑to‑start.
-- Review flow fixes + Retake Missed Only.
-- Single‑scrollbar FAQ modal; Close button always visible.
-- Progress bar in quiz header.
+Changelog Highlights
+- 1.3.0-beta.0: Removed FAB gradient backdrop; added Reset App and `?clear=1`/`#clear-cache`; bumped asset versions + SW cache.
+- Earlier: prompt builder; header wordmark; improved import; single‑scrollbar Help; progress bar; retake polish.
 
 License
 MIT — see `LICENSE.txt`.
-Support
-- If this project helps you, consider buying me a coffee: https://www.buymeacoffee.com/seanyates78
-- You’ll also see a floating ☕ button in the app.
+
+Contributing & Support
+- See `CONTRIBUTING.md` to file issues and PRs.
+- If this project helps you, consider coffee: https://www.buymeacoffee.com/seanyates78

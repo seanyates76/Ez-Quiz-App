@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check version consistency
+        run: |
+          set -euo pipefail
+          VER=$(jq -r .version package.json)
+          echo "Expected version: $VER"
+          grep -q "${VER}" public/index.html || (echo "Version mismatch in public/index.html" && exit 1)
+          grep -q "${VER}" CHANGELOG.md || (echo "Version missing in CHANGELOG.md" && exit 1)
+      - name: Basic grep hygiene
+        run: |
+          ! rg -n "(console\.log\(|debugger;|TODO|FIXME)" || (echo "Found debug/TODO markers" && exit 1)
