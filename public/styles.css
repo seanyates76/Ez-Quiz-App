@@ -486,6 +486,29 @@ details.advanced > summary{display:none}
 .block{display:block}
 .fieldgroup{border:1px solid var(--border); border-radius:12px; padding:10px; margin-bottom:10px}
 
+/* Help modal polish */
+details.help-accordion{
+  border:1px solid var(--field-border);
+  background:var(--panel-2);
+  border-radius:12px;
+  overflow:hidden;
+}
+details.help-accordion + details.help-accordion{ margin-top:8px }
+details.help-accordion > summary{
+  list-style:none; cursor:pointer;
+  padding:10px 12px; margin:0;
+  display:flex; align-items:center; justify-content:space-between;
+  font-weight:600;
+}
+details.help-accordion > summary::-webkit-details-marker{ display:none }
+details.help-accordion > summary::after{ content:'▾'; opacity:.8; transition:transform .18s ease }
+details.help-accordion[open] > summary::after{ transform:rotate(-180deg) }
+details.help-accordion:hover > summary{ background:var(--field-hover) }
+details.help-accordion > *:not(summary){ padding:8px 12px 12px; border-top:1px solid var(--border) }
+.modal__body ul{ margin:0 0 0 1.1rem }
+.modal__body li{ margin:6px 0 }
+.modal__body a{ color:var(--primary); text-underline-offset:2px }
+
 /* Reserved space for optional floating actions (none by default) */
 
 /* Floating Actions Stack */
