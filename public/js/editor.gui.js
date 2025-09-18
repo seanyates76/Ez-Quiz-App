@@ -70,9 +70,9 @@ const IE2 = (()=>{
 
     // Wire toolbar using pointerdown in capture phase to beat Options' doc-level click-away
     const bind = (id, fn)=>{ const b=qs(id); if(!b) return; const h=(e)=>{ try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{} fn(); }; b.addEventListener('pointerdown', h, true); b.addEventListener('click', h, false); };
-    bind('ieAddMC', ()=>{ state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); });
-    bind('ieAddTF', ()=>{ state.model.push({ type:'TF', prompt:'', answer:false }); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); });
-    bind('ieAddYN', ()=>{ state.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); });
+    bind('ieAddMC', ()=>{ state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ' • Added MC'; });
+    bind('ieAddTF', ()=>{ state.model.push({ type:'TF', prompt:'', answer:false }); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ' • Added TF'; });
+    bind('ieAddYN', ()=>{ state.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ' • Added YN'; });
     bind('ieImport', ()=>{ syncFromEditor(); });
     bind('ieClear', ()=>{ state.model=[]; syncToEditor(); renderCards(); renderSummary(); });
   }
@@ -124,4 +124,3 @@ const IE2 = (()=>{
 })();
 
 export default IE2;
-
