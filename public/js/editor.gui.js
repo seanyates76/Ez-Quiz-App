@@ -72,7 +72,12 @@ const IE_NS = (()=>{
     const spacer=document.createElement('span'); spacer.className='flex-spacer';
     const importBtn=document.createElement('button'); importBtn.className='btn btn-ghost'; importBtn.type='button'; importBtn.id='ieImport'; importBtn.textContent='Import from raw'; importBtn.title='Sync from the raw editor';
     const clearBtn=document.createElement('button'); clearBtn.className='btn btn-ghost'; clearBtn.type='button'; clearBtn.id='ieClear'; clearBtn.textContent='Clear all'; clearBtn.title='Remove all cards';
-    // No direct listeners; handled by mount-level delegation
+    // Direct per-button listeners for maximum reliability
+    addMC.addEventListener('click', (e)=>{ e.preventDefault(); const st=getState(); st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); syncToEditor(); render(); scrollLast(); });
+    addTF.addEventListener('click', (e)=>{ e.preventDefault(); const st=getState(); st.model.push({ type:'TF', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); });
+    addYN.addEventListener('click', (e)=>{ e.preventDefault(); const st=getState(); st.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); });
+    importBtn.addEventListener('click', (e)=>{ e.preventDefault(); syncFromEditor(); render(); });
+    clearBtn.addEventListener('click', (e)=>{ e.preventDefault(); const st=getState(); st.model=[]; syncToEditor(); render(); });
     bar.append(addMC, addTF, addYN, spacer, importBtn, clearBtn);
     mount.appendChild(bar);
 
@@ -207,22 +212,7 @@ const IE_NS = (()=>{
   function init(){
     const { toggle, editor, mount } = els();
     // One-time, robust mount-level delegation for Add/Import/Clear
-    if(mount && !mount.__ieDelegated){
-      const closest = (el, sel, stop) => { let n = el && (el.nodeType===1 ? el : el.parentElement); while(n){ if(n.matches && n.matches(sel)) return n; if(n===stop) break; n = n.parentElement; } return null; };
-      mount.addEventListener('click', (e)=>{
-        const add = closest(e.target, '[data-ie-add]', mount);
-        if(add){ e.preventDefault(); const type = add.getAttribute('data-ie-add'); const st=getState();
-          if(type==='MC') st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]});
-          if(type==='TF') st.model.push({ type:'TF', prompt:'', answer:false });
-          if(type==='YN') st.model.push({ type:'YN', prompt:'', answer:false });
-          syncToEditor(); render(); scrollLast(); return; }
-        const imp = closest(e.target, '#ieImport', mount);
-        if(imp){ e.preventDefault(); syncFromEditor(); render(); return; }
-        const clr = closest(e.target, '#ieClear', mount);
-        if(clr){ e.preventDefault(); const st=getState(); st.model=[]; syncToEditor(); render(); return; }
-      }, false);
-      mount.__ieDelegated = true;
-    }
+    // No mount-level delegation needed; per-button listeners above suffice.
     if(toggle){ toggle.checked = loadEnabled(); toggle.addEventListener('change', ()=>{ const on=!!toggle.checked; getState().enabled=on; saveEnabled(on); if(on){ syncFromEditor(); render(); } show(on); }); }
     const on = loadEnabled(); getState().enabled = on; show(on);
     if(on){
