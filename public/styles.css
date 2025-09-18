@@ -628,8 +628,7 @@ footer.container{
 .subtle-help{ font-size:.9rem; opacity:.75; margin:.25rem 0 0 .25rem }
 
 /* App lock visual when in-quiz */
-body[data-locked="true"] .gen-toolbar,
-body[data-locked="true"] .options-panel{ opacity:.6; pointer-events:none; filter:grayscale(.1) }
+body[data-locked="true"] .gen-toolbar{ opacity:.6; pointer-events:none; filter:grayscale(.1) }
 
 /* Toast message */
 #toast{
