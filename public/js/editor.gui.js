@@ -1,238 +1,127 @@
-// Interactive Editor (beta) — MC/TF/YN only
-// Non-invasive: syncs with #editor/#mirror and can be toggled on/off.
+// Interactive Editor (beta) — rebuilt v2
+// Simple, robust, no global delegation; uses pointerdown to beat Options capture
 import { runParseFlow } from './generator.js';
 
-const IE_NS = (()=>{
-  const SKEY='ezq.ie.on';
-  const els = ()=>({
-    mount: document.getElementById('interactiveEditor'),
-    toggle: document.getElementById('toggleInteractiveEditor'),
-    editor: document.getElementById('editor'),
-    mirror: document.getElementById('mirror'),
+const IE2 = (()=>{
+  const SKEY = 'ezq.ie.v2.on';
+  const state = { enabled:false, model:[] };
+
+  const qs = (id) => document.getElementById(id);
+  const els = () => ({
+    mount: qs('interactiveEditor'),
+    toggle: qs('toggleInteractiveEditor'),
+    editor: qs('editor'),
+    mirror: qs('mirror'),
+    grid: qs('ieGrid'),
+    summary: qs('ieSummary'),
   });
 
-  function getState(){ const g=(window.__EZQ__=window.__EZQ__||{}); return (g.ie=g.ie||{ enabled:false, model:[] }); }
   function saveEnabled(on){ try{ localStorage.setItem(SKEY, on?'1':'0'); }catch{} }
   function loadEnabled(){ try{ return localStorage.getItem(SKEY)==='1'; }catch{ return false; } }
 
-  // Parser conversions
+  // Formatting (match app parser rules)
   function toLine(q){
-    const t=q.type; const prompt=(q.prompt||'').trim();
-    if(t==='MC'){
-      const opts=q.options.filter(o=>o.text.trim()).map((o,i)=>`${String.fromCharCode(65+i)}) ${o.text.trim()}`);
-      const letters = q.options.map((o,i)=> o.correct? String.fromCharCode(65+i):null).filter(Boolean).join(',');
-      if(!prompt||!opts.length||!letters) return null;
-      return `MC|${prompt}|${opts.join(';')}|${letters}`;
+    const p=(q.prompt||'').trim();
+    if(q.type==='MC'){
+      const opts=(q.options||[]).filter(o=>o.text && o.text.trim());
+      const letters=(q.options||[]).map((o,i)=>o.correct?String.fromCharCode(65+i):null).filter(Boolean).join(',');
+      if(!p||!opts.length||!letters) return null;
+      const optText=opts.map((o,i)=>`${String.fromCharCode(65+i)}) ${o.text.trim()}`).join(';');
+      return `MC|${p}|${optText}|${letters}`;
     }
-    if(t==='TF'){
-      if(!prompt||!('answer' in q)) return null; const a=q.answer?'T':'F'; return `TF|${prompt}|${a}`;
-    }
-    if(t==='YN'){
-      if(!prompt||!('answer' in q)) return null; const a=q.answer?'Y':'N'; return `YN|${prompt}|${a}`;
-    }
+    if(q.type==='TF'){ if(!p||typeof q.answer!=='boolean') return null; return `TF|${p}|${q.answer?'T':'F'}`; }
+    if(q.type==='YN'){ if(!p||typeof q.answer!=='boolean') return null; return `YN|${p}|${q.answer?'Y':'N'}`; }
     return null;
   }
-  function fromLine(line){
-    const s=String(line||'').trim(); if(!s) return null;
-    const [type, rest] = s.split('|',1)[0].toUpperCase().startsWith('MC')? ['MC', s.slice(3)]:
-      s.toUpperCase().startsWith('TF|')? ['TF', s.slice(3)]:
-      s.toUpperCase().startsWith('YN|')? ['YN', s.slice(3)]: [null, null];
-    if(!type) return null;
-    if(type==='MC'){
-      const parts=s.split('|'); if(parts.length<4) return null;
-      const prompt=parts[1]||''; const optsRaw=parts[2]||''; const ans=parts[3]||'';
-      const opts=(optsRaw.split(';').map(x=>String(x||'').trim()).filter(Boolean)).map((t,i)=>({ text:t.replace(/^[A-Z]\)\s*/,'') , correct:false }));
-      const set=new Set(String(ans||'').split(',').map(x=>x.trim().toUpperCase()).filter(Boolean));
-      opts.forEach((o,i)=>{ const L=String.fromCharCode(65+i); o.correct=set.has(L); });
-      return { type:'MC', prompt, options:opts };
-    }
-    if(type==='TF'){
-      const parts=s.split('|'); if(parts.length<3) return null; return { type:'TF', prompt:parts[1]||'', answer:(String(parts[2]||'').toUpperCase().startsWith('T')) };
-    }
-    if(type==='YN'){
-      const parts=s.split('|'); if(parts.length<3) return null; return { type:'YN', prompt:parts[1]||'', answer:(String(parts[2]||'').toUpperCase().startsWith('Y')) };
-    }
+  function fromLine(s){
+    const line=String(s||'').trim(); if(!line) return null; const up=line.toUpperCase();
+    if(up.startsWith('MC|')){ const p=line.split('|'); if(p.length<4) return null; const prompt=p[1]||''; const optsRaw=p[2]||''; const ans=p[3]||''; const opts=(optsRaw.split(';').map(x=>String(x||'').trim()).filter(Boolean)).map(t=>({text:t.replace(/^[A-Z]\)\s*/,'').trim(), correct:false})); const set=new Set(String(ans||'').split(',').map(x=>x.trim().toUpperCase()).filter(Boolean)); opts.forEach((o,i)=>{ const L=String.fromCharCode(65+i); o.correct=set.has(L); }); return { type:'MC', prompt:prompt, options:opts }; }
+    if(up.startsWith('TF|')){ const p=line.split('|'); if(p.length<3) return null; return { type:'TF', prompt:p[1]||'', answer:(String(p[2]||'').toUpperCase().startsWith('T')) }; }
+    if(up.startsWith('YN|')){ const p=line.split('|'); if(p.length<3) return null; return { type:'YN', prompt:p[1]||'', answer:(String(p[2]||'').toUpperCase().startsWith('Y')) }; }
     return null;
   }
-
-  function parseEditor(){ const {editor}=els(); const text=(editor?.value||'').trim(); if(!text) return [];
-    const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-    const model=[]; for(const ln of lines){ const m=fromLine(ln); if(m) model.push(m); }
-    return model; }
-
-  function render(){
-    const { mount } = els(); const st=getState(); if(!mount) return;
-    mount.innerHTML='';
-    // Toolbar
-    const bar=document.createElement('div'); bar.className='ie-toolbar';
-    // Rebuilt: five-button toolbar — Add MC, Add TF, Add YN, Import, Clear
-    const addMC=document.createElement('button'); addMC.className='btn'; addMC.type='button'; addMC.textContent='Add MC'; addMC.title='Add Multiple Choice'; addMC.setAttribute('data-ie-add','MC');
-    const addTF=document.createElement('button'); addTF.className='btn'; addTF.type='button'; addTF.textContent='Add TF'; addTF.title='Add True/False'; addTF.setAttribute('data-ie-add','TF');
-    const addYN=document.createElement('button'); addYN.className='btn'; addYN.type='button'; addYN.textContent='Add YN'; addYN.title='Add Yes/No'; addYN.setAttribute('data-ie-add','YN');
-    const spacer=document.createElement('span'); spacer.className='flex-spacer';
-    const importBtn=document.createElement('button'); importBtn.className='btn btn-ghost'; importBtn.type='button'; importBtn.id='ieImport'; importBtn.textContent='Import from raw'; importBtn.title='Sync from the raw editor';
-    const clearBtn=document.createElement('button'); clearBtn.className='btn btn-ghost'; clearBtn.type='button'; clearBtn.id='ieClear'; clearBtn.textContent='Clear all'; clearBtn.title='Remove all cards';
-    // Direct per-button listeners for maximum reliability
-    addMC.addEventListener('click', (e)=>{ e.preventDefault(); const st=getState(); st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); syncToEditor(); render(); scrollLast(); });
-    addTF.addEventListener('click', (e)=>{ e.preventDefault(); const st=getState(); st.model.push({ type:'TF', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); });
-    addYN.addEventListener('click', (e)=>{ e.preventDefault(); const st=getState(); st.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); });
-    importBtn.addEventListener('click', (e)=>{ e.preventDefault(); syncFromEditor(); render(); });
-    clearBtn.addEventListener('click', (e)=>{ e.preventDefault(); const st=getState(); st.model=[]; syncToEditor(); render(); });
-    bar.append(addMC, addTF, addYN, spacer, importBtn, clearBtn);
-    mount.appendChild(bar);
-
-    // Cards
-    const wrap=document.createElement('div'); wrap.className='ie-grid';
-    st.model.forEach((q,idx)=>{
-      const card=document.createElement('div'); card.className='ie-card'; card.setAttribute('draggable','true'); card.dataset.index = String(idx);
-      // DnD
-      card.addEventListener('dragstart', (e)=>{ e.dataTransfer?.setData('text/plain', String(idx)); card.classList.add('dragging'); });
-      card.addEventListener('dragend', ()=> card.classList.remove('dragging'));
-      card.addEventListener('dragover', (e)=>{ e.preventDefault(); card.classList.add('drag-over'); });
-      card.addEventListener('dragleave', ()=> card.classList.remove('drag-over'));
-      card.addEventListener('drop', (e)=>{
-        e.preventDefault(); card.classList.remove('drag-over');
-        const from = parseInt(e.dataTransfer?.getData('text/plain')||'-1',10);
-        const to = parseInt(card.dataset.index||'-1',10);
-        if(isFinite(from)&&isFinite(to)&&from!==to){ const arr=getState().model; const it=arr.splice(from,1)[0]; arr.splice(to,0,it); syncToEditor(); render(); }
-      });
-      // Top row: type + actions
-      const row=document.createElement('div'); row.className='ie-row';
-      const typeSel=document.createElement('select'); typeSel.className='toolbar-input ie-type';
-      ['MC','TF','YN'].forEach(t=>{ const opt=document.createElement('option'); opt.value=t; opt.textContent=t; if(q.type===t) opt.selected=true; typeSel.appendChild(opt); });
-      const actions=document.createElement('div'); actions.className='ie-actions';
-      const up=document.createElement('button'); up.className='btn btn-ghost'; up.textContent='↑'; up.title='Move up';
-      const down=document.createElement('button'); down.className='btn btn-ghost'; down.textContent='↓'; down.title='Move down';
-      const dup=document.createElement('button'); dup.className='btn btn-ghost'; dup.textContent='Duplicate';
-      const del=document.createElement('button'); del.className='btn btn-ghost'; del.textContent='Delete';
-      actions.append(up,down,dup,del);
-      row.append(typeSel, actions);
-      card.appendChild(row);
-
-      // Prompt
-      const prompt=document.createElement('input'); prompt.type='text'; prompt.className='toolbar-input ie-prompt'; prompt.placeholder='Question prompt'; prompt.value=q.prompt||'';
-      card.appendChild(prompt);
-
-      // Answers
-      const area=document.createElement('div'); area.className='ie-choices';
-      if(q.type==='MC'){
-        q.options=q.options||[]; if(q.options.length===0) q.options=[{text:'',correct:false},{text:'',correct:false}];
-        q.options.forEach((opt,i)=>{
-          const line=document.createElement('div'); line.className='ie-choice';
-          const chk=document.createElement('input'); chk.type='checkbox'; chk.checked=!!opt.correct; chk.title='Correct';
-          const txt=document.createElement('input'); txt.type='text'; txt.value=opt.text||''; txt.placeholder=`Option ${String.fromCharCode(65+i)}`;
-          const rm=document.createElement('button'); rm.className='btn btn-ghost'; rm.textContent='✕'; rm.title='Remove option';
-          line.append(chk, txt, rm); area.appendChild(line);
-          chk.addEventListener('change', ()=>{ opt.correct=!!chk.checked; syncToEditor(); validate(card,q); });
-          txt.addEventListener('input', ()=>{ opt.text=txt.value; syncToEditor(); validate(card,q); });
-          rm.addEventListener('click', ()=>{ q.options.splice(i,1); syncToEditor(); render(); });
-        });
-        const addOpt=document.createElement('button'); addOpt.className='btn'; addOpt.textContent='Add option';
-        addOpt.disabled = q.options.length>=8;
-        addOpt.addEventListener('click', ()=>{ if(q.options.length<8){ q.options.push({text:'',correct:false}); syncToEditor(); render(); } });
-        area.appendChild(addOpt);
-      } else {
-        const onel=document.createElement('div'); onel.className='ie-choice';
-        const chk=document.createElement('select');
-        const opts=(q.type==='TF')?[['T','True'],['F','False']] : [['Y','Yes'],['N','No']];
-        opts.forEach(([v,l])=>{ const o=document.createElement('option'); o.value=v; o.textContent=l; if(((q.type==='TF' && (q.answer? 'T':'F')===v) || (q.type==='YN' && (q.answer? 'Y':'N')===v))) o.selected=true; chk.appendChild(o); });
-        const lbl=document.createElement('span'); lbl.textContent='Correct';
-        onel.append(chk,lbl);
-        area.appendChild(onel);
-        chk.addEventListener('change', ()=>{ const v=chk.value; q.answer = (q.type==='TF')? v==='T' : v==='Y'; syncToEditor(); validate(card,q); });
-      }
-      card.appendChild(area);
-
-      // Validation status
-      const status=document.createElement('div'); status.className='ie-mono'; card.appendChild(status);
-
-      // Wire changes
-      typeSel.addEventListener('change', ()=>{ const t=typeSel.value; if(t==='MC'){ q.type='MC'; q.options=q.options&&q.options.length?q.options:[{text:'',correct:false},{text:'',correct:false}]; delete q.answer; } else { q.type=t; q.answer=false; q.options=[]; } syncToEditor(); render(); });
-      prompt.addEventListener('input', ()=>{ q.prompt=prompt.value; syncToEditor(); validate(card,q); });
-      up.addEventListener('click', ()=>{ if(idx>0){ const a=getState().model; [a[idx-1],a[idx]]=[a[idx],a[idx-1]]; syncToEditor(); render(); }});
-      down.addEventListener('click', ()=>{ const a=getState().model; if(idx<a.length-1){ [a[idx+1],a[idx]]=[a[idx],a[idx+1]]; syncToEditor(); render(); }});
-      dup.addEventListener('click', ()=>{ const a=getState().model; a.splice(idx+1,0, JSON.parse(JSON.stringify(q))); syncToEditor(); render(); });
-      del.addEventListener('click', ()=>{ const a=getState().model; a.splice(idx,1); syncToEditor(); render(); });
-
-      validate(card,q);
-      wrap.appendChild(card);
-    });
-    mount.appendChild(wrap);
-
-    // Summary
-    const summary = document.createElement('div');
-    const total = st.model.length;
-    const okCount = st.model.filter(q=>{
-      if(!q.prompt||!q.prompt.trim()) return false;
-      if(q.type==='MC'){ const filled=q.options.filter(o=>o.text.trim()).length; const corr=q.options.filter(o=>o.correct).length; return filled>=2 && corr>=1; }
-      if(q.type==='TF'||q.type==='YN'){ return typeof q.answer==='boolean'; }
-      return false;
-    }).length;
-    summary.className='ie-mono';
-    summary.textContent = `Questions: ${total} — Valid: ${okCount}`;
-    mount.appendChild(summary);
-
-    // Delegation is installed once in init(); no per-render wiring needed here
-  }
-
-  function scrollLast(){ try{ const m=els().mount; const last = m && m.querySelector('.ie-card:last-of-type'); last && last.scrollIntoView({ behavior:'smooth', block:'end' }); }catch{}
-  }
-
-  function validate(card,q){
-    const ok = (()=>{
-      if(!q.prompt || !q.prompt.trim()) return false;
-      if(q.type==='MC'){ const filled=q.options.filter(o=>o.text.trim()).length; const corr=q.options.filter(o=>o.correct).length; return filled>=2 && corr>=1; }
-      if(q.type==='TF'||q.type==='YN'){ return typeof q.answer==='boolean'; }
-      return false;
-    })();
-    let note=card.querySelector('.ie-valid,.ie-error'); if(!note){ note=document.createElement('div'); card.appendChild(note); }
-    note.className = ok? 'ie-valid' : 'ie-error';
-    note.textContent = ok? 'Looks good' : 'Incomplete — add text and mark a correct answer';
-  }
+  function parseEditor(){ const ed=els().editor; const txt=(ed?.value||'').trim(); if(!txt) return []; return txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).map(fromLine).filter(Boolean); }
 
   function syncToEditor(){
-    const {editor, mirror}=els(); const st=getState();
-    const lines = st.model.map(toLine).filter(Boolean).join('\n');
+    const { editor, mirror } = els();
+    const lines = state.model.map(toLine).filter(Boolean).join('\n');
     if(editor){ editor.value = lines; editor.dispatchEvent(new Event('input', { bubbles:true })); }
     if(mirror){ mirror.value = lines; mirror.dispatchEvent(new Event('input', { bubbles:true })); }
-    // Ask the app to re-parse so Start enables/disabled correctly
-    try{
-      const topic = (document.getElementById('topicInput')?.value || 'Edited').trim();
-      runParseFlow(lines, topic || 'Edited', '');
-      // Ensure mirror is visible when content exists
-      const box = document.getElementById('mirrorBox');
-      if(box && lines){ box.setAttribute('data-on','true'); }
-    }catch{}
+    try{ const topic=(qs('topicInput')?.value||'Edited').trim()||'Edited'; runParseFlow(lines, topic, ''); const box=qs('mirrorBox'); if(box && lines){ box.setAttribute('data-on','true'); } }catch{}
+  }
+  function syncFromEditor(){ state.model = parseEditor(); renderCards(); renderSummary(); }
+
+  function setEnabled(on){ state.enabled=!!on; saveEnabled(state.enabled); const m=els().mount; if(m) m.classList.toggle('hidden', !state.enabled); if(state.enabled && state.model.length===0) syncFromEditor(); renderCards(); renderSummary(); }
+
+  function buildUI(){
+    const m=els().mount; if(!m) return;
+    m.innerHTML = `
+      <div class="ie-toolbar" role="group" aria-label="Interactive editor toolbar">
+        <button id="ieAddMC" class="btn" type="button" title="Add Multiple Choice">Add MC</button>
+        <button id="ieAddTF" class="btn" type="button" title="Add True/False">Add TF</button>
+        <button id="ieAddYN" class="btn" type="button" title="Add Yes/No">Add YN</button>
+        <span class="flex-spacer"></span>
+        <button id="ieImport" class="btn btn-ghost" type="button" title="Import from raw">Import from raw</button>
+        <button id="ieClear" class="btn btn-ghost" type="button" title="Clear all">Clear all</button>
+      </div>
+      <div id="ieGrid" class="ie-grid" aria-live="polite"></div>
+      <div id="ieSummary" class="ie-mono"></div>
+    `;
+
+    // Wire toolbar using pointerdown in capture phase to beat Options' doc-level click-away
+    const bind = (id, fn)=>{ const b=qs(id); if(!b) return; const h=(e)=>{ try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{} fn(); }; b.addEventListener('pointerdown', h, true); b.addEventListener('click', h, false); };
+    bind('ieAddMC', ()=>{ state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); });
+    bind('ieAddTF', ()=>{ state.model.push({ type:'TF', prompt:'', answer:false }); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); });
+    bind('ieAddYN', ()=>{ state.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); });
+    bind('ieImport', ()=>{ syncFromEditor(); });
+    bind('ieClear', ()=>{ state.model=[]; syncToEditor(); renderCards(); renderSummary(); });
   }
 
-  function syncFromEditor(){ const st=getState(); st.model = parseEditor(); }
+  function ensureLastVisible(){ try{ const m=els().mount; const last = m && m.querySelector('.ie-card:last-of-type'); last && last.scrollIntoView({ behavior:'smooth', block:'end' }); }catch{} }
+  function ok(q){ if(!q||!q.type) return false; if(!q.prompt||!q.prompt.trim()) return false; if(q.type==='MC'){ const a=(q.options||[]); const filled=a.filter(o=>o.text&&o.text.trim()).length; const corr=a.filter(o=>o.correct).length; return filled>=2 && corr>=1; } if(q.type==='TF'||q.type==='YN'){ return typeof q.answer==='boolean'; } return false; }
 
-  function show(on){ const {mount}=els(); if(!mount) return; mount.classList.toggle('hidden', !on); }
+  function btn(text, title){ const b=document.createElement('button'); b.className='btn btn-ghost'; b.type='button'; b.textContent=text; if(title) b.title=title; return b; }
+
+  function renderCards(){
+    const g=els().grid; if(!g) return; g.innerHTML='';
+    state.model.forEach((q,idx)=>{
+      const card=document.createElement('div'); card.className='ie-card'; card.dataset.idx=String(idx);
+      const row=document.createElement('div'); row.className='ie-row';
+      const type=document.createElement('select'); type.className='toolbar-input ie-type'; ['MC','TF','YN'].forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; if(q.type===t) o.selected=true; type.appendChild(o); });
+      const actions=document.createElement('div'); actions.className='ie-actions'; const up=btn('↑','Move up'), down=btn('↓','Move down'), dup=btn('Duplicate','Duplicate'), del=btn('Delete','Delete'); actions.append(up,down,dup,del); row.append(type, actions); card.appendChild(row);
+      const prompt=document.createElement('input'); prompt.type='text'; prompt.className='toolbar-input ie-prompt'; prompt.placeholder='Question prompt'; prompt.value=q.prompt||''; card.appendChild(prompt);
+      const area=document.createElement('div'); area.className='ie-choices';
+      if(q.type==='MC'){
+        q.options=q.options||[]; if(q.options.length<2) q.options=[{text:'',correct:false},{text:'',correct:false}];
+        q.options.forEach((opt,i)=>{ const line=document.createElement('div'); line.className='ie-choice'; const chk=document.createElement('input'); chk.type='checkbox'; chk.checked=!!opt.correct; const txt=document.createElement('input'); txt.type='text'; txt.value=opt.text||''; txt.placeholder=`Option ${String.fromCharCode(65+i)}`; const rm=btn('✕','Remove option'); line.append(chk,txt,rm); area.appendChild(line); chk.addEventListener('change', ()=>{ opt.correct=!!chk.checked; syncToEditor(); renderSummary(); }); txt.addEventListener('input', ()=>{ opt.text=txt.value; syncToEditor(); renderSummary(); }); rm.addEventListener('click', ()=>{ q.options.splice(i,1); syncToEditor(); renderCards(); renderSummary(); }); });
+        const addOpt=btn('Add option','Add option'); addOpt.addEventListener('click', ()=>{ if(q.options.length<8){ q.options.push({text:'',correct:false}); syncToEditor(); renderCards(); renderSummary(); } }); area.appendChild(addOpt);
+      } else {
+        const line=document.createElement('div'); line.className='ie-choice'; const sel=document.createElement('select'); const opts=(q.type==='TF')?[['T','True'],['F','False']]:[['Y','Yes'],['N','No']]; opts.forEach(([v,l])=>{ const o=document.createElement('option'); o.value=v; o.textContent=l; sel.appendChild(o); }); sel.value = (q.type==='TF') ? (q.answer?'T':'F') : (q.answer?'Y':'N'); const lbl=document.createElement('span'); lbl.textContent='Correct'; line.append(sel,lbl); area.appendChild(line); sel.addEventListener('change', ()=>{ const v=sel.value; q.answer = (q.type==='TF') ? v==='T' : v==='Y'; syncToEditor(); renderSummary(); });
+      }
+      card.appendChild(area);
+      const status=document.createElement('div'); status.className = ok(q)?'ie-valid':'ie-error'; status.textContent = ok(q)?'Looks good':'Incomplete — add text and mark a correct answer'; card.appendChild(status);
+      type.addEventListener('change', ()=>{ const t=type.value; if(t==='MC'){ q.type='MC'; q.options=q.options&&q.options.length?q.options:[{text:'',correct:false},{text:'',correct:false}]; delete q.answer; } else { q.type=t; q.answer=false; q.options=[]; } syncToEditor(); renderCards(); renderSummary(); });
+      prompt.addEventListener('input', ()=>{ q.prompt=prompt.value; syncToEditor(); status.className = ok(q)?'ie-valid':'ie-error'; status.textContent = ok(q)?'Looks good':'Incomplete — add text and mark a correct answer'; renderSummary(); });
+      up.addEventListener('click', ()=>{ if(idx>0){ const a=state.model; [a[idx-1],a[idx]]=[a[idx],a[idx-1]]; syncToEditor(); renderCards(); }});
+      down.addEventListener('click', ()=>{ const a=state.model; if(idx<a.length-1){ [a[idx+1],a[idx]]=[a[idx],a[idx+1]]; syncToEditor(); renderCards(); }});
+      dup.addEventListener('click', ()=>{ const a=state.model; a.splice(idx+1,0, JSON.parse(JSON.stringify(q))); syncToEditor(); renderCards(); });
+      del.addEventListener('click', ()=>{ const a=state.model; a.splice(idx,1); syncToEditor(); renderCards(); renderSummary(); });
+      g.appendChild(card);
+    });
+  }
+
+  function renderSummary(){ const s=els().summary; if(!s) return; const total=state.model.length; const valid=state.model.filter(ok).length; s.textContent = `Questions: ${total} — Valid: ${valid}`; }
 
   function init(){
-    const { toggle, editor, mount } = els();
-    // One-time, robust mount-level delegation for Add/Import/Clear
-    // No mount-level delegation needed; per-button listeners above suffice.
-    if(toggle){ toggle.checked = loadEnabled(); toggle.addEventListener('change', ()=>{ const on=!!toggle.checked; getState().enabled=on; saveEnabled(on); if(on){ syncFromEditor(); render(); } show(on); }); }
-    const on = loadEnabled(); getState().enabled = on; show(on);
-    if(on){
-      syncFromEditor(); render();
-      try{ const topic=(document.getElementById('topicInput')?.value||'Edited').trim(); runParseFlow((els().editor?.value)||'', topic||'Edited',''); }catch{}
-    }
-    // Keep GUI synced if user types raw lines
-    editor?.addEventListener('input', ()=>{ const st=getState(); if(!st.enabled) return; syncFromEditor(); render(); });
-
-    // Removed document-level capture delegation to avoid interference and
-    // ensure clicks are routed via the mount-only handler above.
+    buildUI();
+    const t=els().toggle; if(t){ t.checked = loadEnabled(); t.addEventListener('change', ()=> setEnabled(!!t.checked)); }
+    setEnabled(loadEnabled());
+    els().editor?.addEventListener('input', ()=>{ if(!state.enabled) return; syncFromEditor(); });
   }
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    // If the module loads after DOMContentLoaded, initialize immediately.
-    init();
-  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', init); } else { init(); }
   return { init };
 })();
 
-export default IE_NS;
+export default IE2;
+
