@@ -65,12 +65,12 @@ const IE_NS = (()=>{
     mount.innerHTML='';
     // Toolbar
     const bar=document.createElement('div'); bar.className='ie-toolbar';
-    const addMC=document.createElement('button'); addMC.className='btn'; addMC.textContent='Add MC'; addMC.setAttribute('data-ie-add','MC');
-    const addTF=document.createElement('button'); addTF.className='btn'; addTF.textContent='Add TF'; addTF.setAttribute('data-ie-add','TF');
-    const addYN=document.createElement('button'); addYN.className='btn'; addYN.textContent='Add YN'; addYN.setAttribute('data-ie-add','YN');
+    const addMC=document.createElement('button'); addMC.className='btn'; addMC.type='button'; addMC.textContent='Add MC'; addMC.setAttribute('data-ie-add','MC');
+    const addTF=document.createElement('button'); addTF.className='btn'; addTF.type='button'; addTF.textContent='Add TF'; addTF.setAttribute('data-ie-add','TF');
+    const addYN=document.createElement('button'); addYN.className='btn'; addYN.type='button'; addYN.textContent='Add YN'; addYN.setAttribute('data-ie-add','YN');
     const spacer=document.createElement('span'); spacer.className='flex-spacer';
-    const importBtn=document.createElement('button'); importBtn.className='btn btn-ghost'; importBtn.textContent='Import from raw';
-    const clearBtn=document.createElement('button'); clearBtn.className='btn btn-ghost'; clearBtn.textContent='Clear all';
+    const importBtn=document.createElement('button'); importBtn.className='btn btn-ghost'; importBtn.type='button'; importBtn.id='ieImport'; importBtn.textContent='Import from raw';
+    const clearBtn=document.createElement('button'); clearBtn.className='btn btn-ghost'; clearBtn.type='button'; clearBtn.id='ieClear'; clearBtn.textContent='Clear all';
     addMC.addEventListener('click', ()=>{ st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); syncToEditor(); render(); scrollLast(); });
     addTF.addEventListener('click', ()=>{ st.model.push({ type:'TF', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); });
     addYN.addEventListener('click', ()=>{ st.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); });
