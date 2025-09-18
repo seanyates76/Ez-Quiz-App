@@ -65,14 +65,15 @@ const IE2 = (()=>{
         <button id="ieClear" class="btn btn-ghost" type="button" title="Clear all">Clear all</button>
       </div>
       <div id="ieGrid" class="ie-grid" aria-live="polite"></div>
-      <div id="ieSummary" class="ie-mono"></div>
+      <div id="ieSummary" class="ie-mono">IE ready — Hotkeys: M=MC, T=TF, Y=YN</div>
     `;
 
     // Wire toolbar using pointerdown in capture phase to beat Options' doc-level click-away
     const bind = (id, fn)=>{ const b=qs(id); if(!b) return; const h=(e)=>{ try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{} fn(); }; b.addEventListener('pointerdown', h, true); b.addEventListener('click', h, false); };
-    bind('ieAddMC', ()=>{ state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ' • Added MC'; });
-    bind('ieAddTF', ()=>{ state.model.push({ type:'TF', prompt:'', answer:false }); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ' • Added TF'; });
-    bind('ieAddYN', ()=>{ state.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ' • Added YN'; });
+    const addQ=(type)=>{ if(type==='MC') state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); if(type==='TF') state.model.push({ type:'TF', prompt:'', answer:false }); if(type==='YN') state.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ` • Added ${type}`; };
+    bind('ieAddMC', ()=> addQ('MC'));
+    bind('ieAddTF', ()=> addQ('TF'));
+    bind('ieAddYN', ()=> addQ('YN'));
     bind('ieImport', ()=>{ syncFromEditor(); });
     bind('ieClear', ()=>{ state.model=[]; syncToEditor(); renderCards(); renderSummary(); });
     // Minimal inline diagnostics: show pointerdown/click targets in summary
@@ -83,6 +84,15 @@ const IE2 = (()=>{
       m.addEventListener('pointerdown', pd, true);
       m.addEventListener('click', ck, true);
     }
+
+    // Keyboard shortcuts for reliability even if pointer events are blocked
+    document.addEventListener('keydown', (e)=>{
+      if(!state.enabled) return;
+      const k=e.key.toLowerCase();
+      if(k==='m'){ e.preventDefault(); addQ('MC'); }
+      else if(k==='t'){ e.preventDefault(); addQ('TF'); }
+      else if(k==='y'){ e.preventDefault(); addQ('YN'); }
+    });
   }
 
   // Document-level capture safety net: handle IE toolbar clicks before
