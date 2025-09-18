@@ -760,6 +760,7 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 }
 
 /* Interactive Editor (beta) */
+.advanced-body #interactiveEditor{ position:relative; z-index:200; pointer-events:auto }
 .ie-toolbar{ display:flex; align-items:center; gap:8px; margin:6px 0 }
 .ie-card{ border:1px solid var(--field-border); background:var(--panel-2); border-radius:12px; padding:10px; box-shadow:0 6px 16px rgba(0,0,0,.18) }
 .ie-grid{ display:grid; grid-template-columns:1fr; gap:8px }
