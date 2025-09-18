@@ -48,6 +48,11 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const mirror = $('mirror');
   const statusBox = $('status');
 
+  const loadBtn = $('loadBtn');
+  const fileInput = $('fileInput');
+  const demoBtn = $('demoBtn');
+  const clearBtn = $('clearBtn');
+  const loadLastBtn = $('loadLastBtn');
   const optionsBtn = $('optionsBtn');
   const optionsPanel = $('optionsPanel');
   const advDisclosure = document.querySelector('.advanced-disclosure');
@@ -71,7 +76,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const qtTF = $('qtTF');
   const qtYN = $('qtYN');
   const qtMT = $('qtMT');
-  // Advanced row Start button removed; primary toolbar button handles Start/Generate
+  const startBtn2 = $('startBtn');
 
   // Primary action mode machine
   function setPrimaryAction(mode){
@@ -83,7 +88,29 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   // Initialize primary action based on advanced visibility
   setPrimaryAction(advBlock && !advBlock.hidden ? 'generate' : 'start');
 
-  // Removed: Load .txt, Demo Set, Clear, Load last quiz (advanced row trimmed)
+  loadBtn?.addEventListener('click', ()=> fileInput?.click());
+  fileInput?.addEventListener('change', ()=>{
+    const f = fileInput.files && fileInput.files[0]; if(!f) return;
+    const reader = new FileReader();
+    reader.onload = () => { const text = String(reader.result || ''); if(editor) editor.value = text; if(mirror) mirror.value = text; /* mirror stays hidden by default */ runParseFlow(text, f.name || 'Imported', ''); statusBox && (statusBox.textContent = `Loaded ${f.name} (${text.length} chars)`); };
+    reader.onerror = () => { statusBox && (statusBox.textContent = 'Failed to read file'); };
+    reader.readAsText(f);
+  });
+
+  demoBtn?.addEventListener('click', ()=>{
+    const demo = [
+      'MC|Which planet is known as the Red Planet?|A) Venus;B) Mars;C) Jupiter;D) Saturn|B',
+      'MC|Select prime numbers.|A) 2;B) 4;C) 5;D) 9|A,C',
+      'TF|The Pacific Ocean is larger than the Atlantic.|T',
+      'YN|Is 0 an even number?|Y',
+      'MT|Match ports to services.|1) 22;2) 53|A) SSH;B) DNS|1-A,2-B',
+      'TF|Lightning never strikes the same place twice.|F',
+    ].join('\n');
+    if(editor) editor.value = demo; if(mirror) mirror.value = demo; /* mirror stays hidden by default */ runParseFlow(demo, 'Demo', '');
+  });
+
+  clearBtn?.addEventListener('click', ()=>{ if(editor) editor.value = ''; if(mirror) mirror.value = ''; const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); });
+  loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } if(editor) editor.value = last; if(mirror) mirror.value = last; /* mirror stays hidden by default */ runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
 
   generateBtn?.addEventListener('click', async ()=>{
     const mode = generateBtn?.getAttribute('data-mode') || 'start';
@@ -203,7 +230,8 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   resetDefaultsBtn?.addEventListener('click', ()=>{ clearDefaults(); applyDefaultsToUI(); });
   resetDefaultsBtn?.addEventListener('click', ()=>{ if(defaultsStatus){ defaultsStatus.textContent = 'Defaults cleared.'; } });
 
-  // Starting a quiz now uses the primary toolbar button.
+  // Start button in Advanced
+  startBtn2?.addEventListener('click', ()=>{ if(S.quiz?.questions?.length){ syncSettingsFromUI(); beginQuiz(); } });
   // Copy / Export actions in Advanced
   function getMirrorText(){ return (mirror?.value || '').trim(); }
   copyPromptsBtn?.addEventListener('click', ()=>{ const t=getMirrorText(); if(!t){ statusBox && (statusBox.textContent='Nothing to copy. Generate first.'); return; } navigator.clipboard.writeText(t).then(()=>{ statusBox && (statusBox.textContent='Copied prompts.'); }).catch(()=>{ statusBox && (statusBox.textContent='Copy failed.'); }); });
