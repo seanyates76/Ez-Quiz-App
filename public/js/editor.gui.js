@@ -172,22 +172,15 @@ const IE_NS = (()=>{
 
     // Event delegation fallback: ensures clicks work even if nodes re-render quickly
     if(!mount.__ieDelegated){
+      const findUp = (node, pred, stop) => { let el = node && node.nodeType===1 ? node : node?.parentElement; while(el && el!==stop){ if(pred(el)) return el; el = el.parentElement; } return null; };
       mount.addEventListener('click', (e)=>{
-        const tgt = e.target;
-        const add = tgt.closest('[data-ie-add]');
-        if(add){
-          e.preventDefault();
-          const type = add.getAttribute('data-ie-add');
-          const st=getState();
-          if(type==='MC') st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]});
-          if(type==='TF') st.model.push({ type:'TF', prompt:'', answer:false });
-          if(type==='YN') st.model.push({ type:'YN', prompt:'', answer:false });
-          syncToEditor(); render(); scrollLast();
-          return;
-        }
-        if(tgt.closest('#ieImport')){ e.preventDefault(); syncFromEditor(); render(); return; }
-        if(tgt.closest('#ieClear')){ e.preventDefault(); const st=getState(); st.model=[]; syncToEditor(); render(); return; }
-      });
+        try{
+          const add = findUp(e.target, el=> el.hasAttribute && el.hasAttribute('data-ie-add'), mount);
+          if(add){ e.preventDefault(); const type = add.getAttribute('data-ie-add'); const st=getState(); if(type==='MC') st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); if(type==='TF') st.model.push({ type:'TF', prompt:'', answer:false }); if(type==='YN') st.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); return; }
+          const imp = findUp(e.target, el=> el.id==='ieImport', mount); if(imp){ e.preventDefault(); syncFromEditor(); render(); return; }
+          const clr = findUp(e.target, el=> el.id==='ieClear', mount); if(clr){ e.preventDefault(); const st=getState(); st.model=[]; syncToEditor(); render(); return; }
+        }catch{}
+      }, false);
       mount.__ieDelegated = true;
     }
   }
