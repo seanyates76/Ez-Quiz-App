@@ -229,6 +229,27 @@ const IE_NS = (()=>{
     }
     // Keep GUI synced if user types raw lines
     editor?.addEventListener('input', ()=>{ const st=getState(); if(!st.enabled) return; syncFromEditor(); render(); });
+
+    // Document-level delegation as final safety (Brave/Firefox quirks)
+    if(!window.__EZQ__._ieDocDelegated){
+      const findUp = (node, pred) => { let el = node && (node.nodeType===1?node:node.parentElement); while(el){ if(pred(el)) return el; el = el.parentElement; } return null; };
+      document.addEventListener('click', (e)=>{
+        const mt = document.getElementById('interactiveEditor'); if(!mt || mt.classList.contains('hidden')) return;
+        const add = findUp(e.target, el=> el.hasAttribute && el.hasAttribute('data-ie-add'));
+        if(add && mt.contains(add)){
+          e.preventDefault(); const type = add.getAttribute('data-ie-add'); const st=getState();
+          if(type==='MC') st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]});
+          if(type==='TF') st.model.push({ type:'TF', prompt:'', answer:false });
+          if(type==='YN') st.model.push({ type:'YN', prompt:'', answer:false });
+          syncToEditor(); render(); return;
+        }
+        const imp = findUp(e.target, el=> el.id==='ieImport');
+        if(imp && mt.contains(imp)){ e.preventDefault(); syncFromEditor(); render(); return; }
+        const clr = findUp(e.target, el=> el.id==='ieClear');
+        if(clr && mt.contains(clr)){ e.preventDefault(); const st=getState(); st.model=[]; syncToEditor(); render(); return; }
+      }, true);
+      window.__EZQ__._ieDocDelegated = true;
+    }
   }
 
   document.addEventListener('DOMContentLoaded', init);
