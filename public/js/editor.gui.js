@@ -237,16 +237,17 @@ const IE_NS = (()=>{
         const mt = document.getElementById('interactiveEditor'); if(!mt || mt.classList.contains('hidden')) return;
         const add = findUp(e.target, el=> el.hasAttribute && el.hasAttribute('data-ie-add'));
         if(add && mt.contains(add)){
-          e.preventDefault(); const type = add.getAttribute('data-ie-add'); const st=getState();
+          try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{}
+          const type = add.getAttribute('data-ie-add'); const st=getState();
           if(type==='MC') st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]});
           if(type==='TF') st.model.push({ type:'TF', prompt:'', answer:false });
           if(type==='YN') st.model.push({ type:'YN', prompt:'', answer:false });
           syncToEditor(); render(); return;
         }
         const imp = findUp(e.target, el=> el.id==='ieImport');
-        if(imp && mt.contains(imp)){ e.preventDefault(); syncFromEditor(); render(); return; }
+        if(imp && mt.contains(imp)){ try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{} syncFromEditor(); render(); return; }
         const clr = findUp(e.target, el=> el.id==='ieClear');
-        if(clr && mt.contains(clr)){ e.preventDefault(); const st=getState(); st.model=[]; syncToEditor(); render(); return; }
+        if(clr && mt.contains(clr)){ try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{} const st=getState(); st.model=[]; syncToEditor(); render(); return; }
       }, true);
       window.__EZQ__._ieDocDelegated = true;
     }
