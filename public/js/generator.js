@@ -116,10 +116,10 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     const mode = generateBtn?.getAttribute('data-mode') || 'start';
     const editorText = (editor?.value || '').trim();
     const topicTyped = (topicInput?.value || '').trim();
-    // Start mode: generate a new quiz if a topic is provided; only use existing
-    // editor content when no topic is given (explicit manual flow).
-    if(mode==='start' && editorText.length && !topicTyped){
-      runParseFlow(editorText, topicInput?.value || 'Custom', '');
+    // Start mode: prefer existing editor content if present (IE or manual paste),
+    // regardless of Topic field. Fallback to AI only when editor is empty.
+    if(mode==='start' && editorText.length){
+      runParseFlow(editorText, topicTyped || 'Custom', '');
       if(S.quiz.questions && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); }
       return;
     }
