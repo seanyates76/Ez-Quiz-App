@@ -1,5 +1,6 @@
 // Interactive Editor (beta) — MC/TF/YN only
 // Non-invasive: syncs with #editor/#mirror and can be toggled on/off.
+import { runParseFlow } from './generator.js';
 
 const IE_NS = (()=>{
   const SKEY='ezq.ie.on';
@@ -193,7 +194,7 @@ const IE_NS = (()=>{
     // Ask the app to re-parse so Start enables/disabled correctly
     try{
       const topic = (document.getElementById('topicInput')?.value || 'Edited').trim();
-      import('./generator.js').then(mod=>{ try{ mod.runParseFlow(lines, topic || 'Edited', ''); }catch{} });
+      runParseFlow(lines, topic || 'Edited', '');
       // Ensure mirror is visible when content exists
       const box = document.getElementById('mirrorBox');
       if(box && lines){ box.setAttribute('data-on','true'); }
@@ -208,7 +209,10 @@ const IE_NS = (()=>{
     const { toggle, editor } = els();
     if(toggle){ toggle.checked = loadEnabled(); toggle.addEventListener('change', ()=>{ const on=!!toggle.checked; getState().enabled=on; saveEnabled(on); if(on){ syncFromEditor(); render(); } show(on); }); }
     const on = loadEnabled(); getState().enabled = on; show(on);
-    if(on){ syncFromEditor(); render(); }
+    if(on){
+      syncFromEditor(); render();
+      try{ const topic=(document.getElementById('topicInput')?.value||'Edited').trim(); runParseFlow((els().editor?.value)||'', topic||'Edited',''); }catch{}
+    }
     // Keep GUI synced if user types raw lines
     editor?.addEventListener('input', ()=>{ const st=getState(); if(!st.enabled) return; syncFromEditor(); render(); });
   }
