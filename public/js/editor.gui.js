@@ -75,6 +75,14 @@ const IE2 = (()=>{
     bind('ieAddYN', ()=>{ state.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ' • Added YN'; });
     bind('ieImport', ()=>{ syncFromEditor(); });
     bind('ieClear', ()=>{ state.model=[]; syncToEditor(); renderCards(); renderSummary(); });
+    // Minimal inline diagnostics: show pointerdown/click targets in summary
+    const m=els().mount; const s=els().summary;
+    if(m){
+      const pd=(e)=>{ if(s){ s.textContent = `pd:${(e.target&&e.target.id)||e.target.tagName}`; } };
+      const ck=(e)=>{ if(s){ s.textContent += ` | click:${(e.target&&e.target.id)||e.target.tagName}`; } };
+      m.addEventListener('pointerdown', pd, true);
+      m.addEventListener('click', ck, true);
+    }
   }
 
   // Document-level capture safety net: handle IE toolbar clicks before
