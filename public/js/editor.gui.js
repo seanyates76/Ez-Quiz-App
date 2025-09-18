@@ -71,11 +71,9 @@ const IE_NS = (()=>{
     const spacer=document.createElement('span'); spacer.className='flex-spacer';
     const importBtn=document.createElement('button'); importBtn.className='btn btn-ghost'; importBtn.type='button'; importBtn.id='ieImport'; importBtn.textContent='Import from raw';
     const clearBtn=document.createElement('button'); clearBtn.className='btn btn-ghost'; clearBtn.type='button'; clearBtn.id='ieClear'; clearBtn.textContent='Clear all';
-    addMC.addEventListener('click', ()=>{ st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); syncToEditor(); render(); scrollLast(); });
-    addTF.addEventListener('click', ()=>{ st.model.push({ type:'TF', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); });
-    addYN.addEventListener('click', ()=>{ st.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); });
-    importBtn.addEventListener('click', ()=>{ syncFromEditor(); render(); });
-    clearBtn.addEventListener('click', ()=>{ st.model=[]; syncToEditor(); render(); });
+    // Note: per-button listeners are intentionally omitted. A single
+    // mount-level delegated handler (wired in init) handles Add/Import/Clear
+    // clicks reliably across re-renders and browsers.
     bar.append(addMC, addTF, addYN, spacer, importBtn, clearBtn);
     mount.appendChild(bar);
 
@@ -170,19 +168,7 @@ const IE_NS = (()=>{
     summary.textContent = `Questions: ${total} — Valid: ${okCount}`;
     mount.appendChild(summary);
 
-    // Event delegation fallback: ensures clicks work even if nodes re-render quickly
-    if(!mount.__ieDelegated){
-      const findUp = (node, pred, stop) => { let el = node && node.nodeType===1 ? node : node?.parentElement; while(el && el!==stop){ if(pred(el)) return el; el = el.parentElement; } return null; };
-      mount.addEventListener('click', (e)=>{
-        try{
-          const add = findUp(e.target, el=> el.hasAttribute && el.hasAttribute('data-ie-add'), mount);
-          if(add){ e.preventDefault(); const type = add.getAttribute('data-ie-add'); const st=getState(); if(type==='MC') st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); if(type==='TF') st.model.push({ type:'TF', prompt:'', answer:false }); if(type==='YN') st.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); render(); scrollLast(); return; }
-          const imp = findUp(e.target, el=> el.id==='ieImport', mount); if(imp){ e.preventDefault(); syncFromEditor(); render(); return; }
-          const clr = findUp(e.target, el=> el.id==='ieClear', mount); if(clr){ e.preventDefault(); const st=getState(); st.model=[]; syncToEditor(); render(); return; }
-        }catch{}
-      }, false);
-      mount.__ieDelegated = true;
-    }
+    // Delegation is installed once in init(); no per-render wiring needed here
   }
 
   function scrollLast(){ try{ const m=els().mount; const last = m && m.querySelector('.ie-card:last-of-type'); last && last.scrollIntoView({ behavior:'smooth', block:'end' }); }catch{}
@@ -220,7 +206,24 @@ const IE_NS = (()=>{
   function show(on){ const {mount}=els(); if(!mount) return; mount.classList.toggle('hidden', !on); }
 
   function init(){
-    const { toggle, editor } = els();
+    const { toggle, editor, mount } = els();
+    // One-time, robust mount-level delegation for Add/Import/Clear
+    if(mount && !mount.__ieDelegated){
+      const closest = (el, sel, stop) => { let n = el && (el.nodeType===1 ? el : el.parentElement); while(n){ if(n.matches && n.matches(sel)) return n; if(n===stop) break; n = n.parentElement; } return null; };
+      mount.addEventListener('click', (e)=>{
+        const add = closest(e.target, '[data-ie-add]', mount);
+        if(add){ e.preventDefault(); const type = add.getAttribute('data-ie-add'); const st=getState();
+          if(type==='MC') st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]});
+          if(type==='TF') st.model.push({ type:'TF', prompt:'', answer:false });
+          if(type==='YN') st.model.push({ type:'YN', prompt:'', answer:false });
+          syncToEditor(); render(); scrollLast(); return; }
+        const imp = closest(e.target, '#ieImport', mount);
+        if(imp){ e.preventDefault(); syncFromEditor(); render(); return; }
+        const clr = closest(e.target, '#ieClear', mount);
+        if(clr){ e.preventDefault(); const st=getState(); st.model=[]; syncToEditor(); render(); return; }
+      }, false);
+      mount.__ieDelegated = true;
+    }
     if(toggle){ toggle.checked = loadEnabled(); toggle.addEventListener('change', ()=>{ const on=!!toggle.checked; getState().enabled=on; saveEnabled(on); if(on){ syncFromEditor(); render(); } show(on); }); }
     const on = loadEnabled(); getState().enabled = on; show(on);
     if(on){
@@ -230,30 +233,16 @@ const IE_NS = (()=>{
     // Keep GUI synced if user types raw lines
     editor?.addEventListener('input', ()=>{ const st=getState(); if(!st.enabled) return; syncFromEditor(); render(); });
 
-    // Document-level delegation as final safety (Brave/Firefox quirks)
-    if(!window.__EZQ__._ieDocDelegated){
-      const findUp = (node, pred) => { let el = node && (node.nodeType===1?node:node.parentElement); while(el){ if(pred(el)) return el; el = el.parentElement; } return null; };
-      document.addEventListener('click', (e)=>{
-        const mt = document.getElementById('interactiveEditor'); if(!mt || mt.classList.contains('hidden')) return;
-        const add = findUp(e.target, el=> el.hasAttribute && el.hasAttribute('data-ie-add'));
-        if(add && mt.contains(add)){
-          try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{}
-          const type = add.getAttribute('data-ie-add'); const st=getState();
-          if(type==='MC') st.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]});
-          if(type==='TF') st.model.push({ type:'TF', prompt:'', answer:false });
-          if(type==='YN') st.model.push({ type:'YN', prompt:'', answer:false });
-          syncToEditor(); render(); return;
-        }
-        const imp = findUp(e.target, el=> el.id==='ieImport');
-        if(imp && mt.contains(imp)){ try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{} syncFromEditor(); render(); return; }
-        const clr = findUp(e.target, el=> el.id==='ieClear');
-        if(clr && mt.contains(clr)){ try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{} const st=getState(); st.model=[]; syncToEditor(); render(); return; }
-      }, true);
-      window.__EZQ__._ieDocDelegated = true;
-    }
+    // Removed document-level capture delegation to avoid interference and
+    // ensure clicks are routed via the mount-only handler above.
   }
 
-  document.addEventListener('DOMContentLoaded', init);
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    // If the module loads after DOMContentLoaded, initialize immediately.
+    init();
+  }
   return { init };
 })();
 

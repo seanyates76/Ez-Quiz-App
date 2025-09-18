@@ -30,8 +30,7 @@ Interactive Editor (beta)
 - Inline validation ensures each question has a prompt and a marked correct answer.
 - Default off for now to keep the classic editor front‑and‑center.
 
-Smoke-test (standalone)
-- Use `ie-smoke.html` to validate the Interactive Editor in isolation (no SW, CSP, or accordions). Open it directly in a browser, toggle the beta editor, and exercise Add/Import/Clear and two‑way sync.
+Note: A separate smoke-test page is no longer needed; test directly in Options → Advanced inside the main app.
 
 Appearance and options
 - Theme supports Dark, Light, and System (follows OS).
