@@ -37,17 +37,18 @@ Appearance and options
 - Theme supports Dark, Light, and System (follows OS).
 - Question Types are spelled out (Multiple Choice, True/False, Yes/No, Matching) and render as mobile‑friendly chips.
 
-Prompt Builder
-- Press Ctrl/Cmd+P or use the ✨ button to copy a ready‑made AI prompt.
-- Paste the AI output into the Editor; the Mirror shows raw lines.
-
 Question Format
 Each line uses pipes and semicolons: `TYPE|Question|Options|Answer`
-- MC: `MC|Which shape has three sides?|A) Triangle;B) Square|A`
-- MC multi: `MC|Which numbers are prime?|A) 2;B) 4;C) 5;D) 9|A,C`
-- TF: `TF|The Sun is a star.|T`
-- YN: `YN|Is 0 an even number?|Y`
-- MT: `MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B`
+
+Parsable examples (copy as-is):
+```
+MC|Which shape has three sides?|A) Triangle;B) Square|A
+MC|Which numbers are prime?|A) 2;B) 4;C) 5;D) 9|A,C
+TF|The Sun is a star.|T
+YN|Is 0 an even number?|Y
+MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B
+```
+Tip: For multiple correct answers in MC, separate letters with commas (e.g., `A,C`).
 
 Deploy (Netlify)
 - Repo includes `netlify.toml` for headers/caching.
@@ -61,7 +62,7 @@ Troubleshooting Updates (Mobile/PWA)
 
 Changelog Highlights
 - 1.3.0-beta.0: Removed FAB gradient backdrop; added Reset App and `?clear=1`/`#clear-cache`; bumped asset versions + SW cache.
-- Earlier: prompt builder; header wordmark; improved import; single‑scrollbar Help; progress bar; retake polish.
+- Earlier: header wordmark; improved import; single‑scrollbar Help; progress bar; retake polish.
 
 License
 MIT — see `LICENSE.txt`.

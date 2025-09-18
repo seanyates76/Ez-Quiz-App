@@ -190,6 +190,14 @@ const IE_NS = (()=>{
     const lines = st.model.map(toLine).filter(Boolean).join('\n');
     if(editor){ editor.value = lines; editor.dispatchEvent(new Event('input', { bubbles:true })); }
     if(mirror){ mirror.value = lines; mirror.dispatchEvent(new Event('input', { bubbles:true })); }
+    // Ask the app to re-parse so Start enables/disabled correctly
+    try{
+      const topic = (document.getElementById('topicInput')?.value || 'Edited').trim();
+      import('./generator.js').then(mod=>{ try{ mod.runParseFlow(lines, topic || 'Edited', ''); }catch{} });
+      // Ensure mirror is visible when content exists
+      const box = document.getElementById('mirrorBox');
+      if(box && lines){ box.setAttribute('data-on','true'); }
+    }catch{}
   }
 
   function syncFromEditor(){ const st=getState(); st.model = parseEditor(); }
