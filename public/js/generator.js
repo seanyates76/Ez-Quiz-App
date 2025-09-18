@@ -116,9 +116,9 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     const mode = generateBtn?.getAttribute('data-mode') || 'start';
     const editorText = (editor?.value || '').trim();
     const topicTyped = (topicInput?.value || '').trim();
-    // Start mode: prefer existing editor content if present (IE or manual paste),
-    // regardless of Topic field. Fallback to AI only when editor is empty.
-    if(mode==='start' && editorText.length){
+    // Prefer existing editor content (IE or manual paste) when present,
+    // regardless of current mode. Fallback to AI only when editor is empty.
+    if(editorText.length){
       runParseFlow(editorText, topicTyped || 'Custom', '');
       if(S.quiz.questions && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); }
       return;
