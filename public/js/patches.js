@@ -86,6 +86,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
   wireLockGuards();
   wireQuizLocks();
   wireBrandSwap();
+  // IE fallback: ensure the IE toggle at least shows/hides the mount
+  try{
+    const toggle = document.getElementById('toggleInteractiveEditor');
+    const mount = document.getElementById('interactiveEditor');
+    if(toggle && mount){
+      const apply = ()=>{ mount.classList.toggle('hidden', !toggle.checked); };
+      toggle.addEventListener('change', apply);
+      // If the toggle is already checked (e.g., restored state), reflect it
+      apply();
+    }
+  }catch{}
 });
 
 export { announce, lockApp, unlockApp };
