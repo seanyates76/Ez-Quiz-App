@@ -77,6 +77,40 @@ const IE2 = (()=>{
     bind('ieClear', ()=>{ state.model=[]; syncToEditor(); renderCards(); renderSummary(); });
   }
 
+  // Document-level capture safety net: handle IE toolbar clicks before
+  // Options' own document capture closes the panel.
+  function ensureDocDelegation(){
+    if(window.__EZQ__ && window.__EZQ__.__ieV2Doc){ return; }
+    const handler = (e)=>{
+      const mt = qs('interactiveEditor'); if(!mt || mt.classList.contains('hidden')) return;
+      let n = e.target && (e.target.nodeType===1? e.target : e.target.parentElement);
+      const isInside = (el)=> !!(el && mt.contains(el));
+      const findUp = (sel)=>{ let x=n; while(x){ if(x.matches && x.matches(sel)) return x; x = x.parentElement; } return null; };
+      if(!isInside(n)) return;
+      const add = findUp('[id="ieAddMC"], [id="ieAddTF"], [id="ieAddYN"], [data-ie-add]');
+      const imp = add ? null : findUp('#ieImport');
+      const clr = (!add && !imp) ? findUp('#ieClear') : null;
+      if(add||imp||clr){
+        try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{}
+        if(add){
+          const type = add.getAttribute('data-ie-add') || (add.id==='ieAddTF'?'TF': add.id==='ieAddYN'?'YN':'MC');
+          if(type==='MC') state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]});
+          if(type==='TF') state.model.push({ type:'TF', prompt:'', answer:false });
+          if(type==='YN') state.model.push({ type:'YN', prompt:'', answer:false });
+          syncToEditor(); renderCards(); ensureLastVisible(); renderSummary();
+        } else if(imp){
+          syncFromEditor();
+        } else if(clr){
+          state.model=[]; syncToEditor(); renderCards(); renderSummary();
+        }
+      }
+    };
+    // Prefer pointerdown capture to beat other capture listeners
+    document.addEventListener('pointerdown', handler, true);
+    document.addEventListener('click', handler, true);
+    window.__EZQ__ = window.__EZQ__ || {}; window.__EZQ__.__ieV2Doc = true;
+  }
+
   function ensureLastVisible(){ try{ const m=els().mount; const last = m && m.querySelector('.ie-card:last-of-type'); last && last.scrollIntoView({ behavior:'smooth', block:'end' }); }catch{} }
   function ok(q){ if(!q||!q.type) return false; if(!q.prompt||!q.prompt.trim()) return false; if(q.type==='MC'){ const a=(q.options||[]); const filled=a.filter(o=>o.text&&o.text.trim()).length; const corr=a.filter(o=>o.correct).length; return filled>=2 && corr>=1; } if(q.type==='TF'||q.type==='YN'){ return typeof q.answer==='boolean'; } return false; }
 
@@ -114,6 +148,7 @@ const IE2 = (()=>{
 
   function init(){
     buildUI();
+    ensureDocDelegation();
     const t=els().toggle; if(t){ t.checked = loadEnabled(); t.addEventListener('change', ()=> setEnabled(!!t.checked)); }
     setEnabled(loadEnabled());
     els().editor?.addEventListener('input', ()=>{ if(!state.enabled) return; syncFromEditor(); });

@@ -25,7 +25,7 @@ const RELATIVE_URLS = [
   'js/main.js?v=1.5.6',
   'js/auto-refresh.js?v=1.5.2',
   'js/patches.js?v=1.5.2',
-  'js/editor.gui.js?v=1.5.14',
+  'js/editor.gui.js?v=1.5.15',
   'manifest.webmanifest',
   'sw.js',
   'icons/icon-192.png',
