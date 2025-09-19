@@ -46,6 +46,13 @@ const IE2 = (()=>{
     return q;
   }
 
+  function createQuestion(type){
+    if(type==='TF'){ return { type:'TF', prompt:'', answer:false }; }
+    if(type==='YN'){ return { type:'YN', prompt:'', answer:false }; }
+    if(type==='MT'){ return normalizeMT({ type:'MT', prompt:'', left:['',''], right:['',''], matches:[-1,-1] }); }
+    return { type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}] };
+  }
+
   // Formatting (match app parser rules)
   function toLine(q){
     const p=(q.prompt||'').trim();
@@ -160,7 +167,16 @@ const IE2 = (()=>{
       b.addEventListener('pointerdown', h, true);
       b.addEventListener('click', h, false);
     };
-    const addQ=(type)=>{ if(type==='MC') state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); if(type==='TF') state.model.push({ type:'TF', prompt:'', answer:false }); if(type==='YN') state.model.push({ type:'YN', prompt:'', answer:false }); if(type==='MT') state.model.push(normalizeMT({ type:'MT', prompt:'', left:['',''], right:['',''], matches:[-1,-1] })); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ` • Added ${type}`; };
+    const addQ=(type)=>{
+      const q=createQuestion(type);
+      state.model.push(q);
+      syncToEditor();
+      renderCards();
+      ensureLastVisible();
+      renderSummary();
+      const s=els().summary;
+      if(s) s.textContent += ` • Added ${q.type}`;
+    };
     bind('ieAddMC', ()=> addQ('MC'));
     bind('ieAddTF', ()=> addQ('TF'));
     bind('ieAddYN', ()=> addQ('YN'));
@@ -209,10 +225,7 @@ const IE2 = (()=>{
         if(add){
           const fallback = add.id==='ieAddTF' ? 'TF' : add.id==='ieAddYN' ? 'YN' : add.id==='ieAddMT' ? 'MT' : 'MC';
           const type = add.getAttribute('data-ie-add') || fallback;
-          if(type==='MC') state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]});
-          if(type==='TF') state.model.push({ type:'TF', prompt:'', answer:false });
-          if(type==='YN') state.model.push({ type:'YN', prompt:'', answer:false });
-          if(type==='MT') state.model.push(normalizeMT({ type:'MT', prompt:'', left:['',''], right:['',''], matches:[-1,-1] }));
+          state.model.push(createQuestion(type));
           syncToEditor(); renderCards(); ensureLastVisible(); renderSummary();
         } else if(imp){
           syncFromEditor();
@@ -327,24 +340,29 @@ const IE2 = (()=>{
       card.appendChild(area);
       const status=document.createElement('div'); status.className = ok(q)?'ie-valid':'ie-error'; status.textContent = ok(q)?'Looks good':'Incomplete — add text and mark a correct answer'; card.appendChild(status);
       type.addEventListener('change', ()=>{
-        const t=type.value;
-        if(t==='MC'){
+        const selected=type.value;
+        if(selected==='MC'){
           q.type='MC';
-          q.options=q.options&&q.options.length?q.options:[{text:'',correct:false},{text:'',correct:false}];
+          q.options = Array.isArray(q.options)
+            ? q.options.map((opt)=>({ text: opt?.text||'', correct: !!opt?.correct }))
+            : [];
+          while(q.options.length<2){ q.options.push({ text:'', correct:false }); }
           delete q.answer;
           delete q.left; delete q.right; delete q.matches; delete q.pairs;
-        } else if(t==='MT'){
+        } else if(selected==='MT'){
           q.type='MT';
           delete q.answer;
           q.options=[];
-          q.left=Array.isArray(q.left)&&q.left.length?q.left:['',''];
-          q.right=Array.isArray(q.right)&&q.right.length?q.right:['',''];
-          q.matches=Array.isArray(q.matches)&&q.matches.length?q.matches:new Array(q.left.length).fill(-1);
+          const defaults=createQuestion('MT');
+          q.left = Array.isArray(q.left) && q.left.length ? q.left : defaults.left.slice();
+          q.right = Array.isArray(q.right) && q.right.length ? q.right : defaults.right.slice();
+          q.matches = Array.isArray(q.matches) && q.matches.length ? q.matches : defaults.matches.slice();
           delete q.pairs;
           normalizeMT(q);
         } else {
-          q.type=t;
-          q.answer=false;
+          const defaults=createQuestion(selected);
+          q.type=defaults.type;
+          q.answer=defaults.answer;
           q.options=[];
           delete q.left; delete q.right; delete q.matches; delete q.pairs;
         }

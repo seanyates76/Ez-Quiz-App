@@ -114,7 +114,8 @@ Highlights
 - Mobile hygiene: Added a robust Reset App action (Settings) that clears local data, deletes all caches, and unregisters service workers. Also added URL triggers `?clear=1` and `#clear-cache` for devices stuck on stale assets.
 - Versioning: Bumped versioned CSS/JS references in `index.html` and increased the service worker cache version to guarantee fresh loads.
 - Help & FAQ: Sleeker modal with concise Q/A entries (bold questions, no bullets), modal replace-on-open behavior, and subtle entrance transitions.
- - Options polish: Question Types now use full names (Multiple Choice, True/False, Yes/No, Matching) with mobile‑friendly chip styling.
+- Options polish: Question Types now use full names (Multiple Choice, True/False, Yes/No, Matching) with mobile‑friendly chip styling.
+- Interactive Editor: matching (MT) cards join MC/TF/YN with Add MT button, Shift+M shortcut, and dedicated pairing UI.
 
 Notes
 - Use `?clear=1` directly in the URL if you cannot access Settings.

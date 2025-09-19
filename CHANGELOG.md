@@ -8,7 +8,7 @@ Changelog
 - Accessibility: preserved focus styles and keyboard focus trap in feedback panel.
 - Docs: updated footer version link; no behavior changes to generation or results.
  - Help: polished modal styling; replaced FAQ with concise Q/A format (bold questions, no bullets); modal replace-on-open and entrance transitions.
- - Added: Interactive Editor (beta) — opt‑in card‑based authoring for MC/TF/YN with validation and live sync to the raw editor.
+ - Added: Interactive Editor (beta) — opt‑in card‑based authoring for MC/TF/YN/MT with validation, matching pairs, and live sync to the raw editor.
   - Options: spelled out Question Types and styled them as mobile‑friendly chips for better clarity.
 
 2025-09-11 — 1.2.0-beta.4
