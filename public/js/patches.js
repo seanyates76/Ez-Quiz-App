@@ -90,8 +90,26 @@ document.addEventListener('DOMContentLoaded', ()=>{
   try{
     const toggle = document.getElementById('toggleInteractiveEditor');
     const mount = document.getElementById('interactiveEditor');
+    // Lazy ensure IE module is initialized when needed
+    async function ensureIEReady(){
+      if(!mount) return;
+      // If the UI already exists, nothing to do
+      if(mount.querySelector('#ieGrid') || mount.querySelector('#ieSummary')) return;
+      try{
+        // Persist enabled state so editor.gui.js reflects it on init
+        try{ if(toggle?.checked){ localStorage.setItem('ezq.ie.v2.on', '1'); } }catch{}
+        // Dynamically import the module in case it failed to load or init earlier
+        await import('./editor.gui.js');
+      }catch{}
+    }
     if(toggle && mount){
-      const apply = ()=>{ mount.classList.toggle('hidden', !toggle.checked); };
+      const apply = ()=>{
+        mount.classList.toggle('hidden', !toggle.checked);
+        if(toggle.checked){
+          // Best-effort: if turning on and UI is missing, initialize IE lazily
+          ensureIEReady();
+        }
+      };
       toggle.addEventListener('change', apply);
       // If the toggle is already checked (e.g., restored state), reflect it
       apply();

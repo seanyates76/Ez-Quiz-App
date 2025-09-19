@@ -1,0 +1,103 @@
+Context
+-------
+- User-reported bug: Interactive Editor (IE) buttons under Options → Advanced were unresponsive.
+- Additional symptom: Toggling the IE checkbox sometimes did nothing (panel didn’t appear).
+- No visible console errors reported by user.
+
+What I changed (now on main)
+---------------------------
+1) Rebuilt IE module (IE v2)
+   - File: public/js/editor.gui.js (versioned in index.html as ?v=1.5.17)
+   - Fresh five-button toolbar: Add MC, Add TF, Add YN, Import from raw, Clear all.
+   - Direct per-button handlers and a document-capture safety handler that executes actions before Options’ click-away logic.
+   - Always syncs to #editor/#mirror and calls runParseFlow so Start enables correctly.
+   - Added temporary diagnostics: IE summary shows pointerdown/click targets (e.g., ‘pd:ieAddMC | click:ieAddMC’).
+   - Added keyboard shortcuts: M, T, Y to add MC/TF/YN (works even if pointer events are blocked).
+
+2) Unblocked Options panel during quiz
+   - File: public/styles.css
+   - Previously: body[data-locked="true"] .options-panel { pointer-events:none } which blocked IE clicks.
+   - Now: only the top generator toolbar is disabled during quiz; Options/IE remain interactive.
+   - Also forced: .advanced-body #interactiveEditor { z-index:200; pointer-events:auto }.
+
+3) IE toggle fallback
+   - File: public/js/patches.js (versioned as ?v=1.5.3)
+   - Added a fallback listener that shows/hides #interactiveEditor directly when the IE checkbox changes, ensuring visibility even if IE module is late or blocked.
+
+4) Service worker + cache busting
+   - File: public/sw.js — CACHE_NAME bumped to ezquiz-cache-v119.
+   - Precache list updated to:
+     - styles.css?v=1.5.5
+     - js/main.js?v=1.5.6
+     - js/auto-refresh.js?v=1.5.2
+     - js/patches.js?v=1.5.3
+     - js/editor.gui.js?v=1.5.17
+   - index.html references editor.gui.js?v=1.5.17 and patches.js?v=1.5.3.
+
+Recent commits (newest → oldest)
+--------------------------------
+- 19bfe3f IE v2: keyboard shortcuts + ready banner; bump to v1.5.17
+- e2f65e4 IE toggle fallback in patches.js; bump to v1.5.3 and SW list
+- a29e204 CSS: raise #interactiveEditor z-index and pointer-events:auto
+- d227a0d IE v2: inline diagnostics; bump to v1.5.16
+- 74beac0 IE v2: add doc-capture handler; bump to v1.5.15
+- 0fec743 Unblock Options panel in locked mode; bump SW + assets
+- 88e8560 CSS: stop disabling .options-panel during quiz
+- 1caaaec Cache-bust editor.gui.js in index.html
+- 47b423d IE v2: rebuilt module (baseline)
+
+How to verify locally
+---------------------
+1) Serve public/ (to activate SW):
+   - cd public && python3 -m http.server
+2) Hard refresh or use Settings → Reset App (or add ?clear=1) to pull updated SW and assets.
+3) Options → Advanced → enable “Interactive Editor (beta)”.
+4) Expected:
+   - IE panel appears with summary text: “IE ready — Hotkeys: M=MC, T=TF, Y=YN”.
+   - Clicking Add MC/TF/YN appends ‘• Added …’ to the summary, creates a card, and updates #editor/#mirror.
+   - Import pulls from #editor; Clear removes all cards.
+5) If Add does nothing, try keyboard shortcuts M/T/Y — if these work, there’s still a pointer interceptor; see Next Steps.
+
+Remaining suspicion / Next steps
+--------------------------------
+If the user still reports “IE checkbox does nothing” or Add buttons are inert after hard refresh:
+
+1) Check visibility first
+   - Ensure #interactiveEditor exists and computed style doesn’t have display:none.
+   - The fallback in patches.js should toggle .hidden on the mount. Inspect the checkbox change event firing.
+
+2) Pointer interceptors
+   - Ensure no other CSS sets pointer-events:none on ancestors of #interactiveEditor.
+   - Inspect the Options container for overlays or z-index stacking contexts. We added z-index:200 on #interactiveEditor, but parent stacking contexts can still trap it.
+   - Temporarily comment out the document-level click-away in generator.js (onDocClick wiring around openOptions/closeOptions) to see if IE clicks start working.
+
+3) Confirm IE module is running
+   - The ready banner should set #ieSummary text on init.
+   - If not present, check for load errors or CSP blocks. Verify index.html includes the bumped ?v=1.5.17 script.
+
+4) Verify SW serving latest assets
+   - In Application tab → Service Workers, confirm cache name ezquiz-cache-v119.
+   - Clear site data if necessary and reload.
+
+5) If Add actions fire (summary shows ‘pd:ieAddMC | click:ieAddMC’) but no card appears:
+   - Instrument state.model push and renderCards to console.log.
+   - Ensure no exception thrown during renderCards (e.g., DOM assumptions).
+
+Temporary diagnostics (remove when stable)
+-----------------------------------------
+- IE summary includes pointerdown/click echoes and ‘• Added …’ blips. Remove those lines in public/js/editor.gui.js once fixed.
+- Keyboard shortcuts can stay or remove if undesired.
+
+Fallback patch ideas if needed
+------------------------------
+- As a last resort, wire IE Add/Import/Clear directly within generator.js openOptions() scope to co-locate with Options logic and avoid cross-module timing.
+- Alternatively, place the toolbar markup statically in index.html and only bind handlers in editor.gui.js to eliminate dynamic insertion ordering issues.
+
+Contact points in code
+----------------------
+- IE module: public/js/editor.gui.js
+- Options wiring: public/js/generator.js (openOptions/closeOptions & onDocClick)
+- Locking/overlays: public/js/patches.js and public/styles.css
+- SW + cache list: public/sw.js
+
+End
