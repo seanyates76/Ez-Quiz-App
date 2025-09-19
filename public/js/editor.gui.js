@@ -145,7 +145,21 @@ const IE2 = (()=>{
     `;
 
     // Wire toolbar using pointerdown in capture phase to beat Options' doc-level click-away
-    const bind = (id, fn)=>{ const b=qs(id); if(!b) return; const h=(e)=>{ try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{} fn(); }; b.addEventListener('pointerdown', h, true); b.addEventListener('click', h, false); };
+    const bind = (id, fn)=>{
+      const b=qs(id);
+      if(!b) return;
+      const h=(e)=>{
+        try{
+          e.preventDefault();
+          e.stopPropagation();
+          if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+        }catch{}
+        if(e.type==='click' && e.detail!==0) return;
+        fn();
+      };
+      b.addEventListener('pointerdown', h, true);
+      b.addEventListener('click', h, false);
+    };
     const addQ=(type)=>{ if(type==='MC') state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); if(type==='TF') state.model.push({ type:'TF', prompt:'', answer:false }); if(type==='YN') state.model.push({ type:'YN', prompt:'', answer:false }); if(type==='MT') state.model.push(normalizeMT({ type:'MT', prompt:'', left:['',''], right:['',''], matches:[-1,-1] })); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ` • Added ${type}`; };
     bind('ieAddMC', ()=> addQ('MC'));
     bind('ieAddTF', ()=> addQ('TF'));
@@ -191,6 +205,7 @@ const IE2 = (()=>{
       const clr = (!add && !imp) ? findUp('#ieClear') : null;
       if(add||imp||clr){
         try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{}
+        if(e.type==='click' && e.detail!==0) return;
         if(add){
           const fallback = add.id==='ieAddTF' ? 'TF' : add.id==='ieAddYN' ? 'YN' : add.id==='ieAddMT' ? 'MT' : 'MC';
           const type = add.getAttribute('data-ie-add') || fallback;
