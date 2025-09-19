@@ -77,7 +77,7 @@ Release date: 2025-09-07
 Highlights
 - Clean default face: inline Topic, Length, Difficulty with responsive layout.
 - Options hub: new drop-down with Timer, Theme, Question Types, and Save default.
-- Advanced only when you want it: disclosure row with caret, ARIA + keyboard friendly, ESC to close.
+- Quiz Editor only when you want it: disclosure row with caret, ARIA + keyboard friendly, ESC to close.
   - Editor + Mirror: 66/34 side-by-side with shared headers and balanced heights; stacks under 768px.
   - Smarter generation: types and difficulty flow through to API; providers instructed to use only selected types.
   - Support: always-visible Support button; Buy Me a Coffee banner after 1st and every 4th completion; async load; ESC to dismiss; persistent suppression after click.

@@ -88,7 +88,7 @@ function init(){
     setTimeout(() => { try { window.location.reload(true); } catch { window.location.reload(); } }, 200);
   }
 
-  // Wire Reset App button (Settings → Advanced)
+  // Wire Reset App button (Settings → Quiz Editor)
   (function wireHardReset(){
     const btn = document.getElementById('resetApp');
     btn?.addEventListener('click', () => {

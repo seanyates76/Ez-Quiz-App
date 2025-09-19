@@ -50,7 +50,7 @@
       </div>
       <p id="startHelp" class="subtle-help">Start begins the quiz • Generate fills the editor/mirror</p>
 
-      <!-- Options Drop-Down (includes Advanced) -->
+      <!-- Options Drop-Down (includes Quiz Editor tools) -->
       <div id="optionsPanel" class="options-panel" role="region" aria-label="Options" hidden>
         <div class="options-regular">
           <div class="row gap wrap">
@@ -82,7 +82,7 @@
         </div>
         <div class="divider" role="separator" aria-orientation="horizontal"></div>
         <div class="advanced-disclosure" role="button" tabindex="0" aria-expanded="false" aria-controls="advancedBlock">
-          <span>Advanced Editor</span>
+          <span>Quiz Editor</span>
           <span class="caret" aria-hidden="true">▼</span>
         </div>
         <div id="advancedBlock" class="advanced-body" hidden>
@@ -94,7 +94,7 @@
             </div>
           </div>
           <label class="toggle-row" style="display:inline-flex; align-items:center; gap:8px; margin:4px 0 8px 0" title="New: Build questions visually (MC/TF/YN). Syncs with the raw Editor.">
-            <input id="toggleInteractiveEditor" type="checkbox" />
+            <input id="toggleInteractiveEditor" data-role="quiz-editor-toggle" type="checkbox" />
             <span>Interactive Editor (beta)</span>
           </label>
           <div id="interactiveEditor" class="hidden" aria-labelledby="advancedTitle"></div>
@@ -250,16 +250,16 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <h4>Generate vs Start</h4>
           <ul>
             <li><strong>Start</strong> (default): generates → parses → starts the quiz.</li>
-            <li><strong>Generate</strong> (Options → Advanced Editor open): fills the <em>Editor</em> and <em>Mirror</em> only; the quiz starts when you click <strong>Start</strong>.</li>
+            <li><strong>Generate</strong> (Options → Quiz Editor open): fills the <em>Editor</em> and <em>Mirror</em> only; the quiz starts when you click <strong>Start</strong>.</li>
             <li>Re‑using <strong>Generate</strong> clears the editor and creates a fresh set.</li>
           </ul>
         </section>
 
         <section>
-          <h4>Options &amp; Advanced</h4>
+          <h4>Options &amp; Quiz Editor</h4>
           <ul>
             <li>Options: Timer, Theme, Question Types, and Defaults.</li>
-            <li><strong>Advanced Editor</strong>: <strong>Editor</strong> (paste or load .txt), <strong>Mirror</strong> (raw lines), <strong>Copy prompts</strong>, <strong>Export .txt</strong>.</li>
+            <li><strong>Quiz Editor</strong>: <strong>Editor</strong> (paste or load .txt), <strong>Mirror</strong> (raw lines), <strong>Copy prompts</strong>, <strong>Export .txt</strong>.</li>
             <li>Supported types: Multiple Choice (single/multiple), True/False, Yes/No, Matching.</li>
           </ul>
         </section>
@@ -310,8 +310,8 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
             <summary>What's New</summary>
             <ul>
               <li><strong>Start vs Generate:</strong> Start runs the quiz; Generate fills Editor + Mirror.</li>
-              <li><strong>Options panel:</strong> Timer, Theme, Types, and Advanced tools in one place.</li>
-              <li><strong>Advanced:</strong> Editor, Mirror, Copy prompts, Export .txt.</li>
+              <li><strong>Options panel:</strong> Timer, Theme, Types, and Quiz Editor tools in one place.</li>
+              <li><strong>Quiz Editor:</strong> Editor, Mirror, Copy prompts, Export .txt.</li>
               <li><strong>Defaults:</strong> Save Count/Difficulty/Types; Reset defaults clears them.</li>
               <li><strong>Navigation polish:</strong> Equal-width fields on mobile; clearer focus.</li>
             </ul>
@@ -338,7 +338,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
               <dd><strong>A:</strong> Open the ⚙ Settings menu. You can adjust timer length, appearance theme, and reset to defaults at any time (except while a quiz is running).</dd>
 
               <dt><strong>Q:</strong> Where can I export or copy my quiz?</dt>
-              <dd><strong>A:</strong> In the Advanced Editor, you’ll find options to copy quiz lines for AI prompts or export them as a .txt file.</dd>
+              <dd><strong>A:</strong> In the Quiz Editor, you’ll find options to copy quiz lines for AI prompts or export them as a .txt file.</dd>
 
               <dt><strong>Q:</strong> What happens if the app updates mid‑quiz?</dt>
               <dd><strong>A:</strong> Nothing changes until you finish or exit. Updates only apply once you refresh or start a new quiz, so your current run is never interrupted.</dd>
@@ -406,8 +406,8 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
         </fieldset>
 
         <fieldset class="fieldgroup">
-          <legend>Advanced</legend>
-          <label><input type="checkbox" id="alwaysShowAdvanced" /> Always show advanced options</label>
+          <legend>Quiz Editor</legend>
+          <label><input type="checkbox" id="alwaysShowAdvanced" /> Always show the Quiz Editor panel</label>
         </fieldset>
 
 
@@ -436,7 +436,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
         <section>
           <h4>v1.3.0-beta.0</h4>
           <ul>
-            <li><strong>Interactive Editor (beta):</strong> opt‑in, card‑based authoring for MC/TF/YN that stays in sync with the raw Editor/Mirror (enable in Advanced).</li>
+            <li><strong>Interactive Editor (beta):</strong> opt‑in, card‑based authoring for MC/TF/YN that stays in sync with the raw Editor/Mirror (enable in the Quiz Editor).</li>
             <li>Removed the gradient backdrop behind floating buttons; kept subtle shadows.</li>
             <li>Added Reset App (clears caches + unregisters service workers).</li>
             <li>Added URL reset: <code>?clear=1</code> or <code>#clear-cache</code> for stuck devices.</li>

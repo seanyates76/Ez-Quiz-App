@@ -14,7 +14,7 @@ Quick Start
 - Serve `public/` locally for SW/PWA features: `cd public && python3 -m http.server`
 
 Features
-- Generate + Advanced Editor with Mirror; import `.txt` or paste.
+- Generate + Quiz Editor with Mirror; import `.txt` or paste.
 - Keyboard: Enter to start/advance; Backspace to go back.
 - Timer (elapsed or countdown); theme toggle (dark/light).
 - Results: Missed or All, color‑coded answers, Retake (full) + Missed only.
@@ -25,12 +25,12 @@ Features
 Interactive Editor (beta)
 -------------------------
 - Opt‑in, card‑based authoring for MC/TF/YN/MT (Add MT button or Shift+M).
-- Enable via Options → Advanced → “Interactive Editor (beta)”.
+- Enable via Options → Quiz Editor → “Interactive Editor (beta)”.
 - Edits stay in sync with the raw Editor/Mirror; the raw parser format remains the source of truth.
 - Inline validation ensures each question has a prompt and a marked correct answer or completed matches.
 - Default off for now to keep the classic editor front‑and‑center.
 
-Note: A separate smoke-test page is no longer needed; test directly in Options → Advanced inside the main app.
+Note: A separate smoke-test page is no longer needed; test directly in Options → Quiz Editor inside the main app.
 
 Appearance and options
 - Theme supports Dark, Light, and System (follows OS).

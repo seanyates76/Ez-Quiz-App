@@ -189,7 +189,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   }
   // Click-away listener is attached only while open (see openOptions/closeOptions)
 
-  // Advanced disclosure behavior
+  // Quiz Editor disclosure behavior (formerly “Advanced”)
   function toggleAdvanced(open){ if(!advDisclosure||!advBlock) return; const willOpen = (open===undefined) ? (advDisclosure.getAttribute('aria-expanded')!=='true') : !!open; advDisclosure.setAttribute('aria-expanded', String(willOpen)); advBlock.hidden = !willOpen; setPrimaryAction(willOpen? 'generate':'start'); }
   advDisclosure?.addEventListener('click', ()=> toggleAdvanced());
   advDisclosure?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleAdvanced(); } else if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }});
@@ -230,9 +230,9 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   resetDefaultsBtn?.addEventListener('click', ()=>{ clearDefaults(); applyDefaultsToUI(); });
   resetDefaultsBtn?.addEventListener('click', ()=>{ if(defaultsStatus){ defaultsStatus.textContent = 'Defaults cleared.'; } });
 
-  // Start button in Advanced
+  // Start button in Quiz Editor
   startBtn2?.addEventListener('click', ()=>{ if(S.quiz?.questions?.length){ syncSettingsFromUI(); beginQuiz(); } });
-  // Copy / Export actions in Advanced
+  // Copy / Export actions in Quiz Editor
   function getMirrorText(){ return (mirror?.value || '').trim(); }
   copyPromptsBtn?.addEventListener('click', ()=>{ const t=getMirrorText(); if(!t){ statusBox && (statusBox.textContent='Nothing to copy. Generate first.'); return; } navigator.clipboard.writeText(t).then(()=>{ statusBox && (statusBox.textContent='Copied prompts.'); }).catch(()=>{ statusBox && (statusBox.textContent='Copy failed.'); }); });
   // Defaults storage (types, difficulty, count)

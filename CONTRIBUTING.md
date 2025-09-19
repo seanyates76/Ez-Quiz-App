@@ -18,7 +18,7 @@ Coding guidelines
 - Security: do not inject user content with `innerHTML`.
 
 Interactive Editor (beta)
-- Feature flag: toggled via checkbox in Advanced; persist with localStorage only.
+- Feature flag: toggled via checkbox in the Quiz Editor panel; persist with localStorage only.
 - State: keep GUI state under `window.__EZQ__.ie` and keep it in sync with the raw Editor/Mirror.
 - Scope: MC/TF/YN only. MT may be added later.
 - A11y: form fields must be keyboard‑reachable; validation should not rely on color alone.

@@ -22,19 +22,19 @@ Changelog
 - Feedback: inline panel cooldown (30s), honeypot, unified CORS; a11y (aria-modal, title, focus trap); mail fallback on error; closes after ~1.4s.
 - Mirror: reliable visibility toggle; hide container when off; apply state on Options open.
 - SW/refresh: poll only when tab is visible; 60s interval.
-- Advanced Editor: added “Load last quiz”; persist last lines locally.
+- Quiz Editor: added “Load last quiz”; persist last lines locally.
 - Options: focus trap while open.
 
 2025-09-08 — 1.2.0-beta.2
-- Generator: Advanced/Generate always fills Editor + Mirror; runner starts only on Start.
+- Generator: Quiz Editor/Generate always fills Editor + Mirror; runner starts only on Start.
 - Options UX: outside-click ignores Topic/Length/Difficulty; Generate clicks no longer close Options.
 - Defaults: save/reset generation defaults (Count/Difficulty/Types) in localStorage.
 - Help: added What's New + Troubleshooting FAQ accordions; Back to top button; clearer Topic wording.
 - SW: network-first for HTML/CSS/JS; faster cache busting on deploy.
 
 2025-09-07 — 1.2.0-beta.1
-- New Options drop-down replaces Advanced button; houses Timer, Theme, Question Types, and Save default.
- - Advanced panel moved under a disclosure (“Advanced Editor”); full keyboard/ARIA support; caret animates on expand/collapse.
+- New Options drop-down replaces the former Advanced button (now Quiz Editor); houses Timer, Theme, Question Types, and Save default.
+- Quiz Editor panel moved under a disclosure (“Quiz Editor”); full keyboard/ARIA support; caret animates on expand/collapse.
 - Prompt Editor + Mirror now align side-by-side (66/34) with shared headers, min-heights, and mobile stack <768px.
 - Mobile generation bar keeps Length + Difficulty side-by-side down to 360px; stacks below.
 - Generation pipeline: Difficulty and selected Question Types flow to the API; providers prompt restricted to allowed types; echo respects types.

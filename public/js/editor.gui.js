@@ -12,9 +12,10 @@ const IE2 = (()=>{
   const friendlyType = (type)=> typeLabels[type] || type;
 
   const qs = (id) => document.getElementById(id);
+  const qSel = (sel) => document.querySelector(sel);
   const els = () => ({
     mount: qs('interactiveEditor'),
-    toggle: qs('toggleInteractiveEditor'),
+    toggle: qs('toggleInteractiveEditor') || qSel('[data-role="quiz-editor-toggle"]'),
     editor: qs('editor'),
     mirror: qs('mirror'),
     grid: qs('ieGrid'),

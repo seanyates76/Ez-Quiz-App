@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   wireBrandSwap();
   // IE fallback: ensure the IE toggle at least shows/hides the mount
   try{
-    const toggle = document.getElementById('toggleInteractiveEditor');
+    const toggle = document.getElementById('toggleInteractiveEditor') || document.querySelector('[data-role="quiz-editor-toggle"]');
     const mount = document.getElementById('interactiveEditor');
     if(toggle && mount){
       const apply = ()=>{ mount.classList.toggle('hidden', !toggle.checked); };
