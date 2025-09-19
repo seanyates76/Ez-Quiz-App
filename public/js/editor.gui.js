@@ -5,6 +5,7 @@ import { runParseFlow } from './generator.js';
 const IE2 = (()=>{
   const SKEY = 'ezq.ie.v2.on';
   const state = { enabled:false, model:[] };
+  let isSyncingToEditor = false;
 
   const qs = (id) => document.getElementById(id);
   const els = () => ({
@@ -43,13 +44,19 @@ const IE2 = (()=>{
   function parseEditor(){ const ed=els().editor; const txt=(ed?.value||'').trim(); if(!txt) return []; return txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).map(fromLine).filter(Boolean); }
 
   function syncToEditor(){
+    if(isSyncingToEditor) return;
     const { editor, mirror } = els();
     const lines = state.model.map(toLine).filter(Boolean).join('\n');
-    if(editor){ editor.value = lines; editor.dispatchEvent(new Event('input', { bubbles:true })); }
-    if(mirror){ mirror.value = lines; mirror.dispatchEvent(new Event('input', { bubbles:true })); }
+    isSyncingToEditor = true;
+    try {
+      if(editor){ editor.value = lines; editor.dispatchEvent(new Event('input', { bubbles:true })); }
+      if(mirror){ mirror.value = lines; mirror.dispatchEvent(new Event('input', { bubbles:true })); }
+    } finally {
+      isSyncingToEditor = false;
+    }
     try{ const topic=(qs('topicInput')?.value||'Edited').trim()||'Edited'; runParseFlow(lines, topic, ''); const box=qs('mirrorBox'); if(box && lines){ box.setAttribute('data-on','true'); } }catch{}
   }
-  function syncFromEditor(){ state.model = parseEditor(); renderCards(); renderSummary(); }
+  function syncFromEditor(){ if(isSyncingToEditor) return; state.model = parseEditor(); renderCards(); renderSummary(); }
 
   function setEnabled(on){ state.enabled=!!on; saveEnabled(state.enabled); const m=els().mount; if(m) m.classList.toggle('hidden', !state.enabled); if(state.enabled && state.model.length===0) syncFromEditor(); renderCards(); renderSummary(); }
 
@@ -77,7 +84,7 @@ const IE2 = (()=>{
     bind('ieImport', ()=>{ syncFromEditor(); });
     bind('ieClear', ()=>{ state.model=[]; syncToEditor(); renderCards(); renderSummary(); });
     // Minimal inline diagnostics: show pointerdown/click targets in summary
-    const m=els().mount; const s=els().summary;
+    const s=els().summary;
     if(m){
       const pd=(e)=>{ if(s){ s.textContent = `pd:${(e.target&&e.target.id)||e.target.tagName}`; } };
       const ck=(e)=>{ if(s){ s.textContent += ` | click:${(e.target&&e.target.id)||e.target.tagName}`; } };
