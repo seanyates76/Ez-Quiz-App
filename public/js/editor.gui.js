@@ -6,6 +6,10 @@ const IE2 = (()=>{
   const SKEY = 'ezq.ie.v2.on';
   const state = { enabled:false, model:[] };
   let isSyncingToEditor = false;
+  let summaryHint = '';
+  let summaryHintTimer = null;
+  const typeLabels = { MC:'multiple-choice', TF:'true/false', YN:'yes/no', MT:'matching' };
+  const friendlyType = (type)=> typeLabels[type] || type;
 
   const qs = (id) => document.getElementById(id);
   const els = () => ({
@@ -19,6 +23,21 @@ const IE2 = (()=>{
 
   function saveEnabled(on){ try{ localStorage.setItem(SKEY, on?'1':'0'); }catch{} }
   function loadEnabled(){ try{ return localStorage.getItem(SKEY)==='1'; }catch{ return false; } }
+
+  function setSummaryHint(message, duration=2600){
+    if(summaryHintTimer){
+      clearTimeout(summaryHintTimer);
+      summaryHintTimer = null;
+    }
+    summaryHint = message || '';
+    renderSummary();
+    if(summaryHint){
+      summaryHintTimer = window.setTimeout(()=>{
+        summaryHint='';
+        renderSummary();
+      }, Math.max(1200, duration|0));
+    }
+  }
 
   function normalizeMT(q){
     if(!q || q.type!=='MT') return q;
@@ -139,16 +158,16 @@ const IE2 = (()=>{
     const m=els().mount; if(!m) return;
     m.innerHTML = `
       <div class="ie-toolbar" role="group" aria-label="Interactive editor toolbar">
-        <button id="ieAddMC" class="btn" type="button" title="Add Multiple Choice">Add MC</button>
-        <button id="ieAddTF" class="btn" type="button" title="Add True/False">Add TF</button>
-        <button id="ieAddYN" class="btn" type="button" title="Add Yes/No">Add YN</button>
-        <button id="ieAddMT" class="btn" type="button" title="Add Matching">Add MT</button>
+        <button id="ieAddMC" class="btn btn-solid" type="button" title="Add Multiple Choice">Add MC</button>
+        <button id="ieAddTF" class="btn btn-solid" type="button" title="Add True/False">Add TF</button>
+        <button id="ieAddYN" class="btn btn-solid" type="button" title="Add Yes/No">Add YN</button>
+        <button id="ieAddMT" class="btn btn-solid" type="button" title="Add Matching">Add MT</button>
         <span class="flex-spacer"></span>
         <button id="ieImport" class="btn btn-ghost" type="button" title="Import from raw">Import from raw</button>
         <button id="ieClear" class="btn btn-ghost" type="button" title="Clear all">Clear all</button>
       </div>
       <div id="ieGrid" class="ie-grid" aria-live="polite"></div>
-      <div id="ieSummary" class="ie-mono">IE ready — Hotkeys: M=MC, Shift+M=MT, T=TF, Y=YN</div>
+      <div id="ieSummary" class="ie-summary" role="status" aria-live="polite"></div>
     `;
 
     // Wire toolbar using pointerdown in capture phase to beat Options' doc-level click-away
@@ -173,24 +192,15 @@ const IE2 = (()=>{
       syncToEditor();
       renderCards();
       ensureLastVisible();
-      renderSummary();
-      const s=els().summary;
-      if(s) s.textContent += ` • Added ${q.type}`;
+      focusLastPrompt();
+      setSummaryHint(`Added ${friendlyType(q.type)} question`);
     };
     bind('ieAddMC', ()=> addQ('MC'));
     bind('ieAddTF', ()=> addQ('TF'));
     bind('ieAddYN', ()=> addQ('YN'));
     bind('ieAddMT', ()=> addQ('MT'));
-    bind('ieImport', ()=>{ syncFromEditor(); });
-    bind('ieClear', ()=>{ state.model=[]; syncToEditor(); renderCards(); renderSummary(); });
-    // Minimal inline diagnostics: show pointerdown/click targets in summary
-    const s=els().summary;
-    if(m){
-      const pd=(e)=>{ if(s){ s.textContent = `pd:${(e.target&&e.target.id)||e.target.tagName}`; } };
-      const ck=(e)=>{ if(s){ s.textContent += ` | click:${(e.target&&e.target.id)||e.target.tagName}`; } };
-      m.addEventListener('pointerdown', pd, true);
-      m.addEventListener('click', ck, true);
-    }
+    bind('ieImport', ()=>{ syncFromEditor(); setSummaryHint('Synced from raw text'); });
+    bind('ieClear', ()=>{ state.model=[]; syncToEditor(); renderCards(); setSummaryHint('Cleared all questions'); });
 
     // Keyboard shortcuts for reliability even if pointer events are blocked
     document.addEventListener('keydown', (e)=>{
@@ -226,11 +236,12 @@ const IE2 = (()=>{
           const fallback = add.id==='ieAddTF' ? 'TF' : add.id==='ieAddYN' ? 'YN' : add.id==='ieAddMT' ? 'MT' : 'MC';
           const type = add.getAttribute('data-ie-add') || fallback;
           state.model.push(createQuestion(type));
-          syncToEditor(); renderCards(); ensureLastVisible(); renderSummary();
+          syncToEditor(); renderCards(); ensureLastVisible(); focusLastPrompt(); setSummaryHint(`Added ${friendlyType(type)} question`);
         } else if(imp){
           syncFromEditor();
+          setSummaryHint('Synced from raw text');
         } else if(clr){
-          state.model=[]; syncToEditor(); renderCards(); renderSummary();
+          state.model=[]; syncToEditor(); renderCards(); setSummaryHint('Cleared all questions');
         }
       }
     };
@@ -241,6 +252,7 @@ const IE2 = (()=>{
   }
 
   function ensureLastVisible(){ try{ const m=els().mount; const last = m && m.querySelector('.ie-card:last-of-type'); last && last.scrollIntoView({ behavior:'smooth', block:'end' }); }catch{} }
+  function focusLastPrompt(){ try{ const lastPrompt = els().grid?.querySelector('.ie-card:last-of-type .ie-prompt'); if(lastPrompt){ lastPrompt.focus({ preventScroll:true }); if(typeof lastPrompt.select==='function'){ lastPrompt.select(); } } }catch{} }
   function ok(q){
     if(!q||!q.type) return false;
     if(!q.prompt||!q.prompt.trim()) return false;
@@ -270,7 +282,10 @@ const IE2 = (()=>{
     }
     b.type='button';
     b.textContent=text;
-    if(title) b.title=title;
+    if(title){
+      b.title=title;
+      b.setAttribute('aria-label', title);
+    }
     return b;
   }
 
@@ -280,12 +295,12 @@ const IE2 = (()=>{
       const card=document.createElement('div'); card.className='ie-card'; card.dataset.idx=String(idx);
       const row=document.createElement('div'); row.className='ie-row';
       const type=document.createElement('select'); type.className='toolbar-input ie-type'; ['MC','TF','YN','MT'].forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; if(q.type===t) o.selected=true; type.appendChild(o); });
-      const actions=document.createElement('div'); actions.className='ie-actions'; const up=btn('↑','Move up','btn-ghost ie-action-btn'), down=btn('↓','Move down','btn-ghost ie-action-btn'), dup=btn('Duplicate','Duplicate','btn-ghost ie-action-btn'), del=btn('Delete','Delete','btn-ghost ie-action-btn danger'); actions.append(up,down,dup,del); row.append(type, actions); card.appendChild(row);
+      const actions=document.createElement('div'); actions.className='ie-actions'; const up=btn('↑','Move up','btn-ghost ie-action-btn'), down=btn('↓','Move down','btn-ghost ie-action-btn'), dup=btn('⧉','Duplicate','btn-ghost ie-action-btn'), del=btn('✕','Delete','btn-ghost ie-action-btn danger'); actions.append(up,down,dup,del); row.append(type, actions); card.appendChild(row);
       const prompt=document.createElement('input'); prompt.type='text'; prompt.className='toolbar-input ie-prompt'; prompt.placeholder='Question prompt'; prompt.value=q.prompt||''; card.appendChild(prompt);
       const area=document.createElement('div'); area.className='ie-choices';
       if(q.type==='MC'){
         q.options=q.options||[]; if(q.options.length<2) q.options=[{text:'',correct:false},{text:'',correct:false}];
-        q.options.forEach((opt,i)=>{ const line=document.createElement('div'); line.className='ie-choice'; const chk=document.createElement('input'); chk.type='checkbox'; chk.checked=!!opt.correct; const txt=document.createElement('input'); txt.type='text'; txt.value=opt.text||''; txt.placeholder=`Option ${String.fromCharCode(65+i)}`; const rm=btn('✕','Remove option','btn-ghost btn-icon'); line.append(chk,txt,rm); area.appendChild(line); chk.addEventListener('change', ()=>{ opt.correct=!!chk.checked; syncToEditor(); renderSummary(); }); txt.addEventListener('input', ()=>{ opt.text=txt.value; syncToEditor(); renderSummary(); }); rm.addEventListener('click', ()=>{ q.options.splice(i,1); syncToEditor(); renderCards(); renderSummary(); }); });
+        q.options.forEach((opt,i)=>{ const line=document.createElement('div'); line.className='ie-choice'; const chk=document.createElement('input'); chk.type='checkbox'; chk.checked=!!opt.correct; const txt=document.createElement('input'); txt.type='text'; txt.value=opt.text||''; txt.placeholder=`Option ${String.fromCharCode(65+i)}`; const rm=btn('✕','Remove option','btn-ghost btn-icon'); line.append(chk,txt,rm); area.appendChild(line); chk.addEventListener('change', ()=>{ opt.correct=!!chk.checked; syncToEditor(); refreshStatus(); renderSummary(); }); txt.addEventListener('input', ()=>{ opt.text=txt.value; syncToEditor(); refreshStatus(); renderSummary(); }); rm.addEventListener('click', ()=>{ q.options.splice(i,1); syncToEditor(); renderCards(); renderSummary(); }); });
         const addOpt=btn('+ Add option','Add option','btn-ghost ie-link-btn'); addOpt.addEventListener('click', ()=>{ if(q.options.length<8){ q.options.push({text:'',correct:false}); syncToEditor(); renderCards(); renderSummary(); } }); area.appendChild(addOpt);
       } else if(q.type==='MT'){
         normalizeMT(q);
@@ -316,8 +331,8 @@ const IE2 = (()=>{
           const rm=btn('✕','Remove left item','btn-ghost btn-icon');
           line.append(lbl, pairWrap, rm);
           leftList.appendChild(line);
-          txt.addEventListener('input', ()=>{ q.left[li]=txt.value; syncToEditor(); renderSummary(); });
-          sel.addEventListener('change', ()=>{ q.matches[li] = sel.value==='' ? -1 : parseInt(sel.value,10); syncToEditor(); renderSummary(); });
+          txt.addEventListener('input', ()=>{ q.left[li]=txt.value; syncToEditor(); refreshStatus(); renderSummary(); });
+          sel.addEventListener('change', ()=>{ q.matches[li] = sel.value==='' ? -1 : parseInt(sel.value,10); syncToEditor(); refreshStatus(); renderSummary(); });
           rm.addEventListener('click', ()=>{ q.left.splice(li,1); q.matches.splice(li,1); syncToEditor(); renderCards(); renderSummary(); });
         });
         leftSection.appendChild(leftList);
@@ -336,7 +351,7 @@ const IE2 = (()=>{
           const rm=btn('✕','Remove right item','btn-ghost btn-icon');
           line.append(lbl, txt, rm);
           rightList.appendChild(line);
-          txt.addEventListener('input', ()=>{ q.right[ri]=txt.value; syncToEditor(); renderSummary(); refreshPairs(); });
+          txt.addEventListener('input', ()=>{ q.right[ri]=txt.value; syncToEditor(); refreshStatus(); renderSummary(); refreshPairs(); });
           rm.addEventListener('click', ()=>{ q.right.splice(ri,1); q.matches=q.matches.map((m)=> (m===ri?-1: m>ri?m-1:m)); syncToEditor(); renderCards(); renderSummary(); });
         });
         rightSection.appendChild(rightList);
@@ -349,10 +364,17 @@ const IE2 = (()=>{
         area.appendChild(columns);
         refreshPairs();
       } else {
-        const line=document.createElement('div'); line.className='ie-choice'; const sel=document.createElement('select'); const opts=(q.type==='TF')?[['T','True'],['F','False']]:[['Y','Yes'],['N','No']]; opts.forEach(([v,l])=>{ const o=document.createElement('option'); o.value=v; o.textContent=l; sel.appendChild(o); }); sel.value = (q.type==='TF') ? (q.answer?'T':'F') : (q.answer?'Y':'N'); const lbl=document.createElement('span'); lbl.textContent='Correct'; line.append(sel,lbl); area.appendChild(line); sel.addEventListener('change', ()=>{ const v=sel.value; q.answer = (q.type==='TF') ? v==='T' : v==='Y'; syncToEditor(); renderSummary(); });
+        const line=document.createElement('div'); line.className='ie-choice'; const sel=document.createElement('select'); const opts=(q.type==='TF')?[['T','True'],['F','False']]:[['Y','Yes'],['N','No']]; opts.forEach(([v,l])=>{ const o=document.createElement('option'); o.value=v; o.textContent=l; sel.appendChild(o); }); sel.value = (q.type==='TF') ? (q.answer?'T':'F') : (q.answer?'Y':'N'); const lbl=document.createElement('span'); lbl.textContent='Correct'; line.append(sel,lbl); area.appendChild(line); sel.addEventListener('change', ()=>{ const v=sel.value; q.answer = (q.type==='TF') ? v==='T' : v==='Y'; syncToEditor(); refreshStatus(); renderSummary(); });
       }
       card.appendChild(area);
-      const status=document.createElement('div'); status.className = ok(q)?'ie-valid':'ie-error'; status.textContent = ok(q)?'Looks good':'Incomplete — add text and mark a correct answer'; card.appendChild(status);
+      const status=document.createElement('div');
+      const refreshStatus=()=>{
+        const good=ok(q);
+        status.className = good ? 'ie-status ie-status-good' : 'ie-status ie-status-warn';
+        status.textContent = good ? 'Ready to use' : 'Needs details';
+      };
+      refreshStatus();
+      card.appendChild(status);
       type.addEventListener('change', ()=>{
         const selected=type.value;
         if(selected==='MC'){
@@ -380,18 +402,39 @@ const IE2 = (()=>{
           q.options=[];
           delete q.left; delete q.right; delete q.matches; delete q.pairs;
         }
-        syncToEditor(); renderCards(); renderSummary();
+        syncToEditor(); renderCards(); setSummaryHint(`Switched to ${friendlyType(selected)} question`);
       });
-      prompt.addEventListener('input', ()=>{ q.prompt=prompt.value; syncToEditor(); status.className = ok(q)?'ie-valid':'ie-error'; status.textContent = ok(q)?'Looks good':'Incomplete — add text and mark a correct answer'; renderSummary(); });
-      up.addEventListener('click', ()=>{ if(idx>0){ const a=state.model; [a[idx-1],a[idx]]=[a[idx],a[idx-1]]; syncToEditor(); renderCards(); }});
-      down.addEventListener('click', ()=>{ const a=state.model; if(idx<a.length-1){ [a[idx+1],a[idx]]=[a[idx],a[idx+1]]; syncToEditor(); renderCards(); }});
-      dup.addEventListener('click', ()=>{ const a=state.model; a.splice(idx+1,0, JSON.parse(JSON.stringify(q))); syncToEditor(); renderCards(); });
-      del.addEventListener('click', ()=>{ const a=state.model; a.splice(idx,1); syncToEditor(); renderCards(); renderSummary(); });
+      prompt.addEventListener('input', ()=>{ q.prompt=prompt.value; syncToEditor(); refreshStatus(); renderSummary(); });
+      up.addEventListener('click', ()=>{ if(idx>0){ const a=state.model; [a[idx-1],a[idx]]=[a[idx],a[idx-1]]; syncToEditor(); renderCards(); setSummaryHint('Moved question up'); }});
+      down.addEventListener('click', ()=>{ const a=state.model; if(idx<a.length-1){ [a[idx+1],a[idx]]=[a[idx],a[idx+1]]; syncToEditor(); renderCards(); setSummaryHint('Moved question down'); }});
+      dup.addEventListener('click', ()=>{ const a=state.model; a.splice(idx+1,0, JSON.parse(JSON.stringify(q))); syncToEditor(); renderCards(); ensureLastVisible(); focusLastPrompt(); setSummaryHint('Duplicated question'); });
+      del.addEventListener('click', ()=>{ const a=state.model; a.splice(idx,1); syncToEditor(); renderCards(); setSummaryHint('Removed question'); });
       g.appendChild(card);
     });
   }
 
-  function renderSummary(){ const s=els().summary; if(!s) return; const total=state.model.length; const valid=state.model.filter(ok).length; s.textContent = `Questions: ${total} — Valid: ${valid}`; }
+  function renderSummary(){
+    const s=els().summary; if(!s) return;
+    const total=state.model.length;
+    const valid=state.model.filter(ok).length;
+    if(!total){
+      const hint = summaryHint || 'Use the Add buttons or import from raw text. Hotkeys: M, Shift+M, T, Y.';
+      s.innerHTML = `
+        <span class="ie-summary-pill ie-summary-empty">No questions yet</span>
+        <span class="ie-summary-hint">${hint}</span>
+      `;
+      return;
+    }
+    const allValid = valid===total;
+    const validityClass = allValid ? 'ie-summary-valid' : 'ie-summary-warn';
+    const baseHint = allValid ? 'All set — ready to generate.' : 'Finish the highlighted cards to preview.';
+    const hint = summaryHint || `${baseHint} Hotkeys: M, Shift+M, T, Y.`;
+    s.innerHTML = `
+      <span class="ie-summary-pill">${total} ${total===1?'question':'questions'}</span>
+      <span class="ie-summary-pill ${validityClass}">${valid}/${total} ready</span>
+      <span class="ie-summary-hint">${hint}</span>
+    `;
+  }
 
   function init(){
     buildUI();
