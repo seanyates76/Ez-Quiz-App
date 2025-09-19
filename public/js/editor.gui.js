@@ -20,6 +20,32 @@ const IE2 = (()=>{
   function saveEnabled(on){ try{ localStorage.setItem(SKEY, on?'1':'0'); }catch{} }
   function loadEnabled(){ try{ return localStorage.getItem(SKEY)==='1'; }catch{ return false; } }
 
+  function normalizeMT(q){
+    if(!q || q.type!=='MT') return q;
+    const toStrings = (arr)=> Array.isArray(arr) ? arr.map(v=> (v==null?'':String(v))) : [];
+    q.left = toStrings(q.left);
+    q.right = toStrings(q.right);
+    if(q.left.length===0){ q.left=['','']; }
+    if(q.right.length===0){ q.right=['','']; }
+    if(Array.isArray(q.pairs) && !Array.isArray(q.matches)){
+      q.matches = new Array(q.left.length).fill(-1);
+      q.pairs.forEach((pair)=>{
+        if(!Array.isArray(pair) || pair.length<2) return;
+        const li=Number(pair[0]);
+        const ri=Number(pair[1]);
+        if(Number.isInteger(li) && li>=0 && li<q.left.length && Number.isInteger(ri) && ri>=0 && ri<q.right.length){
+          q.matches[li]=ri;
+        }
+      });
+    }
+    if(!Array.isArray(q.matches)) q.matches=[];
+    q.matches=q.matches.map((v)=> Number.isInteger(v)&&v>=0&&v<q.right.length ? v : -1);
+    if(q.matches.length>q.left.length){ q.matches.length=q.left.length; }
+    while(q.matches.length<q.left.length){ q.matches.push(-1); }
+    delete q.pairs;
+    return q;
+  }
+
   // Formatting (match app parser rules)
   function toLine(q){
     const p=(q.prompt||'').trim();
@@ -32,6 +58,26 @@ const IE2 = (()=>{
     }
     if(q.type==='TF'){ if(!p||typeof q.answer!=='boolean') return null; return `TF|${p}|${q.answer?'T':'F'}`; }
     if(q.type==='YN'){ if(!p||typeof q.answer!=='boolean') return null; return `YN|${p}|${q.answer?'Y':'N'}`; }
+    if(q.type==='MT'){
+      normalizeMT(q);
+      if(!p) return null;
+      const leftEntries=[];
+      (q.left||[]).forEach((text,idx)=>{ const t=String(text||'').trim(); if(t) leftEntries.push({text:t, idx}); });
+      const rightEntries=[];
+      (q.right||[]).forEach((text,idx)=>{ const t=String(text||'').trim(); if(t) rightEntries.push({text:t, idx}); });
+      if(!leftEntries.length || !rightEntries.length) return null;
+      const matches=Array.isArray(q.matches)?q.matches:[];
+      const pairs=[];
+      leftEntries.forEach(({idx:origLi},newLi)=>{
+        const matchIdx=matches[origLi];
+        const rightPos=rightEntries.findIndex(({idx})=>idx===matchIdx);
+        if(rightPos>=0){ pairs.push(`${newLi+1}-${String.fromCharCode(65+rightPos)}`); }
+      });
+      if(!pairs.length) return null;
+      const leftText=leftEntries.map(({text},i)=>`${i+1}) ${text}`).join(';');
+      const rightText=rightEntries.map(({text},i)=>`${String.fromCharCode(65+i)}) ${text}`).join(';');
+      return `MT|${p}|${leftText}|${rightText}|${pairs.join(',')}`;
+    }
     return null;
   }
   function fromLine(s){
@@ -39,6 +85,28 @@ const IE2 = (()=>{
     if(up.startsWith('MC|')){ const p=line.split('|'); if(p.length<4) return null; const prompt=p[1]||''; const optsRaw=p[2]||''; const ans=p[3]||''; const opts=(optsRaw.split(';').map(x=>String(x||'').trim()).filter(Boolean)).map(t=>({text:t.replace(/^[A-Z]\)\s*/,'').trim(), correct:false})); const set=new Set(String(ans||'').split(',').map(x=>x.trim().toUpperCase()).filter(Boolean)); opts.forEach((o,i)=>{ const L=String.fromCharCode(65+i); o.correct=set.has(L); }); return { type:'MC', prompt:prompt, options:opts }; }
     if(up.startsWith('TF|')){ const p=line.split('|'); if(p.length<3) return null; return { type:'TF', prompt:p[1]||'', answer:(String(p[2]||'').toUpperCase().startsWith('T')) }; }
     if(up.startsWith('YN|')){ const p=line.split('|'); if(p.length<3) return null; return { type:'YN', prompt:p[1]||'', answer:(String(p[2]||'').toUpperCase().startsWith('Y')) }; }
+    if(up.startsWith('MT|')){
+      const parts=line.split('|');
+      if(parts.length<5) return null;
+      const prompt=parts[1]||'';
+      const leftRaw=parts[2]||'';
+      const rightRaw=parts[3]||'';
+      const pairsRaw=parts.slice(4).join('|');
+      const left=leftRaw.split(';').map(s=>String(s||'').trim().replace(/^\d+\)\s*/,'').trim()).filter(Boolean);
+      const right=rightRaw.split(';').map(s=>String(s||'').trim().replace(/^[A-Z]\)\s*/i,'').trim()).filter(Boolean);
+      const matches=new Array(left.length).fill(-1);
+      pairsRaw.split(',').map(s=>s.trim()).filter(Boolean).forEach((pair)=>{
+        const segs=pair.split('-').map(x=>x.trim());
+        if(segs.length<2) return;
+        const li=parseInt(segs[0],10)-1;
+        const code=segs[1] ? segs[1].toUpperCase().charCodeAt(0) : NaN;
+        const ri=Number.isInteger(code)? code-65 : NaN;
+        if(Number.isInteger(li) && li>=0 && li<left.length && Number.isInteger(ri) && ri>=0 && ri<right.length){
+          matches[li]=ri;
+        }
+      });
+      return normalizeMT({ type:'MT', prompt, left, right, matches });
+    }
     return null;
   }
   function parseEditor(){ const ed=els().editor; const txt=(ed?.value||'').trim(); if(!txt) return []; return txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).map(fromLine).filter(Boolean); }
@@ -67,20 +135,22 @@ const IE2 = (()=>{
         <button id="ieAddMC" class="btn" type="button" title="Add Multiple Choice">Add MC</button>
         <button id="ieAddTF" class="btn" type="button" title="Add True/False">Add TF</button>
         <button id="ieAddYN" class="btn" type="button" title="Add Yes/No">Add YN</button>
+        <button id="ieAddMT" class="btn" type="button" title="Add Matching">Add MT</button>
         <span class="flex-spacer"></span>
         <button id="ieImport" class="btn btn-ghost" type="button" title="Import from raw">Import from raw</button>
         <button id="ieClear" class="btn btn-ghost" type="button" title="Clear all">Clear all</button>
       </div>
       <div id="ieGrid" class="ie-grid" aria-live="polite"></div>
-      <div id="ieSummary" class="ie-mono">IE ready — Hotkeys: M=MC, T=TF, Y=YN</div>
+      <div id="ieSummary" class="ie-mono">IE ready — Hotkeys: M=MC, Shift+M=MT, T=TF, Y=YN</div>
     `;
 
     // Wire toolbar using pointerdown in capture phase to beat Options' doc-level click-away
     const bind = (id, fn)=>{ const b=qs(id); if(!b) return; const h=(e)=>{ try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{} fn(); }; b.addEventListener('pointerdown', h, true); b.addEventListener('click', h, false); };
-    const addQ=(type)=>{ if(type==='MC') state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); if(type==='TF') state.model.push({ type:'TF', prompt:'', answer:false }); if(type==='YN') state.model.push({ type:'YN', prompt:'', answer:false }); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ` • Added ${type}`; };
+    const addQ=(type)=>{ if(type==='MC') state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]}); if(type==='TF') state.model.push({ type:'TF', prompt:'', answer:false }); if(type==='YN') state.model.push({ type:'YN', prompt:'', answer:false }); if(type==='MT') state.model.push(normalizeMT({ type:'MT', prompt:'', left:['',''], right:['',''], matches:[-1,-1] })); syncToEditor(); renderCards(); ensureLastVisible(); renderSummary(); const s=els().summary; if(s) s.textContent += ` • Added ${type}`; };
     bind('ieAddMC', ()=> addQ('MC'));
     bind('ieAddTF', ()=> addQ('TF'));
     bind('ieAddYN', ()=> addQ('YN'));
+    bind('ieAddMT', ()=> addQ('MT'));
     bind('ieImport', ()=>{ syncFromEditor(); });
     bind('ieClear', ()=>{ state.model=[]; syncToEditor(); renderCards(); renderSummary(); });
     // Minimal inline diagnostics: show pointerdown/click targets in summary
@@ -95,8 +165,12 @@ const IE2 = (()=>{
     // Keyboard shortcuts for reliability even if pointer events are blocked
     document.addEventListener('keydown', (e)=>{
       if(!state.enabled) return;
+      if(e.ctrlKey||e.metaKey||e.altKey) return;
       const k=e.key.toLowerCase();
-      if(k==='m'){ e.preventDefault(); addQ('MC'); }
+      if(k==='m'){
+        e.preventDefault();
+        addQ(e.shiftKey?'MT':'MC');
+      }
       else if(k==='t'){ e.preventDefault(); addQ('TF'); }
       else if(k==='y'){ e.preventDefault(); addQ('YN'); }
     });
@@ -112,16 +186,18 @@ const IE2 = (()=>{
       const isInside = (el)=> !!(el && mt.contains(el));
       const findUp = (sel)=>{ let x=n; while(x){ if(x.matches && x.matches(sel)) return x; x = x.parentElement; } return null; };
       if(!isInside(n)) return;
-      const add = findUp('[id="ieAddMC"], [id="ieAddTF"], [id="ieAddYN"], [data-ie-add]');
+      const add = findUp('[id="ieAddMC"], [id="ieAddTF"], [id="ieAddYN"], [id="ieAddMT"], [data-ie-add]');
       const imp = add ? null : findUp('#ieImport');
       const clr = (!add && !imp) ? findUp('#ieClear') : null;
       if(add||imp||clr){
         try{ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch{}
         if(add){
-          const type = add.getAttribute('data-ie-add') || (add.id==='ieAddTF'?'TF': add.id==='ieAddYN'?'YN':'MC');
+          const fallback = add.id==='ieAddTF' ? 'TF' : add.id==='ieAddYN' ? 'YN' : add.id==='ieAddMT' ? 'MT' : 'MC';
+          const type = add.getAttribute('data-ie-add') || fallback;
           if(type==='MC') state.model.push({ type:'MC', prompt:'', options:[{text:'',correct:false},{text:'',correct:false}]});
           if(type==='TF') state.model.push({ type:'TF', prompt:'', answer:false });
           if(type==='YN') state.model.push({ type:'YN', prompt:'', answer:false });
+          if(type==='MT') state.model.push(normalizeMT({ type:'MT', prompt:'', left:['',''], right:['',''], matches:[-1,-1] }));
           syncToEditor(); renderCards(); ensureLastVisible(); renderSummary();
         } else if(imp){
           syncFromEditor();
@@ -137,7 +213,24 @@ const IE2 = (()=>{
   }
 
   function ensureLastVisible(){ try{ const m=els().mount; const last = m && m.querySelector('.ie-card:last-of-type'); last && last.scrollIntoView({ behavior:'smooth', block:'end' }); }catch{} }
-  function ok(q){ if(!q||!q.type) return false; if(!q.prompt||!q.prompt.trim()) return false; if(q.type==='MC'){ const a=(q.options||[]); const filled=a.filter(o=>o.text&&o.text.trim()).length; const corr=a.filter(o=>o.correct).length; return filled>=2 && corr>=1; } if(q.type==='TF'||q.type==='YN'){ return typeof q.answer==='boolean'; } return false; }
+  function ok(q){
+    if(!q||!q.type) return false;
+    if(!q.prompt||!q.prompt.trim()) return false;
+    if(q.type==='MC'){ const a=(q.options||[]); const filled=a.filter(o=>o.text&&o.text.trim()).length; const corr=a.filter(o=>o.correct).length; return filled>=2 && corr>=1; }
+    if(q.type==='TF'||q.type==='YN'){ return typeof q.answer==='boolean'; }
+    if(q.type==='MT'){
+      normalizeMT(q);
+      const leftFilled=(q.left||[]).map((text,idx)=>({ idx, text:String(text||'').trim() })).filter(({text})=>text);
+      const rightFilled=(q.right||[]).map((text,idx)=>({ idx, text:String(text||'').trim() })).filter(({text})=>text);
+      if(!leftFilled.length || !rightFilled.length) return false;
+      const rightValid=new Set(rightFilled.map(({idx})=>idx));
+      return leftFilled.every(({idx})=>{
+        const match=Array.isArray(q.matches)?q.matches[idx]:-1;
+        return Number.isInteger(match) && match>=0 && rightValid.has(match);
+      });
+    }
+    return false;
+  }
 
   function btn(text, title){ const b=document.createElement('button'); b.className='btn btn-ghost'; b.type='button'; b.textContent=text; if(title) b.title=title; return b; }
 
@@ -146,7 +239,7 @@ const IE2 = (()=>{
     state.model.forEach((q,idx)=>{
       const card=document.createElement('div'); card.className='ie-card'; card.dataset.idx=String(idx);
       const row=document.createElement('div'); row.className='ie-row';
-      const type=document.createElement('select'); type.className='toolbar-input ie-type'; ['MC','TF','YN'].forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; if(q.type===t) o.selected=true; type.appendChild(o); });
+      const type=document.createElement('select'); type.className='toolbar-input ie-type'; ['MC','TF','YN','MT'].forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; if(q.type===t) o.selected=true; type.appendChild(o); });
       const actions=document.createElement('div'); actions.className='ie-actions'; const up=btn('↑','Move up'), down=btn('↓','Move down'), dup=btn('Duplicate','Duplicate'), del=btn('Delete','Delete'); actions.append(up,down,dup,del); row.append(type, actions); card.appendChild(row);
       const prompt=document.createElement('input'); prompt.type='text'; prompt.className='toolbar-input ie-prompt'; prompt.placeholder='Question prompt'; prompt.value=q.prompt||''; card.appendChild(prompt);
       const area=document.createElement('div'); area.className='ie-choices';
@@ -154,12 +247,94 @@ const IE2 = (()=>{
         q.options=q.options||[]; if(q.options.length<2) q.options=[{text:'',correct:false},{text:'',correct:false}];
         q.options.forEach((opt,i)=>{ const line=document.createElement('div'); line.className='ie-choice'; const chk=document.createElement('input'); chk.type='checkbox'; chk.checked=!!opt.correct; const txt=document.createElement('input'); txt.type='text'; txt.value=opt.text||''; txt.placeholder=`Option ${String.fromCharCode(65+i)}`; const rm=btn('✕','Remove option'); line.append(chk,txt,rm); area.appendChild(line); chk.addEventListener('change', ()=>{ opt.correct=!!chk.checked; syncToEditor(); renderSummary(); }); txt.addEventListener('input', ()=>{ opt.text=txt.value; syncToEditor(); renderSummary(); }); rm.addEventListener('click', ()=>{ q.options.splice(i,1); syncToEditor(); renderCards(); renderSummary(); }); });
         const addOpt=btn('Add option','Add option'); addOpt.addEventListener('click', ()=>{ if(q.options.length<8){ q.options.push({text:'',correct:false}); syncToEditor(); renderCards(); renderSummary(); } }); area.appendChild(addOpt);
+      } else if(q.type==='MT'){
+        normalizeMT(q);
+        area.className='ie-mt';
+        const columns=document.createElement('div'); columns.className='ie-mt-columns';
+        const pairSelectors=[];
+        const refreshPairs=()=>{
+          pairSelectors.forEach(({sel, li})=>{
+            const current = (Array.isArray(q.matches) && Number.isInteger(q.matches[li]) && q.matches[li]>=0) ? String(q.matches[li]) : '';
+            while(sel.options.length>1){ sel.remove(1); }
+            q.right.forEach((text,ri)=>{ const opt=document.createElement('option'); opt.value=String(ri); const trimmed=String(text||'').trim(); opt.textContent = trimmed ? `${String.fromCharCode(65+ri)}) ${trimmed}` : `${String.fromCharCode(65+ri)})`; sel.appendChild(opt); });
+            if(current){ sel.value=current; if(sel.value!==current) sel.value=''; }
+            else { sel.value=''; }
+          });
+        };
+
+        const leftSection=document.createElement('div'); leftSection.className='ie-mt-section';
+        const leftTitle=document.createElement('div'); leftTitle.className='ie-mt-title'; leftTitle.textContent='Left side'; leftSection.appendChild(leftTitle);
+        const leftList=document.createElement('div'); leftList.className='ie-choices ie-mt-left-list';
+        q.left.forEach((text,li)=>{
+          const line=document.createElement('div'); line.className='ie-choice ie-mt-left';
+          const lbl=document.createElement('span'); lbl.textContent=`${li+1})`;
+          const pairWrap=document.createElement('div'); pairWrap.className='ie-mt-pair';
+          const txt=document.createElement('input'); txt.type='text'; txt.className='toolbar-input'; txt.placeholder=`Left ${li+1}`; txt.value=text||'';
+          const sel=document.createElement('select'); sel.className='toolbar-input ie-mt-select'; const none=document.createElement('option'); none.value=''; none.textContent='—'; sel.appendChild(none);
+          pairSelectors.push({ sel, li });
+          pairWrap.append(txt, sel);
+          const rm=btn('✕','Remove left item');
+          line.append(lbl, pairWrap, rm);
+          leftList.appendChild(line);
+          txt.addEventListener('input', ()=>{ q.left[li]=txt.value; syncToEditor(); renderSummary(); });
+          sel.addEventListener('change', ()=>{ q.matches[li] = sel.value==='' ? -1 : parseInt(sel.value,10); syncToEditor(); renderSummary(); });
+          rm.addEventListener('click', ()=>{ q.left.splice(li,1); q.matches.splice(li,1); syncToEditor(); renderCards(); renderSummary(); });
+        });
+        leftSection.appendChild(leftList);
+        const addLeft=btn('Add left','Add left item');
+        addLeft.addEventListener('click', ()=>{ q.left.push(''); q.matches.push(-1); syncToEditor(); renderCards(); renderSummary(); });
+        leftSection.appendChild(addLeft);
+
+        const rightSection=document.createElement('div'); rightSection.className='ie-mt-section';
+        const rightTitle=document.createElement('div'); rightTitle.className='ie-mt-title'; rightTitle.textContent='Right side'; rightSection.appendChild(rightTitle);
+        const rightList=document.createElement('div'); rightList.className='ie-choices ie-mt-right-list';
+        q.right.forEach((text,ri)=>{
+          const line=document.createElement('div'); line.className='ie-choice ie-mt-right';
+          const lbl=document.createElement('span'); lbl.textContent=`${String.fromCharCode(65+ri)})`;
+          const txt=document.createElement('input'); txt.type='text'; txt.className='toolbar-input'; txt.placeholder=`Right ${String.fromCharCode(65+ri)}`; txt.value=text||'';
+          const rm=btn('✕','Remove right item');
+          line.append(lbl, txt, rm);
+          rightList.appendChild(line);
+          txt.addEventListener('input', ()=>{ q.right[ri]=txt.value; syncToEditor(); renderSummary(); refreshPairs(); });
+          rm.addEventListener('click', ()=>{ q.right.splice(ri,1); q.matches=q.matches.map((m)=> (m===ri?-1: m>ri?m-1:m)); syncToEditor(); renderCards(); renderSummary(); });
+        });
+        rightSection.appendChild(rightList);
+        const addRight=btn('Add right','Add right item');
+        addRight.addEventListener('click', ()=>{ q.right.push(''); syncToEditor(); renderCards(); renderSummary(); });
+        rightSection.appendChild(addRight);
+
+        columns.append(leftSection, rightSection);
+        area.appendChild(columns);
+        refreshPairs();
       } else {
         const line=document.createElement('div'); line.className='ie-choice'; const sel=document.createElement('select'); const opts=(q.type==='TF')?[['T','True'],['F','False']]:[['Y','Yes'],['N','No']]; opts.forEach(([v,l])=>{ const o=document.createElement('option'); o.value=v; o.textContent=l; sel.appendChild(o); }); sel.value = (q.type==='TF') ? (q.answer?'T':'F') : (q.answer?'Y':'N'); const lbl=document.createElement('span'); lbl.textContent='Correct'; line.append(sel,lbl); area.appendChild(line); sel.addEventListener('change', ()=>{ const v=sel.value; q.answer = (q.type==='TF') ? v==='T' : v==='Y'; syncToEditor(); renderSummary(); });
       }
       card.appendChild(area);
       const status=document.createElement('div'); status.className = ok(q)?'ie-valid':'ie-error'; status.textContent = ok(q)?'Looks good':'Incomplete — add text and mark a correct answer'; card.appendChild(status);
-      type.addEventListener('change', ()=>{ const t=type.value; if(t==='MC'){ q.type='MC'; q.options=q.options&&q.options.length?q.options:[{text:'',correct:false},{text:'',correct:false}]; delete q.answer; } else { q.type=t; q.answer=false; q.options=[]; } syncToEditor(); renderCards(); renderSummary(); });
+      type.addEventListener('change', ()=>{
+        const t=type.value;
+        if(t==='MC'){
+          q.type='MC';
+          q.options=q.options&&q.options.length?q.options:[{text:'',correct:false},{text:'',correct:false}];
+          delete q.answer;
+          delete q.left; delete q.right; delete q.matches; delete q.pairs;
+        } else if(t==='MT'){
+          q.type='MT';
+          delete q.answer;
+          q.options=[];
+          q.left=Array.isArray(q.left)&&q.left.length?q.left:['',''];
+          q.right=Array.isArray(q.right)&&q.right.length?q.right:['',''];
+          q.matches=Array.isArray(q.matches)&&q.matches.length?q.matches:new Array(q.left.length).fill(-1);
+          delete q.pairs;
+          normalizeMT(q);
+        } else {
+          q.type=t;
+          q.answer=false;
+          q.options=[];
+          delete q.left; delete q.right; delete q.matches; delete q.pairs;
+        }
+        syncToEditor(); renderCards(); renderSummary();
+      });
       prompt.addEventListener('input', ()=>{ q.prompt=prompt.value; syncToEditor(); status.className = ok(q)?'ie-valid':'ie-error'; status.textContent = ok(q)?'Looks good':'Incomplete — add text and mark a correct answer'; renderSummary(); });
       up.addEventListener('click', ()=>{ if(idx>0){ const a=state.model; [a[idx-1],a[idx]]=[a[idx],a[idx-1]]; syncToEditor(); renderCards(); }});
       down.addEventListener('click', ()=>{ const a=state.model; if(idx<a.length-1){ [a[idx+1],a[idx]]=[a[idx],a[idx+1]]; syncToEditor(); renderCards(); }});
