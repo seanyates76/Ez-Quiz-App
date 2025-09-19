@@ -24,10 +24,10 @@ Features
 
 Interactive Editor (beta)
 -------------------------
-- Opt‑in, card‑based authoring for MC/TF/YN.
+- Opt‑in, card‑based authoring for MC/TF/YN/MT (Add MT button or Shift+M).
 - Enable via Options → Advanced → “Interactive Editor (beta)”.
 - Edits stay in sync with the raw Editor/Mirror; the raw parser format remains the source of truth.
-- Inline validation ensures each question has a prompt and a marked correct answer.
+- Inline validation ensures each question has a prompt and a marked correct answer or completed matches.
 - Default off for now to keep the classic editor front‑and‑center.
 
 Note: A separate smoke-test page is no longer needed; test directly in Options → Advanced inside the main app.
