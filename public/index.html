@@ -82,7 +82,7 @@
         </div>
         <div class="divider" role="separator" aria-orientation="horizontal"></div>
         <div class="advanced-disclosure" role="button" tabindex="0" aria-expanded="false" aria-controls="advancedBlock">
-          <span>Advanced Editor</span>
+          <span>Quiz Editor</span>
           <span class="caret" aria-hidden="true">▼</span>
         </div>
         <div id="advancedBlock" class="advanced-body" hidden>
@@ -94,7 +94,7 @@
             </div>
           </div>
           <label class="toggle-row" style="display:inline-flex; align-items:center; gap:8px; margin:4px 0 8px 0" title="New: Build questions visually (MC/TF/YN). Syncs with the raw Editor.">
-            <input id="toggleInteractiveEditor" type="checkbox" />
+            <input id="toggleInteractiveEditor" type="checkbox" checked />
             <span>Interactive Editor (beta)</span>
           </label>
           <div id="interactiveEditor" class="hidden" aria-labelledby="advancedTitle"></div>
@@ -250,7 +250,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <h4>Generate vs Start</h4>
           <ul>
             <li><strong>Start</strong> (default): generates → parses → starts the quiz.</li>
-            <li><strong>Generate</strong> (Options → Advanced Editor open): fills the <em>Editor</em> and <em>Mirror</em> only; the quiz starts when you click <strong>Start</strong>.</li>
+            <li><strong>Generate</strong> (Options → Quiz Editor open): fills the <em>Editor</em> and <em>Mirror</em> only; the quiz starts when you click <strong>Start</strong>.</li>
             <li>Re‑using <strong>Generate</strong> clears the editor and creates a fresh set.</li>
           </ul>
         </section>
@@ -311,7 +311,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
             <ul>
               <li><strong>Start vs Generate:</strong> Start runs the quiz; Generate fills Editor + Mirror.</li>
               <li><strong>Options panel:</strong> Timer, Theme, Types, and Advanced tools in one place.</li>
-              <li><strong>Advanced:</strong> Editor, Mirror, Copy prompts, Export .txt.</li>
+              <li><strong>Quiz Editor:</strong> Editor, Mirror, Copy prompts, Export .txt.</li>
               <li><strong>Defaults:</strong> Save Count/Difficulty/Types; Reset defaults clears them.</li>
               <li><strong>Navigation polish:</strong> Equal-width fields on mobile; clearer focus.</li>
             </ul>
@@ -338,7 +338,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
               <dd><strong>A:</strong> Open the ⚙ Settings menu. You can adjust timer length, appearance theme, and reset to defaults at any time (except while a quiz is running).</dd>
 
               <dt><strong>Q:</strong> Where can I export or copy my quiz?</dt>
-              <dd><strong>A:</strong> In the Advanced Editor, you’ll find options to copy quiz lines for AI prompts or export them as a .txt file.</dd>
+              <dd><strong>A:</strong> In the Quiz Editor, you’ll find options to copy quiz lines for AI prompts or export them as a .txt file.</dd>
 
               <dt><strong>Q:</strong> What happens if the app updates mid‑quiz?</dt>
               <dd><strong>A:</strong> Nothing changes until you finish or exit. Updates only apply once you refresh or start a new quiz, so your current run is never interrupted.</dd>
@@ -463,7 +463,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
   <script type="module" src="js/main.js?v=1.5.6"></script>
   <script type="module" src="js/auto-refresh.js?v=1.5.2"></script>
   <script type="module" src="js/patches.js?v=1.5.8"></script>
-  <script type="module" src="js/editor.gui.js?v=1.5.17"></script>
+  <script type="module" src="js/editor.gui.js?v=1.5.18"></script>
 
   <!-- Floating actions: Feedback + Coffee -->
   <div id="floatingActions" class="fab-stack" aria-label="Quick actions">

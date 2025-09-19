@@ -17,7 +17,13 @@ const IE2 = (()=>{
   });
 
   function saveEnabled(on){ try{ localStorage.setItem(SKEY, on?'1':'0'); }catch{} }
-  function loadEnabled(){ try{ return localStorage.getItem(SKEY)==='1'; }catch{ return false; } }
+  function loadEnabled(){
+    try{
+      const v = localStorage.getItem(SKEY);
+      // Default ON if not yet set; respect explicit '0' off
+      return (v === null || v === '1');
+    }catch{ return true; }
+  }
 
   // Formatting (match app parser rules)
   function toLine(q){
