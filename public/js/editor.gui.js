@@ -260,7 +260,19 @@ const IE2 = (()=>{
     return false;
   }
 
-  function btn(text, title){ const b=document.createElement('button'); b.className='btn btn-ghost'; b.type='button'; b.textContent=text; if(title) b.title=title; return b; }
+  function btn(text, title, classes){
+    const b=document.createElement('button');
+    b.className='btn';
+    if(typeof classes==='string' && classes.trim()){
+      b.className += ` ${classes.trim()}`;
+    } else {
+      b.className += ' btn-ghost';
+    }
+    b.type='button';
+    b.textContent=text;
+    if(title) b.title=title;
+    return b;
+  }
 
   function renderCards(){
     const g=els().grid; if(!g) return; g.innerHTML='';
@@ -268,13 +280,13 @@ const IE2 = (()=>{
       const card=document.createElement('div'); card.className='ie-card'; card.dataset.idx=String(idx);
       const row=document.createElement('div'); row.className='ie-row';
       const type=document.createElement('select'); type.className='toolbar-input ie-type'; ['MC','TF','YN','MT'].forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; if(q.type===t) o.selected=true; type.appendChild(o); });
-      const actions=document.createElement('div'); actions.className='ie-actions'; const up=btn('↑','Move up'), down=btn('↓','Move down'), dup=btn('Duplicate','Duplicate'), del=btn('Delete','Delete'); actions.append(up,down,dup,del); row.append(type, actions); card.appendChild(row);
+      const actions=document.createElement('div'); actions.className='ie-actions'; const up=btn('↑','Move up','btn-ghost ie-action-btn'), down=btn('↓','Move down','btn-ghost ie-action-btn'), dup=btn('Duplicate','Duplicate','btn-ghost ie-action-btn'), del=btn('Delete','Delete','btn-ghost ie-action-btn danger'); actions.append(up,down,dup,del); row.append(type, actions); card.appendChild(row);
       const prompt=document.createElement('input'); prompt.type='text'; prompt.className='toolbar-input ie-prompt'; prompt.placeholder='Question prompt'; prompt.value=q.prompt||''; card.appendChild(prompt);
       const area=document.createElement('div'); area.className='ie-choices';
       if(q.type==='MC'){
         q.options=q.options||[]; if(q.options.length<2) q.options=[{text:'',correct:false},{text:'',correct:false}];
-        q.options.forEach((opt,i)=>{ const line=document.createElement('div'); line.className='ie-choice'; const chk=document.createElement('input'); chk.type='checkbox'; chk.checked=!!opt.correct; const txt=document.createElement('input'); txt.type='text'; txt.value=opt.text||''; txt.placeholder=`Option ${String.fromCharCode(65+i)}`; const rm=btn('✕','Remove option'); line.append(chk,txt,rm); area.appendChild(line); chk.addEventListener('change', ()=>{ opt.correct=!!chk.checked; syncToEditor(); renderSummary(); }); txt.addEventListener('input', ()=>{ opt.text=txt.value; syncToEditor(); renderSummary(); }); rm.addEventListener('click', ()=>{ q.options.splice(i,1); syncToEditor(); renderCards(); renderSummary(); }); });
-        const addOpt=btn('Add option','Add option'); addOpt.addEventListener('click', ()=>{ if(q.options.length<8){ q.options.push({text:'',correct:false}); syncToEditor(); renderCards(); renderSummary(); } }); area.appendChild(addOpt);
+        q.options.forEach((opt,i)=>{ const line=document.createElement('div'); line.className='ie-choice'; const chk=document.createElement('input'); chk.type='checkbox'; chk.checked=!!opt.correct; const txt=document.createElement('input'); txt.type='text'; txt.value=opt.text||''; txt.placeholder=`Option ${String.fromCharCode(65+i)}`; const rm=btn('✕','Remove option','btn-ghost btn-icon'); line.append(chk,txt,rm); area.appendChild(line); chk.addEventListener('change', ()=>{ opt.correct=!!chk.checked; syncToEditor(); renderSummary(); }); txt.addEventListener('input', ()=>{ opt.text=txt.value; syncToEditor(); renderSummary(); }); rm.addEventListener('click', ()=>{ q.options.splice(i,1); syncToEditor(); renderCards(); renderSummary(); }); });
+        const addOpt=btn('+ Add option','Add option','btn-ghost ie-link-btn'); addOpt.addEventListener('click', ()=>{ if(q.options.length<8){ q.options.push({text:'',correct:false}); syncToEditor(); renderCards(); renderSummary(); } }); area.appendChild(addOpt);
       } else if(q.type==='MT'){
         normalizeMT(q);
         area.className='ie-mt';
@@ -290,18 +302,18 @@ const IE2 = (()=>{
           });
         };
 
-        const leftSection=document.createElement('div'); leftSection.className='ie-mt-section';
-        const leftTitle=document.createElement('div'); leftTitle.className='ie-mt-title'; leftTitle.textContent='Left side'; leftSection.appendChild(leftTitle);
-        const leftList=document.createElement('div'); leftList.className='ie-choices ie-mt-left-list';
+        const leftSection=document.createElement('div'); leftSection.className='ie-mt-column';
+        const leftTitle=document.createElement('div'); leftTitle.className='ie-mt-head'; leftTitle.textContent='Left side'; leftSection.appendChild(leftTitle);
+        const leftList=document.createElement('div'); leftList.className='ie-mt-list ie-mt-left-list';
         q.left.forEach((text,li)=>{
-          const line=document.createElement('div'); line.className='ie-choice ie-mt-left';
-          const lbl=document.createElement('span'); lbl.textContent=`${li+1})`;
+          const line=document.createElement('div'); line.className='ie-choice ie-mt-item ie-mt-left';
+          const lbl=document.createElement('span'); lbl.className='ie-mt-chip'; lbl.textContent=`${li+1}`;
           const pairWrap=document.createElement('div'); pairWrap.className='ie-mt-pair';
           const txt=document.createElement('input'); txt.type='text'; txt.className='toolbar-input'; txt.placeholder=`Left ${li+1}`; txt.value=text||'';
           const sel=document.createElement('select'); sel.className='toolbar-input ie-mt-select'; const none=document.createElement('option'); none.value=''; none.textContent='—'; sel.appendChild(none);
           pairSelectors.push({ sel, li });
           pairWrap.append(txt, sel);
-          const rm=btn('✕','Remove left item');
+          const rm=btn('✕','Remove left item','btn-ghost btn-icon');
           line.append(lbl, pairWrap, rm);
           leftList.appendChild(line);
           txt.addEventListener('input', ()=>{ q.left[li]=txt.value; syncToEditor(); renderSummary(); });
@@ -309,27 +321,29 @@ const IE2 = (()=>{
           rm.addEventListener('click', ()=>{ q.left.splice(li,1); q.matches.splice(li,1); syncToEditor(); renderCards(); renderSummary(); });
         });
         leftSection.appendChild(leftList);
-        const addLeft=btn('Add left','Add left item');
+        const addLeft=btn('+ Add left item','Add left item','btn-ghost ie-link-btn');
         addLeft.addEventListener('click', ()=>{ q.left.push(''); q.matches.push(-1); syncToEditor(); renderCards(); renderSummary(); });
-        leftSection.appendChild(addLeft);
+        const leftFoot=document.createElement('div'); leftFoot.className='ie-mt-foot'; leftFoot.appendChild(addLeft);
+        leftSection.appendChild(leftFoot);
 
-        const rightSection=document.createElement('div'); rightSection.className='ie-mt-section';
-        const rightTitle=document.createElement('div'); rightTitle.className='ie-mt-title'; rightTitle.textContent='Right side'; rightSection.appendChild(rightTitle);
-        const rightList=document.createElement('div'); rightList.className='ie-choices ie-mt-right-list';
+        const rightSection=document.createElement('div'); rightSection.className='ie-mt-column';
+        const rightTitle=document.createElement('div'); rightTitle.className='ie-mt-head'; rightTitle.textContent='Right side'; rightSection.appendChild(rightTitle);
+        const rightList=document.createElement('div'); rightList.className='ie-mt-list ie-mt-right-list';
         q.right.forEach((text,ri)=>{
-          const line=document.createElement('div'); line.className='ie-choice ie-mt-right';
-          const lbl=document.createElement('span'); lbl.textContent=`${String.fromCharCode(65+ri)})`;
+          const line=document.createElement('div'); line.className='ie-choice ie-mt-item ie-mt-right';
+          const lbl=document.createElement('span'); lbl.className='ie-mt-chip'; lbl.textContent=`${String.fromCharCode(65+ri)}`;
           const txt=document.createElement('input'); txt.type='text'; txt.className='toolbar-input'; txt.placeholder=`Right ${String.fromCharCode(65+ri)}`; txt.value=text||'';
-          const rm=btn('✕','Remove right item');
+          const rm=btn('✕','Remove right item','btn-ghost btn-icon');
           line.append(lbl, txt, rm);
           rightList.appendChild(line);
           txt.addEventListener('input', ()=>{ q.right[ri]=txt.value; syncToEditor(); renderSummary(); refreshPairs(); });
           rm.addEventListener('click', ()=>{ q.right.splice(ri,1); q.matches=q.matches.map((m)=> (m===ri?-1: m>ri?m-1:m)); syncToEditor(); renderCards(); renderSummary(); });
         });
         rightSection.appendChild(rightList);
-        const addRight=btn('Add right','Add right item');
+        const addRight=btn('+ Add right item','Add right item','btn-ghost ie-link-btn');
         addRight.addEventListener('click', ()=>{ q.right.push(''); syncToEditor(); renderCards(); renderSummary(); });
-        rightSection.appendChild(addRight);
+        const rightFoot=document.createElement('div'); rightFoot.className='ie-mt-foot'; rightFoot.appendChild(addRight);
+        rightSection.appendChild(rightFoot);
 
         columns.append(leftSection, rightSection);
         area.appendChild(columns);
