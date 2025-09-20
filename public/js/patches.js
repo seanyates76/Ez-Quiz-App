@@ -112,6 +112,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
       if(advBlock){ advBlock.setAttribute('data-mode', interactive ? 'interactive':'manual'); }
       // Sync legacy toggle used by IE module
       if(toggle){ toggle.checked = interactive; toggle.dispatchEvent(new Event('change', { bubbles:true })); }
+      // Ensure the IE mount visibility (counteracts initial class="hidden")
+      if(mount){ mount.classList.toggle('hidden', !interactive); }
       // Persist IE enabled state for module boot
       try{ localStorage.setItem('ezq.ie.v2.on', interactive?'1':'0'); }catch{}
       // Ensure UI exists when switching to interactive
