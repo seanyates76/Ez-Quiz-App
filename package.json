@@ -4,6 +4,11 @@
   "private": true,
   "license": "MIT",
   "description": "Static PWA + Netlify Functions for EZ Quiz",
+  "scripts": {
+    "build": "npm run build:stable",
+    "build:stable": "node -e \"console.log('Static deploy (stable) — no build step required.')\"",
+    "build:beta": "node -e \"console.log('Static deploy (beta) — no build step required.')\""
+  },
   "dependencies": {
     "@google/generative-ai": "^0.20.0",
     "nodemailer": "^6.9.13"

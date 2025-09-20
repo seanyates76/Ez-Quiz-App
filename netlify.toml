@@ -2,6 +2,12 @@
 publish = "public"
 functions = "netlify/functions"
 
+[context.production]
+  command = "npm run build:stable"
+
+[context.branch-deploy]
+  command = "npm run build:beta"
+
 [functions]
 node_bundler = "esbuild"
 external_node_modules = ["@google/generative-ai", "nodemailer"]
