@@ -39,7 +39,7 @@ export function parseEditorInput(text){
       try{
         const text=m[1].trim(), leftRaw=m[2].trim(), rightRaw=m[3].trim(), pairsRaw=m[4].trim();
         const left=leftRaw.split(';').map(s=>s.trim().replace(/^\d+\)\s*/,'').trim()).filter(Boolean);
-        const right=rightRaw.split(';').map(s=>s.trim().replace(/^[A-Z]\)\s*/i,'').trim()).filter(Boolean);
+        const right=rightRaw.split(';').map(s=>s.trim().replace(/^.{1}\)\s*/,'').trim()).filter(Boolean);
         const pairs=pairsRaw.split(',').map(p=>{ const m2=p.split('-').map(x=>x.trim()); const li=parseInt(m2[0],10)-1; const ri=m2[1].toUpperCase().charCodeAt(0)-65; return [li,ri]; });
         const invalid=pairs.some(([li,ri])=>li<0||li>=left.length||ri<0||ri>=right.length);
         if(invalid) throw new Error('MT pair out of range');

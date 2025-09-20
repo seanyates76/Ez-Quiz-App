@@ -770,6 +770,17 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 .ie-choices{ display:grid; gap:6px }
 .ie-choice{ display:grid; grid-template-columns: auto 1fr auto; gap:8px; align-items:center }
 .ie-choice input[type="text"]{ width:100% }
+.ie-mt{ display:grid; gap:10px; grid-template-columns: repeat(3, minmax(0,1fr)); align-items:start }
+.ie-mt-col{ display:grid; gap:8px }
+.ie-mt-title{ font-weight:600; font-size:.95em; color:var(--muted); text-transform:uppercase; letter-spacing:.04em }
+.ie-mt-item{ display:grid; grid-template-columns: auto 1fr auto; gap:8px; align-items:center }
+.ie-mt-item select.ie-mt-select{ width:100% }
+.ie-mt-label{ font-weight:600; min-width:32px; text-align:right }
+.ie-mt-select{ min-width:0 }
+.ie-mt-join{ font-size:1.25em; text-align:center; color:var(--muted) }
+.ie-mt-pairs .ie-mt-item{ grid-template-columns: 1fr auto 1fr auto }
+.ie-mt-pairs .ie-mt-select{ min-width:120px }
+.ie-mt-pairs .ie-mt-join{ min-width:24px }
 .ie-actions{ display:flex; gap:6px; flex-wrap:wrap }
 .ie-valid{ color: var(--success); font-weight:600 }
 .ie-error{ color: var(--danger); font-weight:600 }
@@ -777,6 +788,10 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 /* Drag state */
 .ie-card.drag-over{ outline:2px dashed var(--border) }
 .ie-toolbar .flex-spacer{ flex:1 1 0 }
+@media (max-width:900px){
+  .ie-mt{ grid-template-columns:1fr }
+  .ie-mt-pairs .ie-mt-item{ grid-template-columns: 1fr auto 1fr auto }
+}
 
 /* Ensure .hidden truly hides even with inline tweaks */
 .hidden{ display: none !important }
