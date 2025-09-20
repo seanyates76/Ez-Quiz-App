@@ -43,6 +43,23 @@ node_modules/
 dist/
 build/
 
+# Hosting/CLI local state
+.netlify/
+
+# Caches and coverage
+coverage/
+.cache/
+.parcel-cache/
+.eslintcache
+.vercel/
+.pnpm-store/
+.turbo/
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
 # Local tools and design sources
 tools/
 icons/source.png
