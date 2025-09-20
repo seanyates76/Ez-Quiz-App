@@ -6,7 +6,7 @@
   <title>EZ Quiz</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.5.7" />
+  <link rel="stylesheet" href="styles.css?v=1.5.8" />
 </head>
 <body data-theme="dark">
   <header class="site-header" role="banner">
@@ -90,20 +90,23 @@
             <h5 id="advancedTitle" class="adv-title">Prompt Editor</h5>
             <div class="adv-title-right">
               <h5 class="adv-title">Debug / Mirror</h5>
-              <label class="opt-switch small"><input type="checkbox" id="mirrorToggle" /> <span>Show</span></label>
+              <label class="opt-switch small"><input type="checkbox" id="mirrorToggle" checked /> <span>Show</span></label>
             </div>
           </div>
-          <label class="toggle-row" style="display:inline-flex; align-items:center; gap:8px; margin:4px 0 8px 0" title="New: Build questions visually (MC/TF/YN). Syncs with the raw Editor.">
-            <input id="toggleInteractiveEditor" type="checkbox" checked />
-            <span>Interactive Editor (beta)</span>
-          </label>
+          <div class="toggle-row" style="display:flex; align-items:center; gap:10px; margin:4px 0 8px 0" title="Switch between visual (Interactive) and manual text editing.">
+            <span class="lbl">Editor Mode</span>
+            <label class="opt-switch small"><input type="radio" name="editorMode" id="modeInteractive" value="interactive" checked /> <span>Interactive</span></label>
+            <label class="opt-switch small"><input type="radio" name="editorMode" id="modeManual" value="manual" /> <span>Manual</span></label>
+            <!-- Legacy toggle kept for module wiring; hidden from UI -->
+            <input id="toggleInteractiveEditor" type="checkbox" checked hidden />
+          </div>
           <div id="interactiveEditor" class="hidden" aria-labelledby="advancedTitle"></div>
           <div class="adv-panels">
             <div class="adv-left">
               <textarea id="editor" class="editor" rows="12" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
             </div>
             <div class="adv-right">
-              <div id="mirrorBox" class="mirror-box" data-on="false" data-empty="true">
+              <div id="mirrorBox" class="mirror-box" data-on="true" data-empty="true">
                 <textarea id="mirror" class="mirror" rows="12" readonly aria-label="Generated quiz lines (read-only)" data-empty="true"></textarea>
               </div>
             </div>
@@ -462,7 +465,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
 
   <script type="module" src="js/main.js?v=1.5.6"></script>
   <script type="module" src="js/auto-refresh.js?v=1.5.2"></script>
-  <script type="module" src="js/patches.js?v=1.5.9"></script>
+  <script type="module" src="js/patches.js?v=1.5.10"></script>
   <script type="module" src="js/editor.gui.js?v=1.5.18"></script>
 
   <!-- Floating actions: Feedback + Coffee -->

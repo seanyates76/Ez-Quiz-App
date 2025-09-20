@@ -761,6 +761,10 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 
 /* Interactive Editor (beta) */
 .advanced-body #interactiveEditor{ position:relative; z-index:5; pointer-events:auto }
+/* Mode switching: hide the manual editor area when in Interactive mode */
+.advanced-body[data-mode="interactive"] .adv-left{ display:none }
+/* Ensure the Interactive mount hides in Manual mode as well, even if module toggled on */
+.advanced-body[data-mode="manual"] #interactiveEditor{ display:none !important }
 /* Keep the IE toggle row clickable above the IE mount */
 .advanced-body .toggle-row{ position:relative; z-index:15 }
 .ie-toolbar{ display:flex; align-items:center; gap:8px; margin:6px 0 }

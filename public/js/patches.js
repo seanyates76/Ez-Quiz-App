@@ -90,6 +90,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
   try{
     const toggle = document.getElementById('toggleInteractiveEditor');
     const mount = document.getElementById('interactiveEditor');
+    const advBlock = document.getElementById('advancedBlock');
+    const modeInteractive = document.getElementById('modeInteractive');
+    const modeManual = document.getElementById('modeManual');
     // Lazy ensure IE module is initialized when needed
     async function ensureIEReady(){
       if(!mount) return;
@@ -103,17 +106,25 @@ document.addEventListener('DOMContentLoaded', ()=>{
         try{ mod?.default?.init?.(); }catch{}
       }catch{}
     }
+    function setEditorMode(mode){
+      const interactive = mode === 'interactive';
+      // Reflect mode on container for CSS control
+      if(advBlock){ advBlock.setAttribute('data-mode', interactive ? 'interactive':'manual'); }
+      // Sync legacy toggle used by IE module
+      if(toggle){ toggle.checked = interactive; toggle.dispatchEvent(new Event('change', { bubbles:true })); }
+      // Persist IE enabled state for module boot
+      try{ localStorage.setItem('ezq.ie.v2.on', interactive?'1':'0'); }catch{}
+      // Ensure UI exists when switching to interactive
+      if(interactive){ ensureIEReady(); }
+    }
+
     if(toggle && mount){
-      const apply = ()=>{
-        mount.classList.toggle('hidden', !toggle.checked);
-        if(toggle.checked){
-          // Best-effort: if turning on and UI is missing, initialize IE lazily
-          ensureIEReady();
-        }
-      };
-      toggle.addEventListener('change', apply);
-      // If the toggle is already checked (e.g., restored state), reflect it
-      apply();
+      // Initialize from selected radio, default interactive
+      if(modeInteractive?.checked){ setEditorMode('interactive'); }
+      else if(modeManual?.checked){ setEditorMode('manual'); }
+      else { setEditorMode(toggle.checked ? 'interactive':'manual'); }
+      modeInteractive?.addEventListener('change', ()=>{ if(modeInteractive.checked) setEditorMode('interactive'); });
+      modeManual?.addEventListener('change', ()=>{ if(modeManual.checked) setEditorMode('manual'); });
     }
   }catch{}
 });
