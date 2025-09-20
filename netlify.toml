@@ -3,10 +3,10 @@ publish = "public"
 functions = "netlify/functions"
 
 [context.production]
-  command = "npm run build:stable"
+command = "npm run build:stable"
 
 [context.branch-deploy]
-  command = "npm run build:beta"
+command = "npm run build:beta"
 
 [functions]
 node_bundler = "esbuild"
@@ -71,8 +71,8 @@ to = "/index.html"
 status = 200
 
 [edge_functions]
-  directory = "netlify/edge-functions"
+directory = "netlify/edge-functions"
 
 [[edge_functions]]
-  path = "/beta"
-  function = "beta"
+path = "/beta"
+function = "beta"
