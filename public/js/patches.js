@@ -98,8 +98,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
       try{
         // Persist enabled state so editor.gui.js reflects it on init
         try{ if(toggle?.checked){ localStorage.setItem('ezq.ie.v2.on', '1'); } }catch{}
-        // Dynamically import the module in case it failed to load or init earlier
-        await import('./editor.gui.js');
+        // Dynamically import the module (idempotent) and call init if exposed
+        const mod = await import('./editor.gui.js');
+        try{ mod?.default?.init?.(); }catch{}
       }catch{}
     }
     if(toggle && mount){
