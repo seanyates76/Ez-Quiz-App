@@ -8,7 +8,7 @@
  * page for navigation requests when offline.
  */
 
-const CACHE_NAME = 'ezquiz-cache-v130';
+const CACHE_NAME = 'ezquiz-cache-v131';
 const RELATIVE_URLS = [
   'index.html',
   'js/state.js',
@@ -25,7 +25,7 @@ const RELATIVE_URLS = [
   'js/main.js?v=1.5.6',
   'js/auto-refresh.js?v=1.5.2',
   'js/patches.js?v=1.5.11',
-  'js/editor.gui.js?v=1.5.18',
+  'js/editor.gui.js?v=1.5.19',
   'manifest.webmanifest',
   'sw.js',
   'icons/icon-192.png',

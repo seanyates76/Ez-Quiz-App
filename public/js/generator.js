@@ -170,7 +170,24 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     setMirrorVisible(isOn);
   }
   function applyMirrorToggle(){ const on = !!mirrorToggle?.checked; setMirrorVisible(on); }
-  function openOptions(){ if(!optionsPanel) return; optionsPanel.hidden = false; optionsBtn?.setAttribute('aria-expanded','true'); reflectOptionsFromSettings(); applyMirrorToggle(); if(advDisclosure && advBlock){ const shouldOpen = !!getAlwaysShowAdvanced(); advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false'); advBlock.hidden = !shouldOpen; setPrimaryAction(shouldOpen? 'generate':'start'); } document.addEventListener('keydown', onEscCloseOptions); document.addEventListener('click', onDocClick, true); }
+  function openOptions(){
+    if(!optionsPanel) return;
+    optionsPanel.hidden = false;
+    optionsBtn?.setAttribute('aria-expanded','true');
+    reflectOptionsFromSettings();
+    applyMirrorToggle();
+    if(advDisclosure && advBlock){
+      // Prefer opening when Interactive Editor is enabled by default
+      let wantIE = true;
+      try{ const v = localStorage.getItem('ezq.ie.v2.on'); wantIE = (v === null || v === '1'); }catch{}
+      const shouldOpen = !!getAlwaysShowAdvanced() || !!wantIE;
+      advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false');
+      advBlock.hidden = !shouldOpen;
+      setPrimaryAction(shouldOpen? 'generate':'start');
+    }
+    document.addEventListener('keydown', onEscCloseOptions);
+    document.addEventListener('click', onDocClick, true);
+  }
   function closeOptions(){ if(!optionsPanel) return; optionsPanel.hidden = true; optionsBtn?.setAttribute('aria-expanded','false'); document.removeEventListener('keydown', onEscCloseOptions); document.removeEventListener('click', onDocClick, true); setPrimaryAction('start'); optionsBtn?.focus(); }
   function onEscCloseOptions(e){ if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }}
   optionsBtn?.addEventListener('click', ()=>{ if(optionsPanel?.hidden){ openOptions(); } else { closeOptions(); } });
