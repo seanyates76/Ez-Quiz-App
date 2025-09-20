@@ -2,6 +2,12 @@
 publish = "public"
 functions = "netlify/functions"
 
+[context.production]
+command = "npm run build:stable"
+
+[context.branch-deploy]
+command = "npm run build:beta"
+
 [functions]
 node_bundler = "esbuild"
 external_node_modules = ["@google/generative-ai", "nodemailer"]
@@ -63,3 +69,10 @@ status = 200
 from = "/*"
 to = "/index.html"
 status = 200
+
+[edge_functions]
+directory = "netlify/edge-functions"
+
+[[edge_functions]]
+path = "/beta"
+function = "beta"

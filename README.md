@@ -22,6 +22,21 @@ Features
 - Floating actions: Feedback panel + Support link.
 - Help & FAQ: Sleek modal with concise Q/A format; smooth transitions; opening a new modal replaces the current one.
 
+Beta Mode (DO NOT REMOVE)
+------------------------
+- Visiting `/beta` runs the Netlify Edge Function `netlify/edge-functions/beta.js`, sets the `EZQ_BETA=1` cookie, then redirects to `/`.
+- On boot we resolve Beta in this order: query string `?beta=1`, `localStorage` key `EZQ_BETA`, then cookie `EZQ_BETA`.
+- The Settings modal checkbox `#beta-toggle` mirrors the flag (kept checked & disabled in current beta builds) and remains the canonical trigger for runtime flows.
+- Runtime state is exposed as `window.__EZQ__.flags.beta` / `EZQ.flags.beta`, and the `<body>` receives a `.beta` class plus `data-beta="1"` when enabled.
+
+**Contracts (do not change names/paths):**
+- Cookie: `EZQ_BETA`
+- LocalStorage key: `EZQ_BETA`
+- Checkbox id: `beta-toggle`
+- Global flag: `window.__EZQ__.flags.beta`
+- Edge function: `netlify/edge-functions/beta.js`
+- Netlify mapping: `/beta`
+
 Interactive Editor (beta)
 -------------------------
 - Opt‑in, card‑based authoring for MC/TF/YN.
