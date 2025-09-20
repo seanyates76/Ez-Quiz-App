@@ -1,10 +1,140 @@
 import { S } from './state.js';
-import { bootstrapBetaMode } from './beta.js';
 import { $, byQSA, showUpdateBannerIfReady } from './utils.js';
 import { loadSettingsFromStorage, applyTheme, reflectSettingsIntoUI, wireSettingsPanel } from './settings.js';
 import { wireModals } from './modals.js';
 import { wireGenerator } from './generator.js';
 import { setMode, beginQuiz, renderCurrentQuestion, updateNavButtons, updateProgress, wireQuizControls, wireResultsControls, pauseTimerIfQuiz, resumeTimerIfQuiz, syncSettingsFromUI } from './quiz.js';
+
+const BETA_COOKIE_KEY = 'EZQ_BETA';
+const BETA_LS_KEY = 'EZQ_BETA';
+const BETA_TOGGLE_ID = 'beta-toggle';
+const BETA_COOKIE_MAX_AGE_MS = 360 * 24 * 60 * 60 * 1000; // ~1 year
+const DEFAULT_BETA = true;
+
+function readCookie(name){
+  try{
+    return document.cookie
+      .split(';')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((s) => s.split('='))
+      .reduce((acc, [k, v]) => {
+        acc[decodeURIComponent(k)] = decodeURIComponent(v || '');
+        return acc;
+      }, {})[name] || '';
+  }catch{
+    return '';
+  }
+}
+
+function writeCookie(enabled){
+  try{
+    const secure = typeof location !== 'undefined' && location.protocol === 'https:' ? '; Secure' : '';
+    if(enabled){
+      const expires = new Date(Date.now() + BETA_COOKIE_MAX_AGE_MS).toUTCString();
+      document.cookie = `${BETA_COOKIE_KEY}=1; Expires=${expires}; Path=/; SameSite=Lax${secure}`;
+    }else{
+      document.cookie = `${BETA_COOKIE_KEY}=; Max-Age=0; Path=/; SameSite=Lax${secure}`;
+    }
+  }catch{}
+}
+
+function persistBeta(enabled){
+  try{ localStorage.setItem(BETA_LS_KEY, enabled ? '1' : '0'); }catch{}
+  writeCookie(enabled);
+}
+
+function updateGlobalBeta(enabled){
+  const flag = !!enabled;
+  S.flags = S.flags || {};
+  S.flags.beta = flag;
+  try{
+    if(!window.__EZQ__) window.__EZQ__ = {};
+    const flags = window.__EZQ__.flags || {};
+    flags.beta = flag;
+    window.__EZQ__.flags = flags;
+  }catch{}
+}
+
+function applyBetaUI(enabled){
+  const flag = !!enabled;
+  try{
+    document.body?.classList?.toggle('beta', flag);
+    document.body?.setAttribute?.('data-beta', flag ? '1' : '0');
+  }catch{}
+}
+
+function syncBetaToggle(enabled){
+  const toggle = document.getElementById(BETA_TOGGLE_ID);
+  if(!toggle) return;
+  const flag = !!enabled;
+  if(toggle.checked !== flag) toggle.checked = flag;
+  try{ toggle.setAttribute('aria-checked', flag ? 'true' : 'false'); }catch{}
+}
+
+function resolveBetaFromQuery(){
+  try{
+    const qs = new URLSearchParams(location.search);
+    if(!qs.has('beta')) return null;
+    const raw = (qs.get('beta') || '').trim().toLowerCase();
+    if(raw === '1' || raw === 'true' || raw === '') return true;
+    if(raw === '0' || raw === 'false') return false;
+  }catch{}
+  return null;
+}
+
+function resolveBetaFromStorage(){
+  try{
+    const raw = localStorage.getItem(BETA_LS_KEY);
+    if(raw === '1') return true;
+    if(raw === '0') return false;
+  }catch{}
+  return null;
+}
+
+function resolveBetaFromCookie(){
+  const raw = readCookie(BETA_COOKIE_KEY);
+  if(!raw) return null;
+  if(raw === '1') return true;
+  if(raw === '0') return false;
+  return null;
+}
+
+function resolveInitialBeta(){
+  const fromQuery = resolveBetaFromQuery();
+  if(fromQuery !== null) return fromQuery;
+
+  const fromStorage = resolveBetaFromStorage();
+  if(fromStorage !== null) return fromStorage;
+
+  const fromCookie = resolveBetaFromCookie();
+  if(fromCookie !== null) return fromCookie;
+
+  return DEFAULT_BETA;
+}
+
+function setBeta(enabled, { persist = true, syncToggle = true } = {}){
+  updateGlobalBeta(enabled);
+  applyBetaUI(enabled);
+  if(syncToggle) syncBetaToggle(enabled);
+  if(persist) persistBeta(enabled);
+}
+
+function wireBetaToggle(){
+  const toggle = document.getElementById(BETA_TOGGLE_ID);
+  if(!toggle) return;
+  toggle.addEventListener('change', () => {
+    const enabled = !!toggle.checked;
+    setBeta(enabled);
+  });
+}
+
+function initializeBetaMode(){
+  const beta = resolveInitialBeta();
+  setBeta(beta);
+  wireBetaToggle();
+  return beta;
+}
 
 function getEls(){
   return {
@@ -31,7 +161,7 @@ function init(){
     updateHeaderVars();
     window.addEventListener('resize', updateHeaderVars);
   })();
-  bootstrapBetaMode();
+  initializeBetaMode();
   loadSettingsFromStorage();
   applyTheme(S.settings.theme);
   const els = getEls();
