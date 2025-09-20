@@ -1,4 +1,5 @@
 import { S } from './state.js';
+import { bootstrapBetaMode } from './beta.js';
 import { $, byQSA, showUpdateBannerIfReady } from './utils.js';
 import { loadSettingsFromStorage, applyTheme, reflectSettingsIntoUI, wireSettingsPanel } from './settings.js';
 import { wireModals } from './modals.js';
@@ -30,6 +31,7 @@ function init(){
     updateHeaderVars();
     window.addEventListener('resize', updateHeaderVars);
   })();
+  bootstrapBetaMode();
   loadSettingsFromStorage();
   applyTheme(S.settings.theme);
   const els = getEls();
