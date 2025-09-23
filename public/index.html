@@ -38,11 +38,11 @@
 
       <!-- Top toolbar (simple generate form) -->
       <div class="gen-toolbar" role="group" aria-label="Generate toolbar">
-        <label class="toolbar-field topic-field">
+        <label class="toolbar-field">
           <span class="toolbar-label">Topic</span>
           <input id="topicInput" type="text" class="toolbar-input" placeholder="e.g. Animals" />
         </label>
-        <div class="difficulty-field">
+        <div class="toolbar-pair">
           <div class="difficulty-stack">
             <label for="difficultySlider" class="difficulty-label">Difficulty</label>
             <div class="difficulty-slider">
@@ -54,21 +54,19 @@
               <input id="difficultySlider" type="range" min="0" max="4" step="1" value="2" aria-valuetext="Medium" />
             </div>
           </div>
-        </div>
-        <label class="toolbar-field narrow number-field length-field">
-          <span class="toolbar-label">Length</span>
-          <div class="number-wrap">
-            <input id="countInput" type="number" class="toolbar-input" min="1" step="1" value="10" />
-            <div class="stepper-group" role="group" aria-label="Adjust length">
-              <button type="button" class="stepper stepper-up" data-step="up" aria-label="Increase length">▲</button>
-              <button type="button" class="stepper stepper-down" data-step="down" aria-label="Decrease length">▼</button>
+          <label class="toolbar-field narrow number-field">
+            <span class="toolbar-label">Length</span>
+            <div class="number-wrap">
+              <input id="countInput" type="number" class="toolbar-input" min="1" step="1" value="10" />
+              <div class="stepper-group" role="group" aria-label="Adjust length">
+                <button type="button" class="stepper stepper-up" data-step="up" aria-label="Increase length">▲</button>
+                <button type="button" class="stepper stepper-down" data-step="down" aria-label="Decrease length">▼</button>
+              </div>
             </div>
-          </div>
-        </label>
-        <div class="toolbar-actions">
-          <button id="generateBtn" class="btn primary" aria-label="Generate only (fills editor and mirror)">Generate</button>
-          <button id="optionsBtn" class="btn" aria-haspopup="true" aria-expanded="false" aria-controls="optionsPanel">Options ▾</button>
+          </label>
         </div>
+        <button id="generateBtn" class="btn primary" aria-label="Generate only (fills editor and mirror)">Generate</button>
+        <button id="optionsBtn" class="btn" aria-haspopup="true" aria-expanded="false" aria-controls="optionsPanel">Options ▾</button>
       </div>
 
       <!-- Options Drop-Down (includes Quiz Editor tools) -->
@@ -118,37 +116,11 @@
           <div id="interactiveEditor" aria-live="polite"></div>
           <div class="adv-panels" data-editor-panels>
             <div class="adv-left" data-editor-panel="manual" hidden>
-              <div class="editor-pane" data-pane="manual">
-                <div class="editor-pane__header">
-                  <span id="manualPaneTitle" class="editor-pane__title">Manual input</span>
-                  <span id="manualPaneHint" class="editor-pane__hint">Paste or type quiz lines</span>
-                </div>
-                <textarea
-                  id="editor"
-                  class="editor"
-                  rows="12"
-                  aria-labelledby="manualPaneTitle"
-                  aria-describedby="manualPaneHint"
-                  placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
-              </div>
+              <textarea id="editor" class="editor" rows="12" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
             </div>
             <div class="adv-right">
-              <div class="editor-pane" data-pane="mirror">
-                <div class="editor-pane__header">
-                  <span id="mirrorPaneTitle" class="editor-pane__title">Mirror preview</span>
-                  <span id="mirrorPaneHint" class="editor-pane__hint">Auto-updates from Generate</span>
-                </div>
-                <div id="mirrorBox" class="mirror-box" data-on="false" data-empty="true">
-                  <textarea
-                    id="mirror"
-                    class="mirror"
-                    rows="12"
-                    readonly
-                    aria-label="Generated quiz lines (read-only)"
-                    aria-labelledby="mirrorPaneTitle"
-                    aria-describedby="mirrorPaneHint"
-                    data-empty="true"></textarea>
-                </div>
+              <div id="mirrorBox" class="mirror-box" data-on="false" data-empty="true">
+                <textarea id="mirror" class="mirror" rows="12" readonly aria-label="Generated quiz lines (read-only)" data-empty="true"></textarea>
               </div>
             </div>
           </div>
