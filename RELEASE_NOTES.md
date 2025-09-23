@@ -115,6 +115,7 @@ Highlights
 - Quiz Editor layout: question type checkboxes shed chip styling, Debug/Mirror toggle sits to the right inside its pill, manual textarea stays hidden while IE mode is active.
 - Options vs Settings: theme choices live strictly in the Settings modal, Options focuses on timer/types/count defaults, and the Quiz Behavior section moved out.
 - Prompt guidance: AI prompt now clarifies the Very Easy → Expert scale for providers.
+- Cache bust: CSS/JS query strings bumped to v1.5.10 so the refreshed UI ships immediately to clients.
 
 Notes
 - Manual editor content still syncs with the Interactive Editor when you switch modes.

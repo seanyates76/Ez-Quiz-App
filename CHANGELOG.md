@@ -7,6 +7,7 @@ Changelog
 - Quiz Editor cleanup: question type checkboxes simplified; Debug/Mirror toggle repositioned; text area hidden on IE mode.
 - Settings/Options split: theme selection lives in Settings; Options focuses on generation defaults; Quiz Behavior section removed from Settings.
 - Prompt improvements: difficulty guidance clarifies scale for providers.
+- Assets: cache-buster query strings bumped (v1.5.10) to ensure updated UI loads immediately.
 
 2025-09-11 — 1.3.0-beta.0
 - UI: removed subtle gradient backdrop behind floating action buttons; kept clean shadows only.
