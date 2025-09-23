@@ -908,7 +908,6 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
   /* Global button scale down */
   .btn{padding:10px 12px; font-size:14px; min-width:0}
   .gen-toolbar{padding:22px 12px 12px; gap:26px 8px}
-  .gen-toolbar{padding:22px 12px 12px; gap:26px 8px}
   .number-wrap{ border-radius:14px; }
   .stepper-group{ width:28px; }
   .stepper{ font-size:.6rem; }
