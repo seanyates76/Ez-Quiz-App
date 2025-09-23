@@ -133,8 +133,12 @@ body[data-theme="dark"] .site-header .brand-link{
   box-shadow:var(--shadow-xs);
 }
 .gen-toolbar > *{ flex-shrink:0; }
+.gen-toolbar > .toolbar-pair{ flex:1 1 280px; flex-shrink:1; display:flex; gap:12px; align-items:flex-end; min-width:260px; }
 .gen-toolbar .toolbar-field{ flex:1 1 200px; min-width:150px; }
 .gen-toolbar .toolbar-field.narrow{ flex:0 0 80px; min-width:80px; }
+.gen-toolbar .toolbar-pair .toolbar-field.narrow{ flex:1 1 160px; min-width:140px; }
+.gen-toolbar .toolbar-pair .number-wrap{ width:100%; }
+.gen-toolbar .toolbar-pair .difficulty-stack{ flex:0 0 auto; }
 .gen-toolbar .difficulty-stack{ flex:0 0 auto; }
 .gen-toolbar #generateBtn,
 .gen-toolbar #optionsBtn{
@@ -454,6 +458,9 @@ body[data-theme="dark"] .site-header .brand-link{
   .adv-panels .mirror-box{ min-height: 0 }
 }
 @media (max-width: 600px){
+  .gen-toolbar > .toolbar-pair{ flex:1 1 100%; min-width:0; }
+  .gen-toolbar .toolbar-pair{ gap:10px; }
+  .gen-toolbar .toolbar-pair .toolbar-field.narrow{ flex:1 1 150px; min-width:130px; }
   .adv-mode-toggle{ width:100%; justify-content:space-between }
   .adv-mode-btn{ flex:1 1 0; padding:8px 12px; text-align:center }
   .mirror-toggle{ width:100%; justify-content:space-between; padding:8px 12px }
