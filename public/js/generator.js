@@ -78,6 +78,26 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const copyPromptsBtn = $('copyPromptsBtn');
   const exportTxtBtn = $('exportTxtBtn');
 
+  function updateMirrorText(raw){
+    if(!mirror) return;
+    const text = raw == null ? '' : String(raw);
+    mirror.value = text;
+    try{
+      const empty = !text.trim();
+      mirror.setAttribute('data-empty', empty ? 'true' : 'false');
+      if(mirrorBox) mirrorBox.setAttribute('data-empty', empty ? 'true' : 'false');
+    }catch{}
+  }
+
+  function setEditorText(raw){
+    const text = raw == null ? '' : String(raw);
+    if(editor){
+      editor.value = text;
+      try{ editor.dispatchEvent(new Event('input', { bubbles:true })); }catch{}
+    }
+    updateMirrorText(text);
+  }
+
   // Options: controls
   const optTimerEnabled = $('optTimerEnabled');
   const optCountdownMode = $('optCountdownMode');
@@ -138,7 +158,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   fileInput?.addEventListener('change', ()=>{
     const f = fileInput.files && fileInput.files[0]; if(!f) return;
     const reader = new FileReader();
-    reader.onload = () => { const text = String(reader.result || ''); if(editor) editor.value = text; if(mirror) mirror.value = text; /* mirror stays hidden by default */ runParseFlow(text, f.name || 'Imported', ''); statusBox && (statusBox.textContent = `Loaded ${f.name} (${text.length} chars)`); };
+    reader.onload = () => { const text = String(reader.result || ''); setEditorText(text); /* mirror stays hidden by default */ runParseFlow(text, f.name || 'Imported', ''); statusBox && (statusBox.textContent = `Loaded ${f.name} (${text.length} chars)`); };
     reader.onerror = () => { statusBox && (statusBox.textContent = 'Failed to read file'); };
     reader.readAsText(f);
   });
@@ -152,11 +172,11 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       'MT|Match ports to services.|1) 22;2) 53|A) SSH;B) DNS|1-A,2-B',
       'TF|Lightning never strikes the same place twice.|F',
     ].join('\n');
-    if(editor) editor.value = demo; if(mirror) mirror.value = demo; /* mirror stays hidden by default */ runParseFlow(demo, 'Demo', '');
+    setEditorText(demo); /* mirror stays hidden by default */ runParseFlow(demo, 'Demo', '');
   });
 
-  clearBtn?.addEventListener('click', ()=>{ if(editor) editor.value = ''; if(mirror) mirror.value = ''; const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); });
-  loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } if(editor) editor.value = last; if(mirror) mirror.value = last; /* mirror stays hidden by default */ runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
+  clearBtn?.addEventListener('click', ()=>{ setEditorText(''); const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); });
+  loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } setEditorText(last); /* mirror stays hidden by default */ runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
 
   generateBtn?.addEventListener('click', async ()=>{
     const mode = generateBtn?.getAttribute('data-mode') || 'start';
@@ -171,8 +191,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     }
     // In Generate mode, always regenerate fresh content: clear editor/mirror first
     if(mode==='generate'){
-      if(editor) editor.value = '';
-      if(mirror){ mirror.value = ''; try{ const box=document.getElementById('mirrorBox'); mirror.setAttribute('data-empty','true'); if(box) box.setAttribute('data-empty','true'); }catch{} }
+      setEditorText('');
     }
     const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
     const topic = topicRaw || 'General knowledge';
@@ -187,8 +206,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       const out = await generateWithAI(topic, count, { types, difficulty });
       const lines = out && out.lines || '';
       if(!lines){ statusBox && (statusBox.textContent = 'AI did not return any lines. Try again or use the Prompt Builder.'); generateBtn.disabled = false; hideVeil('Nothing yet…'); return; }
-      if(editor) editor.value = lines;
-      if(mirror){ mirror.value = lines; try{ const box=document.getElementById('mirrorBox'); const empty = !(lines||'').trim(); mirror.setAttribute('data-empty', empty?'true':'false'); if(box) box.setAttribute('data-empty', empty?'true':'false'); }catch{} } /* mirror stays hidden by default */
+      setEditorText(lines); /* mirror stays hidden by default */
       // Auto-show Mirror when content exists so it’s visible on mobile too
       try{ setMirrorVisible(true); }catch{}
       const title = (out && out.title) ? out.title : '';

@@ -161,7 +161,18 @@ const IE2 = (()=>{
   }
   function syncFromEditor(){ if(isSyncingToEditor) return; state.model = parseEditor(); renderCards(); renderSummary(); }
 
-  function setEnabled(on){ state.enabled=!!on; saveEnabled(state.enabled); const m=els().mount; if(m) m.classList.toggle('hidden', !state.enabled); if(state.enabled && state.model.length===0) syncFromEditor(); renderCards(); renderSummary(); }
+  function setEnabled(on){
+    state.enabled = !!on;
+    saveEnabled(state.enabled);
+    const m = els().mount;
+    if(m) m.classList.toggle('hidden', !state.enabled);
+    if(state.enabled){
+      syncFromEditor();
+    } else {
+      renderCards();
+      renderSummary();
+    }
+  }
 
   function buildUI(){
     const m=els().mount; if(!m) return;
