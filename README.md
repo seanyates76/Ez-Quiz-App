@@ -16,7 +16,7 @@ Quick Start
 Features
 - Generate + Advanced Editor with Mirror; import `.txt` or paste.
 - Keyboard: Enter to start/advance; Backspace to go back.
-- Timer (elapsed or countdown); theme toggle (dark/light).
+- Timer (elapsed or countdown) and theme toggle (dark/light/system) in Settings.
 - Results: Missed or All, color‑coded answers, Retake (full) + Missed only.
 - PWA: offline shell, maskable icons, safe‑area‑aware layout.
 - Floating actions: Feedback panel + Support link.
@@ -33,7 +33,7 @@ Interactive Editor (beta)
 Note: A separate smoke-test page is no longer needed; test directly in Options → Advanced inside the main app.
 
 Appearance and options
-- Theme supports Dark, Light, and System (follows OS).
+- Theme supports Dark, Light, and System (follows OS) and is managed from the Settings modal.
 - Question Types are spelled out (Multiple Choice, True/False, Yes/No, Matching) and render as mobile‑friendly chips.
 
 Question Format

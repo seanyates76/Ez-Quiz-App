@@ -76,7 +76,7 @@ Release date: 2025-09-07
 
 Highlights
 - Clean default face: inline Topic, Length, Difficulty with responsive layout.
-- Options hub: new drop-down with Timer, Theme, Question Types, and Save default.
+- Options hub: new drop-down with Timer, Question Types, and Save default.
 - Advanced only when you want it: disclosure row with caret, ARIA + keyboard friendly, ESC to close.
   - Editor + Mirror: 66/34 side-by-side with shared headers and balanced heights; stacks under 768px.
   - Smarter generation: types and difficulty flow through to API; providers instructed to use only selected types.
@@ -115,6 +115,7 @@ Highlights
 - Versioning: Bumped versioned CSS/JS references in `index.html` and increased the service worker cache version to guarantee fresh loads.
 - Help & FAQ: Sleeker modal with concise Q/A entries (bold questions, no bullets), modal replace-on-open behavior, and subtle entrance transitions.
  - Options polish: Question Types now use full names (Multiple Choice, True/False, Yes/No, Matching) with mobile‑friendly chip styling.
+ - Appearance: Theme selection now lives exclusively in Settings alongside other preferences.
 
 Notes
 - Use `?clear=1` directly in the URL if you cannot access Settings.
