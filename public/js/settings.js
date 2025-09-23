@@ -2,7 +2,8 @@ import { S, STORAGE_KEYS } from './state.js';
 import { msToMmSs, mmSsToMs } from './utils.js';
 
 // Cookie helpers for persistent flags (1 year)
-const COOKIE_ALWAYSSHOWADV = 'ezq.alwaysShowAdvanced';
+const COOKIE_SHOW_QUIZ_EDITOR = 'ezq.showQuizEditor';
+const LEGACY_COOKIE_ALWAYS_SHOW_ADV = 'ezq.alwaysShowAdvanced';
 function setCookie(name, value){
   try{
     const secure = (typeof location !== 'undefined' && location.protocol === 'https:') ? '; Secure' : '';
@@ -31,7 +32,15 @@ export function loadSettingsFromStorage(){
     S.settings.timerEnabled=!!obj.timerEnabled; S.settings.countdown=!!obj.countdown; S.settings.durationMs=Number(obj.durationMs||0);
     if(obj.autoStart!==undefined) S.settings.autoStart=!!obj.autoStart; S.settings.requireAnswer=!!obj.requireAnswer; } }catch{}
   // Load cookie-backed flags
-  try{ const adv = getCookie(COOKIE_ALWAYSSHOWADV); if(adv){ S.settings.alwaysShowAdvanced = adv === 'true'; } }catch{}
+  try{
+    const pref = getCookie(COOKIE_SHOW_QUIZ_EDITOR);
+    if(pref){
+      S.settings.showQuizEditor = pref === 'true';
+    } else {
+      const legacy = getCookie(LEGACY_COOKIE_ALWAYS_SHOW_ADV);
+      if(legacy){ S.settings.showQuizEditor = legacy === 'true'; }
+    }
+  }catch{}
 }
 
 let _mql;
@@ -88,7 +97,7 @@ export function reflectSettingsIntoUI(els){
   if(els.timerDurationEl) els.timerDurationEl.value=msToMmSs(S.settings.durationMs);
   if(els.autoStartEl) els.autoStartEl.checked=!!S.settings.autoStart;
   if(els.requireAnswerEl) els.requireAnswerEl.checked=!!S.settings.requireAnswer;
-  if(els.alwaysShowAdvancedEl) els.alwaysShowAdvancedEl.checked=!!S.settings.alwaysShowAdvanced;
+  if(els.quizEditorPrefEl) els.quizEditorPrefEl.checked=!!S.settings.showQuizEditor;
 }
 
 export function wireSettingsPanel(els){
@@ -98,12 +107,19 @@ export function wireSettingsPanel(els){
   els.timerDurationEl?.addEventListener('input', ()=>{ S.settings.durationMs=mmSsToMs(els.timerDurationEl.value); saveSettingsToStorage(); });
   els.autoStartEl?.addEventListener('change', ()=>{ S.settings.autoStart=!!els.autoStartEl.checked; saveSettingsToStorage(); });
   els.requireAnswerEl?.addEventListener('change', ()=>{ S.settings.requireAnswer=!!els.requireAnswerEl.checked; saveSettingsToStorage(); });
-  els.alwaysShowAdvancedEl?.addEventListener('change', ()=>{ S.settings.alwaysShowAdvanced = !!els.alwaysShowAdvancedEl.checked; try{ setCookie(COOKIE_ALWAYSSHOWADV, String(!!S.settings.alwaysShowAdvanced)); }catch{} });
+  els.quizEditorPrefEl?.addEventListener('change', ()=>{
+    S.settings.showQuizEditor = !!els.quizEditorPrefEl.checked;
+    try{
+      const serialized = String(!!S.settings.showQuizEditor);
+      setCookie(COOKIE_SHOW_QUIZ_EDITOR, serialized);
+      setCookie(LEGACY_COOKIE_ALWAYS_SHOW_ADV, serialized);
+    }catch{}
+  });
 
 }
 
 // Expose cookie helpers for other modules
-export function getAlwaysShowAdvanced(){ return !!S.settings.alwaysShowAdvanced; }
+export function getShowQuizEditorPreference(){ return !!S.settings.showQuizEditor; }
 
 // Lightweight dynamic import for support module in browser
 function requireSupportModule(){ return {}; }

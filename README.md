@@ -60,7 +60,7 @@ Troubleshooting Updates (Mobile/PWA)
 - On iOS/Safari, you may need to remove site data and reopen once.
 
 Changelog Highlights
-- 1.3.0-beta.0: Removed FAB gradient backdrop; added Reset App and `?clear=1`/`#clear-cache`; bumped asset versions + SW cache.
+- 1.5.0-beta.5: Generator slider rebuilt with inline steppers; Interactive Editor now default with pill toggle; Options/Settings split refined.
 - Earlier: header wordmark; improved import; single‑scrollbar Help; progress bar; retake polish.
 
 License

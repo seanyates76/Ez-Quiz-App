@@ -1,15 +1,22 @@
 Changelog
 =========
 
-2025-09-17 — 1.3.0-beta.0
+2025-09-19 — 1.5.0-beta.5
+- Generator UI overhaul: inline stepper controls, rebuilt difficulty slider with aligned ticks, rounded toolbar.
+- Interactive Editor default: new pill toggle (Interactive/Manual), spelled-out type labels, manual editor hidden until selected.
+- Quiz Editor cleanup: question type checkboxes simplified; Debug/Mirror toggle repositioned; text area hidden on IE mode.
+- Settings/Options split: theme selection lives in Settings; Options focuses on generation defaults; Quiz Behavior section removed from Settings.
+- Prompt improvements: difficulty guidance clarifies scale for providers.
+
+2025-09-11 — 1.3.0-beta.0
 - UI: removed subtle gradient backdrop behind floating action buttons; kept clean shadows only.
 - Mobile resilience: added Reset App to clear caches and unregister service workers; URL triggers `?clear=1` or `#clear-cache` for stuck clients.
 - Assets: bumped versioned CSS/JS query strings; service worker cache bumped to force fresh loads.
 - Accessibility: preserved focus styles and keyboard focus trap in feedback panel.
 - Docs: updated footer version link; no behavior changes to generation or results.
  - Help: polished modal styling; replaced FAQ with concise Q/A format (bold questions, no bullets); modal replace-on-open and entrance transitions.
- - Added: Interactive Editor (beta) — opt‑in card‑based authoring for MC/TF/YN/MT with validation, matching pairs, and live sync to the raw editor.
-  - Options: spelled out Question Types and styled them as mobile‑friendly chips for better clarity.
+ - Added: Interactive Editor (beta) — opt‑in card-based authoring for MC/TF/YN/MT with validation, matching pairs, and live sync to the raw editor.
+  - Options: spelled out Question Types and styled them as mobile-friendly chips for better clarity.
 
 2025-09-11 — 1.2.0-beta.4
 - Fix (Results → Retake): Main “Retake” now always restarts the full quiz, independent of the Results filter (Missed/All).

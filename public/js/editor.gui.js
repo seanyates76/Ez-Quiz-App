@@ -8,7 +8,7 @@ const IE2 = (()=>{
   let isSyncingToEditor = false;
   let summaryHint = '';
   let summaryHintTimer = null;
-  const typeLabels = { MC:'multiple-choice', TF:'true/false', YN:'yes/no', MT:'matching' };
+  const typeLabels = { MC:'Multiple Choice', TF:'True/False', YN:'Yes/No', MT:'Matching' };
   const friendlyType = (type)=> typeLabels[type] || type;
 
   const qs = (id) => document.getElementById(id);
@@ -23,7 +23,15 @@ const IE2 = (()=>{
   });
 
   function saveEnabled(on){ try{ localStorage.setItem(SKEY, on?'1':'0'); }catch{} }
-  function loadEnabled(){ try{ return localStorage.getItem(SKEY)==='1'; }catch{ return false; } }
+  function loadEnabled(){
+    try{
+      const raw = localStorage.getItem(SKEY);
+      if(raw === null) return true;
+      return raw === '1';
+    }catch{
+      return true;
+    }
+  }
 
   function setSummaryHint(message, duration=2600){
     if(summaryHintTimer){
@@ -159,10 +167,10 @@ const IE2 = (()=>{
     const m=els().mount; if(!m) return;
     m.innerHTML = `
       <div class="ie-toolbar" role="group" aria-label="Interactive editor toolbar">
-        <button id="ieAddMC" class="btn btn-solid" type="button" title="Add Multiple Choice">Add MC</button>
-        <button id="ieAddTF" class="btn btn-solid" type="button" title="Add True/False">Add TF</button>
-        <button id="ieAddYN" class="btn btn-solid" type="button" title="Add Yes/No">Add YN</button>
-        <button id="ieAddMT" class="btn btn-solid" type="button" title="Add Matching">Add MT</button>
+        <button id="ieAddMC" class="btn btn-solid" type="button" title="Add Multiple Choice">Add Multiple Choice</button>
+        <button id="ieAddTF" class="btn btn-solid" type="button" title="Add True/False">Add True/False</button>
+        <button id="ieAddYN" class="btn btn-solid" type="button" title="Add Yes/No">Add Yes/No</button>
+        <button id="ieAddMT" class="btn btn-solid" type="button" title="Add Matching">Add Matching</button>
         <span class="flex-spacer"></span>
         <button id="ieImport" class="btn btn-ghost" type="button" title="Import from raw">Import from raw</button>
         <button id="ieClear" class="btn btn-ghost" type="button" title="Clear all">Clear all</button>
@@ -295,7 +303,7 @@ const IE2 = (()=>{
     state.model.forEach((q,idx)=>{
       const card=document.createElement('div'); card.className='ie-card'; card.dataset.idx=String(idx);
       const row=document.createElement('div'); row.className='ie-row';
-      const type=document.createElement('select'); type.className='toolbar-input ie-type'; ['MC','TF','YN','MT'].forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; if(q.type===t) o.selected=true; type.appendChild(o); });
+      const type=document.createElement('select'); type.className='toolbar-input ie-type'; ['MC','TF','YN','MT'].forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=typeLabels[t] || t; if(q.type===t) o.selected=true; type.appendChild(o); });
       const actions=document.createElement('div'); actions.className='ie-actions'; const up=btn('↑','Move up','btn-ghost ie-action-btn'), down=btn('↓','Move down','btn-ghost ie-action-btn'), dup=btn('⧉','Duplicate','btn-ghost ie-action-btn'), del=btn('✕','Delete','btn-ghost ie-action-btn danger'); actions.append(up,down,dup,del); row.append(type, actions); card.appendChild(row);
       const prompt=document.createElement('input'); prompt.type='text'; prompt.className='toolbar-input ie-prompt'; prompt.placeholder='Question prompt'; prompt.value=q.prompt||''; card.appendChild(prompt);
       const area=document.createElement('div'); area.className='ie-choices';
@@ -440,8 +448,16 @@ const IE2 = (()=>{
   function init(){
     buildUI();
     ensureDocDelegation();
-    const t=els().toggle; if(t){ t.checked = loadEnabled(); t.addEventListener('change', ()=> setEnabled(!!t.checked)); }
-    setEnabled(loadEnabled());
+    const t=els().toggle;
+    if(t){
+      const initial = loadEnabled();
+      t.checked = initial;
+      t.addEventListener('change', ()=> setEnabled(!!t.checked));
+      setEnabled(initial);
+      try{ t.dispatchEvent(new Event('change')); }catch{}
+    } else {
+      setEnabled(loadEnabled());
+    }
     els().editor?.addEventListener('input', ()=>{ if(!state.enabled) return; syncFromEditor(); });
   }
 

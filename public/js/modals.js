@@ -14,12 +14,32 @@ export function openModal(id){
 export function closeModal(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('is-open'); el.setAttribute('aria-hidden','true'); }
 
 export function wireModals({ onPause, onResume }){
-  const map = { helpBtn:'helpModal', settingsBtn:'settingsModal', promptBtn:'promptModal', versionInfoBtn:'releaseNotesModal' };
+  const map = {
+    helpBtn:'helpModal',
+    settingsBtn:'settingsModal',
+    promptBtn:'promptModal',
+    versionInfoBtn:'releaseNotesModal',
+    privacyLink:'privacyModal',
+    termsLink:'termsModal'
+  };
   Object.entries(map).forEach(([btnId, modalId])=>{
     const btn=document.getElementById(btnId);
     btn?.addEventListener('click', (e)=>{ try{ e?.preventDefault?.(); }catch{} if(onPause) onPause(); openModal(modalId); });
   });
-  const closeMap = { helpClose:'helpModal', helpOk:'helpModal', settingsClose:'settingsModal', settingsSave:'settingsModal', promptClose:'promptModal', pbCancel:'promptModal', releaseNotesClose:'releaseNotesModal', releaseNotesOk:'releaseNotesModal' };
+  const closeMap = {
+    helpClose:'helpModal',
+    helpOk:'helpModal',
+    settingsClose:'settingsModal',
+    settingsSave:'settingsModal',
+    promptClose:'promptModal',
+    pbCancel:'promptModal',
+    releaseNotesClose:'releaseNotesModal',
+    releaseNotesOk:'releaseNotesModal',
+    privacyClose:'privacyModal',
+    privacyOk:'privacyModal',
+    termsClose:'termsModal',
+    termsOk:'termsModal'
+  };
   Object.entries(closeMap).forEach(([btnId, modalId])=>{
     const btn=document.getElementById(btnId);
     btn?.addEventListener('click', ()=>{ closeModal(modalId); if(onResume) onResume(); });

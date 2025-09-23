@@ -38,17 +38,34 @@
 
       <!-- Top toolbar (simple generate form) -->
       <div class="gen-toolbar" role="group" aria-label="Generate toolbar">
-        <input id="topicInput" type="text" class="toolbar-input" placeholder="Topic (e.g. Animals)" />
-        <input id="countInput" type="number" class="toolbar-input narrow" min="1" step="1" value="10" />
-        <select id="difficultyInput" class="toolbar-input narrow" aria-label="Difficulty">
-          <option value="easy">Easy</option>
-          <option value="medium" selected>Medium</option>
-          <option value="hard">Hard</option>
-        </select>
+        <label class="toolbar-field">
+          <span class="toolbar-label">Topic</span>
+          <input id="topicInput" type="text" class="toolbar-input" placeholder="e.g. Animals" />
+        </label>
+        <label class="toolbar-field narrow number-field">
+          <span class="toolbar-label">Length</span>
+          <div class="number-wrap">
+            <input id="countInput" type="number" class="toolbar-input" min="1" step="1" value="10" />
+            <div class="stepper-group" role="group" aria-label="Adjust length">
+              <button type="button" class="stepper stepper-up" data-step="up" aria-label="Increase length">▲</button>
+              <button type="button" class="stepper stepper-down" data-step="down" aria-label="Decrease length">▼</button>
+            </div>
+          </div>
+        </label>
+        <div class="difficulty-stack">
+          <label for="difficultySlider" class="difficulty-label">Difficulty</label>
+          <div class="difficulty-slider">
+            <div class="difficulty-track" aria-hidden="true">
+              <span class="difficulty-dot"></span>
+              <span class="difficulty-dot"></span>
+              <span class="difficulty-dot"></span>
+            </div>
+            <input id="difficultySlider" type="range" min="0" max="4" step="1" value="2" aria-valuetext="Medium" />
+          </div>
+        </div>
         <button id="generateBtn" class="btn primary" aria-label="Generate only (fills editor and mirror)">Generate</button>
         <button id="optionsBtn" class="btn" aria-haspopup="true" aria-expanded="false" aria-controls="optionsPanel">Options ▾</button>
       </div>
-      <p id="startHelp" class="subtle-help">Start begins the quiz • Generate fills the editor/mirror</p>
 
       <!-- Options Drop-Down (includes Quiz Editor tools) -->
       <div id="optionsPanel" class="options-panel" role="region" aria-label="Options" hidden>
@@ -59,12 +76,6 @@
             <label class="inline small-field">Duration (mm:ss)
               <input type="text" id="optTimerDuration" inputmode="numeric" placeholder="05:00" />
             </label>
-          </div>
-          <div class="row gap wrap" style="margin-top:8px">
-            <span class="lbl">Theme</span>
-            <label><input type="radio" name="optTheme" value="dark" /> Dark</label>
-            <label><input type="radio" name="optTheme" value="light" /> Light</label>
-            <label><input type="radio" name="optTheme" value="system" /> System</label>
           </div>
           <div class="row gap wrap qt-row" style="margin-top:8px">
             <span class="lbl">Question Types</span>
@@ -87,19 +98,22 @@
         </div>
         <div id="advancedBlock" class="advanced-body" hidden>
           <div class="adv-head">
-            <h5 id="advancedTitle" class="adv-title">Prompt Editor</h5>
+            <div class="adv-mode-toggle" role="group" aria-label="Quiz editor mode">
+              <button type="button" class="adv-mode-btn is-active" data-editor-mode="interactive" aria-pressed="true">Interactive</button>
+              <button type="button" class="adv-mode-btn" data-editor-mode="manual" aria-pressed="false">Manual</button>
+              <input id="toggleInteractiveEditor" data-role="quiz-editor-toggle" type="checkbox" class="sr-only" aria-hidden="true" checked />
+            </div>
             <div class="adv-title-right">
-              <h5 class="adv-title">Debug / Mirror</h5>
-              <label class="opt-switch small"><input type="checkbox" id="mirrorToggle" /> <span>Show</span></label>
+              <div class="spacer"></div>
+              <label class="opt-switch small mirror-toggle">
+                <span class="mirror-toggle-label">Debug / Mirror</span>
+                <input type="checkbox" id="mirrorToggle" />
+              </label>
             </div>
           </div>
-          <label class="toggle-row" style="display:inline-flex; align-items:center; gap:8px; margin:4px 0 8px 0" title="New: Build questions visually (MC/TF/YN). Syncs with the raw Editor.">
-            <input id="toggleInteractiveEditor" data-role="quiz-editor-toggle" type="checkbox" />
-            <span>Interactive Editor (beta)</span>
-          </label>
-          <div id="interactiveEditor" class="hidden" aria-labelledby="advancedTitle"></div>
-          <div class="adv-panels">
-            <div class="adv-left">
+          <div id="interactiveEditor" aria-live="polite"></div>
+          <div class="adv-panels" data-editor-panels>
+            <div class="adv-left" data-editor-panel="manual" hidden>
               <textarea id="editor" class="editor" rows="12" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
             </div>
             <div class="adv-right">
@@ -210,11 +224,11 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
   <footer class="container" role="contentinfo">
     <nav aria-label="Footer">
       <p style="margin:12px 0; color:var(--muted)">
-        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal">v1.3.0-beta.0</a>
+        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal">v1.5.0-beta.5</a>
         &nbsp;•&nbsp;
-        <a href="/privacy.html" target="_blank" rel="noopener">Privacy</a>
+        <a id="privacyLink" href="#" data-modal="privacyModal">Privacy</a>
         &nbsp;•&nbsp;
-        <a href="/terms.html" target="_blank" rel="noopener">Terms</a>
+        <a id="termsLink" href="#" data-modal="termsModal">Terms</a>
       </p>
     </nav>
   </footer>
@@ -391,14 +405,6 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
         </fieldset>
 
         <fieldset class="fieldgroup">
-          <legend>Quiz Behavior</legend>
-          <label class="opt-switch"><input type="checkbox" id="autoStart" /> <span>Auto‑start quiz after generation</span></label>
-          <div class="muted small">Start automatically when new questions are ready.</div>
-          <label class="opt-switch"><input type="checkbox" id="requireAnswer" /> <span>Require answer before moving forward</span></label>
-          <div class="muted small">Next is disabled until you choose an answer.</div>
-        </fieldset>
-
-        <fieldset class="fieldgroup">
           <legend>Appearance</legend>
           <label><input type="radio" name="theme" value="dark" checked /> Dark</label>
           <label><input type="radio" name="theme" value="light" /> Light</label>
@@ -407,7 +413,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
 
         <fieldset class="fieldgroup">
           <legend>Quiz Editor</legend>
-          <label><input type="checkbox" id="alwaysShowAdvanced" /> Always show the Quiz Editor panel</label>
+          <label><input type="checkbox" id="alwaysShowQuizEditor" /> Always show the Quiz Editor panel</label>
         </fieldset>
 
 
@@ -434,6 +440,15 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
       </header>
       <div class="modal__body">
         <section>
+          <h4>v1.5.0-beta.5</h4>
+          <ul>
+            <li><strong>Generator polish:</strong> difficulty slider rebuilt with precise tick marks; length steppers now live inside the input.</li>
+            <li><strong>Interactive Editor defaults:</strong> visual editor loads first with a new Interactive/Manual toggle; type labels are spelled out.</li>
+            <li><strong>Quiz Editor layout:</strong> streamlined question type checkboxes, relocated Debug/Mirror toggle, and removed legacy prompt header.</li>
+            <li><strong>Settings cleanup:</strong> theme selection stays in Settings; Options panel focuses on generation controls.</li>
+          </ul>
+        </section>
+        <section>
           <h4>v1.3.0-beta.0</h4>
           <ul>
             <li><strong>Interactive Editor (beta):</strong> opt‑in, card‑based authoring for MC/TF/YN that stays in sync with the raw Editor/Mirror (enable in the Quiz Editor).</li>
@@ -457,6 +472,90 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
       </footer>
     </div>
   </div>
+
+  <!-- Privacy Policy Modal -->
+  <div id="privacyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="privacyTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="privacyModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="privacyTitle">Privacy Policy</h3>
+        <button id="privacyClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <section>
+          <p class="muted small">Effective: 17 September 2025</p>
+          <p>EZ Quiz runs primarily on your device. We avoid collecting personal data and keep the experience self-contained whenever possible.</p>
+        </section>
+        <section>
+          <h4>What We Don’t Collect</h4>
+          <ul>
+            <li>No accounts, analytics scripts, or advertising trackers.</li>
+            <li>No storage of your quiz content on our servers.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>Stored Locally</h4>
+          <p>The app may store theme or timer preferences and the most recent quiz in your browser’s storage so you can pick up where you left off.</p>
+        </section>
+        <section>
+          <h4>Serverless Calls</h4>
+          <p>Optional AI generation and feedback submission use Netlify Functions. Requests include only the information needed to fulfil them. Third-party providers apply their own policies.</p>
+        </section>
+        <section>
+          <h4>Your Choices</h4>
+          <ul>
+            <li>Use the <strong>Reset App</strong> button or <code>?clear=1</code> to clear cached data.</li>
+            <li>Skip AI generation entirely—the editor works offline.</li>
+            <li>Contact us via the feedback panel for questions or requests.</li>
+          </ul>
+        </section>
+      </div>
+      <footer class="modal__footer">
+        <button id="privacyOk" class="btn">Close</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Terms of Use Modal -->
+  <div id="termsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="termsTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="termsModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="termsTitle">Terms of Use</h3>
+        <button id="termsClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <section>
+          <p class="muted small">Effective: 17 September 2025</p>
+          <p>By using EZ Quiz you agree to these terms and to the privacy policy. If you disagree, please refrain from using the app.</p>
+        </section>
+        <section>
+          <h4>Service</h4>
+          <p>The app delivers a browser-based quiz experience that can run offline. Optional AI generation may invoke third-party services.</p>
+        </section>
+        <section>
+          <h4>License</h4>
+          <p>You receive a personal, non-transferable license to use the app. Please do not reverse-engineer or redistribute it outside of what’s permitted by the project’s open-source license.</p>
+        </section>
+        <section>
+          <h4>Your Content</h4>
+          <ul>
+            <li>You are responsible for the questions or text you input.</li>
+            <li>Only submit content you have rights to share.</li>
+            <li>Do not upload or generate unlawful or harmful material.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>Liability</h4>
+          <p>The app is provided “as-is” without warranties. We are not liable for damages arising from use of the app.</p>
+        </section>
+      </div>
+      <footer class="modal__footer">
+        <button id="termsOk" class="btn">Close</button>
+      </footer>
+    </div>
+  </div>
+
 
   
 

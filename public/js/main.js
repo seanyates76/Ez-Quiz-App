@@ -13,7 +13,7 @@ function getEls(){
     timerDurationEl: $('timerDuration'),
     autoStartEl: $('autoStart'),
     requireAnswerEl: $('requireAnswer'),
-    alwaysShowAdvancedEl: $('alwaysShowAdvanced'),
+    quizEditorPrefEl: $('alwaysShowQuizEditor'),
   };
 }
 

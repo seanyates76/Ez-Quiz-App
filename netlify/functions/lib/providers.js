@@ -5,7 +5,10 @@ function buildPrompt(topic, count, types, difficulty){
   const allowed = Array.isArray(types) && types.length ? types.map(t=>t.toUpperCase()).filter(t=>/^(MC|TF|YN|MT)$/.test(t)) : ['MC','TF','YN','MT'];
   const allowLine = `Allowed question types: ${allowed.join(', ')} (use only these).`;
   const diff = (difficulty && String(difficulty).toLowerCase()) || '';
-  const diffLine = diff ? `Target approximate difficulty: ${diff}.` : '';
+  const prettyDiff = diff ? diff.split(/[-_\s]+/).map(w=> w ? w.charAt(0).toUpperCase()+w.slice(1) : '').join(' ') : '';
+  const diffLine = diff
+    ? `Difficulty guidance: scale is Very Easy < Easy < Medium < Hard < Expert. Target level: ${prettyDiff}. Match question complexity, vocabulary, and expected knowledge to this level.`
+    : '';
   return [
     `Task: Produce a quiz about ${topic}.`,
     allowLine,

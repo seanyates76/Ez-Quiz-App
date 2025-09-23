@@ -104,19 +104,18 @@ Tester tips
 - To retake the full quiz, click “Retake”. To retake only missed questions, use the caret next to Retake and choose “Take missed quiz”.
 - If you previously ran “missed-only”, “Retake” will still restore and run the complete original set.
 
-EZ Quiz Web v1.3.0-beta.0
+EZ Quiz Web v1.5.0-beta.5
 ==========================
 
 Release date: 2025-09-17
 
 Highlights
-- UI polish: Removed the subtle gradient backdrop behind floating action buttons (FABs) for a cleaner look; kept soft shadows for depth.
-- Mobile hygiene: Added a robust Reset App action (Settings) that clears local data, deletes all caches, and unregisters service workers. Also added URL triggers `?clear=1` and `#clear-cache` for devices stuck on stale assets.
-- Versioning: Bumped versioned CSS/JS references in `index.html` and increased the service worker cache version to guarantee fresh loads.
-- Help & FAQ: Sleeker modal with concise Q/A entries (bold questions, no bullets), modal replace-on-open behavior, and subtle entrance transitions.
-- Options polish: Question Types now use full names (Multiple Choice, True/False, Yes/No, Matching) with mobile‑friendly chip styling.
-- Interactive Editor: matching (MT) cards join MC/TF/YN with Add MT button, Shift+M shortcut, and dedicated pairing UI.
+- Generator polish: inline steppers built into the Length field, a custom difficulty slider with aligned ticks, and rounded toolbar corners.
+- Interactive Editor default: visual editor loads first with an Interactive/Manual pill toggle; question type buttons and dropdowns now spell out the full names.
+- Quiz Editor layout: question type checkboxes shed chip styling, Debug/Mirror toggle sits to the right inside its pill, manual textarea stays hidden while IE mode is active.
+- Options vs Settings: theme choices live strictly in the Settings modal, Options focuses on timer/types/count defaults, and the Quiz Behavior section moved out.
+- Prompt guidance: AI prompt now clarifies the Very Easy → Expert scale for providers.
 
 Notes
-- Use `?clear=1` directly in the URL if you cannot access Settings.
-- PWAs should be fully closed before using the reset mechanism for best results.
+- Manual editor content still syncs with the Interactive Editor when you switch modes.
+- Use Settings → Reset App or the `?clear=1` URL param if assets ever feel stale.

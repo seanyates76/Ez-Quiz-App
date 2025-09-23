@@ -3,7 +3,7 @@ import { $, byQSA, mmSsToMs } from './utils.js';
 import { parseEditorInput } from './parser.js';
 import { generateWithAI } from './api.js';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
-import { applyTheme, saveSettingsToStorage, getAlwaysShowAdvanced } from './settings.js';
+import { applyTheme, saveSettingsToStorage, getShowQuizEditorPreference } from './settings.js';
 import { STORAGE_KEYS } from './state.js';
 
 export function runParseFlow(sourceText, topicLabel, fullTitle){
@@ -42,6 +42,8 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const generateBtn = $('generateBtn');
   const topicInput = $('topicInput');
   const countInput = $('countInput');
+  const countUpBtn = document.querySelector('[data-step="up"]');
+  const countDownBtn = document.querySelector('[data-step="down"]');
   const pbTopic = $('pbTopic');
   const pbCount = $('pbCount');
   const editor = $('editor');
@@ -59,7 +61,20 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const advBlock = $('advancedBlock');
   const mirrorToggle = $('mirrorToggle');
   const mirrorBox = document.getElementById('mirrorBox');
-  const difficultyInput = $('difficultyInput');
+  const difficultySlider = $('difficultySlider');
+  const ieToggle = $('toggleInteractiveEditor');
+  const editorModeButtons = byQSA('[data-editor-mode]');
+  const editorPanels = document.querySelector('[data-editor-panels]');
+  const manualPanel = document.querySelector('[data-editor-panel="manual"]');
+  const interactiveMount = $('interactiveEditor');
+  const DIFFICULTY_VALUES = ['very-easy','easy','medium','hard','expert'];
+  const DIFFICULTY_LABELS = {
+    'very-easy':'Very Easy',
+    'easy':'Easy',
+    'medium':'Medium',
+    'hard':'Hard',
+    'expert':'Expert',
+  };
   const copyPromptsBtn = $('copyPromptsBtn');
   const exportTxtBtn = $('exportTxtBtn');
 
@@ -85,6 +100,37 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     generateBtn?.setAttribute('data-mode', m);
     if (generateBtn) generateBtn.textContent = (m === 'generate') ? 'Generate' : 'Start';
   }
+  const clampDifficultyIndex = (idx)=>{
+    if(Number.isNaN(idx)) return 2;
+    return Math.min(Math.max(idx, 0), DIFFICULTY_VALUES.length-1);
+  };
+  const normalizeDifficultyKey = (value)=>{
+    if(value == null) return 'medium';
+    const key = String(value).trim().toLowerCase().replace(/\s+/g,'-');
+    return DIFFICULTY_VALUES.includes(key) ? key : 'medium';
+  };
+  function setDifficultyValue(value){
+    if(!difficultySlider) return;
+    const key = normalizeDifficultyKey(value);
+    let idx = DIFFICULTY_VALUES.indexOf(key);
+    if(idx === -1) idx = 2;
+    difficultySlider.value = String(idx);
+    const label = DIFFICULTY_LABELS[DIFFICULTY_VALUES[idx]];
+    difficultySlider.setAttribute('aria-valuetext', label);
+    difficultySlider.setAttribute('title', label);
+  }
+  function getDifficultyKey(){
+    if(!difficultySlider) return 'medium';
+    const idx = clampDifficultyIndex(Number(difficultySlider.value));
+    return DIFFICULTY_VALUES[idx] || 'medium';
+  }
+  // Initialize slider value
+  setDifficultyValue(difficultySlider ? DIFFICULTY_VALUES[clampDifficultyIndex(Number(difficultySlider.value))] : 'medium');
+  difficultySlider?.addEventListener('input', ()=>{
+    const idx = clampDifficultyIndex(Number(difficultySlider.value));
+    setDifficultyValue(DIFFICULTY_VALUES[idx]);
+  });
+
   // Initialize primary action based on advanced visibility
   setPrimaryAction(advBlock && !advBlock.hidden ? 'generate' : 'start');
 
@@ -133,7 +179,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     let count = parseInt((countInput?.value || pbCount?.value || '10'), 10); if(!Number.isFinite(count)) count = 10; count = Math.max(1, Math.min(50, count)); if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
     // Gather options
     const types = [ qtMC?.checked ? 'MC':null, qtTF?.checked? 'TF':null, qtYN?.checked? 'YN':null, qtMT?.checked? 'MT':null ].filter(Boolean);
-    const difficulty = (difficultyInput?.value || 'medium');
+    const difficulty = getDifficultyKey();
     try{
       statusBox && (statusBox.textContent = 'Generating via AI…');
       generateBtn.disabled = true;
@@ -170,7 +216,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     setMirrorVisible(isOn);
   }
   function applyMirrorToggle(){ const on = !!mirrorToggle?.checked; setMirrorVisible(on); }
-  function openOptions(){ if(!optionsPanel) return; optionsPanel.hidden = false; optionsBtn?.setAttribute('aria-expanded','true'); reflectOptionsFromSettings(); applyMirrorToggle(); if(advDisclosure && advBlock){ const shouldOpen = !!getAlwaysShowAdvanced(); advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false'); advBlock.hidden = !shouldOpen; setPrimaryAction(shouldOpen? 'generate':'start'); } document.addEventListener('keydown', onEscCloseOptions); document.addEventListener('click', onDocClick, true); }
+  function openOptions(){ if(!optionsPanel) return; optionsPanel.hidden = false; optionsBtn?.setAttribute('aria-expanded','true'); reflectOptionsFromSettings(); applyMirrorToggle(); if(advDisclosure && advBlock){ const shouldOpen = !!getShowQuizEditorPreference(); advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false'); advBlock.hidden = !shouldOpen; setPrimaryAction(shouldOpen? 'generate':'start'); } document.addEventListener('keydown', onEscCloseOptions); document.addEventListener('click', onDocClick, true); }
   function closeOptions(){ if(!optionsPanel) return; optionsPanel.hidden = true; optionsBtn?.setAttribute('aria-expanded','false'); document.removeEventListener('keydown', onEscCloseOptions); document.removeEventListener('click', onDocClick, true); setPrimaryAction('start'); optionsBtn?.focus(); }
   function onEscCloseOptions(e){ if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }}
   optionsBtn?.addEventListener('click', ()=>{ if(optionsPanel?.hidden){ openOptions(); } else { closeOptions(); } });
@@ -183,7 +229,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     if(t===generateBtn || generateBtn?.contains(t)) return;
     if(optionsPanel.contains(t)) return;
     // Allow clicks on primary toolbar inputs without closing Options
-    const allow = [topicInput, countInput, difficultyInput].filter(Boolean);
+    const allow = [topicInput, countInput, difficultySlider].filter(Boolean);
     for(const el of allow){ if(el && (t===el || el.contains?.(t))) return; }
     closeOptions();
   }
@@ -207,6 +253,34 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
 
   // Mirror toggle
   function setMirrorVisible(on){ if(mirrorBox){ mirrorBox.setAttribute('data-on', on ? 'true':'false'); } if(mirrorToggle){ mirrorToggle.checked = !!on; } }
+  function reflectEditorMode(){
+    const mode = ieToggle && !ieToggle.checked ? 'manual' : 'interactive';
+    editorModeButtons.forEach((btn)=>{
+      if(!btn) return;
+      const active = btn.dataset.editorMode === mode;
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    if(editorPanels){ editorPanels.classList.toggle('is-ie-mode', mode === 'interactive'); }
+    if(manualPanel){
+      if(mode === 'manual'){ manualPanel.removeAttribute('hidden'); }
+      else { manualPanel.setAttribute('hidden', ''); }
+    }
+    interactiveMount?.classList.toggle('hidden', mode !== 'interactive');
+  }
+  function setEditorMode(mode){
+    const wantsInteractive = mode !== 'manual';
+    if(ieToggle){
+      if(ieToggle.checked !== wantsInteractive){
+        ieToggle.checked = wantsInteractive;
+        ieToggle.dispatchEvent(new Event('change'));
+      } else {
+        reflectEditorMode();
+      }
+    } else {
+      reflectEditorMode();
+    }
+  }
   // Debounced mirror toggle; keep container height stable
   let mirrorToggleBusy = false;
   mirrorToggle?.addEventListener('change', ()=>{
@@ -243,14 +317,14 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   function clearDefaults(){ try{ localStorage.removeItem(STORAGE_KEYS.defaults); statusBox && (statusBox.textContent='Defaults cleared.'); }catch{} }
   function getCurrentGenDefaults(){
     let count = parseInt(countInput?.value||'10',10); if(!Number.isFinite(count)) count=10; count=Math.max(1, Math.min(200, count));
-    const difficulty = (difficultyInput?.value||'medium');
+    const difficulty = getDifficultyKey();
     const types = { MC: !!qtMC?.checked, TF: !!qtTF?.checked, YN: !!qtYN?.checked, MT: !!qtMT?.checked };
     return { count, difficulty, types };
   }
   function applyDefaultsToUI(){
     const d = loadDefaults(); if(!d) return;
     if(typeof d.count==='number' && countInput){ countInput.value = String(Math.max(1, Math.min(200, d.count))); }
-    if(typeof d.difficulty==='string' && difficultyInput){ difficultyInput.value = d.difficulty; }
+    if(typeof d.difficulty==='string'){ setDifficultyValue(d.difficulty); }
     if(d.types){ if(qtMC) qtMC.checked = !!d.types.MC; if(qtTF) qtTF.checked = !!d.types.TF; if(qtYN) qtYN.checked = !!d.types.YN; if(qtMT) qtMT.checked = !!d.types.MT; }
   }
   // Apply on init
@@ -259,5 +333,20 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   // Enter triggers generate
   topicInput?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); generateBtn?.click(); } });
   countInput?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); generateBtn?.click(); } });
-  difficultyInput?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); generateBtn?.click(); } });
+  difficultySlider?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); generateBtn?.click(); } });
+  editorModeButtons.forEach((btn)=>{
+    btn.addEventListener('click', ()=> setEditorMode(btn.dataset.editorMode || 'interactive'));
+  });
+  ieToggle?.addEventListener('change', reflectEditorMode);
+  reflectEditorMode();
+
+  function adjustCount(delta){
+    if(!countInput) return;
+    const current = parseInt(countInput.value, 10);
+    let next = Number.isFinite(current) ? current + delta : delta;
+    next = Math.max(1, Math.min(200, next));
+    countInput.value = String(next);
+  }
+  countUpBtn?.addEventListener('click', ()=> adjustCount(1));
+  countDownBtn?.addEventListener('click', ()=> adjustCount(-1));
 }
