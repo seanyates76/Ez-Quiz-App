@@ -1,9 +1,9 @@
 import { S } from './state.js';
-import { $, byQSA, mmSsToMs } from './utils.js';
+import { $, mmSsToMs } from './utils.js';
 import { parseEditorInput } from './parser.js';
 import { generateWithAI } from './api.js';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
-import { applyTheme, saveSettingsToStorage, getAlwaysShowAdvanced } from './settings.js';
+import { saveSettingsToStorage, getAlwaysShowAdvanced } from './settings.js';
 import { STORAGE_KEYS } from './state.js';
 
 export function runParseFlow(sourceText, topicLabel, fullTitle){
@@ -67,7 +67,6 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const optTimerEnabled = $('optTimerEnabled');
   const optCountdownMode = $('optCountdownMode');
   const optTimerDuration = $('optTimerDuration');
-  const optThemeRadios = byQSA('input[name="optTheme"]');
   const saveDefaultsBtn = $('saveDefaultsBtn');
   const resetDefaultsBtn = $('resetDefaultsBtn');
   const defaultsStatus = $('defaultsStatus');
@@ -164,7 +163,6 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       if(ms>0){ const total = Math.floor(ms/1000); const mm = Math.floor(total/60); const ss = total%60; optTimerDuration.value = String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0'); }
       else { optTimerDuration.value = ''; }
     }
-    optThemeRadios.forEach(r=>{ r.checked = (r.value===S.settings.theme); });
     // Sync mirror toggle from container state
     const isOn = !!(mirrorBox && mirrorBox.getAttribute('data-on') === 'true');
     setMirrorVisible(isOn);
@@ -220,7 +218,6 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   optTimerEnabled?.addEventListener('change', ()=>{ S.settings.timerEnabled=!!optTimerEnabled.checked; saveSettingsToStorage(); });
   optCountdownMode?.addEventListener('change', ()=>{ S.settings.countdown=!!optCountdownMode.checked; saveSettingsToStorage(); });
   optTimerDuration?.addEventListener('input', ()=>{ S.settings.durationMs = mmSsToMs(optTimerDuration.value||''); saveSettingsToStorage(); });
-  optThemeRadios.forEach(r=> r.addEventListener('change', ()=>{ if(r.checked){ applyTheme(r.value); }}));
   saveDefaultsBtn?.addEventListener('click', ()=>{
     // Save current generation defaults (Count/Difficulty/Types)
     saveDefaults(getCurrentGenDefaults());

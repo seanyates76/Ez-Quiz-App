@@ -777,6 +777,10 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 /* Drag state */
 .ie-card.drag-over{ outline:2px dashed var(--border) }
 .ie-toolbar .flex-spacer{ flex:1 1 0 }
+body[data-theme="dark"] .ie-toolbar .btn:focus-visible,
+body[data-theme="dark"] .ie-grid .btn:focus-visible{
+  box-shadow:none;
+}
 
 /* Ensure .hidden truly hides even with inline tweaks */
 .hidden{ display: none !important }

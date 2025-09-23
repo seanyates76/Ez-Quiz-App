@@ -10,6 +10,7 @@ Changelog
  - Help: polished modal styling; replaced FAQ with concise Q/A format (bold questions, no bullets); modal replace-on-open and entrance transitions.
  - Added: Interactive Editor (beta) — opt‑in card‑based authoring for MC/TF/YN with validation and live sync to the raw editor.
   - Options: spelled out Question Types and styled them as mobile‑friendly chips for better clarity.
+  - Theme: generator dropdown no longer houses theme radios; appearance choices now live exclusively in Settings.
 
 2025-09-11 — 1.2.0-beta.4
 - Fix (Results → Retake): Main “Retake” now always restarts the full quiz, independent of the Results filter (Missed/All).
@@ -33,7 +34,7 @@ Changelog
 - SW: network-first for HTML/CSS/JS; faster cache busting on deploy.
 
 2025-09-07 — 1.2.0-beta.1
-- New Options drop-down replaces Advanced button; houses Timer, Theme, Question Types, and Save default.
+- New Options drop-down replaces Advanced button; houses Timer, Question Types, and Save default.
  - Advanced panel moved under a disclosure (“Advanced Editor”); full keyboard/ARIA support; caret animates on expand/collapse.
 - Prompt Editor + Mirror now align side-by-side (66/34) with shared headers, min-heights, and mobile stack <768px.
 - Mobile generation bar keeps Length + Difficulty side-by-side down to 360px; stacks below.
