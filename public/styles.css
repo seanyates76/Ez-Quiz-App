@@ -247,6 +247,28 @@ body[data-theme="light"] .gen-toolbar{
   transition:background .15s ease, border-color .15s ease, box-shadow .18s ease;
 }
 body[data-theme="light"] .toolbar-input{ background:var(--panel); }
+.toolbar-input:-webkit-autofill,
+.number-wrap .toolbar-input:-webkit-autofill{
+  -webkit-text-fill-color:var(--text);
+  -webkit-box-shadow:0 0 0 1000px var(--panel-2) inset;
+  box-shadow:0 0 0 1000px var(--panel-2) inset;
+  caret-color:var(--text);
+}
+body[data-theme="light"] .toolbar-input:-webkit-autofill,
+body[data-theme="light"] .number-wrap .toolbar-input:-webkit-autofill{
+  -webkit-box-shadow:0 0 0 1000px var(--panel) inset;
+  box-shadow:0 0 0 1000px var(--panel) inset;
+}
+.toolbar-input:-moz-autofill,
+.number-wrap .toolbar-input:-moz-autofill{
+  box-shadow:0 0 0 1000px var(--panel-2) inset;
+  color:var(--text);
+  -moz-text-fill-color:var(--text);
+}
+body[data-theme="light"] .toolbar-input:-moz-autofill,
+body[data-theme="light"] .number-wrap .toolbar-input:-moz-autofill{
+  box-shadow:0 0 0 1000px var(--panel) inset;
+}
 .toolbar-input:hover{ background:var(--field-hover); border-color:var(--border); }
 .toolbar-input:focus{ outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
 .gen-toolbar #countInput{ text-align:center; }
@@ -1060,8 +1082,17 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 .modal__body em{ font-style:normal; font-weight:600; color:var(--muted) }
 
 /* Update banner */
-.update-banner{ display:flex; align-items:center; gap:10px; padding:8px 10px; margin:-4px 0 8px 0; border:1px solid var(--field-border); background:var(--panel-2); border-radius:10px }
-.update-banner.hidden{ display:none }
+.update-banner{
+  display:none;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px;
+  margin:-4px 0 8px 0;
+  border:1px solid var(--field-border);
+  background:var(--panel-2);
+  border-radius:10px;
+}
+.update-banner:not(.hidden){ display:flex; }
 
 /* Question Types (Options) mobile-friendly chips */
 .qt-row{ align-items:center }
