@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2025-09-25 — 1.5.0-beta.7
+- Generator toolbar now opens into a generous two-column layout on 430–720px screens so wide phones have comfortable spacing.
+- Inputs, cards, and status chips share softened 1px borders with a muted focus halo for accessible, non-glowy highlights.
+- Consistent label spacing and refreshed radius tokens across modals/results keep sections from feeling cramped.
+- Maintenance: cache-buster query strings bumped to v1.5.12 and the service worker cache advanced to v121 for fast rollout.
+
 2025-09-24 — 1.5.0-beta.6
 - Generator: topic autofill now preserves the dark-theme fill and rounded corners while keeping the new footer spacer tinted to match the canvas.
 - Quiz Editor: global key listener guards missing `event.key` values to avoid console errors when the page loads in unusual contexts.

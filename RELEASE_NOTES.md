@@ -104,6 +104,20 @@ Tester tips
 - To retake the full quiz, click “Retake”. To retake only missed questions, use the caret next to Retake and choose “Take missed quiz”.
 - If you previously ran “missed-only”, “Retake” will still restore and run the complete original set.
 
+EZ Quiz Web v1.5.0-beta.7
+==========================
+
+Release date: 2025-09-25
+
+Highlights
+- Softer UI tokens: inputs, cards, and buttons now use subtle 1px borders with a calm blue-violet focus halo for accessible contrast without the neon glow.
+- Generator breathing space: the toolbar switches to a roomy two-column layout on 430–720px screens, making wide phones like the Pixel 9 Pro XL feel less cramped.
+- Consistent spacing: section labels, modal groups, and results chips share the same relaxed gaps and radius tokens for a tidier rhythm across the app.
+- Cache bust: CSS/JS query strings bumped to v1.5.12 with service worker cache v121 so the polish ships immediately.
+
+Notes
+- If highlights still look heavy, refresh or use Settings → Reset App to clear older assets.
+
 EZ Quiz Web v1.5.0-beta.6
 ==========================
 

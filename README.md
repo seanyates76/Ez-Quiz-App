@@ -60,6 +60,7 @@ Troubleshooting Updates (Mobile/PWA)
 - On iOS/Safari, you may need to remove site data and reopen once.
 
 Changelog Highlights
+- 1.5.0-beta.7: Softer borders/focus ring tokens, roomy generator toolbar on wide phones, and cache-buster v1.5.12.
 - 1.5.0-beta.5: Generator slider rebuilt with inline steppers; Interactive Editor now default with pill toggle; Options/Settings split refined.
 - Earlier: header wordmark; improved import; single‑scrollbar Help; progress bar; retake polish.
 

@@ -6,7 +6,7 @@
   <title>EZ Quiz</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.5.11" />
+  <link rel="stylesheet" href="styles.css?v=1.5.12" />
 </head>
 <body data-theme="dark">
   <header class="site-header" role="banner">
@@ -226,7 +226,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
   <footer class="container" role="contentinfo">
     <nav aria-label="Footer">
       <p style="margin:12px 0; color:var(--muted)">
-        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal">v1.5.0-beta.5</a>
+        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal">v1.5.0-beta.7</a>
         &nbsp;•&nbsp;
         <a id="privacyLink" href="#" data-modal="privacyModal">Privacy</a>
         &nbsp;•&nbsp;
@@ -442,12 +442,12 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
       </header>
       <div class="modal__body">
         <section>
-          <h4>v1.5.0-beta.5</h4>
+          <h4>v1.5.0-beta.7</h4>
           <ul>
-            <li><strong>Generator polish:</strong> difficulty slider rebuilt with precise tick marks; length steppers now live inside the input.</li>
-            <li><strong>Interactive Editor defaults:</strong> visual editor loads first with a new Interactive/Manual toggle; type labels are spelled out.</li>
-            <li><strong>Quiz Editor layout:</strong> streamlined question type checkboxes, relocated Debug/Mirror toggle, and removed legacy prompt header.</li>
-            <li><strong>Settings cleanup:</strong> theme selection stays in Settings; Options panel focuses on generation controls.</li>
+            <li><strong>Softer surfaces:</strong> inputs, cards, and chips now use muted 1px borders and a gentle blue-violet focus ring—no more neon glow.</li>
+            <li><strong>Generator breathing room:</strong> toolbar flips to a spacious two-column grid on wide phones (≈430–720px) so controls stop crowding each other.</li>
+            <li><strong>Consistent spacing:</strong> section labels, results cards, and modal groups pick up the same relaxed gaps and radius tokens.</li>
+            <li><strong>Deployment:</strong> cache-busted assets to v1.5.12 with service worker cache v121 for immediate delivery.</li>
           </ul>
         </section>
         <section>
@@ -561,10 +561,10 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
 
   
 
-  <script type="module" src="js/main.js?v=1.5.11"></script>
-  <script type="module" src="js/auto-refresh.js?v=1.5.11"></script>
-  <script type="module" src="js/patches.js?v=1.5.11"></script>
-  <script type="module" src="js/editor.gui.js?v=1.5.11"></script>
+  <script type="module" src="js/main.js?v=1.5.12"></script>
+  <script type="module" src="js/auto-refresh.js?v=1.5.12"></script>
+  <script type="module" src="js/patches.js?v=1.5.12"></script>
+  <script type="module" src="js/editor.gui.js?v=1.5.12"></script>
 
   <!-- Floating actions: Feedback + Coffee -->
   <div id="floatingActions" class="fab-stack" aria-label="Quick actions">
