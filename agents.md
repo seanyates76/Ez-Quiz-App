@@ -32,5 +32,6 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - 2025-09-24 — Rebalanced the generator toolbar with a responsive grid polish and wrapped the Quiz Editor panes with headers/gradients for clearer context across breakpoints.
 - 2025-09-24 — Smoothed Topic autofill styling, restored footer reserve tint, and bumped cache-busters (v1.5.11) plus SW cache v120.
 - 2025-09-25 — Softened global borders/focus rings, widened the generator toolbar on big phones, and shipped cache-buster v1.5.12 with SW cache v121.
+- 2025-09-25 — Added client fallback to call `/.netlify/functions/generate-quiz` when `/api/generate` is missing so production keeps working even if Netlify redirects go missing.
 
 — Codex (GPT-5), 2025-02-14
