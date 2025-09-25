@@ -248,7 +248,11 @@ body[data-theme="light"] .gen-toolbar{
 }
 body[data-theme="light"] .toolbar-input{ background:var(--panel); }
 .toolbar-input:-webkit-autofill,
-.number-wrap .toolbar-input:-webkit-autofill{
+.toolbar-input:-webkit-autofill:focus,
+.toolbar-input:-webkit-autofill:hover,
+.number-wrap .toolbar-input:-webkit-autofill,
+.number-wrap .toolbar-input:-webkit-autofill:focus,
+.number-wrap .toolbar-input:-webkit-autofill:hover{
   -webkit-text-fill-color:var(--text);
   -webkit-box-shadow:0 0 0 1000px var(--panel-2) inset;
   box-shadow:0 0 0 1000px var(--panel-2) inset;
@@ -260,7 +264,11 @@ body[data-theme="light"] .number-wrap .toolbar-input:-webkit-autofill{
   box-shadow:0 0 0 1000px var(--panel) inset;
 }
 .toolbar-input:-moz-autofill,
-.number-wrap .toolbar-input:-moz-autofill{
+.toolbar-input:-moz-autofill:focus,
+.toolbar-input:-moz-autofill:hover,
+.number-wrap .toolbar-input:-moz-autofill,
+.number-wrap .toolbar-input:-moz-autofill:focus,
+.number-wrap .toolbar-input:-moz-autofill:hover{
   box-shadow:0 0 0 1000px var(--panel-2) inset;
   color:var(--text);
   -moz-text-fill-color:var(--text);
@@ -956,9 +964,15 @@ footer.container{
   padding-top:8px;
   padding-bottom:12px;
   /* Reserve space so floating buttons never cover the footer */
-  margin-bottom: calc(var(--fab-reserve, 112px) + env(safe-area-inset-bottom, 0px));
+  margin-bottom:0;
   /* Avoid FAB overlap on the right on narrow screens */
   padding-right: var(--fab-right-pad, 0px);
+}
+footer.container::after{
+  content:"";
+  display:block;
+  height: calc(var(--fab-reserve, 112px) + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
 }
 /* Helper text under toolbar */
 .subtle-help{ font-size:.9rem; opacity:.75; margin:.25rem 0 0 .25rem }
