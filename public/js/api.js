@@ -1,6 +1,6 @@
 const API_ENDPOINT_CANDIDATES = [
-  '/api/generate',
-  '/.netlify/functions/generate-quiz'
+  '/.netlify/functions/generate-quiz',
+  '/api/generate'
 ];
 
 export async function generateWithAI(topic, count, opts = {}){

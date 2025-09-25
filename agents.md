@@ -3,7 +3,7 @@
 Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA plus a few Netlify Functions. It’s a static front end under `public/` (vanilla ES modules) with serverless handlers in `netlify/functions/` for quiz generation and feedback email.
 
 ## Orientation
-- **Entry point**: `public/index.html` loads slim modules from `public/js/`. State lives in `public/js/state.js`; the generator wiring is in `public/js/generator.js` and delegates to `public/js/api.js` for `/api/generate`.
+- **Entry point**: `public/index.html` loads slim modules from `public/js/`. State lives in `public/js/state.js`; the generator wiring is in `public/js/generator.js` and delegates to `public/js/api.js` (prefers `/.netlify/functions/generate-quiz`, falls back to `/api/generate`).
 - **Styling**: global tokens set in `public/styles.css` (see top-of-file CSS variables); we just polished cards/toolbars/veils to use shared radius + shadow tokens (`--radius-*`, `--shadow-*`). Keep those consistent when you tweak UI.
 - **Interactive Editor**: `public/js/editor.gui.js` controls the beta Quiz Editor. Toggle lives in Options → Quiz Editor, and we keep a minimal tooltip (`Start begins the quiz • Generate fills the editor/mirror`) on the Start button only while the editor is open.
 - **Netlify Functions**: `netlify/functions/generate-quiz.js` calls providers defined in `netlify/functions/lib/providers.js`. Gemini/OpenAI share a strict prompt via `buildPrompt(...)`, and we fall back to Gemini when possible. `send-feedback.js` pipes into Gmail via nodemailer. New providers should extend `providers.js` and update ENV docs.
@@ -33,5 +33,6 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - 2025-09-24 — Smoothed Topic autofill styling, restored footer reserve tint, and bumped cache-busters (v1.5.11) plus SW cache v120.
 - 2025-09-25 — Softened global borders/focus rings, widened the generator toolbar on big phones, and shipped cache-buster v1.5.12 with SW cache v121.
 - 2025-09-25 — Added client fallback to call `/.netlify/functions/generate-quiz` when `/api/generate` is missing so production keeps working even if Netlify redirects go missing.
+- 2025-09-26 — Defaulted the client to call `/.netlify/functions/generate-quiz` first so Start/Generate survive missing `/api/generate` rewrites in production.
 
 — Codex (GPT-5), 2025-02-14
