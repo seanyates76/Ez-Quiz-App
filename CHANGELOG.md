@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2025-09-24 — 1.5.0-beta.6
+- Generator: topic autofill now preserves the dark-theme fill and rounded corners while keeping the new footer spacer tinted to match the canvas.
+- Quiz Editor: global key listener guards missing `event.key` values to avoid console errors when the page loads in unusual contexts.
+- Maintenance: cache-buster query strings bumped to v1.5.11 and the service worker cache advanced to v120 so clients pick up these fixes.
+
 2025-09-19 — 1.5.0-beta.5
 - Generator UI overhaul: inline stepper controls, rebuilt difficulty slider with aligned ticks, rounded toolbar.
 - Interactive Editor default: new pill toggle (Interactive/Manual), spelled-out type labels, manual editor hidden until selected.

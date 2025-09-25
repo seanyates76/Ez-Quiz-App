@@ -104,6 +104,20 @@ Tester tips
 - To retake the full quiz, click “Retake”. To retake only missed questions, use the caret next to Retake and choose “Take missed quiz”.
 - If you previously ran “missed-only”, “Retake” will still restore and run the complete original set.
 
+EZ Quiz Web v1.5.0-beta.6
+==========================
+
+Release date: 2025-09-24
+
+Highlights
+- Generator polish: browser autofill now keeps the Topic field styled with our dark fill, smoothed corners, and consistent focus border.
+- Layout: footer reserve is handled with an `::after` spacer so the background stays on-brand even when FAB space is reserved.
+- Interactive Editor: keyboard shortcut listener now ignores events without a `key` value, preventing console errors during load.
+- Cache bust: CSS/JS query strings bumped to v1.5.11 with service worker cache v120 to ensure the fixes ship immediately.
+
+Notes
+- If you still see the pale autofill box or footer bar, hard refresh or use Settings → Reset App to clear older caches.
+
 EZ Quiz Web v1.5.0-beta.5
 ==========================
 
