@@ -226,7 +226,8 @@ const IE2 = (()=>{
     document.addEventListener('keydown', (e)=>{
       if(!state.enabled) return;
       if(e.ctrlKey||e.metaKey||e.altKey) return;
-      const k=e.key.toLowerCase();
+      const k = (typeof e.key === 'string') ? e.key.toLowerCase() : '';
+      if(!k) return;
       if(k==='m'){
         e.preventDefault();
         addQ(e.shiftKey?'MT':'MC');

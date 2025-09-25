@@ -254,16 +254,17 @@ body[data-theme="light"] .toolbar-input{ background:var(--panel); }
   background:var(--panel-2);
   border:1px solid var(--field-border);
   border-radius:var(--radius-control);
+  -webkit-background-clip:padding-box;
   background-clip:padding-box;
   -webkit-box-shadow:0 0 0 1000px var(--panel-2) inset;
   box-shadow:0 0 0 1000px var(--panel-2) inset;
 }
 body[data-theme="light"] .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus),
 body[data-theme="light"] .number-wrap .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus){
+  border-color:var(--border);
   background:var(--panel);
   -webkit-box-shadow:0 0 0 1000px var(--panel) inset;
   box-shadow:0 0 0 1000px var(--panel) inset;
-  border-color:var(--border);
 }
 .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, :-moz-autofill:focus),
 .number-wrap .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, :-moz-autofill:focus){
@@ -273,12 +274,25 @@ body[data-theme="light"] .number-wrap .toolbar-input:is(:-webkit-autofill, :-web
   background:var(--panel-2);
   border:1px solid var(--field-border);
   border-radius:var(--radius-control);
+  -webkit-background-clip:padding-box;
+  background-clip:padding-box;
 }
 body[data-theme="light"] .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, :-moz-autofill:focus),
 body[data-theme="light"] .number-wrap .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, :-moz-autofill:focus){
   box-shadow:0 0 0 1000px var(--panel) inset;
   background:var(--panel);
   border-color:var(--border);
+}
+.number-wrap .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus){
+  border:0;
+  background:transparent;
+  -webkit-box-shadow:none;
+  box-shadow:none;
+}
+.number-wrap .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, :-moz-autofill:focus){
+  border:0;
+  background:transparent;
+  box-shadow:none;
 }
 .toolbar-input:hover{ background:var(--field-hover); border-color:var(--border); }
 .toolbar-input:focus{ outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
