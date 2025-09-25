@@ -18,7 +18,10 @@ export function showUpdateBannerIfReady(){
     const flag = localStorage.getItem('ezq.update.ready');
     if(flag === '1'){
       const banner = document.getElementById('updateBanner');
-      if(banner){ banner.classList.remove('hidden'); }
+      if(banner){
+        banner.classList.remove('hidden');
+        banner.hidden = false;
+      }
     }
   }catch{}
 }

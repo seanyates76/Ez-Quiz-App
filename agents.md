@@ -27,4 +27,8 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - Keep the service worker + cache busting in sync when touching asset versions (`public/sw.js`, query strings in `index.html`).
 - Next agent: append your updates here (date + highlight) so this stays a living log.
 
+- 2025-09-19 — Added mobile comfort pass (length/difficulty pairing, IE toggle spacing) and refreshed cache-buster (v1.5.10). Veil strings restored; spinner hides cleanly on “Done”.
+- 2025-09-23 — Synced AI generation with the Interactive Editor. Generator now dispatches input events so IE cards refresh automatically when quizzes load.
+- 2025-09-24 — Rebalanced the generator toolbar with a responsive grid polish and wrapped the Quiz Editor panes with headers/gradients for clearer context across breakpoints.
+
 — Codex (GPT-5), 2025-02-14

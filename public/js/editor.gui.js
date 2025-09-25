@@ -161,7 +161,18 @@ const IE2 = (()=>{
   }
   function syncFromEditor(){ if(isSyncingToEditor) return; state.model = parseEditor(); renderCards(); renderSummary(); }
 
-  function setEnabled(on){ state.enabled=!!on; saveEnabled(state.enabled); const m=els().mount; if(m) m.classList.toggle('hidden', !state.enabled); if(state.enabled && state.model.length===0) syncFromEditor(); renderCards(); renderSummary(); }
+  function setEnabled(on){
+    state.enabled = !!on;
+    saveEnabled(state.enabled);
+    const m = els().mount;
+    if(m) m.classList.toggle('hidden', !state.enabled);
+    if(state.enabled){
+      syncFromEditor();
+    } else {
+      renderCards();
+      renderSummary();
+    }
+  }
 
   function buildUI(){
     const m=els().mount; if(!m) return;
@@ -215,7 +226,8 @@ const IE2 = (()=>{
     document.addEventListener('keydown', (e)=>{
       if(!state.enabled) return;
       if(e.ctrlKey||e.metaKey||e.altKey) return;
-      const k=e.key.toLowerCase();
+      const k = (typeof e.key === 'string') ? e.key.toLowerCase() : '';
+      if(!k) return;
       if(k==='m'){
         e.preventDefault();
         addQ(e.shiftKey?'MT':'MC');
