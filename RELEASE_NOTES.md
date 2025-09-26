@@ -104,6 +104,32 @@ Tester tips
 - To retake the full quiz, click “Retake”. To retake only missed questions, use the caret next to Retake and choose “Take missed quiz”.
 - If you previously ran “missed-only”, “Retake” will still restore and run the complete original set.
 
+EZ Quiz Web v1.5.0-beta.9
+==========================
+
+Release date: 2025-09-26
+
+Highlights
+- Resilient AI calls: client now cycles through `/.netlify/functions/generate-quiz`, `/api/generate`, and the default Netlify domain (`https://eq-quiz.netlify.app`) so Start/Generate survive missing rewrites or external proxies.
+- Cache bust: Asset query strings bumped to v1.5.14 with service worker cache v123 to guarantee the new fallback ships instantly.
+- Reminder: All UI polish from beta.7 (softened surfaces, roomy toolbar, consistent spacing) remains in place.
+
+Notes
+- Still seeing the old build? Refresh with `?clear=1` or use Settings → Reset App to clear cached assets/service workers.
+
+EZ Quiz Web v1.5.0-beta.8
+==========================
+
+Release date: 2025-09-26
+
+Highlights
+- Hotfix: Start/Generate now target `/.netlify/functions/generate-quiz` first, sidestepping missing `/api/generate` rewrites in production.
+- Cache bust: Asset query strings bumped to v1.5.13 and service worker cache advanced to v122 so the fix reaches every client instantly.
+- Reminder: All UI polish from beta.7 (softened surfaces, roomy toolbar, consistent spacing) remains in place.
+
+Notes
+- If the app still feels stale, refresh with `?clear=1` or use Settings → Reset App to clear caches/service workers.
+
 EZ Quiz Web v1.5.0-beta.7
 ==========================
 

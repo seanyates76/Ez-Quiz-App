@@ -1,7 +1,7 @@
 import { S } from './state.js';
 import { $, byQSA, mmSsToMs } from './utils.js';
 import { parseEditorInput } from './parser.js';
-import { generateWithAI } from './api.js';
+import { generateWithAI } from './api.js?v=1.5.14';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
 import { applyTheme, saveSettingsToStorage, getShowQuizEditorPreference } from './settings.js';
 import { STORAGE_KEYS } from './state.js';

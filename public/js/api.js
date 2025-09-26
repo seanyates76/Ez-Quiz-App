@@ -1,7 +1,45 @@
-const API_ENDPOINT_CANDIDATES = [
-  '/.netlify/functions/generate-quiz',
-  '/api/generate'
-];
+const DEFAULT_NETLIFY_ORIGIN = 'https://eq-quiz.netlify.app';
+
+function buildEndpointList(){
+  const seen = new Set();
+  const out = [];
+  const push = (url)=>{
+    if(!url || typeof url !== 'string') return;
+    const trimmed = url.trim();
+    if(!trimmed || seen.has(trimmed)) return;
+    seen.add(trimmed);
+    out.push(trimmed);
+  };
+
+  // Allow runtime overrides via window.EZQ_API_ENDPOINTS (array of URLs).
+  let configured = null;
+  if (typeof window !== 'undefined' && window && Array.isArray(window.EZQ_API_ENDPOINTS)) {
+    configured = window.EZQ_API_ENDPOINTS;
+  }
+
+  const origin = (typeof window !== 'undefined' && window && window.location && window.location.origin) ? window.location.origin : '';
+
+  push('/.netlify/functions/generate-quiz');
+  push('/api/generate');
+
+  if (configured) {
+    configured.forEach(push);
+  }
+
+  if (origin) {
+    push(`${origin.replace(/\/$/, '')}/.netlify/functions/generate-quiz`);
+    push(`${origin.replace(/\/$/, '')}/api/generate`);
+  }
+
+  if (!configured) {
+    push(`${DEFAULT_NETLIFY_ORIGIN}/.netlify/functions/generate-quiz`);
+    push(`${DEFAULT_NETLIFY_ORIGIN}/api/generate`);
+  }
+
+  return out;
+}
+
+const API_ENDPOINT_CANDIDATES = buildEndpointList();
 
 export async function generateWithAI(topic, count, opts = {}){
   const payload = JSON.stringify({ topic, count, ...opts });

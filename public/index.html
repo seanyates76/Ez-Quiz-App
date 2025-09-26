@@ -6,7 +6,7 @@
   <title>EZ Quiz</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.5.12" />
+  <link rel="stylesheet" href="styles.css?v=1.5.14" />
 </head>
 <body data-theme="dark">
   <header class="site-header" role="banner">
@@ -226,7 +226,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
   <footer class="container" role="contentinfo">
     <nav aria-label="Footer">
       <p style="margin:12px 0; color:var(--muted)">
-        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal">v1.5.0-beta.7</a>
+        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal">v1.5.0-beta.9</a>
         &nbsp;•&nbsp;
         <a id="privacyLink" href="#" data-modal="privacyModal">Privacy</a>
         &nbsp;•&nbsp;
@@ -442,6 +442,22 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
       </header>
       <div class="modal__body">
         <section>
+          <h4>v1.5.0-beta.9</h4>
+          <ul>
+            <li><strong>Serverless fallback:</strong> AI calls now roll through <code>/.netlify/functions/generate-quiz</code>, <code>/api/generate</code>, and the default Netlify domain so missing rewrites or proxies no longer break Start/Generate.</li>
+            <li><strong>Cache bust:</strong> bumped asset query strings to v1.5.14 and service worker cache to v123 so every client grabs the fix immediately.</li>
+            <li><strong>Previous polish retained:</strong> softened surfaces, wide-phone toolbar, and consistent spacing from beta.7 remain.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>v1.5.0-beta.8</h4>
+          <ul>
+            <li><strong>Start/Generate hotfix:</strong> AI calls hit <code>/.netlify/functions/generate-quiz</code> first, keeping production alive when <code>/api/generate</code> rewrites vanish.</li>
+            <li><strong>Cache bust:</strong> bumped asset query strings to v1.5.13 and service worker cache to v122 for immediate delivery.</li>
+            <li><strong>Previous polish retained:</strong> softened surfaces, wide-phone toolbar, and consistent spacing from beta.7 remain.</li>
+          </ul>
+        </section>
+        <section>
           <h4>v1.5.0-beta.7</h4>
           <ul>
             <li><strong>Softer surfaces:</strong> inputs, cards, and chips now use muted 1px borders and a gentle blue-violet focus ring—no more neon glow.</li>
@@ -561,10 +577,10 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
 
   
 
-  <script type="module" src="js/main.js?v=1.5.12"></script>
-  <script type="module" src="js/auto-refresh.js?v=1.5.12"></script>
-  <script type="module" src="js/patches.js?v=1.5.12"></script>
-  <script type="module" src="js/editor.gui.js?v=1.5.12"></script>
+  <script type="module" src="js/main.js?v=1.5.14"></script>
+  <script type="module" src="js/auto-refresh.js?v=1.5.14"></script>
+  <script type="module" src="js/patches.js?v=1.5.14"></script>
+  <script type="module" src="js/editor.gui.js?v=1.5.14"></script>
 
   <!-- Floating actions: Feedback + Coffee -->
   <div id="floatingActions" class="fab-stack" aria-label="Quick actions">

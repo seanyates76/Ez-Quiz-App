@@ -1,6 +1,14 @@
 Changelog
 =========
 
+2025-09-26 — 1.5.0-beta.9
+- Resilience: AI calls now cycle through `/.netlify/functions/generate-quiz`, `/api/generate`, and `https://eq-quiz.netlify.app/.netlify/functions/generate-quiz`, covering missing rewrites or third-party proxies.
+- Maintenance: asset query strings bumped to v1.5.14 and service worker cache advanced to v123 to flush cached modules (api/generator/main/editor).
+
+2025-09-26 — 1.5.0-beta.8
+- Hotfix: client now calls `/.netlify/functions/generate-quiz` before `/api/generate`, so Start/Generate continue to work even if redirects are missing.
+- Maintenance: asset query strings bumped to v1.5.13 and service worker cache advanced to v122 to force-deliver the new module order.
+
 2025-09-25 — 1.5.0-beta.7
 - Generator toolbar now opens into a generous two-column layout on 430–720px screens so wide phones have comfortable spacing.
 - Inputs, cards, and status chips share softened 1px borders with a muted focus halo for accessible, non-glowy highlights.
