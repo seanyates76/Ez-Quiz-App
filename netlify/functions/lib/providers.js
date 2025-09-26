@@ -49,7 +49,7 @@ function normalizeOutputToLines(text, count){
   return { title, lines: lines.join('\n') };
 }
 
-async function geminiGenerate({ apiKey, model = 'gemini-2.5-flash', topic, count, types, difficulty }){
+async function geminiGenerate({ apiKey, model = 'gemini-2.0-flash', topic, count, types, difficulty }){
   if(!apiKey) throw new Error('Missing GEMINI_API_KEY');
   const { GoogleGenerativeAI } = await import('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(apiKey);
@@ -117,7 +117,7 @@ async function generateLines({ provider, model, topic, count, types, difficulty,
   const args = { topic, count: n, types, difficulty };
   try{
     if(p==='gemini'){
-      const resolvedModel = model || env.GEMINI_MODEL || 'gemini-2.5-flash';
+      const resolvedModel = model || env.GEMINI_MODEL || 'gemini-2.0-flash';
       const { title, lines } = await geminiGenerate({ apiKey: env.GEMINI_API_KEY, model: resolvedModel, ...args });
       return { provider: 'gemini', model: resolvedModel, title, lines };
     }

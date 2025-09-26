@@ -109,7 +109,7 @@ try {
   if (canFallbackToGemini && !isTimeout) {
     try {
       const { title, lines, provider: usedProvider, model: usedModel } = await withTimeout(
-        generateLines({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.5-flash', topic, count, types, difficulty, env: process.env }),
+        generateLines({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', topic, count, types, difficulty, env: process.env }),
         TIMEOUT_MS
       );
       return {
