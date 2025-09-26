@@ -60,7 +60,7 @@ Troubleshooting Updates (Mobile/PWA)
 - On iOS/Safari, you may need to remove site data and reopen once.
 
 Changelog Highlights
-- 1.5.0-beta.9: AI fallback chain covers `/.netlify/functions/generate-quiz`, `/api/generate`, and the default Netlify domain; cache-buster v1.5.14 (SW cache v123).
+- 1.5.0-beta.9: AI fallback chain covers `/.netlify/functions/generate-quiz`, `/api/generate`, and the default Netlify domain; CSP `connect-src` allows the Netlify host; cache-buster v1.5.14 (SW cache v123).
 - 1.5.0-beta.8: AI hotfix — client points at `/.netlify/functions/generate-quiz` first plus cache-buster v1.5.13 (SW cache v122).
 - 1.5.0-beta.7: Softer borders/focus ring tokens, roomy generator toolbar on wide phones, and cache-buster v1.5.12.
 - 1.5.0-beta.5: Generator slider rebuilt with inline steppers; Interactive Editor now default with pill toggle; Options/Settings split refined.

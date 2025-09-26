@@ -33,6 +33,6 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - 2025-09-24 — Smoothed Topic autofill styling, restored footer reserve tint, and bumped cache-busters (v1.5.11) plus SW cache v120.
 - 2025-09-25 — Softened global borders/focus rings, widened the generator toolbar on big phones, and shipped cache-buster v1.5.12 with SW cache v121.
 - 2025-09-25 — Added client fallback to call `/.netlify/functions/generate-quiz` when `/api/generate` is missing so production keeps working even if Netlify redirects go missing.
-- 2025-09-26 — Hardened AI endpoint selection: client now cycles through `/.netlify/functions/generate-quiz`, `/api/generate`, and `https://eq-quiz.netlify.app/.netlify/functions/generate-quiz`; cache-busters bumped to v1.5.14 with SW cache v123 so the fix lands instantly.
+- 2025-09-26 — Hardened AI endpoint selection: client now cycles through `/.netlify/functions/generate-quiz`, `/api/generate`, and `https://eq-quiz.netlify.app/.netlify/functions/generate-quiz`; cache-busters bumped to v1.5.14 with SW cache v123 so the fix lands instantly; CSP updated to allow the Netlify fallback domain in `connect-src`.
 
 — Codex (GPT-5), 2025-02-14
