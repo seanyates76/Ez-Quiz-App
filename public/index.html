@@ -446,7 +446,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <ul>
             <li><strong>Serverless fallback:</strong> AI calls now roll through <code>/.netlify/functions/generate-quiz</code>, <code>/api/generate</code>, and the default Netlify domain so missing rewrites or proxies no longer break Start/Generate.</li>
             <li><strong>Cache bust:</strong> bumped asset query strings to v1.5.14 and service worker cache to v123 so every client grabs the fix immediately.</li>
-            <li><strong>Gemini update:</strong> backend now defaults to <code>gemini-2.0-flash</code>; update Netlify env if you override <code>GEMINI_MODEL</code>.</li>
+            <li><strong>AI fix:</strong> refreshed the Gemini model so Generate and Start deliver quizzes again without extra setup.</li>
             <li><strong>Previous polish retained:</strong> softened surfaces, wide-phone toolbar, and consistent spacing from beta.7 remain.</li>
           </ul>
         </section>
