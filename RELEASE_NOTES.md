@@ -110,9 +110,9 @@ EZ Quiz Web v1.5.0-beta.9
 Release date: 2025-09-26
 
 Highlights
-- Resilient AI calls: client now cycles through `/.netlify/functions/generate-quiz`, `/api/generate`, and the default Netlify domain (`https://eq-quiz.netlify.app`) so Start/Generate survive missing rewrites or external proxies.
+- Resilient AI calls: client now cycles through `/.netlify/functions/generate-quiz`, `/api/generate`, and the Netlify hosts (`https://ez-quiz.netlify.app`, `https://eq-quiz.netlify.app`) so Start/Generate survive missing rewrites or external proxies.
 - Cache bust: Asset query strings bumped to v1.5.14 with service worker cache v123 to guarantee the new fallback ships instantly.
-- Security: CSP `connect-src` now whitelists `https://eq-quiz.netlify.app` so browser policies allow the fallback calls.
+- Security: CSP `connect-src` now whitelists the Netlify hosts (including `https://ez-quiz.netlify.app`) so browser policies allow the fallback calls.
 - Reminder: All UI polish from beta.7 (softened surfaces, roomy toolbar, consistent spacing) remains in place.
 
 Notes

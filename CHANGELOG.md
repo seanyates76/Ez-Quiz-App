@@ -2,9 +2,9 @@ Changelog
 =========
 
 2025-09-26 — 1.5.0-beta.9
-- Resilience: AI calls now cycle through `/.netlify/functions/generate-quiz`, `/api/generate`, and `https://eq-quiz.netlify.app/.netlify/functions/generate-quiz`, covering missing rewrites or third-party proxies.
+- Resilience: AI calls now cycle through `/.netlify/functions/generate-quiz`, `/api/generate`, and Netlify hosts (`https://ez-quiz.netlify.app/.netlify/functions/generate-quiz`, `https://eq-quiz.netlify.app/.netlify/functions/generate-quiz`), covering missing rewrites or third-party proxies.
 - Maintenance: asset query strings bumped to v1.5.14 and service worker cache advanced to v123 to flush cached modules (api/generator/main/editor).
-- Security: CSP `connect-src` now includes `https://eq-quiz.netlify.app` so the fallback calls aren’t blocked client-side.
+- Security: CSP `connect-src` now includes the Netlify hosts (including `https://ez-quiz.netlify.app`) so the fallback calls aren’t blocked client-side.
 
 2025-09-26 — 1.5.0-beta.8
 - Hotfix: client now calls `/.netlify/functions/generate-quiz` before `/api/generate`, so Start/Generate continue to work even if redirects are missing.

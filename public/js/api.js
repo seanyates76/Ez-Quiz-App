@@ -1,4 +1,7 @@
-const DEFAULT_NETLIFY_ORIGIN = 'https://eq-quiz.netlify.app';
+const DEFAULT_NETLIFY_ORIGINS = [
+  'https://ez-quiz.netlify.app',
+  'https://eq-quiz.netlify.app'
+];
 
 function buildEndpointList(){
   const seen = new Set();
@@ -32,8 +35,11 @@ function buildEndpointList(){
   }
 
   if (!configured) {
-    push(`${DEFAULT_NETLIFY_ORIGIN}/.netlify/functions/generate-quiz`);
-    push(`${DEFAULT_NETLIFY_ORIGIN}/api/generate`);
+    DEFAULT_NETLIFY_ORIGINS.forEach((originCandidate) => {
+      if (!originCandidate) return;
+      push(`${originCandidate.replace(/\/$/, '')}/.netlify/functions/generate-quiz`);
+      push(`${originCandidate.replace(/\/$/, '')}/api/generate`);
+    });
   }
 
   return out;
