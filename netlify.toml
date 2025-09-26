@@ -16,7 +16,7 @@ for = "/*"
   Permissions-Policy = "geolocation=(), microphone=(), camera=()"
   Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
   # Tighten CSP: only first-party resources are needed. The Support link is a plain href (no widget scripts/iframes).
-  Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+  Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://eq-quiz.netlify.app; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
 
 # Ensure fresh HTML/app shell while allowing long-lived assets
 [[headers]]
