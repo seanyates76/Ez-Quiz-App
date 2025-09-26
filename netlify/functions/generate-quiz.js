@@ -127,8 +127,14 @@ try {
     }
   }
 
+  const statusFromError = err && err.status;
+  let statusCode = isTimeout ? 504 : (is429 ? 429 : statusFromError || 502);
+  if (statusCode === 404) {
+    statusCode = 502;
+  }
+
   return {
-    statusCode: isTimeout ? 504 : (is429 ? 429 : (err && err.status) || 502),
+    statusCode,
     headers: { ...corsHeaders, ...(is429 ? { 'Retry-After': '30' } : {}), ...(isTimeout ? { 'Retry-After': '15' } : {}) },
     body: JSON.stringify({ error: isTimeout ? 'Generation timed out' : 'Generation failed', details: msg, provider }),
   };
