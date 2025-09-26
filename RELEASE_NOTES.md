@@ -113,6 +113,7 @@ Highlights
 - Resilient AI calls: client now cycles through `/.netlify/functions/generate-quiz`, `/api/generate`, and the Netlify hosts (`https://ez-quiz.netlify.app`, `https://eq-quiz.netlify.app`) so Start/Generate survive missing rewrites or external proxies.
 - Cache bust: Asset query strings bumped to v1.5.14 with service worker cache v123 to guarantee the new fallback ships instantly.
 - Security: CSP `connect-src` now whitelists the Netlify hosts (including `https://ez-quiz.netlify.app`) so browser policies allow the fallback calls.
+- Gemini update: default backend model is now `gemini-2.5-flash`; override `GEMINI_MODEL` only if you have access to a different version.
 - Reminder: All UI polish from beta.7 (softened surfaces, roomy toolbar, consistent spacing) remains in place.
 
 Notes
