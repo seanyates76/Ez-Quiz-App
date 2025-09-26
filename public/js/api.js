@@ -3,56 +3,67 @@ const DEFAULT_NETLIFY_ORIGINS = [
   'https://eq-quiz.netlify.app'
 ];
 
-function buildEndpointList(){
+function normalizeEndpointSpecs(){
   const seen = new Set();
   const out = [];
-  const push = (url)=>{
-    if(!url || typeof url !== 'string') return;
+
+  const push = (url, allow404Fallback) => {
+    if (!url || typeof url !== 'string') return;
     const trimmed = url.trim();
-    if(!trimmed || seen.has(trimmed)) return;
-    seen.add(trimmed);
-    out.push(trimmed);
+    if (!trimmed || seen.has(`${trimmed}::${allow404Fallback ? '1' : '0'}`)) return;
+    seen.add(`${trimmed}::${allow404Fallback ? '1' : '0'}`);
+    out.push({ url: trimmed, allow404Fallback: !!allow404Fallback });
   };
 
-  // Allow runtime overrides via window.EZQ_API_ENDPOINTS (array of URLs).
-  let configured = null;
-  if (typeof window !== 'undefined' && window && Array.isArray(window.EZQ_API_ENDPOINTS)) {
-    configured = window.EZQ_API_ENDPOINTS;
-  }
-
   const origin = (typeof window !== 'undefined' && window && window.location && window.location.origin) ? window.location.origin : '';
+  const configured = (typeof window !== 'undefined' && window && Array.isArray(window.EZQ_API_ENDPOINTS)) ? window.EZQ_API_ENDPOINTS : null;
 
-  push('/.netlify/functions/generate-quiz');
-  push('/api/generate');
+  // Primary endpoints on the current origin.
+  push('/.netlify/functions/generate-quiz', false);
+  push('/api/generate', true);
 
+  // Consumer-provided overrides.
   if (configured) {
-    configured.forEach(push);
+    configured.forEach((entry) => {
+      if (!entry) return;
+      if (typeof entry === 'string') {
+        push(entry, false);
+        return;
+      }
+      if (entry && typeof entry === 'object') {
+        push(entry.url, !!entry.allow404Fallback);
+      }
+    });
   }
 
+  // Explicit absolute URLs for the current origin.
   if (origin) {
-    push(`${origin.replace(/\/$/, '')}/.netlify/functions/generate-quiz`);
-    push(`${origin.replace(/\/$/, '')}/api/generate`);
+    const base = origin.replace(/\/$/, '');
+    push(`${base}/.netlify/functions/generate-quiz`, false);
+    push(`${base}/api/generate`, true);
   }
 
+  // Netlify default domains (only when custom overrides are absent).
   if (!configured) {
     DEFAULT_NETLIFY_ORIGINS.forEach((originCandidate) => {
       if (!originCandidate) return;
-      push(`${originCandidate.replace(/\/$/, '')}/.netlify/functions/generate-quiz`);
-      push(`${originCandidate.replace(/\/$/, '')}/api/generate`);
+      const base = originCandidate.replace(/\/$/, '');
+      push(`${base}/.netlify/functions/generate-quiz`, false);
+      push(`${base}/api/generate`, true);
     });
   }
 
   return out;
 }
 
-const API_ENDPOINT_CANDIDATES = buildEndpointList();
+const API_ENDPOINT_CANDIDATES = normalizeEndpointSpecs();
 
 export async function generateWithAI(topic, count, opts = {}){
   const payload = JSON.stringify({ topic, count, ...opts });
   const attemptErrors = [];
 
   for (let i = 0; i < API_ENDPOINT_CANDIDATES.length; i++) {
-    const endpoint = API_ENDPOINT_CANDIDATES[i];
+    const { url: endpoint, allow404Fallback } = API_ENDPOINT_CANDIDATES[i];
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 30000);
     try {
@@ -69,7 +80,7 @@ export async function generateWithAI(topic, count, opts = {}){
         catch { body = await res.text().catch(() => String(res.status)); }
 
         // Fallback to the next endpoint when the route is missing (404).
-        if (res.status === 404 && i < API_ENDPOINT_CANDIDATES.length - 1) {
+        if (res.status === 404 && allow404Fallback && i < API_ENDPOINT_CANDIDATES.length - 1) {
           attemptErrors.push({ endpoint, status: res.status, body });
           continue;
         }
