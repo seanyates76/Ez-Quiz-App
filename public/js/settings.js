@@ -121,5 +121,3 @@ export function wireSettingsPanel(els){
 // Expose cookie helpers for other modules
 export function getShowQuizEditorPreference(){ return !!S.settings.showQuizEditor; }
 
-// Lightweight dynamic import for support module in browser
-function requireSupportModule(){ return {}; }
