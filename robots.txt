@@ -1,7 +1,0 @@
-User-agent: *
-Allow: /
-
-# Helpful hints for crawlers
-Sitemap: https://ez-quiz.app/sitemap.xml
-Host: ez-quiz.app
-
