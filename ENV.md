@@ -12,6 +12,12 @@ Optional security:
 - ALLOWED_ORIGINS: Comma‑separated list of allowed origins for CORS, e.g.
   - `https://ez-quiz.app,https://staging.ez-quiz.app`
   - Leave empty to allow all origins (not recommended).
+  - Applied to both quiz generation and feedback mailer functions.
+- GENERATE_LIMIT: Per-IP request cap for `generate-quiz` (default `60`).
+- GENERATE_WINDOW_MS: Sliding window size in milliseconds for the rate limiter (default `900000`, i.e. 15 minutes).
+  - `Retry-After` responses are derived from this window; shorten it to offer quicker retries.
+- GENERATE_BEARER_TOKEN: Optional shared secret required in the `Authorization: Bearer <token>` header for quiz generation.
+  - Combine with Netlify redirects or an API gateway to keep the token private in zero-trust setups.
 
 AI Generation providers (optional):
 - AI_PROVIDER: `gemini`, `openai`, or `echo`
