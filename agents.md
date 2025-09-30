@@ -22,6 +22,20 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - Privacy/Terms open as in-app modals instead of navigating away from the app.
 - Length field gained inline steppers; generator wiring restored to use `getShowQuizEditorPreference()` so UI controls stay interactive after build tweaks.
 
+## Experimental / Beta Features
+
+We sometimes ship new features in “beta” mode before promoting them to stable.  
+Beta mode is a runtime flag (enabled by visiting `/beta` or toggling **Settings → Beta features**) that reveals extra UI or flows in the same build.
+
+### Current beta features
+- *(none at this time)*
+
+### Rules
+- Beta features must not break core quiz play/generation.  
+- Keep accessibility parity (focus rings, keyboard access).  
+- Log beta errors with a `[beta]` prefix for easier triage.  
+- When a beta feature graduates, remove it from this list and note the graduation in **Recent polish**.  
+
 ## To-do / Handoff Notes
 - If you ship visible UI tweaks, update this note and the Help/README copy so docs stay accurate.
 - Keep the service worker + cache busting in sync when touching asset versions (`public/sw.js`, query strings in `index.html`).
