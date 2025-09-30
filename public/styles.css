@@ -1405,3 +1405,8 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
 
 /* Ensure .hidden truly hides even with inline tweaks */
 .hidden{ display: none !important }
+
+.settings-version{
+  margin-top:24px;
+  text-align:center;
+}

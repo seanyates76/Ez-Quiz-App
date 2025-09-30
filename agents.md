@@ -38,5 +38,6 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - 2025-09-27 — Added the eq-quiz Netlify fallback domain to CSP connect-src so production fallback fetches succeed.
 - 2025-09-27 — Restored explicit Netlify fallback allowlist (ez-quiz + eq-quiz) after the wildcard CSP change broke Netlify config parsing.
 - 2025-09-30 — Softened the beta header banner into a quiet info bar that surfaces the current beta version and highlight summary.
+- 2025-09-30 — Moved the version indicator into Settings so the regular footer only hosts Privacy and Terms links.
 
 — Codex (GPT-5), 2025-02-14
