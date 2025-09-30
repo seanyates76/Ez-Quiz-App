@@ -1,14 +1,23 @@
 [build]
   command = "npm run build"
   publish = "public"
-  functions = "netlify/functions"
   # Skip builds if no meaningful runtime paths changed:
   ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- public/ src/ netlify/functions/ package*.json netlify.toml"
 
 [functions]
+  directory = "netlify/functions"
   node_bundler = "esbuild"
   external_node_modules = ["@google/generative-ai", "nodemailer"]
 
+# Edge Functions
+[edge_functions]
+  directory = "netlify/edge-functions"
+
+[[edge_functions]]
+  function = "beta"
+  path = "/beta"
+
+# ---------- Environments ----------
 # Production (main)
 [context.production]
   environment = { EZQ_ENV = "production" }
@@ -17,55 +26,56 @@
 [context."branch:beta"]
   environment = { EZQ_ENV = "staging", FEATURE_FLAGS = "true" }
 
-# ---------------- Security Headers ----------------
+# ---------- Security Headers ----------
 [[headers]]
-for = "/*"
+  for = "/*"
   [headers.values]
-  X-Content-Type-Options = "nosniff"
-  Referrer-Policy = "strict-origin-when-cross-origin"
-  Permissions-Policy = "geolocation=(), microphone=(), camera=()"
-  Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
-  # Keep CSP minimal; update if adding external origins.
-  Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://ez-quiz.netlify.app https://ezquiz.dev;"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    # Keep CSP minimal; update if adding external origins.
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://ez-quiz.netlify.app https://ezquiz.dev;"
 
 [[headers]]
-for = "/index.html"
+  for = "/index.html"
   [headers.values]
-  Cache-Control = "no-cache, no-store, must-revalidate"
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
 [[headers]]
-for = "/"
+  for = "/"
   [headers.values]
-  Cache-Control = "no-cache, no-store, must-revalidate"
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
 [[headers]]
-for = "/js/*"
+  for = "/js/*"
   [headers.values]
-  Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
-for = "/icons/*"
+  for = "/icons/*"
   [headers.values]
-  Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
-for = "/styles.css"
+  for = "/styles.css"
   [headers.values]
-  Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=31536000, immutable"
 
-# ---------------- Redirects / Functions ----------------
+# ---------- Redirects / Functions ----------
 [[redirects]]
-from = "/api/generate"
-to = "/.netlify/functions/generate-quiz"
-status = 200
+  from = "/api/generate"
+  to = "/.netlify/functions/generate-quiz"
+  status = 200
 
 [[redirects]]
-from = "/api/health"
-to = "/.netlify/functions/health"
-status = 200
+  from = "/api/health"
+  to = "/.netlify/functions/health"
+  status = 200
 
-# SPA fallback
+# SPA fallback. Note: Edge Functions run before redirects,
+# so /beta is handled by the edge function and won't be swallowed by this.
 [[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
+  from = "/*"
+  to = "/index.html"
+  status = 200

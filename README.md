@@ -53,6 +53,7 @@ Deploy (Netlify)
 - Repo includes `netlify.toml` for headers/caching.
 - Build: none. Publish dir: `public/`.
 - Use a custom domain and enable HTTPS.
+- **Beta Route**: Edge function at `/beta` provides access to beta features. See [BETA_DOCUMENTATION.md](BETA_DOCUMENTATION.md) for details.
 
 Troubleshooting Updates (Mobile/PWA)
 - If stuck on an old version: open with `?clear=1` (or `#clear-cache`).
