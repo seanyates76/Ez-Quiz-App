@@ -35,5 +35,6 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - 2025-09-25 — Added client fallback to call `/.netlify/functions/generate-quiz` when `/api/generate` is missing so production keeps working even if Netlify redirects go missing.
 - 2025-09-26 — Hardened AI endpoint selection: client now cycles through `/.netlify/functions/generate-quiz`, `/api/generate`, and Netlify hosts (`https://ez-quiz.netlify.app/.netlify/functions/generate-quiz`, `https://eq-quiz.netlify.app/.netlify/functions/generate-quiz`); cache-busters bumped to v1.5.14 with SW cache v123 so the fix lands instantly; CSP updated to allow both Netlify fallback domains in `connect-src`; backend default model now `gemini-2.0-flash`.
 - 2025-09-27 — Removed unused legacy root HTML assets/screenshots and an unused helper stub in `settings.js`.
+- 2025-09-27 — Restored explicit Netlify fallback allowlist (ez-quiz + eq-quiz) after the wildcard CSP change broke Netlify config parsing.
 
 — Codex (GPT-5), 2025-02-14
