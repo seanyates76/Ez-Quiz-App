@@ -9,9 +9,6 @@
   external_node_modules = ["@google/generative-ai", "nodemailer"]
 
 # Edge Functions
-[edge_functions]
-  directory = "netlify/edge-functions"
-
 [[edge_functions]]
   function = "beta"
   path = "/beta"

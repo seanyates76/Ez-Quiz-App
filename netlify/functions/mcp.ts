@@ -162,8 +162,11 @@ function makeCorsHeaders(origin: string): Record<string, string> {
   const headers: Record<string, string> = {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+    'Access-Control-Allow-Origin': origin || '',
   };
-  if (origin) headers['Access-Control-Allow-Origin'] = origin;
+  if (!origin) {
+    delete headers['Access-Control-Allow-Origin'];
+  }
   return headers;
 }
 
