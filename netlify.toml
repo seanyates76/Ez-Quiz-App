@@ -1,24 +1,33 @@
 [build]
-publish = "public"
-functions = "netlify/functions"
+  command = "npm run build"
+  publish = "public"
+  functions = "netlify/functions"
+  # Skip builds if no meaningful runtime paths changed:
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- public/ src/ netlify/functions/ package*.json netlify.toml"
 
 [functions]
-node_bundler = "esbuild"
-external_node_modules = ["@google/generative-ai", "nodemailer"]
+  node_bundler = "esbuild"
+  external_node_modules = ["@google/generative-ai", "nodemailer"]
 
-# Security headers (incl. CSP allowances for Buy Me a Coffee widget)
+# Production (main)
+[context.production]
+  environment = { EZQ_ENV = "production" }
+
+# Staging / second production (beta)
+[context."branch:beta"]
+  environment = { EZQ_ENV = "staging", FEATURE_FLAGS = "true" }
+
+# ---------------- Security Headers ----------------
 [[headers]]
 for = "/*"
   [headers.values]
   X-Content-Type-Options = "nosniff"
   Referrer-Policy = "strict-origin-when-cross-origin"
-  # Avoid unsupported features in some browsers; keep a minimal, widely recognized set
   Permissions-Policy = "geolocation=(), microphone=(), camera=()"
   Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
-  # Tighten CSP: only first-party resources are needed. The Support link is a plain href (no widget scripts/iframes).
-  Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://ez-quiz.netlify.app https://eq-quiz.netlify.app; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+  # Keep CSP minimal; update if adding external origins.
+  Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://ez-quiz.netlify.app https://ezquiz.dev;"
 
-# Ensure fresh HTML/app shell while allowing long-lived assets
 [[headers]]
 for = "/index.html"
   [headers.values]
@@ -42,11 +51,9 @@ for = "/icons/*"
 [[headers]]
 for = "/styles.css"
   [headers.values]
-  # Consider versioning or querystrings when updating styles.css frequently
   Cache-Control = "public, max-age=31536000, immutable"
 
-# API redirects
-
+# ---------------- Redirects / Functions ----------------
 [[redirects]]
 from = "/api/generate"
 to = "/.netlify/functions/generate-quiz"
@@ -58,7 +65,6 @@ to = "/.netlify/functions/health"
 status = 200
 
 # SPA fallback
-
 [[redirects]]
 from = "/*"
 to = "/index.html"
