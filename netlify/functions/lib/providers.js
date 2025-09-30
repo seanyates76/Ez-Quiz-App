@@ -1,5 +1,7 @@
 'use strict';
 
+const { normalizeLegacyLines } = require('./normalizer.js');
+
 // Utility: build strict prompt compatible with front-end parser
 function buildPrompt(topic, count, types, difficulty){
   const allowed = Array.isArray(types) && types.length ? types.map(t=>t.toUpperCase()).filter(t=>/^(MC|TF|YN|MT)$/.test(t)) : ['MC','TF','YN','MT'];
@@ -32,40 +34,53 @@ function buildPrompt(topic, count, types, difficulty){
   ].join('\n');
 }
 
-// Utility: normalize model output into valid lines
-function normalizeOutputToLines(text, count){
-  if(!text) return { title: '', lines: '' };
-  const raw = String(text)
-    .split('\n')
-    .map((l)=>l.trim())
-    .filter(Boolean)
-    .map((l)=> l.replace(/^\d+\.\s*/, ''));
-  // Extract optional TITLE line
-  let title = '';
-  if(raw.length && /^title\s*:/i.test(raw[0])){
-    title = raw.shift().replace(/^title\s*:/i,'').trim();
-  }
-  const lines = raw.filter((l)=> /^(MC|TF|YN|MT)\|/i.test(l)).slice(0, count);
-  return { title, lines: lines.join('\n') };
+function buildStructuredPrompt(topic, count, types, difficulty){
+  const allowed = Array.isArray(types) && types.length ? types.map(t=>t.toUpperCase()).filter(t=>/^(MC|TF|YN|MT)$/.test(t)) : ['MC','TF','YN','MT'];
+  const diff = (difficulty && String(difficulty).toLowerCase()) || '';
+  const prettyDiff = diff ? diff.split(/[-_\s]+/).map(w=> w ? w.charAt(0).toUpperCase()+w.slice(1) : '').join(' ') : '';
+  const diffLine = diff
+    ? `Match difficulty to ${prettyDiff} on a scale of Very Easy < Easy < Medium < Hard < Expert.`
+    : '';
+  return [
+    `You are generating a structured quiz about ${topic}.`,
+    diffLine,
+    `Allowed question types: ${allowed.join(', ')}. Use only these codes.`,
+    `Respond with valid minified JSON only. Do not include markdown fences or commentary.`,
+    `Schema:`,
+    `{`,
+    `  "title": "Professional title in Title Case",`,
+    `  "topic": "Short topic label",`,
+    `  "questions": [`,
+    `    {`,
+    `      "type": "MC" | "TF" | "YN" | "MT",`,
+    `      "prompt": "Question text",`,
+    `      // MC only: "options": ["Option 1", "Option 2", ...], minimum 2,`,
+    `      // MC only: "correct": ["A", "C"], letters for all correct options`,
+    `      // TF only: "correct": true|false`,
+    `      // YN only: "correct": true|false (true = Yes)`,
+    `      // MT only: "left": ["Prompt 1", ...], "right": ["Match A", ...],`,
+    `      // MT only: "matches": [[1, "A"], [2, "B"], ...] using 1-based numbers + letters`,
+    `    }`,
+    `  ]`,
+    `}`,
+    `Include exactly ${count} questions. Ensure arrays align and answers are accurate.`,
+  ].filter(Boolean).join('\n');
 }
 
-async function geminiGenerate({ apiKey, model = 'gemini-2.0-flash', topic, count, types, difficulty }){
+async function geminiCall({ apiKey, model = 'gemini-2.0-flash', prompt }){
   if(!apiKey) throw new Error('Missing GEMINI_API_KEY');
   const { GoogleGenerativeAI } = await import('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(apiKey);
   const m = genAI.getGenerativeModel({ model });
-  const prompt = buildPrompt(topic, count, types, difficulty);
   const result = await m.generateContent({
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: { temperature: 0.6, topK: 32, topP: 0.9, maxOutputTokens: 1024 },
   });
-  const text = (result?.response?.text?.() || '').trim();
-  return normalizeOutputToLines(text, count);
+  return (result?.response?.text?.() || '').trim();
 }
 
-async function openaiGenerate({ apiKey, model = 'gpt-4o-mini', topic, count, types, difficulty }){
+async function openaiCall({ apiKey, model = 'gpt-4o-mini', prompt }){
   if(!apiKey) throw new Error('Missing OPENAI_API_KEY');
-  const prompt = buildPrompt(topic, count, types, difficulty);
   const resp = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -91,16 +106,42 @@ async function openaiGenerate({ apiKey, model = 'gpt-4o-mini', topic, count, typ
     throw err;
   }
   const data = await resp.json();
-  const text = data?.choices?.[0]?.message?.content || '';
-  return normalizeOutputToLines(text, count);
+  return (data?.choices?.[0]?.message?.content || '').trim();
 }
 
-function echoGenerate({ topic, count, types }){
+function echoGenerate({ topic, count, types, kind }){
   // Deterministic stub for testing/no-key scenarios
   const out = [];
   const t = topic || 'General knowledge';
   const allowed = Array.isArray(types) && types.length ? types.map(x=>x.toUpperCase()).filter(x=>/^(MC|TF|YN|MT)$/.test(x)) : ['MC','TF','YN','MT'];
   const pickType = (i)=> allowed[i % allowed.length];
+  if(kind === 'structured'){
+    const questions = [];
+    for(let i=0;i<count;i++){
+      const tt = pickType(i);
+      if(tt==='MC'){
+        questions.push({
+          type: 'MC',
+          prompt: `${t}: Sample MC ${i+1}?`,
+          options: ['One','Two','Three','Four'],
+          correct: ['A'],
+        });
+      } else if(tt==='TF'){
+        questions.push({ type: 'TF', prompt: `${t}: Sample TF ${i+1}.`, correct: true });
+      } else if(tt==='YN'){
+        questions.push({ type: 'YN', prompt: `${t}: Sample YN ${i+1}?`, correct: true });
+      } else {
+        questions.push({
+          type: 'MT',
+          prompt: `${t}: Match ${i+1}.`,
+          left: ['Prompt 1','Prompt 2'],
+          right: ['Answer A','Answer B'],
+          matches: [[1,'A'],[2,'B']],
+        });
+      }
+    }
+    return JSON.stringify({ title: `${t} Quiz`, topic: t, questions }, null, 2);
+  }
   for(let i=0;i<count;i++){
     const tt = pickType(i);
     if(tt==='MC') out.push(`MC|${t}: Sample MC ${i+1}?|A) One;B) Two;C) Three;D) Four|A`);
@@ -111,31 +152,42 @@ function echoGenerate({ topic, count, types }){
   return out.join('\n');
 }
 
-async function generateLines({ provider, model, topic, count, types, difficulty, env }){
-  const p = (provider || (env.AI_PROVIDER || 'gemini')).toLowerCase();
-  const n = Math.max(1, Math.min(50, parseInt(count||10,10)));
-  const args = { topic, count: n, types, difficulty };
-  try{
-    if(p==='gemini'){
+async function callProvider({ provider, model, topic, count, types, difficulty, env, prompt, kind = 'legacy' }){
+  const selected = (provider || (env.AI_PROVIDER || 'gemini')).toLowerCase();
+  const normalizedCount = Math.max(1, Math.min(50, parseInt(count || 10, 10)));
+  const args = { topic, count: normalizedCount, types, difficulty };
+  const resolvedPrompt = prompt || buildPrompt(topic, normalizedCount, types, difficulty);
+
+  try {
+    if (selected === 'gemini') {
       const resolvedModel = model || env.GEMINI_MODEL || 'gemini-2.0-flash';
-      const { title, lines } = await geminiGenerate({ apiKey: env.GEMINI_API_KEY, model: resolvedModel, ...args });
-      return { provider: 'gemini', model: resolvedModel, title, lines };
+      const text = await geminiCall({ apiKey: env.GEMINI_API_KEY, model: resolvedModel, prompt: resolvedPrompt });
+      return { provider: 'gemini', model: resolvedModel, text };
     }
-    if(p==='openai'){
-      const { title, lines } = await openaiGenerate({ apiKey: env.OPENAI_API_KEY, model: model || env.OPENAI_MODEL || 'gpt-4o-mini', ...args });
-      return { provider: 'openai', model: model || env.OPENAI_MODEL || 'gpt-4o-mini', title, lines };
+    if (selected === 'openai') {
+      const resolvedModel = model || env.OPENAI_MODEL || 'gpt-4o-mini';
+      const text = await openaiCall({ apiKey: env.OPENAI_API_KEY, model: resolvedModel, prompt: resolvedPrompt });
+      return { provider: 'openai', model: resolvedModel, text };
     }
-    if(p==='echo'){
-      return { provider: 'echo', model: 'stub', title: `${topic || 'General Knowledge'} Quiz`, lines: echoGenerate(args) };
+    if (selected === 'echo') {
+      const text = echoGenerate({ ...args, kind });
+      return { provider: 'echo', model: 'stub', text };
     }
     throw new Error(`Unknown provider: ${provider}`);
-  }catch(err){
-    // propagate with lightweight shape
-    const e = new Error(String(err && err.message || err));
+  } catch (err) {
+    const e = new Error(String((err && err.message) || err));
     e.status = err && err.status;
     e.details = err && err.details;
     throw e;
   }
 }
 
-module.exports = { generateLines };
+async function generateLines({ provider, model, topic, count, types, difficulty, env }){
+  const n = Math.max(1, Math.min(50, parseInt(count||10,10)));
+  const prompt = buildPrompt(topic, n, types, difficulty);
+  const { provider: usedProvider, model: usedModel, text } = await callProvider({ provider, model, topic, count: n, types, difficulty, env, prompt, kind: 'legacy' });
+  const { title, lines } = normalizeLegacyLines(text, n);
+  return { provider: usedProvider, model: usedModel, title, lines };
+}
+
+module.exports = { generateLines, callProvider, buildPrompt, buildStructuredPrompt };

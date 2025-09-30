@@ -9,7 +9,8 @@
 - Requires env: GEMINI_API_KEY
   */
 
-const { generateLines } = require('./lib/providers.js');
+const { generateLines, callProvider, buildStructuredPrompt } = require('./lib/providers.js');
+const { normalizeQuizV2, quizToLegacyLines } = require('./lib/normalizer.js');
 
 function parseAllowedOrigins() {
   const raw = process.env.ALLOWED_ORIGINS || '';
@@ -151,6 +152,25 @@ exports.handler = async (event) => {
   const provider = String(payload.provider || process.env.AI_PROVIDER || 'gemini');
   const model = String(payload.model || '');
 
+  const responseMode = String(process.env.QUIZ_RESPONSE || '').toLowerCase();
+  const useV2 = responseMode === 'v2';
+  const structuredPrompt = useV2 ? buildStructuredPrompt(topic, count, types, difficulty) : null;
+
+  function buildV2SuccessPayload({ quiz, provider: providerName, model: modelName, fallbackUsed = false, fallbackFrom, errorPrimary }){
+    const meta = {
+      provider: providerName,
+      model: modelName,
+      fallbackUsed: !!fallbackUsed,
+    };
+    if(fallbackUsed && fallbackFrom) meta.fallbackFrom = fallbackFrom;
+    if(fallbackUsed && errorPrimary) meta.errorPrimary = errorPrimary;
+    if(payload.format === 'legacy-lines'){
+      const { title: legacyTitle, lines: legacyLines } = quizToLegacyLines(quiz, { count });
+      return { ...meta, title: legacyTitle, lines: legacyLines };
+    }
+    return { ...meta, quiz };
+  }
+
   // Timeout guard so the function never hangs on upstream calls
   function withTimeout(promise, ms) {
     return new Promise((resolve, reject) => {
@@ -164,7 +184,22 @@ exports.handler = async (event) => {
   const corsHeaders = makeCorsHeaders(responseOrigin);
 
   try {
+    if(useV2){
+      const primary = await withTimeout(
+        callProvider({ provider, model, topic, count, types, difficulty, env: process.env, prompt: structuredPrompt, kind: 'structured' }),
+        TIMEOUT_MS
+      );
+      const quiz = normalizeQuizV2(primary.text, { topic, count, types });
+      const payloadBody = buildV2SuccessPayload({ quiz, provider: primary.provider, model: primary.model, fallbackUsed: false });
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payloadBody),
+      };
+    }
+
     const { title, lines, provider: usedProvider, model: usedModel } = await withTimeout(
+      // [quiz-v2: hook] flagged JSON integration point
       generateLines({ provider, model, topic, count, types, difficulty, env: process.env }),
       TIMEOUT_MS
     );
@@ -181,9 +216,54 @@ exports.handler = async (event) => {
     // Fallback to Gemini if primary provider failed and Gemini credentials exist
     const primary = (provider || '').toLowerCase();
     const canFallbackToGemini = primary !== 'gemini' && !!process.env.GEMINI_API_KEY;
+    if(useV2){
+      if (canFallbackToGemini && !isTimeout) {
+        try {
+          const fallback = await withTimeout(
+            callProvider({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', topic, count, types, difficulty, env: process.env, prompt: structuredPrompt, kind: 'structured' }),
+            TIMEOUT_MS
+          );
+          const quiz = normalizeQuizV2(fallback.text, { topic, count, types });
+          const payloadBody = buildV2SuccessPayload({
+            quiz,
+            provider: fallback.provider,
+            model: fallback.model,
+            fallbackUsed: true,
+            fallbackFrom: primary,
+            errorPrimary: msg,
+          });
+          return {
+            statusCode: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payloadBody),
+          };
+        } catch (fallbackErr) {
+          const fbMsg = String((fallbackErr && fallbackErr.message) || fallbackErr || 'Error');
+          return {
+            statusCode: isTimeout ? 504 : ((err && err.status) || (fallbackErr && fallbackErr.status) || (is429 ? 429 : 502)),
+            headers: { ...corsHeaders, ...(is429 ? { 'Retry-After': '30' } : {}), ...(isTimeout ? { 'Retry-After': '15' } : {}) },
+            body: JSON.stringify({ error: 'Generation failed', details: msg, fallback: { tried: 'gemini', details: fbMsg } }),
+          };
+        }
+      }
+
+      const statusFromError = err && err.status;
+      let statusCode = isTimeout ? 504 : (is429 ? 429 : statusFromError || 502);
+      if (statusCode === 404) {
+        statusCode = 502;
+      }
+
+      return {
+        statusCode,
+        headers: { ...corsHeaders, ...(is429 ? { 'Retry-After': '30' } : {}), ...(isTimeout ? { 'Retry-After': '15' } : {}) },
+        body: JSON.stringify({ error: isTimeout ? 'Generation timed out' : 'Generation failed', details: msg, provider }),
+      };
+    }
+
     if (canFallbackToGemini && !isTimeout) {
       try {
         const { title, lines, provider: usedProvider, model: usedModel } = await withTimeout(
+          // [quiz-v2: hook] flagged JSON integration point
           generateLines({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', topic, count, types, difficulty, env: process.env }),
           TIMEOUT_MS
         );
