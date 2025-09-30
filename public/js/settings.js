@@ -1,6 +1,6 @@
 import { S, STORAGE_KEYS } from './state.js';
 import { msToMmSs, mmSsToMs } from './utils.js';
-import { has as hasFlag, setFlag } from './flags.js';
+import { has as hasFlag, setFlag, addCookieFlag, clearCookieFlag } from './flags.js';
 
 // Cookie helpers for persistent flags (1 year)
 const COOKIE_SHOW_QUIZ_EDITOR = 'ezq.showQuizEditor';
@@ -126,6 +126,13 @@ export function wireSettingsPanel(els){
     S.settings.betaEnabled = !!els.betaEnabledEl.checked;
     saveSettingsToStorage();
     try{ setFlag('beta', !!S.settings.betaEnabled); }catch{}
+    try{
+      if(S.settings.betaEnabled){
+        addCookieFlag('beta');
+      }else{
+        clearCookieFlag('beta');
+      }
+    }catch{}
   });
 
 }
