@@ -3,8 +3,9 @@ publish = "public"
 functions = "netlify/functions"
 
 [functions]
-node_bundler = "esbuild"
-external_node_modules = ["@google/generative-ai", "nodemailer"]
+  # Ensure Netlify bundles TS functions (mcp.ts) with esbuild
+  node_bundler = "esbuild"
+  external_node_modules = ["@google/generative-ai", "nodemailer"]
 
 # Security headers (incl. CSP allowances for Buy Me a Coffee widget)
 [[headers]]
@@ -56,6 +57,13 @@ status = 200
 from = "/api/health"
 to = "/.netlify/functions/health"
 status = 200
+
+# ── MCP endpoint rewrite (must be ABOVE any catch-all SPA redirect)
+[[redirects]]
+from = "/mcp"
+to = "/.netlify/functions/mcp"
+status = 200
+force = true
 
 # SPA fallback
 
