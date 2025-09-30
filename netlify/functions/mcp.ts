@@ -1,4 +1,4 @@
-'use strict';
+import { requireBeta, betaForbiddenResponse } from './lib/betaGuard.js';
 
 /**
  * Netlify Function: mcp
@@ -158,13 +158,13 @@ function getOrigin(headers: any): string {
   return h.origin || h.Origin || '';
 }
 
-function makeCorsHeaders(origin: string): any {
-  const H = {
+function makeCorsHeaders(origin: string): Record<string, string> {
+  const headers: Record<string, string> = {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
   };
-  if (origin) H['Access-Control-Allow-Origin'] = origin;
-  return H;
+  if (origin) headers['Access-Control-Allow-Origin'] = origin;
+  return headers;
 }
 
 function reply(statusCode: number, body: any, origin: string): NetlifyResponse {
@@ -336,6 +336,24 @@ export const handler = async (event: NetlifyEvent): Promise<NetlifyResponse> => 
 
   if (event.httpMethod !== 'POST') {
     return reply(405, { error: 'Method not allowed' }, responseOrigin);
+  }
+
+  const guardRequest = new Request('https://ez-quiz.app/.netlify/functions/mcp', {
+    headers: new Headers(event.headers || {}),
+    method: event.httpMethod,
+  });
+
+  if (!requireBeta(guardRequest)) {
+    const forbidden = betaForbiddenResponse();
+    const bodyText = await forbidden.text();
+    const forbiddenHeaders = Object.fromEntries(forbidden.headers.entries());
+    const corsHeaders = makeCorsHeaders(responseOrigin);
+
+    return {
+      statusCode: forbidden.status,
+      headers: { ...corsHeaders, ...forbiddenHeaders },
+      body: bodyText,
+    };
   }
 
   let payload: any;
