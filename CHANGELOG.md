@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2025-09-30 — 3.3
+- Graduated the beta line to production, keeping the resilient AI fallback rotation so Generate/Start survive missing rewrites or proxy issues.
+- Adopted the softened UI tokens, responsive toolbar grid, and balanced spacing from the recent betas as the default production experience.
+- Finalized Quiz Editor parity: interactive/manual modes, mirror controls, and defaults stay aligned for everyday authoring.
+- Maintained asset cache busting (query strings v1.5.14, service worker cache v123) to deliver the release instantly across clients.
+
 2025-09-26 — 1.5.0-beta.9
 - Resilience: AI calls now cycle through `/.netlify/functions/generate-quiz`, `/api/generate`, and Netlify hosts (`https://ez-quiz.netlify.app/.netlify/functions/generate-quiz`, `https://eq-quiz.netlify.app/.netlify/functions/generate-quiz`), covering missing rewrites or third-party proxies.
 - Maintenance: asset query strings bumped to v1.5.14 and service worker cache advanced to v123 to flush cached modules (api/generator/main/editor).
