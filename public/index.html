@@ -398,7 +398,6 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
         <button id="settingsClose" class="icon-btn" title="Close">✕</button>
       </header>
       <div class="modal__body">
-        <p class="muted small settings-version">You're on the production build of EZ Quiz <strong>v3.3</strong>. Enable the beta toggle below to preview upcoming experiments.</p>
         <fieldset class="fieldgroup">
           <legend>Timer</legend>
           <label><input type="checkbox" id="timerEnabled" /> Enable timer</label>
@@ -431,8 +430,10 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <p class="muted small">When enabled, you'll automatically be redirected to the beta version of the app on future visits.</p>
         </fieldset>
 
-        <p class="muted small settings-version">
-          Version <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal">v1.5.0-beta.9</a>
+        <p class="muted small settings-version" data-version-copy>
+          Version <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" data-version-label>v3.3</a>
+          <span aria-hidden="true">·</span>
+          <span data-version-mode>Production</span> build
         </p>
       </div>
       <footer class="modal__footer">
@@ -453,10 +454,8 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
         <section class="release-notes release-notes--production">
           <h4>v3.3</h4>
           <ul>
-            <li><strong>Production stability:</strong> ships the resilient AI fallback loop so Generate/Start continue working even when rewrites or proxies drop requests.</li>
-            <li><strong>Refined experience:</strong> keeps the softened UI tokens, responsive toolbar grid, and tuned spacing introduced throughout the beta cycle.</li>
-            <li><strong>Quiz Editor ready for everyone:</strong> interactive/manual modes stay in sync, with mirror controls and defaults polished for day-to-day authoring.</li>
-            <li><strong>Instant updates:</strong> cache-busted assets (v1.5.14) and service worker cache v123 ensure this release lands on every device promptly.</li>
+            <li>Stable AI fallback loop now ships to everyone.</li>
+            <li>All recent UI polish and cache busts are part of the main app.</li>
           </ul>
         </section>
         <section>

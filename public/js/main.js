@@ -48,34 +48,32 @@ function init(){
   wireQuizControls();
   wireResultsControls();
 
-  (function hydrateBetaBanner(){
-    if(document.body.dataset.beta !== 'true') return;
-    try{
-      const banner = document.querySelector('.beta-banner');
-      if(!banner) return;
-      const firstSection = document.querySelector('#releaseNotesModal .modal__body section');
-      const versionEl = banner.querySelector('[data-beta-version]');
-      if(firstSection){
-        const heading = firstSection.querySelector('h4');
-        if(versionEl){
-          versionEl.textContent = heading ? heading.textContent.trim() : 'Beta build';
-        }
-        const featureEl = banner.querySelector('[data-beta-features]');
-        if(featureEl){
-          const highlights = Array.from(firstSection.querySelectorAll('ul li strong'))
-            .map((node)=> node.textContent.replace(/[:：]\s*$/, '').trim())
-            .filter(Boolean)
-            .slice(0,2);
-          if(highlights.length){
-            featureEl.textContent = highlights.join(' • ');
-          }else{
-            featureEl.textContent = 'Beta features enabled';
-          }
-        }
-      }else if(versionEl){
-        versionEl.textContent = 'Beta build';
+  (function hydrateVersionDetails(){
+    const PRODUCTION_VERSION = 'v3.3';
+    const versionCopy = document.querySelector('[data-version-copy]');
+    const modeLabel = versionCopy?.querySelector('[data-version-mode]') || null;
+    const versionLabel = versionCopy?.querySelector('[data-version-label]') || null;
+    const versionLink = document.getElementById('versionInfoBtn');
+    const releaseBody = document.querySelector('#releaseNotesModal .modal__body');
+    const sections = releaseBody ? Array.from(releaseBody.querySelectorAll('section')) : [];
+    const productionSection = sections.find(section => section.classList.contains('release-notes--production')) || sections[0];
+    const productionVersion = productionSection?.querySelector('h4')?.textContent?.trim() || PRODUCTION_VERSION;
+
+    function applyVersion(mode, version){
+      if(modeLabel){ modeLabel.textContent = mode; }
+      if(versionLabel){ versionLabel.textContent = version; }
+      if(versionLink){ versionLink.textContent = version; }
+    }
+
+    applyVersion('Production', productionVersion);
+
+    if(document.body.dataset.beta === 'true'){
+      const betaSection = sections.find(section => section && !section.classList.contains('release-notes--production')) || null;
+      const betaVersion = betaSection?.querySelector('h4')?.textContent?.trim();
+      if(betaVersion){
+        applyVersion('Beta', betaVersion);
       }
-    }catch{}
+    }
   })();
 
   // Register service worker with gentle update signaling

@@ -4,11 +4,9 @@ EZ Quiz Web v3.3
 Release date: 2025-09-30
 
 Highlights
-- Production promotion for the beta line: resilient AI fallback loop keeps Generate/Start working even when `/api/generate` rewrites or external proxies fail.
-- Polished UI tokens from the beta track (softened borders, calmer focus rings, spacious toolbar grid) are now the default experience for every user.
-- Quiz Editor defaults stay in sync across interactive/manual modes with mirrored controls ready for everyday quiz authoring.
-- Cache busting carried forward (assets `v1.5.14`, service worker cache `v123`) so this release ships instantly across clients.
-- Settings modal clarifies the production build and keeps the beta opt-in close at hand for testers.
+- Stable AI fallback loop now protects Generate/Start for everyone.
+- Recent beta UI polish is standard across the app.
+- Cache busts (`v1.5.14`, SW cache `v123`) ship the update quickly.
 
 EZ Quiz Web v1.0.0
 ===================

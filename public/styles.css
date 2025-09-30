@@ -1407,6 +1407,6 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
 .hidden{ display: none !important }
 
 .settings-version{
-  margin-top:24px;
-  text-align:center;
+  margin-top:32px;
+  text-align:right;
 }
