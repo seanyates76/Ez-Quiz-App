@@ -17,12 +17,9 @@ interface NetlifyHandlerResult {
 
 type Handler = (event: NetlifyHandlerEvent) => Promise<NetlifyHandlerResult> | NetlifyHandlerResult;
 
-interface ToolRequest {
-  id?: string | number;
-  tool: string;
-  params?: unknown;
-}
-
+// ─────────────────────────────────────────────────────────────────────────────
+// Types / helpers shared by legacy + MCP code
+// ─────────────────────────────────────────────────────────────────────────────
 interface GenerateQuizSuccess {
   lines: string;
   title?: string;
@@ -32,37 +29,7 @@ interface GenerateQuizSuccess {
   fallbackFrom?: string;
   errorPrimary?: string;
 }
-
 type UnknownRecord = Record<string, unknown>;
-
-function parseRequest(body: string | null | undefined): ToolRequest {
-  if (!body) {
-    throw new Error('Missing request body');
-  }
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(body);
-  } catch (error) {
-    throw new Error('Invalid JSON');
-  }
-  if (!parsed || typeof parsed !== 'object') {
-    throw new Error('Invalid request payload');
-  }
-  const candidate = parsed as UnknownRecord;
-  const tool = candidate.tool;
-  if (typeof tool !== 'string' || !tool.trim()) {
-    throw new Error('Missing tool name');
-  }
-  const id = candidate.id;
-  if (id !== undefined && typeof id !== 'string' && typeof id !== 'number') {
-    throw new Error('Invalid id');
-  }
-  return {
-    id,
-    tool,
-    params: candidate.params,
-  };
-}
 
 function sanitizeGenerateQuizParams(raw: unknown): UnknownRecord {
   if (!raw || typeof raw !== 'object') {
@@ -178,10 +145,175 @@ async function callGenerateQuiz(params: UnknownRecord, event: NetlifyHandlerEven
   return validateGenerateQuizResponse(payload);
 }
 
-function buildSuccessResponse(
-  id: string | number | undefined,
-  quiz: GenerateQuizSuccess,
-) {
+// ─────────────────────────────────────────────────────────────────────────────
+// MCP HTTP (JSON-RPC) helpers
+// ─────────────────────────────────────────────────────────────────────────────
+type Json = UnknownRecord | unknown[] | string | number | boolean | null;
+interface JsonRpcReq {
+  jsonrpc: '2.0';
+  id?: string | number | null;
+  method: string;
+  params?: UnknownRecord;
+}
+interface JsonRpcRes {
+  jsonrpc: '2.0';
+  id: string | number | null;
+  result?: Json;
+  error?: { code: number; message: string; data?: Json };
+}
+
+function isJsonRpc(body: unknown): body is JsonRpcReq {
+  return !!(
+    body &&
+    typeof body === 'object' &&
+    (body as UnknownRecord)['jsonrpc'] === '2.0' &&
+    typeof (body as UnknownRecord)['method'] === 'string'
+  );
+}
+
+// JSON Schema for MCP tools (what clients expect in tools/list)
+const GenerateQuizSchema = {
+  type: 'object',
+  properties: {
+    topic: { type: 'string' },
+    count: { type: 'integer', minimum: 1, maximum: 50 },
+    difficulty: { type: 'string', enum: ['easy', 'medium', 'hard'], default: 'medium' },
+    types: { type: 'array', items: { type: 'string' } }
+  },
+  required: ['topic', 'count'],
+  additionalProperties: true
+};
+
+const ValidateLinesSchema = {
+  type: 'object',
+  properties: {
+    raw: { type: 'string' }
+  },
+  required: ['raw'],
+  additionalProperties: false
+};
+
+function buildMcpToolsList(): JsonRpcRes {
+  return {
+    jsonrpc: '2.0',
+    id: null,
+    result: {
+      tools: [
+        {
+          name: 'generate_quiz',
+          description: 'Return EZ-Quiz lines (MC|/TF|/YN|/MT) via Netlify generator proxy.',
+          inputSchema: GenerateQuizSchema
+        },
+        {
+          name: 'validate_lines',
+          description: 'Validate EZ-Quiz formatted lines and report any invalid rows.',
+          inputSchema: ValidateLinesSchema
+        }
+      ]
+    }
+  };
+}
+
+async function handleMcpCall(method: string, params: UnknownRecord | undefined, id: string | number | null, event: NetlifyHandlerEvent): Promise<JsonRpcRes> {
+  try {
+    if (method === 'tools/list') {
+      return { ...buildMcpToolsList(), id };
+    }
+
+    if (method === 'tools/call') {
+      const name = params?.name as string | undefined;
+      const args = (params?.arguments as UnknownRecord) ?? {};
+
+      if (name === 'generate_quiz') {
+        const safe = sanitizeGenerateQuizParams(args);
+        const quiz = await callGenerateQuiz(safe, event);
+
+        const meta: UnknownRecord = {};
+        if (quiz.title) meta.title = quiz.title;
+        if (quiz.provider) meta.provider = quiz.provider;
+        if (quiz.model) meta.model = quiz.model;
+        if (quiz.fallbackUsed !== undefined) meta.fallbackUsed = quiz.fallbackUsed;
+        if (quiz.fallbackFrom) meta.fallbackFrom = quiz.fallbackFrom;
+        if (quiz.errorPrimary) meta.errorPrimary = quiz.errorPrimary;
+
+        return {
+          jsonrpc: '2.0',
+          id,
+          result: {
+            content: [{ type: 'text', text: quiz.lines }],
+            meta
+          }
+        };
+      }
+
+      if (name === 'validate_lines') {
+        const raw = typeof (args as UnknownRecord).raw === 'string' ? String((args as UnknownRecord).raw) : '';
+        if (!raw) {
+          return {
+            jsonrpc: '2.0',
+            id,
+            error: { code: -32602, message: 'Missing required argument: raw' }
+          };
+        }
+        const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
+        const bad = lines.filter((l) => !/^(MC|TF|YN|MT)\|/.test(l));
+        const msg = bad.length
+          ? `Invalid lines detected (${bad.length}):\n${bad.join('\n')}`
+          : 'All lines are valid ✅';
+        return {
+          jsonrpc: '2.0',
+          id,
+          result: { content: [{ type: 'text', text: msg }] }
+        };
+      }
+
+      return {
+        jsonrpc: '2.0',
+        id,
+        error: { code: -32601, message: `Unknown tool: ${name ?? '(missing name)'}` }
+      };
+    }
+
+    // Method not supported
+    return {
+      jsonrpc: '2.0',
+      id,
+      error: { code: -32601, message: `Unsupported method: ${method}` }
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Internal error';
+    return {
+      jsonrpc: '2.0',
+      id,
+      error: { code: -32603, message }
+    };
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Legacy body shape (your previous `{ tool, params }`) for backward compat
+// ─────────────────────────────────────────────────────────────────────────────
+interface ToolRequest {
+  id?: string | number;
+  tool: string;
+  params?: unknown;
+}
+function parseLegacyToolRequest(body: string | null | undefined): ToolRequest {
+  if (!body) throw new Error('Missing request body');
+  let parsed: unknown;
+  try { parsed = JSON.parse(body); } catch { throw new Error('Invalid JSON'); }
+  if (!parsed || typeof parsed !== 'object') throw new Error('Invalid request payload');
+  const candidate = parsed as UnknownRecord;
+  const tool = candidate.tool;
+  if (typeof tool !== 'string' || !tool.trim()) throw new Error('Missing tool name');
+  const id = candidate.id;
+  if (id !== undefined && typeof id !== 'string' && typeof id !== 'number') {
+    throw new Error('Invalid id');
+  }
+  return { id, tool, params: candidate.params };
+}
+
+function buildLegacySuccess(id: string | number | undefined, quiz: GenerateQuizSuccess) {
   const meta: UnknownRecord = {};
   if (quiz.title) meta.title = quiz.title;
   if (quiz.provider) meta.provider = quiz.provider;
@@ -189,36 +321,26 @@ function buildSuccessResponse(
   if (quiz.fallbackUsed !== undefined) meta.fallbackUsed = quiz.fallbackUsed;
   if (quiz.fallbackFrom) meta.fallbackFrom = quiz.fallbackFrom;
   if (quiz.errorPrimary) meta.errorPrimary = quiz.errorPrimary;
-
   const response: UnknownRecord = {
     id: id ?? null,
     tool: 'generate_quiz',
     lines: quiz.lines,
-    content: [
-      {
-        type: 'text',
-        text: quiz.lines,
-      },
-    ],
+    content: [{ type: 'text', text: quiz.lines }],
   };
-
   if (Object.keys(meta).length > 0) {
     response.meta = meta;
   }
-
   return response;
 }
 
-function buildErrorResponse(id: string | number | undefined, error: unknown) {
-  const message =
-    error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
-  return {
-    id: id ?? null,
-    tool: 'generate_quiz',
-    error: { message },
-  };
+function buildLegacyError(id: string | number | undefined, error: unknown) {
+  const message = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+  return { id: id ?? null, tool: 'generate_quiz', error: { message } };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Netlify handler
+// ─────────────────────────────────────────────────────────────────────────────
 export const handler: Handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -241,9 +363,25 @@ export const handler: Handler = async (event) => {
     };
   }
 
+  // Parse the body once
+  let parsed: unknown;
+  try {
+    parsed = event.body ? JSON.parse(event.body) : null;
+  } catch {
+    return { statusCode: 400, headers: JSON_HEADERS, body: JSON.stringify({ error: 'Invalid JSON' }) };
+  }
+
+  // If it looks like MCP JSON-RPC, handle that path
+  if (isJsonRpc(parsed)) {
+    const req = parsed as JsonRpcReq;
+    const res = await handleMcpCall(req.method, (req.params as UnknownRecord) ?? {}, req.id ?? null, event);
+    return { statusCode: res.error ? 400 : 200, headers: JSON_HEADERS, body: JSON.stringify(res) };
+  }
+
+  // Otherwise fall back to the legacy `{ tool, params }` envelope
   let request: ToolRequest;
   try {
-    request = parseRequest(event.body);
+    request = parseLegacyToolRequest(event.body);
   } catch (error) {
     return {
       statusCode: 400,
@@ -264,18 +402,10 @@ export const handler: Handler = async (event) => {
 
   try {
     const quiz = await callGenerateQuiz(params, event);
-    const response = buildSuccessResponse(request.id, quiz);
-    return {
-      statusCode: 200,
-      headers: JSON_HEADERS,
-      body: JSON.stringify(response),
-    };
+    const response = buildLegacySuccess(request.id, quiz);
+    return { statusCode: 200, headers: JSON_HEADERS, body: JSON.stringify(response) };
   } catch (error) {
-    const response = buildErrorResponse(request.id, error);
-    return {
-      statusCode: 502,
-      headers: JSON_HEADERS,
-      body: JSON.stringify(response),
-    };
+    const response = buildLegacyError(request.id, error);
+    return { statusCode: 502, headers: JSON_HEADERS, body: JSON.stringify(response) };
   }
 };
