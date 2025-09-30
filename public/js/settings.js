@@ -52,7 +52,6 @@ export function loadSettingsFromStorage(){
     }
   }catch{}
 }
-}
 
 let _mql;
 function ensureMql(){
