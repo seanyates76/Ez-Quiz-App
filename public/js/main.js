@@ -23,7 +23,7 @@ function init(){
   (function headerMetrics(){
     function updateHeaderVars(){
       try{
-        const header = document.querySelector('.site-header');
+        const header = document.querySelector('.site-header__row') || document.querySelector('.site-header');
         const h = header ? header.offsetHeight : 0;
         if(h){ document.documentElement.style.setProperty('--header-h', h + 'px'); }
       }catch{}
@@ -47,6 +47,36 @@ function init(){
   wireGenerator({ beginQuiz, syncSettingsFromUI });
   wireQuizControls();
   wireResultsControls();
+
+  (function hydrateBetaBanner(){
+    if(document.body.dataset.beta !== 'true') return;
+    try{
+      const banner = document.querySelector('.beta-banner');
+      if(!banner) return;
+      const firstSection = document.querySelector('#releaseNotesModal .modal__body section');
+      const versionEl = banner.querySelector('[data-beta-version]');
+      if(firstSection){
+        const heading = firstSection.querySelector('h4');
+        if(versionEl){
+          versionEl.textContent = heading ? heading.textContent.trim() : 'Beta build';
+        }
+        const featureEl = banner.querySelector('[data-beta-features]');
+        if(featureEl){
+          const highlights = Array.from(firstSection.querySelectorAll('ul li strong'))
+            .map((node)=> node.textContent.replace(/[:：]\s*$/, '').trim())
+            .filter(Boolean)
+            .slice(0,2);
+          if(highlights.length){
+            featureEl.textContent = highlights.join(' • ');
+          }else{
+            featureEl.textContent = 'Beta features enabled';
+          }
+        }
+      }else if(versionEl){
+        versionEl.textContent = 'Beta build';
+      }
+    }catch{}
+  })();
 
   // Register service worker with gentle update signaling
   if ('serviceWorker' in navigator) {

@@ -10,21 +10,23 @@
 </head>
 <body data-theme="dark">
   <header class="site-header" role="banner">
-    <div class="brand">
-      <a href="/" class="brand-link" aria-label="EZ Quiz Home">
-        <!-- Use a transparent placeholder at start; JS sets the theme-specific logo -->
-        <img id="brandTitle"
-             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
-             alt="EZ Quiz"
-             class="brand-logo"
-             data-dark="icons/brand-title-source.png"
-             data-light="icons/brand-title-source-light.png" />
-      </a>
+    <div class="site-header__row">
+      <div class="brand">
+        <a href="/" class="brand-link" aria-label="EZ Quiz Home">
+          <!-- Use a transparent placeholder at start; JS sets the theme-specific logo -->
+          <img id="brandTitle"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+               alt="EZ Quiz"
+               class="brand-logo"
+               data-dark="icons/brand-title-source.png"
+               data-light="icons/brand-title-source-light.png" />
+        </a>
+      </div>
+      <nav class="header-actions" aria-label="Utility">
+        <button id="helpBtn" class="icon-btn" title="Help" aria-haspopup="dialog" aria-controls="helpModal">?</button>
+        <button id="settingsBtn" class="icon-btn" title="Settings" aria-haspopup="dialog" aria-controls="settingsModal">⚙</button>
+      </nav>
     </div>
-    <nav class="header-actions" aria-label="Utility">
-      <button id="helpBtn" class="icon-btn" title="Help" aria-haspopup="dialog" aria-controls="helpModal">?</button>
-      <button id="settingsBtn" class="icon-btn" title="Settings" aria-haspopup="dialog" aria-controls="settingsModal">⚙</button>
-    </nav>
   </header>
 
   <main class="container" id="app" role="main">

@@ -78,11 +78,40 @@ body{
 
 /* Header */
 .site-header{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:14px 16px; /* ~20% taller than 12px */
+  display:flex; flex-direction:column; align-items:stretch;
+  gap:0;
+  padding:0;
   border-bottom:1px solid var(--border); background:var(--panel);
   position:sticky; top:0; z-index:50;
 }
+.site-header__row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; /* ~20% taller than 12px */
+  gap:16px;
+}
+.beta-banner{
+  display:flex; flex-direction:column; align-items:flex-start; gap:6px;
+  padding:10px 16px;
+  background:var(--panel-2);
+  border-bottom:1px solid var(--border);
+  color:var(--muted);
+  font-size:0.875rem;
+  line-height:1.4;
+}
+.beta-banner__row{display:flex; flex-wrap:wrap; align-items:center; gap:12px}
+.beta-chip{
+  display:inline-flex; align-items:center;
+  padding:2px 10px;
+  border-radius:var(--radius-control);
+  background:rgba(98,112,243,0.18);
+  color:var(--primary);
+  font-weight:600;
+  font-size:0.75rem;
+  letter-spacing:0.02em;
+}
+.beta-label{font-weight:600; color:var(--muted); font-size:0.8125rem}
+.beta-meta{display:inline-flex; align-items:center; gap:6px; color:var(--text)}
+.beta-meta[data-beta-features]{color:var(--muted)}
 .brand-link{display:inline-flex; align-items:center; text-decoration:none}
 .brand-logo{height:44px; width:auto; display:block}
 @media (min-width:900px){ .brand-logo{ height:48px } }

@@ -31,8 +31,8 @@ export default async (request, context) => {
       
       // Add beta banner/indicator
       html = html.replace(
-        '<div class="brand">',
-        '<div class="beta-banner" style="background: #ff6b35; color: white; text-align: center; padding: 0.5rem; font-weight: bold;">BETA VERSION</div>\n    <div class="brand">'
+        '<header class="site-header" role="banner">',
+        '<header class="site-header" role="banner">\n    <div class="beta-banner" role="note" aria-live="polite">\n      <div class="beta-banner__row">\n        <span class="beta-chip">Beta channel</span>\n        <span class="beta-meta" data-beta-version>Version pending…</span>\n      </div>\n      <div class="beta-banner__row">\n        <span class="beta-label">Features</span>\n        <span class="beta-meta" data-beta-features>Beta features enabled</span>\n      </div>\n    </div>'
       );
       
       return new Response(html, {
