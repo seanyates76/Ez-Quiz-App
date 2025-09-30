@@ -14,6 +14,7 @@ function getEls(){
     autoStartEl: $('autoStart'),
     requireAnswerEl: $('requireAnswer'),
     quizEditorPrefEl: $('alwaysShowQuizEditor'),
+    betaEnabledEl: $('betaEnabled'),
   };
 }
 
@@ -31,6 +32,13 @@ function init(){
     window.addEventListener('resize', updateHeaderVars);
   })();
   loadSettingsFromStorage();
+  
+  // Check for beta auto-redirect
+  if (S.settings.betaEnabled && window.location.pathname === '/' && !window.location.search.includes('no-beta-redirect')) {
+    window.location.href = '/beta';
+    return;
+  }
+  
   applyTheme(S.settings.theme);
   const els = getEls();
   reflectSettingsIntoUI(els);

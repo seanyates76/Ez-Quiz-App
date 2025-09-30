@@ -6,6 +6,13 @@ functions = "netlify/functions"
 node_bundler = "esbuild"
 external_node_modules = ["@google/generative-ai", "nodemailer"]
 
+[edge_functions]
+directory = "netlify/edge-functions"
+
+[[edge_functions]]
+function = "beta"
+path = "/beta"
+
 # Security headers (incl. CSP allowances for Buy Me a Coffee widget)
 [[headers]]
 for = "/*"
@@ -57,9 +64,10 @@ from = "/api/health"
 to = "/.netlify/functions/health"
 status = 200
 
-# SPA fallback
+# SPA fallback (excluding /beta which is handled by edge function)
 
 [[redirects]]
 from = "/*"
 to = "/index.html"
 status = 200
+# Edge functions handle specific routes before SPA fallback

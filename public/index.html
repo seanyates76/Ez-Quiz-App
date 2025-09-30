@@ -422,9 +422,11 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
         <div class="row">
           <button id="resetApp" class="btn danger">Reset App</button>
         </div>
-        <div class="row" style="justify-content:flex-end; margin-top:8px">
-          <label class="muted small"><input type="checkbox" checked disabled /> Beta version</label>
-        </div>
+        <fieldset class="fieldgroup">
+          <legend>Beta Features</legend>
+          <label><input type="checkbox" id="betaEnabled" /> Enable beta features and auto-redirect to /beta</label>
+          <p class="muted small">When enabled, you'll automatically be redirected to the beta version of the app on future visits.</p>
+        </fieldset>
       </div>
       <footer class="modal__footer">
         <button class="btn" id="settingsSave">Close</button>
