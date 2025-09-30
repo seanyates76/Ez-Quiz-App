@@ -67,6 +67,23 @@ function buildStructuredPrompt(topic, count, types, difficulty){
   ].filter(Boolean).join('\n');
 }
 
+function splitNormalizedLines(lines){
+  if(!lines) return [];
+  return String(lines)
+    .split('\n')
+    .map((l)=>l.trim())
+    .filter(Boolean);
+}
+
+function stemKeyFromLine(line){
+  if(!line) return '';
+  const raw = String(line).trim();
+  if(!raw) return '';
+  const parts = raw.split('|');
+  const stem = parts.length > 1 ? parts[1] : raw;
+  return stem.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
 async function geminiCall({ apiKey, model = 'gemini-2.0-flash', prompt }){
   if(!apiKey) throw new Error('Missing GEMINI_API_KEY');
   const { GoogleGenerativeAI } = await import('@google/generative-ai');
@@ -110,7 +127,6 @@ async function openaiCall({ apiKey, model = 'gpt-4o-mini', prompt }){
 }
 
 function echoGenerate({ topic, count, types, kind }){
-  // Deterministic stub for testing/no-key scenarios
   const out = [];
   const t = topic || 'General knowledge';
   const allowed = Array.isArray(types) && types.length ? types.map(x=>x.toUpperCase()).filter(x=>/^(MC|TF|YN|MT)$/.test(x)) : ['MC','TF','YN','MT'];
@@ -155,7 +171,6 @@ function echoGenerate({ topic, count, types, kind }){
 async function callProvider({ provider, model, topic, count, types, difficulty, env, prompt, kind = 'legacy' }){
   const selected = (provider || (env.AI_PROVIDER || 'gemini')).toLowerCase();
   const normalizedCount = Math.max(1, Math.min(50, parseInt(count || 10, 10)));
-  const args = { topic, count: normalizedCount, types, difficulty };
   const resolvedPrompt = prompt || buildPrompt(topic, normalizedCount, types, difficulty);
 
   try {
@@ -170,7 +185,7 @@ async function callProvider({ provider, model, topic, count, types, difficulty, 
       return { provider: 'openai', model: resolvedModel, text };
     }
     if (selected === 'echo') {
-      const text = echoGenerate({ ...args, kind });
+      const text = echoGenerate({ topic, count: normalizedCount, types, difficulty, kind });
       return { provider: 'echo', model: 'stub', text };
     }
     throw new Error(`Unknown provider: ${provider}`);
@@ -190,4 +205,53 @@ async function generateLines({ provider, model, topic, count, types, difficulty,
   return { provider: usedProvider, model: usedModel, title, lines };
 }
 
-module.exports = { generateLines, callProvider, buildPrompt, buildStructuredPrompt };
+async function generateInBatches({ provider, model, topic, count, types, difficulty, env = process.env, batchSize, maxPasses }){
+  const targetRaw = count == null ? 10 : count;
+  let target = parseInt(targetRaw, 10);
+  if(!Number.isFinite(target)) target = 10;
+  target = Math.max(1, Math.min(100, target));
+
+  let batch = parseInt(batchSize, 10);
+  if(!Number.isFinite(batch)) batch = Math.min(40, target);
+  batch = Math.max(1, Math.min(50, batch));
+
+  let passes = parseInt(maxPasses, 10);
+  if(!Number.isFinite(passes) || passes < 1){
+    passes = Math.ceil(target / batch) + 2;
+  }
+  passes = Math.max(2, Math.min(12, passes));
+
+  const seen = new Set();
+  const collected = [];
+  let resolvedTitle = '';
+  let resolvedProvider = '';
+  let resolvedModel = '';
+
+  for(let attempt = 0; attempt < passes && collected.length < target; attempt++){
+    const remaining = target - collected.length;
+    const ask = Math.min(50, Math.max(batch, remaining));
+    const { title, lines, provider: usedProvider, model: usedModel } = await generateLines({ provider, model, topic, count: ask, types, difficulty, env });
+
+    if(!resolvedTitle && title) resolvedTitle = title;
+    if(usedProvider) resolvedProvider = usedProvider;
+    if(usedModel) resolvedModel = usedModel;
+
+    const chunkLines = splitNormalizedLines(lines);
+    for(const line of chunkLines){
+      const key = stemKeyFromLine(line);
+      if(!key || seen.has(key)) continue;
+      seen.add(key);
+      collected.push(line);
+      if(collected.length >= target) break;
+    }
+  }
+
+  return {
+    provider: resolvedProvider || provider || '',
+    model: resolvedModel || model || '',
+    title: resolvedTitle,
+    lines: collected.slice(0, target).join('\n'),
+  };
+}
+
+module.exports = { generateLines, generateInBatches, callProvider, buildStructuredPrompt };

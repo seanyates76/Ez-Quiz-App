@@ -9,7 +9,7 @@
 - Requires env: GEMINI_API_KEY
   */
 
-const { generateLines, callProvider, buildStructuredPrompt } = require('./lib/providers.js');
+const { generateLines, generateInBatches, callProvider, buildStructuredPrompt } = require('./lib/providers.js');
 const { normalizeQuizV2, quizToLegacyLines } = require('./lib/normalizer.js');
 
 function parseAllowedOrigins() {
@@ -52,6 +52,7 @@ function toPositiveInt(value, fallback) {
 
 const LIMIT = toPositiveInt(process.env.GENERATE_LIMIT, DEFAULT_LIMIT);
 const WINDOW_MS = toPositiveInt(process.env.GENERATE_WINDOW_MS, DEFAULT_WINDOW_MS);
+const MAX_COUNT = Math.max(1, Math.min(100, toPositiveInt(process.env.GENERATE_MAX_COUNT, 100)));
 const BEARER_TOKEN = process.env.GENERATE_BEARER_TOKEN ? String(process.env.GENERATE_BEARER_TOKEN) : '';
 
 function clientIp(event) {
@@ -132,9 +133,9 @@ exports.handler = async (event) => {
   if (count == null) { count = 10; }
   const parsedCount = parseInt(count, 10);
   if (!Number.isFinite(parsedCount)) {
-    return reply(400, { error: 'Invalid count: must be a number between 1 and 50' }, responseOrigin);
+    return reply(400, { error: `Invalid count: must be a number between 1 and ${MAX_COUNT}` }, responseOrigin);
   }
-  count = Math.max(1, Math.min(50, parsedCount));
+  count = Math.max(1, Math.min(MAX_COUNT, parsedCount));
 
   let types = undefined;
   if (payload.types !== undefined) {
@@ -198,9 +199,9 @@ exports.handler = async (event) => {
       };
     }
 
+    const generator = count > 50 ? generateInBatches : generateLines;
     const { title, lines, provider: usedProvider, model: usedModel } = await withTimeout(
-      // [quiz-v2: hook] flagged JSON integration point
-      generateLines({ provider, model, topic, count, types, difficulty, env: process.env }),
+      generator({ provider, model, topic, count, types, difficulty, env: process.env }),
       TIMEOUT_MS
     );
     return {
@@ -261,10 +262,10 @@ exports.handler = async (event) => {
     }
 
     if (canFallbackToGemini && !isTimeout) {
+      const generator = count > 50 ? generateInBatches : generateLines;
       try {
         const { title, lines, provider: usedProvider, model: usedModel } = await withTimeout(
-          // [quiz-v2: hook] flagged JSON integration point
-          generateLines({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', topic, count, types, difficulty, env: process.env }),
+          generator({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', topic, count, types, difficulty, env: process.env }),
           TIMEOUT_MS
         );
         return {
