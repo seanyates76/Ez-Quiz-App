@@ -22,6 +22,10 @@
 [context."branch:beta"]
   environment = { EZQ_ENV = "staging", FEATURE_FLAGS = "true" }
 
+# MCP implementation branch
+[context."branch:mcp-implementation"]
+  environment = { QUIZ_RESPONSE = "v2", FEATURE_FLAGS = "true" }
+
 # ---------- Security Headers ----------
 [[headers]]
   for = "/*"
