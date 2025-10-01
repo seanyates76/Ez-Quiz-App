@@ -4,6 +4,7 @@ import { loadSettingsFromStorage, applyTheme, reflectSettingsIntoUI, wireSetting
 import { wireModals } from './modals.js';
 import { wireGenerator } from './generator.js?v=1.5.14';
 import { setMode, beginQuiz, renderCurrentQuestion, updateNavButtons, updateProgress, wireQuizControls, wireResultsControls, pauseTimerIfQuiz, resumeTimerIfQuiz, syncSettingsFromUI } from './quiz.js';
+import { has as hasFlag, hasCookie as hasCookieFlag } from './flags.js';
 
 function getEls(){
   return {
@@ -33,12 +34,20 @@ function init(){
   })();
   loadSettingsFromStorage();
   
-  // Check for beta auto-redirect
-  if (S.settings.betaEnabled && window.location.pathname === '/' && !window.location.search.includes('no-beta-redirect')) {
+  const betaCookieActive = hasCookieFlag('beta');
+  const betaActive = hasFlag('beta') || betaCookieActive;
+  if (betaActive) {
+    document.body.dataset.beta = 'true';
+  } else {
+    document.body.removeAttribute('data-beta');
+  }
+
+  // Check for beta auto-redirect when preference is set but cookie missing
+  if (S.settings.betaEnabled && !betaCookieActive && window.location.pathname === '/' && !window.location.search.includes('no-beta-redirect')) {
     window.location.href = '/beta';
     return;
   }
-  
+
   applyTheme(S.settings.theme);
   const els = getEls();
   reflectSettingsIntoUI(els);

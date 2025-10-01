@@ -22,6 +22,10 @@
 [context."branch:beta"]
   environment = { EZQ_ENV = "staging", FEATURE_FLAGS = "true" }
 
+# MCP implementation branch
+[context."branch:mcp-implementation"]
+  environment = { QUIZ_RESPONSE = "v2", FEATURE_FLAGS = "true" }
+
 # ---------- Security Headers ----------
 [[headers]]
   for = "/*"
@@ -68,6 +72,13 @@
   from = "/api/health"
   to = "/.netlify/functions/health"
   status = 200
+
+# Optional: expose a tidy API path for MCP (keeps UI code simple)
+[[redirects]]
+  from = "/api/mcp"
+  to = "/.netlify/functions/mcp"
+  status = 200
+  force = true
 
 # SPA fallback. Note: Edge Functions run before redirects,
 # so /beta is handled by the edge function and won't be swallowed by this.

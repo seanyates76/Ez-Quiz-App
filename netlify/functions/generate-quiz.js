@@ -9,7 +9,8 @@
 - Requires env: GEMINI_API_KEY
   */
 
-const { generateLines } = require('./lib/providers.js');
+const { generateLines, generateInBatches, callProvider, buildStructuredPrompt } = require('./lib/providers.js');
+const { normalizeQuizV2, quizToLegacyLines } = require('./lib/normalizer.js');
 
 function parseAllowedOrigins() {
   const raw = process.env.ALLOWED_ORIGINS || '';
@@ -51,6 +52,7 @@ function toPositiveInt(value, fallback) {
 
 const LIMIT = toPositiveInt(process.env.GENERATE_LIMIT, DEFAULT_LIMIT);
 const WINDOW_MS = toPositiveInt(process.env.GENERATE_WINDOW_MS, DEFAULT_WINDOW_MS);
+const MAX_COUNT = Math.max(1, Math.min(100, toPositiveInt(process.env.GENERATE_MAX_COUNT, 100)));
 const BEARER_TOKEN = process.env.GENERATE_BEARER_TOKEN ? String(process.env.GENERATE_BEARER_TOKEN) : '';
 
 function clientIp(event) {
@@ -131,9 +133,9 @@ exports.handler = async (event) => {
   if (count == null) { count = 10; }
   const parsedCount = parseInt(count, 10);
   if (!Number.isFinite(parsedCount)) {
-    return reply(400, { error: 'Invalid count: must be a number between 1 and 50' }, responseOrigin);
+    return reply(400, { error: `Invalid count: must be a number between 1 and ${MAX_COUNT}` }, responseOrigin);
   }
-  count = Math.max(1, Math.min(50, parsedCount));
+  count = Math.max(1, Math.min(MAX_COUNT, parsedCount));
 
   let types = undefined;
   if (payload.types !== undefined) {
@@ -151,6 +153,36 @@ exports.handler = async (event) => {
   const provider = String(payload.provider || process.env.AI_PROVIDER || 'gemini');
   const model = String(payload.model || '');
 
+  const responseMode = String(process.env.QUIZ_RESPONSE || '').toLowerCase();
+  const useV2 = responseMode === 'v2';
+  const queryFormat = (event.queryStringParameters && event.queryStringParameters.format) || '';
+  const headerFormat = (event.headers && (event.headers['x-quiz-format'] || event.headers['X-Quiz-Format'])) || '';
+  const requestedFormat = String(payload.format || headerFormat || queryFormat).toLowerCase();
+  const wantsLegacyOnly = requestedFormat === 'legacy-lines';
+  const wantsStructured = useV2 && !wantsLegacyOnly && (requestedFormat === 'quiz-json' || requestedFormat === 'quiz-v2' || requestedFormat === 'json');
+  const structuredPrompt = wantsStructured ? buildStructuredPrompt(topic, count, types, difficulty) : null;
+  // [quiz-v2: hook] structured payload remains opt-in; default path keeps legacy lines for compatibility.
+
+  function buildStructuredResponse({ quiz, provider: providerName, model: modelName, fallbackUsed = false, fallbackFrom, errorPrimary }) {
+    const legacy = quizToLegacyLines(quiz, { count });
+    const meta = {
+      provider: providerName,
+      model: modelName,
+      fallbackUsed: !!fallbackUsed,
+    };
+    if (fallbackUsed && fallbackFrom) meta.fallbackFrom = fallbackFrom;
+    if (fallbackUsed && errorPrimary) meta.errorPrimary = errorPrimary;
+    const response = {
+      ...meta,
+      title: legacy.title,
+      lines: legacy.lines,
+    };
+    if (!wantsLegacyOnly) {
+      response.quiz = quiz;
+    }
+    return response;
+  }
+
   // Timeout guard so the function never hangs on upstream calls
   function withTimeout(promise, ms) {
     return new Promise((resolve, reject) => {
@@ -164,8 +196,23 @@ exports.handler = async (event) => {
   const corsHeaders = makeCorsHeaders(responseOrigin);
 
   try {
+    if(wantsStructured){
+      const primary = await withTimeout(
+        callProvider({ provider, model, topic, count, types, difficulty, env: process.env, prompt: structuredPrompt, kind: 'structured' }),
+        TIMEOUT_MS
+      );
+      const quiz = normalizeQuizV2(primary.text, { topic, count, types });
+      const payloadBody = buildStructuredResponse({ quiz, provider: primary.provider, model: primary.model, fallbackUsed: false });
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payloadBody),
+      };
+    }
+
+    const generator = count > 50 ? generateInBatches : generateLines;
     const { title, lines, provider: usedProvider, model: usedModel } = await withTimeout(
-      generateLines({ provider, model, topic, count, types, difficulty, env: process.env }),
+      generator({ provider, model, topic, count, types, difficulty, env: process.env }),
       TIMEOUT_MS
     );
     return {
@@ -181,10 +228,74 @@ exports.handler = async (event) => {
     // Fallback to Gemini if primary provider failed and Gemini credentials exist
     const primary = (provider || '').toLowerCase();
     const canFallbackToGemini = primary !== 'gemini' && !!process.env.GEMINI_API_KEY;
+    if(wantsStructured){
+      if (canFallbackToGemini && !isTimeout) {
+        try {
+          const fallback = await withTimeout(
+            callProvider({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', topic, count, types, difficulty, env: process.env, prompt: structuredPrompt, kind: 'structured' }),
+            TIMEOUT_MS
+          );
+          const fallbackLen = typeof fallback.text === 'string' ? fallback.text.length : 0;
+          console.warn('[quiz-v2]', { reason: 'provider-fallback', len: fallbackLen });
+          const quiz = normalizeQuizV2(fallback.text, { topic, count, types });
+          const payloadBody = buildStructuredResponse({
+            quiz,
+            provider: fallback.provider,
+            model: fallback.model,
+            fallbackUsed: true,
+            fallbackFrom: primary,
+            errorPrimary: msg,
+          });
+          return {
+            statusCode: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payloadBody),
+          };
+        } catch (fallbackErr) {
+          console.warn('[quiz-v2]', { reason: 'provider-fallback-failed', len: 0 });
+          const fbMsg = String((fallbackErr && fallbackErr.message) || fallbackErr || 'Error');
+          return {
+            statusCode: isTimeout ? 504 : ((err && err.status) || (fallbackErr && fallbackErr.status) || (is429 ? 429 : 502)),
+            headers: { ...corsHeaders, ...(is429 ? { 'Retry-After': '30' } : {}), ...(isTimeout ? { 'Retry-After': '15' } : {}) },
+            body: JSON.stringify({ error: 'Generation failed', details: msg, fallback: { tried: 'gemini', details: fbMsg } }),
+          };
+        }
+      }
+
+      const statusFromError = err && err.status;
+      let statusCode = isTimeout ? 504 : (is429 ? 429 : statusFromError || 502);
+      if (statusCode === 404) {
+        statusCode = 502;
+      }
+
+      // Structured path failed entirely; fall back to legacy generator so the UI still renders a quiz.
+      try {
+        const generator = count > 50 ? generateInBatches : generateLines;
+        const { title, lines, provider: usedProvider, model: usedModel } = await withTimeout(
+          generator({ provider, model, topic, count, types, difficulty, env: process.env }),
+          TIMEOUT_MS
+        );
+        console.warn('[quiz-v2]', { reason: 'structured-fallback-legacy' });
+        return {
+          statusCode: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, lines, provider: usedProvider, model: usedModel, fallbackUsed: false }),
+        };
+      } catch (legacyErr) {
+        const legacyMsg = String((legacyErr && legacyErr.message) || legacyErr || 'Error');
+        return {
+          statusCode,
+          headers: { ...corsHeaders, ...(is429 ? { 'Retry-After': '30' } : {}), ...(isTimeout ? { 'Retry-After': '15' } : {}) },
+          body: JSON.stringify({ error: isTimeout ? 'Generation timed out' : 'Generation failed', details: legacyMsg, provider }),
+        };
+      }
+    }
+
     if (canFallbackToGemini && !isTimeout) {
+      const generator = count > 50 ? generateInBatches : generateLines;
       try {
         const { title, lines, provider: usedProvider, model: usedModel } = await withTimeout(
-          generateLines({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', topic, count, types, difficulty, env: process.env }),
+          generator({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', topic, count, types, difficulty, env: process.env }),
           TIMEOUT_MS
         );
         return {

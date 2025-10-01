@@ -4,8 +4,14 @@
   "private": true,
   "license": "MIT",
   "description": "Static PWA + Netlify Functions for EZ Quiz",
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.20.0",
     "nodemailer": "^6.9.13"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

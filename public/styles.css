@@ -1035,17 +1035,11 @@ footer.container{
   margin-top:auto;
   /* Keep some internal breathing room */
   padding-top:8px;
-  padding-bottom:12px;
   /* Reserve space so floating buttons never cover the footer */
+  padding-bottom:calc(12px + var(--fab-reserve, 112px) + env(safe-area-inset-bottom, 0px));
   margin-bottom:0;
   /* Avoid FAB overlap on the right on narrow screens */
   padding-right: var(--fab-right-pad, 0px);
-}
-footer.container::after{
-  content:"";
-  display:block;
-  height: calc(var(--fab-reserve, 112px) + env(safe-area-inset-bottom, 0px));
-  background: var(--bg);
 }
 /* Helper text under toolbar */
 .subtle-help{ font-size:.9rem; opacity:.75; margin:.25rem 0 0 .25rem }
