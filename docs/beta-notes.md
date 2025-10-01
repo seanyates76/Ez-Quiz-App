@@ -25,3 +25,23 @@ The existing `/beta` edge route still sets the `FEATURE_FLAGS=beta` cookie for U
 3. Monitor Netlify logs for `[quiz-v2]` warnings (validation failures, fallbacks, chunk exhaustion).
 4. When ready to graduate, add `QUIZ_RESPONSE=v2` to production context and remove the branch override.
 5. Update `agents.md` and release notes to announce the schema once the beta flag is removed.
+
+## Backout runbook
+
+If the beta soak surfaces issues, take these steps to revert to the legacy behaviour:
+
+1. **Unset the flag.** Remove the environment variable in every Netlify context where it was enabled:
+   - Production: `netlify env:unset QUIZ_RESPONSE --context=production`
+   - Branch deploys / previews: repeat the command for each affected context (e.g., `--context=branch:mcp-implementation`).
+   - Local overrides: remove the entry from `.env` or stop prefixing commands with `QUIZ_RESPONSE=v2`.
+2. **Redeploy** the site/functions so the change propagates (trigger a fresh build or use `netlify deploy --prod` as appropriate).
+3. **Confirm legacy prompt usage.** With `QUIZ_RESPONSE` unset, the function automatically falls back to the original line-based prompt (`buildPrompt(...)`). Hit `/.netlify/functions/generate-quiz` and verify the response payload contains `title` + `lines` rather than the structured JSON.
+
+## Roll-forward after soak
+
+Once the beta window completes successfully, promote v2 to the default experience:
+
+1. Set `QUIZ_RESPONSE=v2` in the production context: `netlify env:set QUIZ_RESPONSE v2 --context=production`.
+2. Remove any temporary branch/preview overrides that forced the flag on/off to avoid drift.
+3. Trigger a production deploy and smoke-test both the UI and the `/.netlify/functions/generate-quiz` endpoint to confirm structured responses are flowing.
+4. Update external documentation (README/help copy) and notify support/ops that v2 is now the baseline.
