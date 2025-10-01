@@ -31,6 +31,7 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - 2025-09-27 — Removed unused legacy root assets and a stub in `settings.js`. Restored explicit Netlify fallback allowlist.
 - 2025-09-30 — Quiet info bar for version/highlights. Version indicator moved into Settings. Settings defaults to prod build v3.3.
 - 2025-10-01 — Quiz Editor graduated from beta to stable (main feature). Orientation/docs updated.
+- 2025-10-02 — Structured quiz JSON is now opt-in via `format=quiz-json`; legacy `{ title, lines }` always included. Chunked generation helper staged for >50 questions. Footer reserve padding adjusted to avoid the gray strip on beta builds.
 
 ## Experimental / Beta Features
 We sometimes ship new features in “beta” mode (same build; beta is a runtime flag).
@@ -55,6 +56,8 @@ We sometimes ship new features in “beta” mode (same build; beta is a runtime
 ## To-do / Handoff Notes
 - If you ship visible UI tweaks, update this note and the Help/README copy so docs stay accurate.
 - Keep the service worker + cache busting in sync when touching asset versions (`public/sw.js`, query strings in `index.html`).
+- Before promoting quiz v2 to end users: update the client fetch path to send `format=quiz-json`, surface the structured data in UI, and add regression tests for the new payload.
+- Next exploration: story-board the explanations UI (visual spec + API hook) before wiring it up so we can document the flow alongside implementation.
 - Next agent: append your updates here (date + highlight) so this stays a living log.
 
 — Codex (GPT-5)
