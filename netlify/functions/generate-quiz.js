@@ -155,21 +155,32 @@ exports.handler = async (event) => {
 
   const responseMode = String(process.env.QUIZ_RESPONSE || '').toLowerCase();
   const useV2 = responseMode === 'v2';
-  const structuredPrompt = useV2 ? buildStructuredPrompt(topic, count, types, difficulty) : null;
+  const queryFormat = (event.queryStringParameters && event.queryStringParameters.format) || '';
+  const headerFormat = (event.headers && (event.headers['x-quiz-format'] || event.headers['X-Quiz-Format'])) || '';
+  const requestedFormat = String(payload.format || headerFormat || queryFormat).toLowerCase();
+  const wantsLegacyOnly = requestedFormat === 'legacy-lines';
+  const wantsStructured = useV2 && !wantsLegacyOnly && (requestedFormat === 'quiz-json' || requestedFormat === 'quiz-v2' || requestedFormat === 'json');
+  const structuredPrompt = wantsStructured ? buildStructuredPrompt(topic, count, types, difficulty) : null;
+  // [quiz-v2: hook] structured payload remains opt-in; default path keeps legacy lines for compatibility.
 
-  function buildV2SuccessPayload({ quiz, provider: providerName, model: modelName, fallbackUsed = false, fallbackFrom, errorPrimary }){
+  function buildStructuredResponse({ quiz, provider: providerName, model: modelName, fallbackUsed = false, fallbackFrom, errorPrimary }) {
+    const legacy = quizToLegacyLines(quiz, { count });
     const meta = {
       provider: providerName,
       model: modelName,
       fallbackUsed: !!fallbackUsed,
     };
-    if(fallbackUsed && fallbackFrom) meta.fallbackFrom = fallbackFrom;
-    if(fallbackUsed && errorPrimary) meta.errorPrimary = errorPrimary;
-    if(payload.format === 'legacy-lines'){
-      const { title: legacyTitle, lines: legacyLines } = quizToLegacyLines(quiz, { count });
-      return { ...meta, title: legacyTitle, lines: legacyLines };
+    if (fallbackUsed && fallbackFrom) meta.fallbackFrom = fallbackFrom;
+    if (fallbackUsed && errorPrimary) meta.errorPrimary = errorPrimary;
+    const response = {
+      ...meta,
+      title: legacy.title,
+      lines: legacy.lines,
+    };
+    if (!wantsLegacyOnly) {
+      response.quiz = quiz;
     }
-    return { ...meta, quiz };
+    return response;
   }
 
   // Timeout guard so the function never hangs on upstream calls
@@ -185,13 +196,13 @@ exports.handler = async (event) => {
   const corsHeaders = makeCorsHeaders(responseOrigin);
 
   try {
-    if(useV2){
+    if(wantsStructured){
       const primary = await withTimeout(
         callProvider({ provider, model, topic, count, types, difficulty, env: process.env, prompt: structuredPrompt, kind: 'structured' }),
         TIMEOUT_MS
       );
       const quiz = normalizeQuizV2(primary.text, { topic, count, types });
-      const payloadBody = buildV2SuccessPayload({ quiz, provider: primary.provider, model: primary.model, fallbackUsed: false });
+      const payloadBody = buildStructuredResponse({ quiz, provider: primary.provider, model: primary.model, fallbackUsed: false });
       return {
         statusCode: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -217,7 +228,7 @@ exports.handler = async (event) => {
     // Fallback to Gemini if primary provider failed and Gemini credentials exist
     const primary = (provider || '').toLowerCase();
     const canFallbackToGemini = primary !== 'gemini' && !!process.env.GEMINI_API_KEY;
-    if(useV2){
+    if(wantsStructured){
       if (canFallbackToGemini && !isTimeout) {
         try {
           const fallback = await withTimeout(
@@ -227,7 +238,7 @@ exports.handler = async (event) => {
           const fallbackLen = typeof fallback.text === 'string' ? fallback.text.length : 0;
           console.warn('[quiz-v2]', { reason: 'provider-fallback', len: fallbackLen });
           const quiz = normalizeQuizV2(fallback.text, { topic, count, types });
-          const payloadBody = buildV2SuccessPayload({
+          const payloadBody = buildStructuredResponse({
             quiz,
             provider: fallback.provider,
             model: fallback.model,
@@ -257,11 +268,27 @@ exports.handler = async (event) => {
         statusCode = 502;
       }
 
-      return {
-        statusCode,
-        headers: { ...corsHeaders, ...(is429 ? { 'Retry-After': '30' } : {}), ...(isTimeout ? { 'Retry-After': '15' } : {}) },
-        body: JSON.stringify({ error: isTimeout ? 'Generation timed out' : 'Generation failed', details: msg, provider }),
-      };
+      // Structured path failed entirely; fall back to legacy generator so the UI still renders a quiz.
+      try {
+        const generator = count > 50 ? generateInBatches : generateLines;
+        const { title, lines, provider: usedProvider, model: usedModel } = await withTimeout(
+          generator({ provider, model, topic, count, types, difficulty, env: process.env }),
+          TIMEOUT_MS
+        );
+        console.warn('[quiz-v2]', { reason: 'structured-fallback-legacy' });
+        return {
+          statusCode: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, lines, provider: usedProvider, model: usedModel, fallbackUsed: false }),
+        };
+      } catch (legacyErr) {
+        const legacyMsg = String((legacyErr && legacyErr.message) || legacyErr || 'Error');
+        return {
+          statusCode,
+          headers: { ...corsHeaders, ...(is429 ? { 'Retry-After': '30' } : {}), ...(isTimeout ? { 'Retry-After': '15' } : {}) },
+          body: JSON.stringify({ error: isTimeout ? 'Generation timed out' : 'Generation failed', details: legacyMsg, provider }),
+        };
+      }
     }
 
     if (canFallbackToGemini && !isTimeout) {

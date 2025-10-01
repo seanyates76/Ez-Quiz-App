@@ -1,6 +1,6 @@
 # Quiz v2 JSON Schema
 
-The quiz normalizer (`normalizeQuizV2`) emits a lightweight JSON payload that the UI and MCP tools can consume without relying on plain-text line parsing. This document captures the exact shape, per-type requirements, and normalization guarantees.
+The quiz normalizer (`normalizeQuizV2`) emits a lightweight JSON payload that the UI and MCP tools can consume without relying on plain-text line parsing. Opt in by sending `format=quiz-json` (query parameter, request body, or `x-quiz-format` header). Without the flag the function returns only the legacy `{ title, lines }` payload.
 
 ## Top-level object
 
@@ -14,7 +14,7 @@ The quiz normalizer (`normalizeQuizV2`) emits a lightweight JSON payload that th
 
 | Field    | Type        | Notes                                                                 |
 |----------|-------------|-----------------------------------------------------------------------|
-| `title`  | string      | Human-readable quiz title. Empty string when the provider omits it.   |
+| `title`  | string      | Human-readable quiz title. Empty string when the provider omits it. Returned alongside structured data so legacy consumers continue to function. |
 | `topic`  | string      | Topic label derived from the request or upstream payload.            |
 | `questions` | array<Question> | Ordered list of normalized questions. Limited to the requested `count`. |
 
@@ -111,5 +111,6 @@ If the upstream payload is line-based (`MC|prompt|…`), malformed JSON, or empt
 3. The result never contains more than the requested `count` questions.
 4. Unsupported question formats are ignored rather than causing a hard failure.
 5. When the payload cannot be normalized, the function throws with `code` metadata so callers can log `[quiz-v2]` warnings and fall back to legacy output.
+6. Even for `format=quiz-json` requests, the legacy `{ title, lines }` payload is emitted alongside the structured object.
 
 Use this schema when building client renderers, MCP tool integrations, or automated QA harnesses for the v2 quiz pipeline.

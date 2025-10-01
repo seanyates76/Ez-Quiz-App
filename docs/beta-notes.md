@@ -10,11 +10,14 @@ This branch gates the structured quiz response pipeline behind the `QUIZ_RESPONS
 | **Local Netlify dev** | Run `QUIZ_RESPONSE=v2 netlify dev` (or add it to `.env`). |
 | **One-off CLI call**  | Prefix the function invocation: `QUIZ_RESPONSE=v2 curl http://localhost:8888/.netlify/functions/generate-quiz`. |
 
+Request structured output by adding `format=quiz-json` (query parameter, request body field, or `x-quiz-format` header). Without it, the function continues to emit legacy lines even when the environment flag is present.
+
 The existing `/beta` edge route still sets the `FEATURE_FLAGS=beta` cookie for UI affordances, but the structured response path is controlled solely by the environment variable above.
 
 ## Legacy fallback (`format=legacy-lines`)
 
-- Add `?format=legacy-lines` (or include it in the POST body) to force the function to return the original `title`/`lines` payload even when `QUIZ_RESPONSE` is enabled.
+- `?format=legacy-lines` (or `x-quiz-format: legacy-lines`) forces the legacy payload. This remains the default when no explicit format is provided.
+- `?format=quiz-json` (or `x-quiz-format: quiz-json`) returns both the structured `quiz` object and the legacy `title/lines` pair so current clients stay compatible.
 - Prefer this when coordinating with consumers that have not yet adopted the JSON schema.
 - Log `{ error, details, fallback: { tried: 'legacy' } }` with a `[quiz-v2][fallback]` prefix so we can audit usage.
 

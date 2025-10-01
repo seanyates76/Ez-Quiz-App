@@ -172,6 +172,7 @@ async function callProvider({ provider, model, topic, count, types, difficulty, 
   const selected = (provider || (env.AI_PROVIDER || 'gemini')).toLowerCase();
   const normalizedCount = Math.max(1, Math.min(50, parseInt(count || 10, 10)));
   const resolvedPrompt = prompt || buildPrompt(topic, normalizedCount, types, difficulty);
+  // [quiz-v2: hook] provider call surface — swap prompt/response handling when structured default graduates.
 
   try {
     if (selected === 'gemini') {
