@@ -13,6 +13,11 @@ Quick Start
 - Open `public/index.html` directly, or
 - Serve `public/` locally for SW/PWA features: `cd public && python3 -m http.server`
 
+Testing
+-------
+- Install dependencies: `npm install`
+- Run the unit suite: `npm test`
+
 Features
 - Generate + Quiz Editor with Mirror; import `.txt` or paste.
 - Keyboard: Enter to start/advance; Backspace to go back.
