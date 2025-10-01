@@ -162,14 +162,16 @@ function normalizeBoolean(raw, fallbackTrue){
 
 function toZeroBasedIndex(value, size){
   if(Number.isInteger(value)){
-    if(value >= 0 && value < size) return value;
+    if(value === 0) return 0;
     if(value > 0 && value <= size) return value - 1;
+    if(value < 0 && Math.abs(value) <= size) return Math.abs(value) - 1;
     return null;
   }
   const parsed = parseInt(value, 10);
   if(Number.isInteger(parsed)){
-    if(parsed >= 0 && parsed < size) return parsed;
+    if(parsed === 0) return 0;
     if(parsed > 0 && parsed <= size) return parsed - 1;
+    if(parsed < 0 && Math.abs(parsed) <= size) return Math.abs(parsed) - 1;
   }
   return null;
 }
@@ -456,4 +458,3 @@ module.exports = {
   normalizeQuizV2,
   quizToLegacyLines,
 };
-
