@@ -224,6 +224,8 @@ exports.handler = async (event) => {
             callProvider({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', topic, count, types, difficulty, env: process.env, prompt: structuredPrompt, kind: 'structured' }),
             TIMEOUT_MS
           );
+          const fallbackLen = typeof fallback.text === 'string' ? fallback.text.length : 0;
+          console.warn('[quiz-v2]', { reason: 'provider-fallback', len: fallbackLen });
           const quiz = normalizeQuizV2(fallback.text, { topic, count, types });
           const payloadBody = buildV2SuccessPayload({
             quiz,
@@ -239,6 +241,7 @@ exports.handler = async (event) => {
             body: JSON.stringify(payloadBody),
           };
         } catch (fallbackErr) {
+          console.warn('[quiz-v2]', { reason: 'provider-fallback-failed', len: 0 });
           const fbMsg = String((fallbackErr && fallbackErr.message) || fallbackErr || 'Error');
           return {
             statusCode: isTimeout ? 504 : ((err && err.status) || (fallbackErr && fallbackErr.status) || (is429 ? 429 : 502)),

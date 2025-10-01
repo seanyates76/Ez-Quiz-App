@@ -351,7 +351,18 @@ function normalizeQuizV2(raw, opts = {}){
     ? new Set(types.map((t)=>sanitizeString(t).toUpperCase()).filter((t)=>/^(MC|TF|YN|MT)$/.test(t)))
     : null;
 
-  const fallbackFromLegacy = (text)=>{
+  const warnFallback = (reason, source)=>{
+    try {
+      const rendered = typeof source === 'string' ? source : JSON.stringify(source);
+      const len = rendered ? rendered.length : 0;
+      console.warn('[quiz-v2]', { reason, len });
+    } catch {
+      console.warn('[quiz-v2]', { reason, len: 0 });
+    }
+  };
+
+  const fallbackFromLegacy = (text, reason)=>{
+    warnFallback(reason, text);
     const legacy = normalizeLegacyLines(text, limit);
     const quiz = quizFromLegacyLines(legacy, { topic, allowedTypes: allowed, limit });
     if(!quiz.questions.length){
@@ -364,7 +375,7 @@ function normalizeQuizV2(raw, opts = {}){
   if(typeof data === 'string'){
     const parsed = tryParseJsonLoose(data);
     if(parsed) data = parsed;
-    else return fallbackFromLegacy(data);
+    else return fallbackFromLegacy(data, 'json-parse-failed');
   }
 
   if(data && typeof data === 'object' && !Array.isArray(data)){
@@ -399,11 +410,11 @@ function normalizeQuizV2(raw, opts = {}){
     }
 
     if(typeof maybeLines === 'string' && maybeLines.trim()){
-      return fallbackFromLegacy(maybeLines);
+      return fallbackFromLegacy(maybeLines, 'legacy-lines-field');
     }
   }
 
-  return fallbackFromLegacy(typeof raw === 'string' ? raw : JSON.stringify(raw));
+  return fallbackFromLegacy(typeof raw === 'string' ? raw : JSON.stringify(raw), 'no-structured-questions');
 }
 
 function quizToLegacyLines(quiz, opts = {}){
