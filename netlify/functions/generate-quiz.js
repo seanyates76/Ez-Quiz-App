@@ -232,7 +232,7 @@ exports.handler = async (event) => {
       if (canFallbackToGemini && !isTimeout) {
         try {
           const fallback = await withTimeout(
-            callProvider({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', topic, count, types, difficulty, env: process.env, prompt: structuredPrompt, kind: 'structured' }),
+            callProvider({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite-preview-09-2025', topic, count, types, difficulty, env: process.env, prompt: structuredPrompt, kind: 'structured' }),
             TIMEOUT_MS
           );
           const fallbackLen = typeof fallback.text === 'string' ? fallback.text.length : 0;
@@ -295,7 +295,7 @@ exports.handler = async (event) => {
       const generator = count > 50 ? generateInBatches : generateLines;
       try {
         const { title, lines, provider: usedProvider, model: usedModel } = await withTimeout(
-          generator({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.0-flash', topic, count, types, difficulty, env: process.env }),
+          generator({ provider: 'gemini', model: process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite-preview-09-2025', topic, count, types, difficulty, env: process.env }),
           TIMEOUT_MS
         );
         return {

@@ -27,7 +27,7 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - 2025-09-24 — Smoothed Topic autofill, restored footer reserve tint, bumped cache-busters (v1.5.11) + SW cache v120.
 - 2025-09-25 — Softened borders/focus rings, widened toolbar on big phones, cache-buster v1.5.12 + SW cache v121.
 - 2025-09-25 — Added client fallback to `/.netlify/functions/generate-quiz` when `/api/generate` is missing.
-- 2025-09-26 — Hardened AI endpoint selection; CSP connect-src allowlist for both Netlify fallbacks; backend default `gemini-2.0-flash`. Cache-busters v1.5.14 + SW cache v123.
+- 2025-09-26 — Hardened AI endpoint selection; CSP connect-src allowlist for both Netlify fallbacks; backend default `gemini-2.5-flash-lite-preview-09-2025`. Cache-busters v1.5.14 + SW cache v123.
 - 2025-09-27 — Removed unused legacy root assets and a stub in `settings.js`. Restored explicit Netlify fallback allowlist.
 - 2025-09-30 — Quiet info bar for version/highlights. Version indicator moved into Settings. Settings defaults to prod build v3.3.
 - 2025-10-01 — Quiz Editor graduated from beta to stable (main feature). Orientation/docs updated.

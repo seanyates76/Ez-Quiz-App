@@ -84,7 +84,7 @@ function stemKeyFromLine(line){
   return stem.trim().replace(/\s+/g, ' ').toLowerCase();
 }
 
-async function geminiCall({ apiKey, model = 'gemini-2.0-flash', prompt }){
+async function geminiCall({ apiKey, model = 'gemini-2.5-flash-lite-preview-09-2025', prompt }){
   if(!apiKey) throw new Error('Missing GEMINI_API_KEY');
   const { GoogleGenerativeAI } = await import('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(apiKey);
@@ -176,7 +176,7 @@ async function callProvider({ provider, model, topic, count, types, difficulty, 
 
   try {
     if (selected === 'gemini') {
-      const resolvedModel = model || env.GEMINI_MODEL || 'gemini-2.0-flash';
+      const resolvedModel = model || env.GEMINI_MODEL || 'gemini-2.5-flash-lite-preview-09-2025';
       const text = await geminiCall({ apiKey: env.GEMINI_API_KEY, model: resolvedModel, prompt: resolvedPrompt });
       return { provider: 'gemini', model: resolvedModel, text };
     }
