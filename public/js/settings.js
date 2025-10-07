@@ -78,10 +78,14 @@ export function applyTheme(theme){
       const lightPng = attrLight || 'icons/brand-title-source-light.png';
       const BUST = 'v=brand-20250911s';
       const withBust = (url) => url && (url.includes('?') ? url : `${url}?${BUST}`);
-      const pick = t === 'light' ? lightPng : darkPng;
-      const fallback = darkPng;
-      img.onerror = () => { img.onerror = null; if(fallback) img.setAttribute('src', withBust(fallback)); };
-      if(pick) img.setAttribute('src', withBust(pick));
+      const pick = eff === 'light' ? lightPng : darkPng;
+      if(pick){
+        img.onerror = () => {
+          img.onerror = null;
+          if(darkPng){ img.setAttribute('src', withBust(darkPng)); }
+        };
+        img.setAttribute('src', withBust(pick));
+      }
     }
   }catch{}
   // If following system, react to changes

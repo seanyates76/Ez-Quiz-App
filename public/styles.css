@@ -119,6 +119,16 @@ html.light{
 
 *,*::before,*::after{box-sizing:border-box}
 
+/* --- Controls reset (Phase 1 vendor prefix harmonization) --- */
+input,
+select,
+textarea,
+button{
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+}
+
 html{
   min-height:100%;
   font-family:var(--font-sans);
@@ -1208,11 +1218,6 @@ body[data-locked="true"] .gen-toolbar{ opacity:.6; pointer-events:none; filter:g
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* Optional hero adjustments */
- @media (min-width:900px){
-  /* uncomment to center hero at start
-  .container .hero { text-align:center; }
-  */
-}
 body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 
 /* Small screens polish */
