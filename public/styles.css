@@ -1195,7 +1195,6 @@ body[data-locked="true"] .gen-toolbar{ opacity:.6; pointer-events:none; filter:g
   outline-offset: 2px;
 }
 .action-row{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap }
-.advanced-actions{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:8px }
 .btn-ghost{ background:transparent; border:1px solid var(--border); color:inherit }
 .btn-ghost:hover{ background: var(--panel-2) }
 .btn-ghost:active{ background: var(--panel-2); transform: translateY(1px) }
