@@ -190,6 +190,17 @@ textarea:focus,
 .mirror:focus{outline:none;}
 .editor,
 .mirror{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; min-height:220px;}
+.input{
+  width:100%;
+  border:1px solid var(--field-border);
+  border-radius:var(--radius-card);
+  background:var(--field);
+  color:var(--text);
+  padding:var(--sp-4);
+  transition:border-color var(--dur-1) var(--easing),
+             background-color var(--dur-1) var(--easing),
+             box-shadow var(--dur-2) var(--easing);
+}
 .pill{display:inline-flex; align-items:center; gap:var(--sp-2); padding:4px var(--sp-3); border-radius:var(--r-round); background:var(--panel-2); border:1px solid var(--border); color:var(--muted); font-size:var(--fz-1);}
 /* Header */
 .site-header{
@@ -720,7 +731,8 @@ body[data-theme="light"] .opt-switch{ background:var(--panel); }
 .adv-actions{display:grid; grid-template-columns: 2fr 1fr; gap:12px; margin-top:10px}
 .adv-actions .row{margin-top:0}
 /* Make Quiz Editor action buttons equal width within their rows */
-.adv-actions .row:first-child .advanced-actions .btn{ flex:1 1 0; min-width:0 }
+.adv-actions .row:first-child .btn{ flex:1 1 0; min-width:0 }
+.advanced-actions .btn{ flex:1 1 0; min-width:0 }
 /* Normalize Quiz Editor action button heights to match wrapped (two-line) labels */
 .adv-actions .btn, .advanced-actions .btn{ min-height: 54px }
 @media (max-width:600px){ .adv-actions .btn, .advanced-actions .btn{ min-height: 52px } }
@@ -1173,8 +1185,15 @@ body[data-locked="true"] .gen-toolbar{ opacity:.6; pointer-events:none; filter:g
 .chip.num{ min-width:26px; height:22px; padding:0 8px; font-size:13px }
 @media (max-width:700px){ .mt-row{ grid-template-columns: 1fr } }
 
-.btn-primary{ background:#007bff; color:#fff; border:none }
-.btn-primary:focus{ outline:2px solid #111; outline-offset:2px }
+.btn-primary{
+  background: var(--primary);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-primary:focus{
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
 .action-row{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap }
 .advanced-actions{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:8px }
 .btn-ghost{ background:transparent; border:1px solid var(--border); color:inherit }
