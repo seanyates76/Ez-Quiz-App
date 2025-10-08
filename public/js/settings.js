@@ -63,11 +63,6 @@ export function applyTheme(theme){
     const m=ensureMql(); eff = (m && m.matches) ? 'dark' : 'light';
   }
   document.body.setAttribute('data-theme', eff);
-  try{
-    const root = document.documentElement;
-    root.classList.toggle('light', eff === 'light');
-    root.classList.toggle('dark', eff === 'dark');
-  }catch{}
   // Swap brand logo asset based on theme, with simple, explicit mapping
   try{
     const img = document.querySelector('#brandTitle.brand-logo') || document.querySelector('.brand-logo');
@@ -78,14 +73,10 @@ export function applyTheme(theme){
       const lightPng = attrLight || 'icons/brand-title-source-light.png';
       const BUST = 'v=brand-20250911s';
       const withBust = (url) => url && (url.includes('?') ? url : `${url}?${BUST}`);
-      const pick = eff === 'light' ? lightPng : darkPng;
-      if(pick){
-        img.onerror = () => {
-          img.onerror = null;
-          if(darkPng){ img.setAttribute('src', withBust(darkPng)); }
-        };
-        img.setAttribute('src', withBust(pick));
-      }
+      const pick = t === 'light' ? lightPng : darkPng;
+      const fallback = darkPng;
+      img.onerror = () => { img.onerror = null; if(fallback) img.setAttribute('src', withBust(fallback)); };
+      if(pick) img.setAttribute('src', withBust(pick));
     }
   }catch{}
   // If following system, react to changes
