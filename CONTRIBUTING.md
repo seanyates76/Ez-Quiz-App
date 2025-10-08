@@ -7,6 +7,7 @@ How to contribute
 - File an issue for bugs or small feature requests (use templates).
 - Fork and open a pull request describing the change and rationale.
 - Keep changes minimal and consistent with existing style; avoid adding dependencies.
+- Complete the pull request template: include a summary and check each review gate (token usage, light/dark UI verification, keyboard coverage, console cleanliness, Lighthouse ≥ 90, and latest screenshots) before requesting review.
 
 Local setup
 - No build required. Open `public/index.html`, or serve `public/` via `python3 -m http.server` to enable service worker features.
