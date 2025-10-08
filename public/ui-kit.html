@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EZQ UI Kit</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    .section { margin-block: 2rem; }
+    .row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  </style>
+  </head>
+<body>
+  <header class="section">
+    <div class="container row" role="banner">
+      <h1>EZQ UI Kit</h1>
+      <button id="themeToggle" class="btn btn-outline" type="button" aria-pressed="false" title="Toggle light theme">
+        Theme: Dark
+      </button>
+    </div>
+  </header>
+
+  <main class="container" id="main">
+    <section class="section" id="buttons">
+      <h2>Buttons</h2>
+      <div class="row" aria-label="Button variants">
+        <button type="button" class="btn">Default</button>
+        <button type="button" class="btn btn-solid">Solid</button>
+        <button type="button" class="btn btn-outline">Outline</button>
+        <button type="button" class="btn" disabled>Disabled</button>
+      </div>
+    </section>
+
+    <section class="section" id="inputs">
+      <h2>Inputs</h2>
+      <div class="grid" role="group" aria-label="Input examples">
+        <div>
+          <label for="textInput">Text Input</label><br>
+          <input id="textInput" class="input" type="text" placeholder="Enter text">
+        </div>
+        <div>
+          <label for="selectInput">Select Input</label><br>
+          <select id="selectInput" class="input">
+            <option value="">Choose an option</option>
+            <option>Option A</option>
+            <option>Option B</option>
+            <option>Option C</option>
+          </select>
+        </div>
+        <div>
+          <label for="textareaInput">Textarea Input</label><br>
+          <textarea id="textareaInput" class="input" rows="4" placeholder="Type your message"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="cards">
+      <h2>Cards</h2>
+      <div class="grid">
+        <article class="card" aria-label="Example card">
+          <div class="card__header">
+            <h3>Card Title</h3>
+          </div>
+          <div class="card__body">
+            <p>
+              This is a basic card body. Use it to group content,
+              actions, and supporting text together.
+            </p>
+          </div>
+          <div class="card__footer">
+            <button type="button" class="btn btn-solid">Call to Action</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="modal">
+      <h2>Modal</h2>
+      <div class="row">
+        <button id="openModalBtn" class="btn btn-solid" type="button" aria-haspopup="dialog" aria-controls="demoModal">
+          Open Modal
+        </button>
+      </div>
+      <div
+        id="demoModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden="true"
+        aria-labelledby="modalTitle"
+        hidden
+      >
+        <div class="modal__backdrop" aria-hidden="true"></div>
+        <div class="modal__dialog" role="document" tabindex="-1">
+          <header class="modal__header">
+            <h2 id="modalTitle" class="modal__title">Example Modal</h2>
+          </header>
+          <div class="modal__body">
+            <p>This modal demonstrates keyboard accessibility and focus handling.</p>
+            <p>
+              Try tabbing through controls. Here’s a
+              <a href="#" onclick="return false;">focusable link</a> and an
+              <input class="input" type="text" placeholder="Focusable input" aria-label="Focusable input in modal">
+              for testing.
+            </p>
+          </div>
+          <footer class="modal__footer">
+            <button id="modalCloseBtn" class="btn btn-outline" type="button">Close</button>
+            <button class="btn btn-solid" type="button">Confirm</button>
+          </footer>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pills">
+      <h2>Pills</h2>
+      <div class="row" aria-label="Pill examples">
+        <span class="pill">Score 18/20</span>
+        <span class="pill">Time 03:42</span>
+        <span class="pill">Attempts 2</span>
+        <span class="pill">Streak ×4</span>
+      </div>
+    </section>
+
+    <section class="section" id="utility-grid">
+      <h2>Utility Grid</h2>
+      <div class="grid" aria-label="Grid layout demo">
+        <div class="card" aria-label="Grid item 1">
+          <div class="card__body">Grid Item 1</div>
+        </div>
+        <div class="card" aria-label="Grid item 2">
+          <div class="card__body">Grid Item 2</div>
+        </div>
+        <div class="card" aria-label="Grid item 3">
+          <div class="card__body">Grid Item 3</div>
+        </div>
+        <div class="card" aria-label="Grid item 4">
+          <div class="card__body">Grid Item 4</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      // Theme toggle
+      const root = document.documentElement;
+      const themeToggleBtn = document.getElementById('themeToggle');
+      const updateThemeToggleState = () => {
+        const isLight = root.classList.contains('light');
+        themeToggleBtn.setAttribute('aria-pressed', String(isLight));
+        themeToggleBtn.textContent = isLight ? 'Theme: Light' : 'Theme: Dark';
+        if (isLight) {
+          document.body.setAttribute('data-theme', 'light');
+        } else {
+          document.body.removeAttribute('data-theme');
+        }
+      };
+      themeToggleBtn.addEventListener('click', () => {
+        root.classList.toggle('light');
+        updateThemeToggleState();
+      });
+      updateThemeToggleState();
+
+      // Modal behavior
+      const openBtn = document.getElementById('openModalBtn');
+      const modal = document.getElementById('demoModal');
+      const dialog = modal.querySelector('.modal__dialog');
+      const backdrop = modal.querySelector('.modal__backdrop');
+      const closeBtn = document.getElementById('modalCloseBtn');
+
+      let lastFocused = null;
+      const focusSelector = [
+        'a[href]',
+        'area[href]',
+        'button:not([disabled])',
+        'input:not([disabled]):not([type="hidden"])',
+        'select:not([disabled])',
+        'textarea:not([disabled])',
+        '[tabindex]:not([tabindex="-1"])'
+      ].join(',');
+
+      const trapKeydown = (e) => {
+        if (!modal.classList.contains('is-open')) return;
+
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeModal();
+          return;
+        }
+
+        if (e.key === 'Tab') {
+          const focusables = Array.from(dialog.querySelectorAll(focusSelector))
+            .filter(el => el.offsetParent !== null || el.getClientRects().length > 0);
+
+          if (focusables.length === 0) {
+            e.preventDefault();
+            dialog.focus();
+            return;
+          }
+
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          const current = document.activeElement;
+
+          if (e.shiftKey) {
+            if (current === first || !dialog.contains(current)) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (current === last || !dialog.contains(current)) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      };
+
+      const openModal = () => {
+        if (modal.classList.contains('is-open')) return;
+        lastFocused = document.activeElement;
+        modal.classList.add('is-open');
+        modal.removeAttribute('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+
+        document.addEventListener('keydown', trapKeydown);
+
+        // Move focus into the dialog
+        requestAnimationFrame(() => {
+          const focusables = Array.from(dialog.querySelectorAll(focusSelector))
+            .filter(el => el.offsetParent !== null || el.getClientRects().length > 0);
+          if (focusables.length) {
+            focusables[0].focus();
+          } else {
+            dialog.focus();
+          }
+        });
+      };
+
+      const closeModal = () => {
+        if (!modal.classList.contains('is-open')) return;
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        modal.setAttribute('hidden', '');
+        document.removeEventListener('keydown', trapKeydown);
+
+        if (lastFocused && typeof lastFocused.focus === 'function') {
+          lastFocused.focus();
+        } else if (openBtn) {
+          openBtn.focus();
+        }
+      };
+
+      openBtn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+      backdrop.addEventListener('click', closeModal);
+    })();
+  </script>
+</body>
+</html>
+
