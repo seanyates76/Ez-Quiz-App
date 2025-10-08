@@ -500,7 +500,7 @@ body[data-theme="light"] .number-wrap{ background:var(--panel); }
   text-align:center;
 }
 .number-wrap input::-webkit-outer-spin-button,
-.number-wrap input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.number-wrap input::-webkit-inner-spin-button{ appearance:none; -webkit-appearance:none; margin:0; }
 .number-wrap input:focus{ outline:none; }
 .stepper-group{
   flex:0 0 auto;
@@ -1101,12 +1101,7 @@ body[data-locked="true"] .gen-toolbar{ opacity:.6; pointer-events:none; filter:g
 .spinner{width:22px; height:22px; border-radius:50%; border:3px solid rgba(255,255,255,.25); border-top-color:#fff; animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Optional hero adjustments */
- @media (min-width:900px){
-  /* uncomment to center hero at start
-  .container .hero { text-align:center; }
-  */
-}
+/* Optional hero adjustments (removed empty media query) */
 
 
 /* Small screens polish */
