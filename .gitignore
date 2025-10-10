@@ -48,3 +48,6 @@ tools/
 icons/source.png
 # Keep the runtime header source in repo
 !icons/brand-title-source.png
+
+# Local Netlify folder
+.netlify

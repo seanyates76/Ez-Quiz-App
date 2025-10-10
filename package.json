@@ -5,7 +5,8 @@
   "license": "MIT",
   "description": "Static PWA + Netlify Functions for EZ Quiz",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "smoke": "node ../ezq-dev-tools/tests/smoke.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.20.0",
