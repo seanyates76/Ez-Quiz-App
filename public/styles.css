@@ -1,81 +1,308 @@
-:root{
-  --bg:#0d0f14;
-  --panel:#151923;
-  --panel-2:#1b2130;
-  --field:#0f141e;         /* input background */
-  --text:#e8ecf3;
-  --muted:#a9b3c7;
-  --primary:var(--ezq-accent);
-  --primary-press:#505ee4;
-  --danger:#ff5d6c;
-  --success:#22c55e;
-  --success-press:#16a34a;
-  --ring:var(--ezq-accent);
-  --border:var(--ezq-border-weak);
-  /* brand accents */
-  /* EZ gold accent (logo-inspired) */
+/* === EZQ Design Tokens v1 (Phase 1) === */
+:root {
   --brand:#FFC94A;
   --brand-press:#E5B03F;
-
-  /* polish tokens */
-  --field-border:var(--ezq-border-strong);
-  --field-hover:#121a27;
-  --focus-shadow:0 0 0 3px var(--ezq-focus-ring);
-  --radius-card:var(--ezq-radius-lg);
-  --radius-control:8px;
-  --shadow-card:0 4px 14px rgba(0,0,0,.22);
-  --shadow-float:0 8px 24px rgba(0,0,0,.24);
-  --space-1:6px;
-  --space-2:10px;
-  --space-3:16px;
-
-  /* === EZ-QUIZ: subtle borders + focus ring === */
-  --ezq-border-weak:rgba(255,255,255,0.12);
-  --ezq-border-strong:rgba(255,255,255,0.18);
-  --ezq-focus-ring:rgba(113,140,255,0.35);
-  --ezq-accent:#6270f3;
-  --ezq-radius-lg:12px;
+  --c-accent:#6270f3;
+  --c-accent-active:#4f5be9;
+  --c-page:#0d111a;
+  --c-surface-1:#151b27;
+  --c-surface-2:#1b2232;
+  --c-surface-3:#212a3d;
+  --c-input:#111623;
+  --c-border-weak:rgba(255,255,255,0.10);
+  --c-border-strong:rgba(255,255,255,0.18);
+  --c-text:#e9eef6;
+  --c-text-muted:#a5aec2;
+  --c-danger:#ff5d6c;
+  --c-danger-active:#d83545;
+  --c-success:#34d399;
+  --c-success-active:#16a34a;
+  --c-focus-ring:rgba(113,140,255,0.40);
+  --sp-0:0;
+  --sp-1:4px;
+  --sp-2:8px;
+  --sp-3:12px;
+  --sp-4:16px;
+  --sp-5:20px;
+  --sp-6:24px;
+  --sp-8:32px;
+  --sp-10:40px;
+  --sp-12:48px;
+  --r-1:6px;
+  --r-2:10px;
+  --r-3:16px;
+  --r-round:999px;
+  --fz-0:12px;
+  --fz-1:14px;
+  --fz-2:16px;
+  --fz-3:18px;
+  --fz-4:22px;
+  --fz-5:28px;
+  --lh-1:1.2;
+  --lh-2:1.45;
+  --sh-1:0 1px 2px rgba(0,0,0,0.24),0 1px 1px rgba(0,0,0,0.16);
+  --sh-2:0 8px 24px rgba(0,0,0,0.35);
+  --dur-1:150ms;
+  --dur-2:250ms;
+  --easing:cubic-bezier(0.2,0.8,0.2,1);
+  --app-w:1200px;
+  --bg:var(--c-page);
+  --panel:var(--c-surface-1);
+  --panel-2:var(--c-surface-2);
+  --panel-3:var(--c-surface-3);
+  --field:var(--c-input);
+  --text:var(--c-text);
+  --muted:var(--c-text-muted);
+  --primary:var(--c-accent);
+  --primary-press:var(--c-accent-active);
+  --danger:var(--c-danger);
+  --success:var(--c-success);
+  --success-press:var(--c-success-active);
+  --ring:var(--c-accent);
+  --border:var(--c-border-weak);
+  --border-strong:var(--c-border-strong);
+  --ezq-focus-ring:var(--c-focus-ring);
+  --field-border:var(--border-strong);
+  --field-hover:color-mix(in srgb, var(--panel-2) 82%, var(--text) 18%);
+  --focus-shadow:0 0 0 3px var(--c-focus-ring);
+  --radius-card:calc(var(--r-3) - var(--sp-1));
+  --radius-control:calc((var(--r-2) + var(--r-1)) / 2);
+  --shadow-card:0 4px 14px rgba(0,0,0,0.22);
+  --shadow-float:0 8px 24px rgba(0,0,0,0.24);
+  --space-0:var(--sp-0);
+  --space-1:calc(var(--sp-2) - (var(--sp-1) / 2));
+  --space-2:calc(var(--sp-3) - (var(--sp-1) / 2));
+  --space-3:var(--sp-4);
+  --adv-box-min: 260px;
+}
+:root.light,
+body[data-theme="light"] {
+  --c-page:#f6f8fb;
+  --c-surface-1:#ffffff;
+  --c-surface-2:#eef2f9;
+  --c-surface-3:#e0e7f5;
+  --c-input:#e9edf7;
+  --c-border-weak:rgba(15,23,42,0.12);
+  --c-border-strong:rgba(15,23,42,0.18);
+  --c-text:#0d1117;
+  --c-text-muted:#4b5565;
+  --c-accent:#5261ee;
+  --c-accent-active:#4251d8;
+  --c-success:#16a34a;
+  --c-success-active:#0f7a32;
+  --c-danger:#cf2e3a;
+  --c-danger-active:#a3202a;
+  --c-focus-ring:rgba(113,140,255,0.28);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{font-size:var(--fz-2); line-height:var(--lh-2); color-scheme:dark;}
+body{margin:0; min-height:100vh; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--text); display:flex; flex-direction:column;}
+main{flex:1;}
+a{color:inherit; text-decoration:none; transition:color var(--dur-1) var(--easing);}
+a:hover{text-decoration:underline;}
+img,picture,video,canvas,svg{display:block; max-width:100%;}
+button{font:inherit; color:inherit; background:none; border:none;}
+fieldset{border:0; padding:0; margin:0;}
+ol,ul{margin:0; padding-left:var(--sp-4);}
+ul[role=list],ol[role=list]{list-style:none; padding-left:0;}
+p{margin:0;}
+input,textarea,select{font:inherit; color:inherit; background:var(--field);}
+input::placeholder,textarea::placeholder{color:var(--muted);}
+/* Avoid blanket appearance reset — it hides native widgets like checkboxes/radios. */
+/* Keep inputs styled via specific component rules below. */
+input, select, textarea, button{}
+/* Form controls: force consistent cross-browser rendering for checks/radios */
+/* Let the UA draw widgets, then tint/size */
+input[type="checkbox"], input[type="radio"]{
+  appearance:auto;
+  -webkit-appearance:auto;
+  -moz-appearance:auto;
 }
 
-body[data-theme="light"]{
-  --bg:#f6f8fb;
-  --panel:#ffffff;
-  --panel-2:#f0f3f8;
-  --field:#eef2f7;
-  --text:#0d1117;
-  --muted:#4b5565;
-  --primary:var(--ezq-accent);
-  --primary-press:#4251d8;
-  --danger:#cf2e3a;
-  --success:#22c55e;
-  --success-press:#1a8e45;
-  --ring:var(--ezq-accent);
-  --border:var(--ezq-border-weak);
-  --brand:#FFC94A;
-  --brand-press:#E5B03F;
+/* Safety net: ensure controls are sized and visible even if UA appearance fails */
+input[type="checkbox"], input[type="radio"]{ display:inline-block; width:1.05em; height:1.05em; vertical-align:middle; accent-color: var(--primary); }
 
-  --field-border:var(--ezq-border-strong);
-  --field-hover:#e8edf6;
-  --focus-shadow:0 0 0 3px rgba(113,140,255,0.28);
-  --shadow-card:0 4px 14px rgba(15,23,42,.14);
+/* Base alignment for all label-wrapped controls */
+.opt-switch,
+.qt-row label,
+#quizView label.opt,
+.fieldgroup label{ display:inline-flex; align-items:center; gap:8px; }
 
-  --ezq-border-weak:rgba(15,23,42,0.12);
-  --ezq-border-strong:rgba(15,23,42,0.18);
-  --ezq-focus-ring:rgba(113,140,255,0.22);
-  --ezq-accent:#5261ee;
+/*
+  Checkbox/Radio rendering — keep native widgets visible
+  ------------------------------------------------------
+  We intentionally rely on native controls with `accent-color` for robustness
+  across preview engines (including VS Code WebView). Do NOT hide inputs or
+  force custom appearance here; that can lead to invisible controls if a
+  selector misses. If you re‑style in the future, preserve visible inputs.
+*/
+.opt-switch input[type="checkbox"],
+.qt-row label > input[type="checkbox"],
+#quizView label.opt > input[type="checkbox"],
+.fieldgroup label > input[type="checkbox"],
+.fieldgroup label > input[type="radio"],
+label > input[type="checkbox"],
+label > input[type="radio"]{
+  appearance:auto; -webkit-appearance:auto; -moz-appearance:auto;
+  accent-color: var(--primary);
+  position:static; opacity:1; width:auto; height:auto; clip:auto; overflow:visible;
+  margin-right:8px;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+/* Native widgets visible; rely on UA with accent-color */
+
+/* Progressive enhancement (disabled; we use sibling approach globally)
+@supports selector(:has(__disabled__)){
+  .opt-switch,
+  .qt-row label,
+  #quizView label.opt,
+  .fieldgroup label:has(> input[type="checkbox"]),
+  .fieldgroup label:has(> input[type="radio"]){ position:relative; padding-left:1.6em; }
+
+  * Hide the native control but keep it accessible
+  .opt-switch > input[type="checkbox"],
+  .qt-row label > input[type="checkbox"],
+  #quizView label.opt > input[type="checkbox"],
+  #quizView label.opt > input[type="radio"],
+  .fieldgroup label > input[type="checkbox"],
+  .fieldgroup label > input[type="radio"]{
+    position:absolute; opacity:0; width:1px; height:1px; overflow:hidden; clip:rect(1px,1px,1px,1px);
+  }
+
+  * Base box/circle
+  .opt-switch::before,
+  .qt-row label::before,
+  #quizView label.opt::before,
+  .fieldgroup label:has(> input[type="checkbox"])::before,
+  .fieldgroup label:has(> input[type="radio"])::before{
+    content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
+    display:inline-block; width:1.05em; height:1.05em; background:var(--panel-2); border:1px solid var(--field-border); border-radius:4px;
+  }
+  * Radio uses circle
+  .fieldgroup label:has(> input[type="radio"])::before,
+  #quizView label.opt:has(> input[type="radio"])::before{ border-radius:50%; }
+  * Light theme base bg
+  body[data-theme="light"] .opt-switch::before,
+  body[data-theme="light"] .qt-row label::before,
+  body[data-theme="light"] #quizView label.opt::before,
+  body[data-theme="light"] .fieldgroup label:has(> input[type="checkbox"])::before,
+  body[data-theme="light"] .fieldgroup label:has(> input[type="radio"])::before{ background:var(--panel); }
+  * Checked fill
+  .opt-switch:has(> input[type="checkbox"]:checked)::before,
+  .qt-row label:has(> input[type="checkbox"]:checked)::before,
+  #quizView label.opt:has(> input[type="checkbox"]:checked)::before,
+  .fieldgroup label:has(> input[type="checkbox"]:checked)::before{ background:var(--primary); border-color:var(--primary); }
+  * Radio checked dot
+  .fieldgroup label:has(> input[type="radio"]:checked)::before,
+  #quizView label.opt:has(> input[type="radio"]:checked)::before{ box-shadow:inset 0 0 0 3px var(--panel); background:var(--primary); border-color:var(--primary); }
+  * Checkbox checkmark glyph
+  .opt-switch:has(> input[type="checkbox"]:checked)::after,
+  .qt-row label:has(> input[type="checkbox"]:checked)::after,
+  #quizView label.opt:has(> input[type="checkbox"]:checked)::after,
+  .fieldgroup label:has(> input[type="checkbox"]:checked)::after{
+    content:""; position:absolute; left:0.34em; top:50%; transform:translateY(-63%) rotate(45deg);
+    width:0.45em; height:0.26em; border-right:2px solid #0b1220; border-bottom:2px solid #0b1220;
+  }
+  body[data-theme="light"] .opt-switch:has(> input[type="checkbox"]:checked)::after,
+  body[data-theme="light"] .qt-row label:has(> input[type="checkbox"]:checked)::after,
+  body[data-theme="light"] #quizView label.opt:has(> input[type="checkbox"]:checked)::after,
+  body[data-theme="light"] .fieldgroup label:has(> input[type="checkbox"]:checked)::after{ border-right-color:#fff; border-bottom-color:#fff; }
+  * Focus ring
+  .opt-switch:has(> input:focus-visible)::before,
+  .qt-row label:has(> input:focus-visible)::before,
+  #quizView label.opt:has(> input:focus-visible)::before,
+  .fieldgroup label:has(> input:focus-visible)::before{ outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
+  * Disabled state
+  .opt-switch:has(> input:disabled), .qt-row label:has(> input:disabled), #quizView label.opt:has(> input:disabled), .fieldgroup label:has(> input:disabled){ opacity:.65; cursor:not-allowed; }
+}*/
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible{ outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
+:focus-visible{outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow);}
+:focus:not(:focus-visible){outline:none; box-shadow:none;}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important; animation-iteration-count:1!important; transition-duration:0.01ms!important; scroll-behavior:auto!important;}
+}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+.hidden{display:none!important;}
+.is-open{display:block!important;}
+.container{width:min(var(--app-w),100%); max-width:1060px; margin:var(--sp-6) auto; padding:0 var(--sp-4);}
+.surface{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-card); box-shadow:var(--shadow-card);}
+.flow-xs > * + *{margin-top:var(--sp-2);}
+.flow-sm > * + *{margin-top:var(--sp-3);}
+.flow-md > * + *{margin-top:var(--sp-4);}
+.cluster{display:flex; flex-wrap:wrap; gap:var(--sp-3); align-items:center;}
+.stack-sm{display:grid; gap:var(--sp-3);}
+.text-muted{color:var(--muted);}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:var(--sp-2); min-width:112px; padding:var(--sp-3) var(--sp-4); border-radius:calc(var(--radius-control)); border:1px solid var(--border); background:var(--panel-2); color:var(--text); cursor:pointer; line-height:var(--lh-1); transition:transform var(--dur-1) var(--easing),box-shadow var(--dur-2) var(--easing),filter var(--dur-1) var(--easing),background-color var(--dur-1) var(--easing);}
+.btn:hover{filter:brightness(1.06);}
+.btn:active{transform:translateY(1px);}
+.btn[disabled]{opacity:.6; cursor:not-allowed;}
+.btn-solid{background:var(--primary); border-color:transparent; color:#0b1220; font-weight:600;}
+body[data-theme="light"] .btn-solid{color:#f7f9ff;}
+.btn-solid:active{background:var(--primary-press);}
+.btn.primary{background:var(--primary); border-color:transparent; color:#fff;}
+.btn.primary:active{background:var(--primary-press);}
+.btn.success{background:var(--success); border-color:transparent; color:#fff;}
+.btn.success:active{background:var(--success-press);}
+.btn.danger{background:var(--danger); border-color:transparent; color:#fff;}
+.btn.brand,#startBtn.btn{background:var(--brand); border-color:transparent; color:#111;}
+#startBtn.btn:active,.btn.brand:active{background:var(--brand-press);}
+.btn-outline{background:transparent; border-color:var(--border-strong);}
+.btn-outline:hover{background:var(--panel-2);}
+.btn-outline:active{background:var(--panel-3);}
+.card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-card); padding:var(--sp-4); margin-bottom:var(--sp-4); box-shadow:var(--shadow-card);}
+.card__header{margin-bottom:var(--sp-3);}
+.card__body{display:grid; gap:var(--sp-3);}
+.modal{position:fixed; inset:0; display:none;}
+.modal.is-open{display:block;}
+.modal__backdrop{position:absolute; inset:0; background:rgba(0,0,0,0.5);}
+.modal__dialog{position:relative; margin:10vh auto; max-width:640px; width:min(100%, 640px); max-height:80vh; background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-card); padding:0 0 var(--sp-3); box-shadow:0 20px 60px rgba(0,0,0,0.35); display:flex; flex-direction:column; transform:translateY(8px) scale(.985); opacity:0; transition:transform .18s var(--easing), opacity .18s var(--easing);}
+.modal.is-open .modal__dialog{transform:none; opacity:1;}
+.modal__header,.modal__footer{padding:var(--sp-3) var(--sp-4); border-bottom:1px solid var(--border);}
+.modal__header{display:flex; align-items:center; justify-content:space-between; gap:var(--sp-3);}
+.modal__footer{border-top:1px solid var(--border); border-bottom:0; display:flex; gap:var(--sp-3); justify-content:flex-end; flex-wrap:wrap;}
+.modal__body{padding:var(--sp-3); display:grid; gap:calc(var(--sp-3) - (var(--sp-1) / 2)); overflow:auto;}
+input[type="text"],
+input[type="number"],
+select,
+textarea,
+.editor,
+.mirror{
+  width:100%;
+  border:1px solid var(--field-border);
+  border-radius:var(--radius-card);
+  background:var(--field);
   color:var(--text);
-  background:var(--bg);
-  display:flex; flex-direction:column; min-height:100vh;
+  padding:var(--sp-4) var(--sp-4);
+  transition:border-color var(--dur-1) var(--easing), background-color var(--dur-1) var(--easing), box-shadow var(--dur-2) var(--easing);
 }
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-
+input[type="text"]:hover,
+input[type="number"]:hover,
+select:hover,
+textarea:hover,
+.editor:hover,
+.mirror:hover{background:var(--field-hover); border-color:var(--border);}
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus,
+.editor:focus,
+.mirror:focus{outline:none;}
+.editor,
+.mirror{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; min-height:220px;}
+.input{
+  width:100%;
+  border:1px solid var(--field-border);
+  border-radius:var(--radius-card);
+  background:var(--field);
+  color:var(--text);
+  padding:var(--sp-4);
+  transition:border-color var(--dur-1) var(--easing),
+             background-color var(--dur-1) var(--easing),
+             box-shadow var(--dur-2) var(--easing);
+}
+.pill{display:inline-flex; align-items:center; gap:var(--sp-2); padding:4px var(--sp-3); border-radius:var(--r-round); background:var(--panel-2); border:1px solid var(--border); color:var(--muted); font-size:var(--fz-1);}
 /* Header */
 .site-header{
   display:flex; flex-direction:column; align-items:stretch;
@@ -125,7 +352,6 @@ body[data-theme="light"] .brand-logo{
 }
 .header-actions{display:flex; gap:10px}
 .icon-btn{
-  appearance:none;
   border:1px solid var(--border);
   background:var(--panel-2);
   color:var(--text);
@@ -156,16 +382,7 @@ body[data-theme="dark"] .site-header .brand-link{
 }
 
 /* Layout */
-.container{max-width:1060px; margin:24px auto; padding:0 16px}
 #app{flex:1}
-.card{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:var(--radius-card);
-  padding:16px;
-  margin-bottom:16px;
-  box-shadow:var(--shadow-card);
-}
 /* Keep quiz runner comfortably large on desktop */
 @media (min-width: 900px){
   #quizView{ max-width: 920px; min-width: 760px; margin-left:auto; margin-right:auto }
@@ -390,11 +607,12 @@ body[data-theme="light"] .number-wrap{ background:var(--panel); }
   box-shadow:none;
 }
 .number-wrap input{
+  appearance:textfield;
   -moz-appearance:textfield;
   text-align:center;
 }
 .number-wrap input::-webkit-outer-spin-button,
-.number-wrap input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.number-wrap input::-webkit-inner-spin-button{ appearance:none; -webkit-appearance:none; margin:0; }
 .number-wrap input:focus{ outline:none; }
 .stepper-group{
   flex:0 0 auto;
@@ -622,7 +840,6 @@ body[data-theme="light"] .opt-switch{ background:var(--panel); }
 
 /* Subtle grey enhancement for file actions area */
 .adv-group.files .btn{ background: var(--panel-2); border-color: var(--field-border) }
-.adv-group.files .btn:hover{ filter: brightness(1.04) }
 
 /* Reconsidered Quiz Editor layout: tidy two-column clusters with graceful wrap */
 .adv-row{ display:flex; flex-wrap:wrap; gap:12px; align-items:stretch; justify-content:space-between }
@@ -641,7 +858,7 @@ body[data-theme="light"] .opt-switch{ background:var(--panel); }
 @media (max-width: 600px){ .advanced-actions{ grid-template-columns: 1fr } }
 
 /* Keep boxes visually in sync */
-:root{ --adv-box-min: 260px; }
+/* moved to main :root at top */
 .adv-panels .editor,
 .adv-panels .mirror-box{ min-height: var(--adv-box-min); }
 .adv-panels .editor{ width:100%; height:auto; line-height:1.45 }
@@ -700,65 +917,12 @@ body[data-theme="light"] .mirror-box{ background:var(--panel); }
 .col .lbl{display:block; margin-bottom:6px; color:var(--muted); font-size:14px}
 
 /* Fields */
-.editor,.mirror, textarea, input[type="text"], input[type="number"]{
-  width:100%;
-  border:1px solid var(--field-border);
-  background:var(--field);
-  color:var(--text);
-  border-radius:var(--radius-card);
-  padding:12px 12px;
-  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-  transition:border-color .15s ease, background-color .15s ease, box-shadow .2s ease;
-}
-.editor:hover,.mirror:hover, textarea:hover, input[type="text"]:hover, input[type="number"]:hover{
-  background:var(--field-hover);
-  border-color:var(--border);
-}
-.editor:focus,.mirror:focus, textarea:focus, input[type="text"]:focus, input[type="number"]:focus{
-  outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow);
-}
 .editor{min-height:220px}
 .mirror{min-height:220px}
 .status{margin-top:8px; color:var(--muted); min-height:20px}
 
-/* Buttons */
 .row{display:flex; align-items:center}
 .gap{gap:12px}
-.btn{
-  appearance:none; border:1px solid var(--border); background:var(--panel-2);
-  color:var(--text); padding:12px 16px; border-radius:14px; cursor:pointer; min-width:112px;
-  transition:transform .04s ease, box-shadow .2s ease, filter .15s ease, background-color .15s ease;
-  line-height:1.2;
-  display:inline-flex; align-items:center; justify-content:center;
-}
-.btn:hover{filter:brightness(1.06)}
-.btn:active{transform:translateY(1px)}
-/* Stronger focus outline for better visibility */
-.btn:focus-visible{ outline:3px solid var(--ring); outline-offset:2px; box-shadow:none }
-.btn-solid{
-  background:var(--primary);
-  border-color:transparent;
-  color:#0b1220;
-  font-weight:600;
-  box-shadow:none;
-}
-.btn-solid:hover{ filter:brightness(1.05); }
-.btn-solid:active{ background:var(--primary-press); filter:none; }
-.btn-solid:focus-visible{ box-shadow:none; }
-body[data-theme="light"] .btn-solid{ color:#f7f9ff; }
-.btn.primary{background:var(--primary); border-color:transparent; color:#fff}
-.btn.primary:hover{filter:brightness(1.05)}
-.btn.primary:active{background:var(--primary-press)}
-.btn.success{background:var(--success); border-color:transparent; color:#fff}
-.btn.success:hover{filter:brightness(1.05)}
-.btn.success:active{background:var(--success-press)}
-.btn.danger{background:var(--danger); color:#fff; border-color:transparent}
-.btn[disabled]{opacity:.6; cursor:not-allowed}
-
-/* Quiz Editor Start: primary styling always (disabled dims via opacity) */
-#startBtn.btn{ background:var(--primary); border-color:transparent; color:#fff }
-#startBtn.btn:hover{ filter:brightness(1.05) }
-#startBtn.btn:active{ background:var(--primary-press) }
 
 /* Pills (retake scope) */
 /* Retake control: single bubble with pipe separator */
@@ -790,9 +954,6 @@ body[data-theme="light"] .btn-solid{ color:#f7f9ff; }
 
 /* Brand (EZ orange/yellow) button variant */
 /* Brand (EZ orange/yellow) button variant for general use; inside retake-control we already style container */
-.btn.brand{ background:var(--brand); border-color:transparent; color:#111 }
-.btn.brand:hover{ filter:brightness(1.02) }
-.btn.brand:active{ background:var(--brand-press) }
 
 /* Quiz Editor legacy helpers */
 .advanced{margin-top:12px}
@@ -876,7 +1037,7 @@ details.advanced > summary{display:none}
 .results-header-left{display:flex; align-items:center; gap:10px}
 .results-filter{display:flex; gap:8px}
 .chip-btn{
-  appearance:none; border:1px solid var(--field-border); background:var(--panel-2); color:var(--text);
+  border:1px solid var(--field-border); background:var(--panel-2); color:var(--text);
   border-radius:999px; padding:6px 10px; cursor:pointer; font-size:13px; line-height:1; font-weight:600;
 }
 .chip-btn:hover{filter:brightness(1.06)}
@@ -916,26 +1077,6 @@ details.advanced > summary{display:none}
 .menu .menu-item:hover{background:var(--panel-2)}
 
 /* Modals */
-.modal{position:fixed; inset:0; display:none}
-.modal.is-open{display:block}
-.modal__backdrop{position:absolute; inset:0; background:rgba(0,0,0,.5)}
-.modal__dialog{
-  position:relative; margin:10vh auto; max-width:640px; max-height:80vh; background:var(--panel);
-  border:1px solid var(--border); border-radius:16px; padding:0 0 12px 0;
-  box-shadow:0 20px 60px rgba(0,0,0,.35);
-  display:flex; flex-direction:column;
-  /* Subtle entrance transition */
-  transform: translateY(8px) scale(.985);
-  opacity: 0;
-  transition: transform .18s ease, opacity .18s ease;
-}
-.modal.is-open .modal__dialog{ transform:none; opacity:1 }
-.modal__header{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:12px 12px 8px; border-bottom:1px solid var(--border);
-}
-.modal__body{padding:12px; display:grid; gap:10px; overflow:auto}
-.modal__footer{padding:12px; border-top:1px solid var(--border)}
 .block{display:block}
 .fieldgroup{border:1px solid var(--border); border-radius:var(--radius-card); padding:10px; margin-bottom:10px}
 
@@ -1073,13 +1214,8 @@ body[data-locked="true"] .gen-toolbar{ opacity:.6; pointer-events:none; filter:g
 .spinner{width:22px; height:22px; border-radius:50%; border:3px solid rgba(255,255,255,.25); border-top-color:#fff; animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Optional hero adjustments */
- @media (min-width:900px){
-  /* uncomment to center hero at start
-  .container .hero { text-align:center; }
-  */
-}
-body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
+/* Optional hero adjustments (removed empty media query) */
+
 
 /* Small screens polish */
 @media (max-width:600px){
@@ -1150,15 +1286,10 @@ body.is-quiz .hero{ /* transform: scale(.96); opacity:.9; */ }
 .chip.num{ min-width:26px; height:22px; padding:0 8px; font-size:13px }
 @media (max-width:700px){ .mt-row{ grid-template-columns: 1fr } }
 
-.btn-primary{ background:#007bff; color:#fff; border:none }
-.btn-primary:focus{ outline:2px solid #111; outline-offset:2px }
 .action-row{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap }
-.advanced-actions{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:8px }
 .btn-ghost{ background:transparent; border:1px solid var(--border); color:inherit }
 .btn-ghost:hover{ background: var(--panel-2) }
 .btn-ghost:active{ background: var(--panel-2); transform: translateY(1px) }
-.hidden{ display:none }
-.is-open{ display:block }
 /* Help accents */
 .modal__body em{ font-style:normal; font-weight:600; color:var(--muted) }
 
@@ -1396,9 +1527,6 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
 @media (max-width:640px){ .ie-mt-pair{ grid-template-columns: 1fr } }
 .ie-mt-foot{ display:flex; justify-content:flex-start; padding:8px 2px 0 }
 .ie-mt-select{ min-width:0; width:100% }
-
-/* Ensure .hidden truly hides even with inline tweaks */
-.hidden{ display: none !important }
 
 .settings-version{
   margin-top:32px;

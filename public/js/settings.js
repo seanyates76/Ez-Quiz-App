@@ -63,6 +63,11 @@ export function applyTheme(theme){
     const m=ensureMql(); eff = (m && m.matches) ? 'dark' : 'light';
   }
   document.body.setAttribute('data-theme', eff);
+  try{
+    const root = document.documentElement;
+    root.classList.toggle('light', eff === 'light');
+    root.classList.toggle('dark', eff === 'dark');
+  }catch{}
   // Swap brand logo asset based on theme, with simple, explicit mapping
   try{
     const img = document.querySelector('#brandTitle.brand-logo') || document.querySelector('.brand-logo');
