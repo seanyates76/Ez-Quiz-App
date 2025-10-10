@@ -83,10 +83,10 @@
           </div>
           <div class="row gap wrap qt-row" style="margin-top:8px">
             <span class="lbl">Question Types</span>
-            <label><input type="checkbox" id="qtMC" checked /> Multiple Choice</label>
-            <label><input type="checkbox" id="qtTF" checked /> True/False</label>
-            <label><input type="checkbox" id="qtYN" checked /> Yes/No</label>
-            <label><input type="checkbox" id="qtMT" checked /> Matching</label>
+            <label><input type="checkbox" id="qtMC" checked /> <span>Multiple Choice</span></label>
+            <label><input type="checkbox" id="qtTF" checked /> <span>True/False</span></label>
+            <label><input type="checkbox" id="qtYN" checked /> <span>Yes/No</span></label>
+            <label><input type="checkbox" id="qtMT" checked /> <span>Matching</span></label>
           </div>
           <div class="row gap" style="margin-top:8px">
             <button id="saveDefaultsBtn" class="btn" type="button">Save defaults</button>
@@ -110,8 +110,8 @@
             <div class="adv-title-right">
               <div class="spacer"></div>
               <label class="opt-switch small mirror-toggle">
-                <span class="mirror-toggle-label">Debug / Mirror</span>
                 <input type="checkbox" id="mirrorToggle" />
+                <span class="mirror-toggle-label">Debug / Mirror</span>
               </label>
             </div>
           </div>
@@ -400,8 +400,8 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
       <div class="modal__body">
         <fieldset class="fieldgroup">
           <legend>Timer</legend>
-          <label><input type="checkbox" id="timerEnabled" /> Enable timer</label>
-          <label><input type="checkbox" id="countdownMode" /> Countdown mode</label>
+          <label><input type="checkbox" id="timerEnabled" /> <span>Enable timer</span></label>
+          <label><input type="checkbox" id="countdownMode" /> <span>Countdown mode</span></label>
           <label class="inline">
             Duration (mm:ss)
             <input type="text" id="timerDuration" inputmode="numeric" placeholder="05:00" />
@@ -410,14 +410,14 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
 
         <fieldset class="fieldgroup">
           <legend>Appearance</legend>
-          <label><input type="radio" name="theme" value="dark" checked /> Dark</label>
-          <label><input type="radio" name="theme" value="light" /> Light</label>
-          <label><input type="radio" name="theme" value="system" /> System</label>
+          <label><input type="radio" name="theme" value="dark" checked /> <span>Dark</span></label>
+          <label><input type="radio" name="theme" value="light" /> <span>Light</span></label>
+          <label><input type="radio" name="theme" value="system" /> <span>System</span></label>
         </fieldset>
 
         <fieldset class="fieldgroup">
           <legend>Quiz Editor</legend>
-          <label><input type="checkbox" id="alwaysShowQuizEditor" /> Always show the Quiz Editor panel</label>
+          <label><input type="checkbox" id="alwaysShowQuizEditor" /> <span>Always show the Quiz Editor panel</span></label>
         </fieldset>
 
 
@@ -426,7 +426,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
         </div>
         <fieldset class="fieldgroup">
           <legend>Beta Features</legend>
-          <label><input type="checkbox" id="betaEnabled" /> Enable beta features and auto-redirect to /beta</label>
+          <label><input type="checkbox" id="betaEnabled" /> <span>Enable beta features and auto-redirect to /beta</span></label>
           <p class="muted small">When enabled, you'll automatically be redirected to the beta version of the app on future visits.</p>
         </fieldset>
 

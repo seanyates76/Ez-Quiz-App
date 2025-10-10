@@ -73,9 +73,9 @@
   --space-1:calc(var(--sp-2) - (var(--sp-1) / 2));
   --space-2:calc(var(--sp-3) - (var(--sp-1) / 2));
   --space-3:var(--sp-4);
+  --adv-box-min: 260px;
 }
 :root.light,
-html.light,
 body[data-theme="light"] {
   --c-page:#f6f8fb;
   --c-surface-1:#ffffff;
@@ -109,14 +109,108 @@ ul[role=list],ol[role=list]{list-style:none; padding-left:0;}
 p{margin:0;}
 input,textarea,select{font:inherit; color:inherit; background:var(--field);}
 input::placeholder,textarea::placeholder{color:var(--muted);}
-input,
-select,
-textarea,
-button{
-  appearance:none;
-  -webkit-appearance:none;
-  -moz-appearance:none;
+/* Avoid blanket appearance reset — it hides native widgets like checkboxes/radios. */
+/* Keep inputs styled via specific component rules below. */
+input, select, textarea, button{}
+/* Form controls: force consistent cross-browser rendering for checks/radios */
+/* Let the UA draw widgets, then tint/size */
+input[type="checkbox"], input[type="radio"]{
+  appearance:auto;
+  -webkit-appearance:auto;
+  -moz-appearance:auto;
 }
+
+/* Safety net: ensure controls are sized and visible even if UA appearance fails */
+input[type="checkbox"], input[type="radio"]{ display:inline-block; width:1.05em; height:1.05em; vertical-align:middle; accent-color: var(--primary); }
+
+/* Base alignment for all label-wrapped controls */
+.opt-switch,
+.qt-row label,
+#quizView label.opt,
+.fieldgroup label{ display:inline-flex; align-items:center; gap:8px; }
+
+/* Native widgets visible again (no hiding); tint + spacing */
+.opt-switch input[type="checkbox"],
+.qt-row label > input[type="checkbox"],
+#quizView label.opt > input[type="checkbox"],
+.fieldgroup label > input[type="checkbox"],
+.fieldgroup label > input[type="radio"],
+label > input[type="checkbox"],
+label > input[type="radio"]{
+  appearance:auto; -webkit-appearance:auto; -moz-appearance:auto;
+  accent-color: var(--primary);
+  position:static; opacity:1; width:auto; height:auto; clip:auto; overflow:visible;
+  margin-right:8px;
+}
+
+/* Native widgets visible; rely on UA with accent-color */
+
+/* Progressive enhancement (disabled; we use sibling approach globally)
+@supports selector(:has(__disabled__)){
+  .opt-switch,
+  .qt-row label,
+  #quizView label.opt,
+  .fieldgroup label:has(> input[type="checkbox"]),
+  .fieldgroup label:has(> input[type="radio"]){ position:relative; padding-left:1.6em; }
+
+  * Hide the native control but keep it accessible
+  .opt-switch > input[type="checkbox"],
+  .qt-row label > input[type="checkbox"],
+  #quizView label.opt > input[type="checkbox"],
+  #quizView label.opt > input[type="radio"],
+  .fieldgroup label > input[type="checkbox"],
+  .fieldgroup label > input[type="radio"]{
+    position:absolute; opacity:0; width:1px; height:1px; overflow:hidden; clip:rect(1px,1px,1px,1px);
+  }
+
+  * Base box/circle
+  .opt-switch::before,
+  .qt-row label::before,
+  #quizView label.opt::before,
+  .fieldgroup label:has(> input[type="checkbox"])::before,
+  .fieldgroup label:has(> input[type="radio"])::before{
+    content:""; position:absolute; left:0; top:50%; transform:translateY(-50%);
+    display:inline-block; width:1.05em; height:1.05em; background:var(--panel-2); border:1px solid var(--field-border); border-radius:4px;
+  }
+  * Radio uses circle
+  .fieldgroup label:has(> input[type="radio"])::before,
+  #quizView label.opt:has(> input[type="radio"])::before{ border-radius:50%; }
+  * Light theme base bg
+  body[data-theme="light"] .opt-switch::before,
+  body[data-theme="light"] .qt-row label::before,
+  body[data-theme="light"] #quizView label.opt::before,
+  body[data-theme="light"] .fieldgroup label:has(> input[type="checkbox"])::before,
+  body[data-theme="light"] .fieldgroup label:has(> input[type="radio"])::before{ background:var(--panel); }
+  * Checked fill
+  .opt-switch:has(> input[type="checkbox"]:checked)::before,
+  .qt-row label:has(> input[type="checkbox"]:checked)::before,
+  #quizView label.opt:has(> input[type="checkbox"]:checked)::before,
+  .fieldgroup label:has(> input[type="checkbox"]:checked)::before{ background:var(--primary); border-color:var(--primary); }
+  * Radio checked dot
+  .fieldgroup label:has(> input[type="radio"]:checked)::before,
+  #quizView label.opt:has(> input[type="radio"]:checked)::before{ box-shadow:inset 0 0 0 3px var(--panel); background:var(--primary); border-color:var(--primary); }
+  * Checkbox checkmark glyph
+  .opt-switch:has(> input[type="checkbox"]:checked)::after,
+  .qt-row label:has(> input[type="checkbox"]:checked)::after,
+  #quizView label.opt:has(> input[type="checkbox"]:checked)::after,
+  .fieldgroup label:has(> input[type="checkbox"]:checked)::after{
+    content:""; position:absolute; left:0.34em; top:50%; transform:translateY(-63%) rotate(45deg);
+    width:0.45em; height:0.26em; border-right:2px solid #0b1220; border-bottom:2px solid #0b1220;
+  }
+  body[data-theme="light"] .opt-switch:has(> input[type="checkbox"]:checked)::after,
+  body[data-theme="light"] .qt-row label:has(> input[type="checkbox"]:checked)::after,
+  body[data-theme="light"] #quizView label.opt:has(> input[type="checkbox"]:checked)::after,
+  body[data-theme="light"] .fieldgroup label:has(> input[type="checkbox"]:checked)::after{ border-right-color:#fff; border-bottom-color:#fff; }
+  * Focus ring
+  .opt-switch:has(> input:focus-visible)::before,
+  .qt-row label:has(> input:focus-visible)::before,
+  #quizView label.opt:has(> input:focus-visible)::before,
+  .fieldgroup label:has(> input:focus-visible)::before{ outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
+  * Disabled state
+  .opt-switch:has(> input:disabled), .qt-row label:has(> input:disabled), #quizView label.opt:has(> input:disabled), .fieldgroup label:has(> input:disabled){ opacity:.65; cursor:not-allowed; }
+}*/
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible{ outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
 :focus-visible{outline:2px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow);}
 :focus:not(:focus-visible){outline:none; box-shadow:none;}
 @media (prefers-reduced-motion: reduce){
@@ -242,8 +336,7 @@ textarea:focus,
 .brand-logo{height:44px; width:auto; display:block}
 @media (min-width:900px){ .brand-logo{ height:48px } }
 /* Light theme brand: enlarge and nudge (to compensate for asset crop) */
-body[data-theme="light"] .brand-logo,
-html.light .brand-logo{
+body[data-theme="light"] .brand-logo{
   transform-origin:left top;
   transform: translate(
     calc(var(--header-h, 64px) * -0.17),
@@ -311,8 +404,7 @@ body[data-theme="dark"] .site-header .brand-link{
   box-shadow:var(--shadow-card);
   grid-auto-rows:minmax(var(--toolbar-height), auto);
 }
-body[data-theme="light"] .gen-toolbar,
-html.light .gen-toolbar{
+body[data-theme="light"] .gen-toolbar{
   background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(246,249,255,.94));
   border-color:var(--border);
   box-shadow:0 8px 20px rgba(15,23,42,.12);
@@ -418,8 +510,7 @@ html.light .gen-toolbar{
   font-size:.95rem;
   transition:background .15s ease, border-color .15s ease, box-shadow .18s ease;
 }
-body[data-theme="light"] .toolbar-input,
-html.light .toolbar-input{ background:var(--panel); }
+body[data-theme="light"] .toolbar-input{ background:var(--panel); }
 .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus),
 .number-wrap .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus){
   -webkit-text-fill-color:var(--text);
@@ -433,9 +524,7 @@ html.light .toolbar-input{ background:var(--panel); }
   box-shadow:0 0 0 1000px var(--panel-2) inset;
 }
 body[data-theme="light"] .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus),
-body[data-theme="light"] .number-wrap .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus),
-html.light .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus),
-html.light .number-wrap .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus){
+body[data-theme="light"] .number-wrap .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus){
   border-color:var(--border);
   background:var(--panel);
   -webkit-box-shadow:0 0 0 1000px var(--panel) inset;
@@ -453,9 +542,7 @@ html.light .number-wrap .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:h
   background-clip:padding-box;
 }
 body[data-theme="light"] .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, :-moz-autofill:focus),
-body[data-theme="light"] .number-wrap .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, :-moz-autofill:focus),
-html.light .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, :-moz-autofill:focus),
-html.light .number-wrap .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, :-moz-autofill:focus){
+body[data-theme="light"] .number-wrap .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, :-moz-autofill:focus){
   box-shadow:0 0 0 1000px var(--panel) inset;
   background:var(--panel);
   border-color:var(--border);
@@ -486,8 +573,7 @@ html.light .number-wrap .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, 
   transition:background .15s ease, border-color .15s ease, box-shadow .18s ease;
   min-height:var(--toolbar-height, 44px);
 }
-body[data-theme="light"] .number-wrap,
-html.light .number-wrap{ background:var(--panel); }
+body[data-theme="light"] .number-wrap{ background:var(--panel); }
 .number-wrap:hover{ background:var(--field-hover); border-color:var(--border); }
 .number-wrap:focus-within{
   outline:1px solid var(--ring);
@@ -574,8 +660,7 @@ html.light .number-wrap{ background:var(--panel); }
   min-height:var(--toolbar-height, 44px);
   transition:border-color .18s ease, background .18s ease, box-shadow .18s ease;
 }
-body[data-theme="light"] .difficulty-stack,
-html.light .difficulty-stack{ background:var(--panel); }
+body[data-theme="light"] .difficulty-stack{ background:var(--panel); }
 .difficulty-stack:hover{ border-color:var(--border); }
 .difficulty-stack:focus-within{
   border-color:var(--ring);
@@ -702,13 +787,11 @@ body[data-theme="light"] .difficulty-track::before{ background:rgba(76,115,196,.
   box-shadow:var(--shadow-float);
   transition:opacity .2s ease, transform .2s ease;
 }
-body[data-theme="light"] .options-panel,
-html.light .options-panel{ background:var(--panel); }
+body[data-theme="light"] .options-panel{ background:var(--panel); }
 .options-panel[hidden]{display:none}
 .options-regular .lbl{color:var(--muted); font-size:14px}
 .opt-switch{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--field-border); background:var(--panel-2); border-radius:var(--radius-control);}
-body[data-theme="light"] .opt-switch,
-html.light .opt-switch{ background:var(--panel); }
+body[data-theme="light"] .opt-switch{ background:var(--panel); }
 .opt-switch input{transform:scale(1)}
 .mirror-toggle{gap:12px; padding:6px 12px; background:var(--panel-2); border-color:var(--field-border); justify-content:space-between; min-width:0; border-radius:var(--radius-control);}
 .mirror-toggle-label{font-size:.8rem; font-weight:600; color:var(--muted); text-transform:none;}
@@ -768,7 +851,7 @@ html.light .opt-switch{ background:var(--panel); }
 @media (max-width: 600px){ .advanced-actions{ grid-template-columns: 1fr } }
 
 /* Keep boxes visually in sync */
-:root{ --adv-box-min: 260px; }
+/* moved to main :root at top */
 .adv-panels .editor,
 .adv-panels .mirror-box{ min-height: var(--adv-box-min); }
 .adv-panels .editor{ width:100%; height:auto; line-height:1.45 }
@@ -780,8 +863,7 @@ html.light .opt-switch{ background:var(--panel); }
   display:flex;
   box-shadow:0 4px 14px rgba(0,0,0,.2);
 }
-body[data-theme="light"] .mirror-box,
-html.light .mirror-box{ background:var(--panel); }
+body[data-theme="light"] .mirror-box{ background:var(--panel); }
 .mirror-box textarea{ border:0; background:transparent; padding:12px; width:100%; height:auto; line-height:1.45; resize:vertical }
 .mirror-box[data-on="false"]{ display:none }
 /* Mirror empty placeholder */
@@ -1197,15 +1279,6 @@ body[data-locked="true"] .gen-toolbar{ opacity:.6; pointer-events:none; filter:g
 .chip.num{ min-width:26px; height:22px; padding:0 8px; font-size:13px }
 @media (max-width:700px){ .mt-row{ grid-template-columns: 1fr } }
 
-.btn-primary{
-  background: var(--primary);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-.btn-primary:focus{
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-}
 .action-row{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap }
 .btn-ghost{ background:transparent; border:1px solid var(--border); color:inherit }
 .btn-ghost:hover{ background: var(--panel-2) }

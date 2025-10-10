@@ -22,6 +22,91 @@
   </header>
 
   <main class="container" id="main">
+    <section class="section" id="checks">
+      <h2>Checkboxes & Radios</h2>
+      <div class="grid" role="group" aria-label="Switches and toggles">
+        <div>
+          <h3>Opt Switch</h3>
+          <div class="row">
+            <label class="opt-switch"><input type="checkbox" /> <span>Timer</span></label>
+            <label class="opt-switch"><input type="checkbox" checked /> <span>Countdown</span></label>
+            <label class="opt-switch"><input type="checkbox" disabled /> <span>Disabled</span></label>
+          </div>
+          <div class="row" style="margin-top:.5rem">
+            <label class="opt-switch small mirror-toggle">
+              <input type="checkbox" />
+              <span class="mirror-toggle-label">Mirror (small)</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <h3>Options Row (qt-row)</h3>
+          <div class="row qt-row" style="margin-top:8px">
+            <span class="lbl">Question Types</span>
+            <label><input type="checkbox" checked /> <span>Multiple Choice</span></label>
+            <label><input type="checkbox" /> <span>True/False</span></label>
+            <label><input type="checkbox" /> <span>Yes/No</span></label>
+            <label><input type="checkbox" disabled /> <span>Matching (disabled)</span></label>
+          </div>
+        </div>
+
+        <div>
+          <h3>Quiz Options — Checkboxes</h3>
+          <div id="quizView">
+            <div class="options">
+              <label class="opt"><input type="checkbox" /> <span>Option A</span></label>
+              <label class="opt"><input type="checkbox" checked /> <span>Option B (checked)</span></label>
+              <label class="opt"><input type="checkbox" disabled /> <span>Option C (disabled)</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3>Quiz Options — Radios</h3>
+          <div id="quizView">
+            <div class="options">
+              <label class="opt"><input type="radio" name="mc-demo" /> <span>Choice 1</span></label>
+              <label class="opt"><input type="radio" name="mc-demo" checked /> <span>Choice 2 (checked)</span></label>
+              <label class="opt"><input type="radio" name="mc-demo" disabled /> <span>Choice 3 (disabled)</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="settings-demo">
+      <h2>Settings (Demo)</h2>
+      <div class="grid" role="group" aria-label="Settings examples">
+        <fieldset class="fieldgroup" aria-labelledby="ui-settings-timer">
+          <legend id="ui-settings-timer">Timer</legend>
+          <label><input type="checkbox" /> <span>Enable timer</span></label>
+          <label><input type="checkbox" /> <span>Countdown mode</span></label>
+          <label class="inline">
+            Duration (mm:ss)
+            <input type="text" inputmode="numeric" placeholder="05:00" />
+          </label>
+        </fieldset>
+
+        <fieldset class="fieldgroup" aria-labelledby="ui-settings-appearance">
+          <legend id="ui-settings-appearance">Appearance</legend>
+          <label><input type="radio" name="ui-theme" value="dark" checked /> <span>Dark</span></label>
+          <label><input type="radio" name="ui-theme" value="light" /> <span>Light</span></label>
+          <label><input type="radio" name="ui-theme" value="system" /> <span>System</span></label>
+        </fieldset>
+
+        <fieldset class="fieldgroup" aria-labelledby="ui-settings-editor">
+          <legend id="ui-settings-editor">Quiz Editor</legend>
+          <label><input type="checkbox" /> <span>Always show the Quiz Editor panel</span></label>
+        </fieldset>
+
+        <fieldset class="fieldgroup" aria-labelledby="ui-settings-beta">
+          <legend id="ui-settings-beta">Beta Features</legend>
+          <label><input type="checkbox" /> <span>Enable beta features and auto-redirect to /beta</span></label>
+          <p class="muted small">When enabled, you’ll automatically be redirected to the beta version on future visits.</p>
+        </fieldset>
+      </div>
+    </section>
     <section class="section" id="buttons">
       <h2>Buttons</h2>
       <div class="row" aria-label="Button variants">
@@ -32,7 +117,7 @@
       </div>
     </section>
 
-    <section class="section" id="inputs">
+  <section class="section" id="inputs">
       <h2>Inputs</h2>
       <div class="grid" role="group" aria-label="Input examples">
         <div>
@@ -262,4 +347,3 @@
   </script>
 </body>
 </html>
-
