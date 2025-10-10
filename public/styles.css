@@ -129,7 +129,14 @@ input[type="checkbox"], input[type="radio"]{ display:inline-block; width:1.05em;
 #quizView label.opt,
 .fieldgroup label{ display:inline-flex; align-items:center; gap:8px; }
 
-/* Native widgets visible again (no hiding); tint + spacing */
+/*
+  Checkbox/Radio rendering — keep native widgets visible
+  ------------------------------------------------------
+  We intentionally rely on native controls with `accent-color` for robustness
+  across preview engines (including VS Code WebView). Do NOT hide inputs or
+  force custom appearance here; that can lead to invisible controls if a
+  selector misses. If you re‑style in the future, preserve visible inputs.
+*/
 .opt-switch input[type="checkbox"],
 .qt-row label > input[type="checkbox"],
 #quizView label.opt > input[type="checkbox"],
