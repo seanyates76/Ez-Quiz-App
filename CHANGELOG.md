@@ -1,6 +1,16 @@
 Changelog
 =========
 
+2025-10-09 — Dev smoke test hardening
+- Added dev smoke checks run via `npm run smoke` (uses ../ezq-dev-tools/tests/smoke.mjs)
+- Guards: fail on browser console errors and API 4xx/5xx
+- DOM: ensure app root renders; question block visible; >=2 options
+- Keyboard: Tab reaches an option (focus visible warning if outline hidden)
+- Data: basic quiz JSON schema validation; no duplicate stems in a run
+- Visual: baseline guard for question block; simple byte-size delta threshold
+- Selectors used: [data-test="app-root"], [data-test="start"], [data-test="question-block"], [data-test="question"], [data-test="option"]
+- Follow ups: consider pixelmatch for true pixel diffs; tailor selectors to final DOM; optional a11y suite with axe-core
+
 2025-09-30 — 3.3
 - Graduated the beta line to production, keeping the resilient AI fallback rotation so Generate/Start survive missing rewrites or proxy issues.
 - Adopted the softened UI tokens, responsive toolbar grid, and balanced spacing from the recent betas as the default production experience.
