@@ -227,18 +227,19 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
   <!-- Footer: Support links -->
   <footer class="container" role="contentinfo">
     <nav aria-label="Footer">
-      <p style="margin:12px 0; color:var(--muted)">
-        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal">v3.3</a>
-        &nbsp;•&nbsp;
-        <a id="privacyLink" href="#" data-modal="privacyModal">Privacy</a>
-        &nbsp;•&nbsp;
-        <a id="termsLink" href="#" data-modal="termsModal">Terms</a>
-      </p>
-      <div class="support-cta">
+      <div class="footer-links" role="list">
+        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" role="listitem">v3.3</a>
+        <span aria-hidden="true">•</span>
+        <a id="privacyLink" href="#" data-modal="privacyModal" role="listitem">Privacy</a>
+        <span aria-hidden="true">•</span>
+        <a id="termsLink" href="#" data-modal="termsModal" role="listitem">Terms</a>
+      </div>
+      <div class="support-cta" aria-label="Support">
         <a id="bmcButton" href="https://www.buymeacoffee.com/seanyates78" target="_blank" rel="noopener" aria-label="Buy me a coffee">
           <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="217" height="60" />
         </a>
       </div>
+      <div class="footer-meta"><small class="muted">No tracking • Open source</small></div>
     </nav>
   </footer>
 

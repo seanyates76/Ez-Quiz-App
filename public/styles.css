@@ -1185,6 +1185,12 @@ footer.container{
 /* Official support button container */
 .support-cta{ display:flex; justify-content:center; align-items:center; margin: 6px 0 18px 0; }
 .support-cta img{ display:block; height:44px; width:auto; }
+/* Footer links row */
+.footer-links{ display:flex; justify-content:center; align-items:center; gap:10px; margin:8px 0; color:var(--muted); }
+.footer-links a{ text-decoration:none; font-weight:600; }
+.footer-links a:focus-visible{ outline:1px solid var(--ring); outline-offset:3px }
+.footer-links a:hover{ text-decoration:underline; }
+.footer-meta{ margin:6px 0 0 0; color:var(--muted); }
 /* Helper text under toolbar */
 .subtle-help{ font-size:.9rem; opacity:.75; margin:.25rem 0 0 .25rem }
 
