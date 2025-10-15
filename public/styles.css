@@ -1185,6 +1185,7 @@ footer.container{
 /* Official support button container */
 .support-cta{ display:flex; justify-content:center; align-items:center; margin: 6px 0 18px 0; }
 .support-cta img{ display:block; height:44px; width:auto; }
+@media (max-width:420px){ .support-cta img{ height:36px } }
 /* Footer links row */
 .footer-links{ display:flex; justify-content:center; align-items:center; gap:10px; margin:8px 0; color:var(--muted); }
 .footer-links a{ text-decoration:none; font-weight:600; }
