@@ -142,9 +142,9 @@ async function run() {
       const g23 = Math.round(r3.left - r2.right);
       const g3A = Math.round(ra.left - r3.right);
       const inside = ra.right <= tr.right + 0.5 && ra.left >= tr.left - 0.5;
-      const sameRow = Math.max(r1.top, r2.top, r3.top) - Math.min(r1.top, r2.top, r3.top) < 3;
       const heights = [r1.height, r2.height, r3.height].map((x)=>Math.round(x));
       const centers = [r1, r2, r3].map((b)=>Math.round(b.top + b.height/2));
+      const sameRow = Math.max(...centers) - Math.min(...centers) <= 4;
       const gridOuter = getComputedStyle(tb).gridTemplateColumns;
       const gridLeft = left !== tb ? getComputedStyle(left).gridTemplateColumns : '(flat)';
 
