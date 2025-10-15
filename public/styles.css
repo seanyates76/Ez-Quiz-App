@@ -462,10 +462,8 @@ body[data-theme="light"] .gen-toolbar{
   box-shadow:0 8px 20px rgba(15,23,42,.12);
 }
 .gen-toolbar > *{ min-width:0; }
-.gen-toolbar .toolbar-pair{ /* no display: contents; nested grid handles layout */ }
 .gen-toolbar > .toolbar-left{ grid-area:left; display:grid; grid-template-columns:minmax(220px,1.8fr) minmax(200px,1.2fr) max-content; column-gap:var(--space-2); align-items:center; }
 .toolbar-left > .toolbar-field:first-of-type{ grid-column:1; }
-.toolbar-left .toolbar-pair{ display:grid; grid-template-columns:minmax(200px,1.2fr) max-content; column-gap:var(--space-2); align-items:center; grid-column:2 / 4; }
 .toolbar-left .toolbar-field--difficulty{ min-width:200px; justify-self:start; }
 .toolbar-left .number-field{ min-width:96px; justify-self:start; }
 .gen-toolbar .action-stack{ grid-area:actions; align-self:center; justify-self:end; display:grid; grid-auto-rows:var(--toolbar-height, 44px); gap:var(--space-1); max-width:100%; }

@@ -45,31 +45,29 @@
           <span class="toolbar-label">Topic</span>
           <input id="topicInput" type="text" class="toolbar-input" placeholder="e.g. Animals" />
         </label>
-        <div class="toolbar-pair">
-          <label class="toolbar-field toolbar-field--difficulty">
-            <span class="toolbar-label">Difficulty</span>
-            <div class="difficulty-stack">
-              <div class="difficulty-slider">
-                <div class="difficulty-track" aria-hidden="true">
-                  <span class="difficulty-dot"></span>
-                  <span class="difficulty-dot"></span>
-                  <span class="difficulty-dot"></span>
-                </div>
-                <input id="difficultySlider" type="range" min="0" max="4" step="1" value="2" aria-valuetext="Medium" />
+        <label class="toolbar-field toolbar-field--difficulty">
+          <span class="toolbar-label">Difficulty</span>
+          <div class="difficulty-stack">
+            <div class="difficulty-slider">
+              <div class="difficulty-track" aria-hidden="true">
+                <span class="difficulty-dot"></span>
+                <span class="difficulty-dot"></span>
+                <span class="difficulty-dot"></span>
               </div>
+              <input id="difficultySlider" type="range" min="0" max="4" step="1" value="2" aria-valuetext="Medium" />
             </div>
-          </label>
-          <label class="toolbar-field narrow number-field">
-            <span class="toolbar-label">Length</span>
-            <div class="number-wrap">
-              <input id="countInput" type="number" class="toolbar-input" min="1" step="1" value="10" />
-              <div class="stepper-group" role="group" aria-label="Adjust length">
-                <button type="button" class="stepper stepper-up" data-step="up" aria-label="Increase length">▲</button>
-                <button type="button" class="stepper stepper-down" data-step="down" aria-label="Decrease length">▼</button>
-              </div>
+          </div>
+        </label>
+        <label class="toolbar-field narrow number-field">
+          <span class="toolbar-label">Length</span>
+          <div class="number-wrap">
+            <input id="countInput" type="number" class="toolbar-input" min="1" step="1" value="10" />
+            <div class="stepper-group" role="group" aria-label="Adjust length">
+              <button type="button" class="stepper stepper-up" data-step="up" aria-label="Increase length">▲</button>
+              <button type="button" class="stepper stepper-down" data-step="down" aria-label="Decrease length">▼</button>
             </div>
-          </label>
-        </div>
+          </div>
+        </label>
         </div>
         <div class="action-stack">
           <button id="startToolbarBtn" class="btn primary" type="button" aria-label="Start quiz">Start</button>
