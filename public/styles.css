@@ -135,7 +135,7 @@ body[data-visual="soft"][data-theme="light"] .gen-toolbar{ background: var(--pan
   body[data-visual="soft"] .gen-toolbar{ --toolbar-height: 36px; }
   body[data-visual="soft"] .gen-toolbar #generateBtn,
   body[data-visual="soft"] .gen-toolbar #optionsBtn{ min-width: 112px; font-size: .9rem; }
-  /* Tight number field: 3 characters wide */
+  /* Tight number field: 3 characters wide (desktop) */
   .gen-toolbar .number-wrap{ width:auto; }
   .gen-toolbar #countInput{ width:3ch; min-width:3ch; }
 }
@@ -444,7 +444,7 @@ body[data-theme="dark"] .site-header .brand-link{
   display:grid;
   grid-template-columns:minmax(220px,1.8fr) minmax(200px,1.2fr) minmax(96px,auto) auto;
   grid-template-areas:"topic difficulty length actions";
-  align-items:stretch;
+  align-items:center;
   gap:var(--space-2);
   background:linear-gradient(180deg, rgba(21,25,37,.96), rgba(21,25,37,.9));
   border:1px solid var(--field-border);
@@ -463,9 +463,9 @@ body[data-theme="light"] .gen-toolbar{
 .gen-toolbar > *{ min-width:0; }
 .gen-toolbar .toolbar-pair{ display:contents; }
 .gen-toolbar > .toolbar-field:first-of-type{ grid-area:topic; }
-.gen-toolbar > .toolbar-field.toolbar-field--difficulty{ grid-area:difficulty; min-width:200px; align-self:stretch; }
-.gen-toolbar .number-field{ grid-area:length; min-width:96px; align-self:stretch; }
-.gen-toolbar .action-stack{ grid-area:actions; align-self:stretch; display:grid; grid-auto-rows:var(--toolbar-height, 44px); gap:var(--space-1); }
+.gen-toolbar > .toolbar-field.toolbar-field--difficulty{ grid-area:difficulty; min-width:200px; align-self:center; }
+.gen-toolbar .number-field{ grid-area:length; min-width:96px; align-self:center; }
+.gen-toolbar .action-stack{ grid-area:actions; align-self:center; display:grid; grid-auto-rows:var(--toolbar-height, 44px); gap:var(--space-1); }
 
 .gen-toolbar #generateBtn,
 .gen-toolbar #optionsBtn,
