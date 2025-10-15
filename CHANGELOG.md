@@ -1,10 +1,6 @@
 Changelog
 =========
 
-2025-10-11 — Fixes
-- Resolved ESM/CommonJS export in netlify/functions/mcp.ts
-- Silenced non-actionable AI Gateway token line in smoke artifact
-- Noted deprecation originates in dependency, no repo changes needed
 2025-10-09 — Dev smoke test hardening
 - Added dev smoke checks run via `npm run smoke` (uses ../ezq-dev-tools/tests/smoke.mjs)
 - Guards: fail on browser console errors and API 4xx/5xx
