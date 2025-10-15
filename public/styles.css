@@ -442,8 +442,8 @@ body[data-theme="dark"] .site-header .brand-link{
 .gen-toolbar{
   --toolbar-height:clamp(40px, 4vw, 44px);
   display:grid;
-  grid-template-columns:minmax(220px,1.8fr) minmax(200px,1.2fr) max-content max-content;
-  grid-template-areas:"topic difficulty length actions";
+  grid-template-columns:minmax(220px,1.8fr) minmax(200px,1.2fr) max-content 1fr max-content;
+  grid-template-areas:"topic difficulty length . actions";
   align-items:center;
   column-gap:var(--space-2);
   row-gap:var(--space-2);
@@ -480,8 +480,8 @@ body[data-theme="light"] .gen-toolbar{
 
 @media (max-width:1024px){
   .gen-toolbar{
-    grid-template-columns:minmax(160px,1fr) auto auto max-content;
-    grid-template-areas: "topic difficulty length actions";
+    grid-template-columns:minmax(160px,1fr) minmax(180px,max-content) max-content 1fr max-content;
+    grid-template-areas: "topic difficulty length . actions";
   }
 }
 
