@@ -116,9 +116,12 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   // Primary action mode machine
   function setPrimaryAction(mode){
     const m = (mode === 'generate') ? 'generate' : 'start';
-    (window.EZQ.ui = window.EZQ.ui || {}).primaryMode = m;
+    const ui = (window.EZQ.ui = window.EZQ.ui || {});
+    ui.primaryMode = m;
+    const dirty = !!ui.genDirty;
+    const label = (m === 'generate') ? (dirty ? 'Regenerate' : 'Generate') : 'Start';
     generateBtn?.setAttribute('data-mode', m);
-    if (generateBtn) generateBtn.textContent = (m === 'generate') ? 'Generate' : 'Start';
+    if (generateBtn) generateBtn.textContent = label;
   }
   const clampDifficultyIndex = (idx)=>{
     if(Number.isNaN(idx)) return 2;
@@ -170,6 +173,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     ui.genDirty = false;
     // Reset primary according to layout state when not dirty
     setPrimaryAction(advBlock && !advBlock.hidden ? 'generate' : 'start');
+    try{ const hint=document.getElementById('regenHint'); if(hint) hint.hidden = true; }catch{}
   }
   function markDirtyIfChanged(){
     const ui = (window.EZQ.ui = window.EZQ.ui || {});
@@ -177,8 +181,13 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     const curr = getParamsSnapshot();
     const changed = !last || last.topic !== curr.topic || last.count !== curr.count || last.difficulty !== curr.difficulty;
     ui.genDirty = !!changed;
-    if(ui.genDirty){ setPrimaryAction('generate'); }
-    else { setPrimaryAction(advBlock && !advBlock.hidden ? 'generate' : 'start'); }
+    if(ui.genDirty){
+      setPrimaryAction('generate');
+      try{ const hint=document.getElementById('regenHint'); if(hint){ hint.textContent='Updated inputs — press Regenerate'; hint.hidden=false; } }catch{}
+    } else {
+      setPrimaryAction(advBlock && !advBlock.hidden ? 'generate' : 'start');
+      try{ const hint=document.getElementById('regenHint'); if(hint) hint.hidden=true; }catch{}
+    }
   }
   // Mark dirty when topic, count, or difficulty changes after a generation
   topicInput?.addEventListener('input', markDirtyIfChanged);

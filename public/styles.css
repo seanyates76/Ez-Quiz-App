@@ -1571,3 +1571,12 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
   margin-top:32px;
   text-align:right;
 }
+/* Updated-inputs hint under the generator toolbar */
+.regen-hint{
+  color:var(--muted);
+  font-size:.9rem;
+  margin:-6px auto 12px;
+  max-width:960px;
+  padding:0 2px;
+}
+.regen-hint[hidden]{ display:none !important; }

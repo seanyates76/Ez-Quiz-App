@@ -72,7 +72,12 @@
         <div class="action-stack">
           <button id="generateBtn" class="btn primary" type="button" aria-label="Primary action">Start</button>
           <button id="optionsBtn" class="btn btn-outline" aria-haspopup="true" aria-expanded="false" aria-controls="optionsPanel">Options ▾</button>
-        </div>
+      </div>
+    </div>
+
+      <!-- Subtle hint when inputs change after generation -->
+      <div id="regenHint" class="regen-hint" role="status" aria-live="polite" hidden>
+        Updated inputs — press Regenerate
       </div>
 
       <!-- Options Drop-Down (includes Quiz Editor tools) -->
