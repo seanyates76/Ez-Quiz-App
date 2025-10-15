@@ -439,7 +439,7 @@ body[data-theme="light"] .gen-toolbar{
 .gen-toolbar > *{ min-width:0; }
 .gen-toolbar .toolbar-pair{ display:contents; }
 .gen-toolbar > .toolbar-field:first-of-type{ grid-area:topic; }
-.gen-toolbar .difficulty-stack{ grid-area:difficulty; min-width:200px; align-self:stretch; }
+.gen-toolbar > .toolbar-field.toolbar-field--difficulty{ grid-area:difficulty; min-width:200px; align-self:stretch; }
 .gen-toolbar .number-field{ grid-area:length; min-width:96px; align-self:stretch; }
 .gen-toolbar #generateBtn{
   grid-area:generate;
@@ -482,14 +482,14 @@ body[data-theme="light"] .gen-toolbar{
     gap:var(--space-2);
   }
   .gen-toolbar > .toolbar-field:first-of-type,
-  .gen-toolbar .difficulty-stack,
+  .gen-toolbar > .toolbar-field.toolbar-field--difficulty,
   .gen-toolbar .number-field,
   .gen-toolbar #generateBtn,
   .gen-toolbar #optionsBtn{
     min-width:0;
     width:100%;
   }
-  .gen-toolbar .difficulty-stack{ min-width:220px; }
+  .gen-toolbar > .toolbar-field.toolbar-field--difficulty{ min-width:220px; }
   .gen-toolbar .number-field{ max-width:220px; justify-self:end; }
   .gen-toolbar #generateBtn,
   .gen-toolbar #optionsBtn{
@@ -509,7 +509,7 @@ body[data-theme="light"] .gen-toolbar{
     padding:var(--space-2) 14px;
     gap:calc(var(--space-1) + 2px);
   }
-  .gen-toolbar .difficulty-stack{ min-width:0; }
+  .gen-toolbar > .toolbar-field.toolbar-field--difficulty{ min-width:0; }
   .gen-toolbar .number-field{ max-width:none; justify-self:stretch; }
 }
 .toolbar-field{
@@ -680,7 +680,7 @@ body[data-theme="light"] .number-wrap{ background:var(--panel); }
   flex-direction:column;
   justify-content:center;
   gap:var(--space-1);
-  padding:var(--space-1) 12px;
+  padding:0 12px;
   border-radius:var(--radius-control);
   border:1px solid var(--field-border);
   background:var(--panel-2);
