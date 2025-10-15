@@ -144,6 +144,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
   wireStartHint();
   wireLockGuards();
   wireQuizLocks();
+  // Mirror Start button into toolbar stack (for convenience)
+  try{
+    const startTop = document.getElementById('startToolbarBtn');
+    const startMain = document.getElementById('startBtn');
+    if(startTop && startMain){
+      const sync = ()=>{ startTop.disabled = !!startMain.disabled; };
+      startTop.addEventListener('click', (e)=>{ e.preventDefault(); if(!startTop.disabled) startMain.click(); });
+      const mo = new MutationObserver(sync);
+      mo.observe(startMain, { attributes:true, attributeFilter:['disabled'] });
+      sync();
+    }
+  }catch{}
   wireBrandSwap();
   wireSupportSwap();
   wireFooterModals();
