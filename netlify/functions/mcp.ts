@@ -533,4 +533,3 @@ function truncate(text: string, maxLength: number): string {
 }
 
 // CommonJS export for compatibility
-module.exports = { handler };

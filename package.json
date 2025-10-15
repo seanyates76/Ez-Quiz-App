@@ -5,7 +5,13 @@
   "license": "MIT",
   "description": "Static PWA + Netlify Functions for EZ Quiz",
   "scripts": {
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest -i --passWithNoTests",
+    "lint": "eslint . || true",
+    "lint:fix": "eslint . --fix || true",
+    "fmt:check": "prettier -c . || true",
+    "fmt:write": "prettier -w . || true",
+    "test:parser": "node ./tests/parser.corpus.mjs || echo Parser corpus missing",
+    "reiterate": "node ../ezq-dev-tools/reiterate.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.20.0",

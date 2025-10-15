@@ -81,7 +81,12 @@ function stemKeyFromLine(line){
   if(!raw) return '';
   const parts = raw.split('|');
   const stem = parts.length > 1 ? parts[1] : raw;
-  return stem.trim().replace(/\s+/g, ' ').toLowerCase();
+  // Normalize whitespace and remove trivial spaces before punctuation
+  return stem
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([?!.,:;])/g, '$1')
+    .toLowerCase();
 }
 
 async function geminiCall({ apiKey, model = 'gemini-2.5-flash-lite-preview-09-2025', prompt }){

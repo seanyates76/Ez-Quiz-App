@@ -15,6 +15,7 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - Health: `/.netlify/functions/health` when running through Netlify.
 
 ## Recent polish
+- 2025-10-14 — Stabilize Jest (in-band); add providers/dom/css tests; ignore .artifacts (via ezq-head).
 - Unified UI tokens, lighter shadows, refined Options/Quiz Editor surfaces.
 - Removed theme radio row from Options (theme lives in Settings modal only).
 - Veil disables the page by default; Start tooltip appears only during Quiz Editor mode.
@@ -61,3 +62,24 @@ We sometimes ship new features in “beta” mode (same build; beta is a runtime
 - Next agent: append your updates here (date + highlight) so this stays a living log.
 
 — Codex (GPT-5)
+
+## Local Head CLI (ezq-head)
+
+Use the local Head coordinator to run sub‑agents, capture artifacts, and (optionally) request Codex proposals. Dry‑run by default; never changes files unless explicitly applied.
+
+- Install: `cd ../ezq-dev-tools && ./scripts/install.sh`
+- Quick run: `../ezq-dev-tools/bin/ezq-head run quick`
+- Presets: `quick = [smoke, lint, ui, parser, repo]`, `ui-check = [ui, repo]`
+- Artifacts: `../ezq-dev-tools/.ezq/runs/<run_id>/artifacts`
+- App path override: `EZQ_APP_DIR=$(pwd) ../ezq-dev-tools/bin/ezq-head run quick`
+- Apply mode (conflict-sim first): `../ezq-dev-tools/bin/ezq-head apply`
+
+### Codex bridge (MCP-like toolset)
+
+Codex (CLI) can consume a Context Packet built by the Head and return a JSON summary with proposed patch artifacts. Treat this as a tool, similar in spirit to an MCP action:
+
+- Call: `../ezq-dev-tools/bin/ezq-head codex "<one‑sentence brief>" --timebox 120`
+- Constraints: whitelist `public/`, `netlify/`, `package.json`; no installs/deletes/renames; minimal diffs
+- Output: artifacts at `.ezq/runs/<run_id>/artifacts/codex/{context-packet.json,codex-output.txt}`
+- The last line of `codex-output.txt` is JSON: `{ summary, proposed_diffs, verify, uncertainty, next_hint }`
+- Review then apply patches manually (or wire auto‑apply later behind conflict simulation)

@@ -109,6 +109,13 @@ describe('normalizeQuizV2', () => {
     ]);
   });
 
+  it('parses legacy lines with TITLE header and trims surrounding whitespace', () => {
+    const legacy = 'TITLE: Legacy Set\nTF|Sky?|T\n';
+    const quiz = normalizeQuizV2(legacy, { topic: 'Env' });
+    expect(quiz.title).toBe('Legacy Set');
+    expect(quiz.questions).toEqual([{ type: 'TF', prompt: 'Sky?', correct: true }]);
+  });
+
   it('deduplicates and sorts multi-answer MC indices', () => {
     const payload = {
       questions: [

@@ -80,12 +80,42 @@ function wireBrandSwap(){
   }catch{}
 }
 
+function wireSupportSwap(){
+  try{
+    const bmc = document.getElementById('bmcButton');
+    const fallback = document.getElementById('coffeeFab');
+    if(bmc && fallback){ fallback.classList.add('hidden'); fallback.setAttribute('aria-hidden','true'); }
+  }catch{}
+}
+
+function wireFooterModals(){
+  try{
+    document.addEventListener('click', (ev)=>{
+      const a = ev.target && ev.target.closest && ev.target.closest('a[data-modal]');
+      if(!a) return;
+      const modalId = a.getAttribute('data-modal');
+      if(!modalId) return;
+      ev.preventDefault();
+      const modal = document.getElementById(modalId);
+      if(modal){
+        modal.classList.remove('hidden');
+        modal.removeAttribute('hidden');
+        // Focus first focusable control if present
+        const btn = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if(btn && btn.focus) try{ btn.focus(); }catch{}
+      }
+    });
+  }catch{}
+}
+
 document.addEventListener('DOMContentLoaded', ()=>{
   wireMirror();
   wireStartHint();
   wireLockGuards();
   wireQuizLocks();
   wireBrandSwap();
+  wireSupportSwap();
+  wireFooterModals();
   // IE fallback: ensure the IE toggle at least shows/hides the mount
   try{
     const toggle = document.getElementById('toggleInteractiveEditor') || document.querySelector('[data-role="quiz-editor-toggle"]');

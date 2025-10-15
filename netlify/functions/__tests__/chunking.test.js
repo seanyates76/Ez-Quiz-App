@@ -93,4 +93,34 @@ describe('generateInBatches', () => {
     expect(lines).toHaveLength(2);
     expect(new Set(lines).size).toBe(2);
   });
+
+  test('de-duplicates stems ignoring trivial whitespace/punctuation', async () => {
+    normalizeLegacyLines
+      .mockImplementationOnce(() => ({
+        title: 'Stem Variants',
+        lines: [
+          'MC|Alpha stem?|A) 1;B) 2|A',
+          'MC|Beta stem?|A) 1;B) 2|B',
+        ].join('\n'),
+      }))
+      .mockImplementationOnce(() => ({
+        title: 'Stem Variants',
+        lines: [
+          'MC|Alpha stem ?|A) 1;B) 2|A',
+          'MC|Gamma stem?|A) 1;B) 2|B',
+        ].join('\n'),
+      }));
+
+    const result = await generateInBatches({
+      provider: 'echo',
+      topic: 'Topic',
+      count: 3,
+      batchSize: 2,
+      maxPasses: 2,
+    });
+
+    const lines = result.lines.split('\n');
+    expect(new Set(lines).size).toBe(lines.length);
+    expect(lines).toContain('MC|Gamma stem?|A) 1;B) 2|B');
+  });
 });
