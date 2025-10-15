@@ -236,16 +236,19 @@ export function renderResults(){
   // Sync retake controls UI when results are shown/updated
   try{ updateRetakeUI(); }catch{}
   // Update chip after we know full correctness
-  const chipText = showTime
-    ? `${correctCountFull}/${baseQs.length} • ${formatDuration(Math.max(0,duration))}`
-    : `${correctCountFull}/${baseQs.length}`;
   if(chip){
-    chip.textContent = chipText;
-    // Visual grade: good (>=80%), mid (50–79%), bad (<50%)
-    const ratio = baseQs.length ? (correctCountFull / baseQs.length) : 0;
-    const grade = ratio >= 0.8 ? 'score-good' : (ratio < 0.5 ? 'score-bad' : 'score-mid');
-    chip.classList.remove('score-good','score-mid','score-bad');
-    chip.classList.add(grade);
+    const labelText = `${correctCountFull}/${baseQs.length}`;
+    const timeText = showTime ? formatDuration(Math.max(0,duration)) : '';
+    // Build segmented bar (one cell per question)
+    const cells = Array.from({ length: baseQs.length }, (_, i) => i < correctCountFull
+      ? '<span class="sg-cell filled" aria-hidden="true"></span>'
+      : '<span class="sg-cell" aria-hidden="true"></span>'
+    ).join('');
+    const aria = showTime ? `${correctCountFull} out of ${baseQs.length} in ${timeText}` : `${correctCountFull} out of ${baseQs.length}`;
+    chip.setAttribute('aria-label', aria);
+    chip.innerHTML = `<span class="score-graph" aria-hidden="true">${cells}</span>`
+      + `<span class="sg-label">${labelText}</span>`
+      + (showTime ? `<span class="sg-time">${timeText}</span>` : '');
   }
 }
 
