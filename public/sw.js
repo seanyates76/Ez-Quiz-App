@@ -8,7 +8,7 @@
  * page for navigation requests when offline.
  */
 
-const CACHE_NAME = 'ezquiz-cache-v123';
+const CACHE_NAME = 'ezquiz-cache-v124';
 const RELATIVE_URLS = [
   'index.html',
   'js/state.js',

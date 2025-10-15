@@ -1176,8 +1176,8 @@ footer.container{
   margin-top:auto;
   /* Keep some internal breathing room */
   padding-top:8px;
-  /* Reserve space so floating buttons never cover the footer */
-  padding-bottom:calc(12px + var(--fab-reserve, 112px) + env(safe-area-inset-bottom, 0px));
+  /* Reserve space so floating buttons never cover the footer (dynamic via --fab-reserve) */
+  padding-bottom:calc(12px + var(--fab-reserve, 16px) + env(safe-area-inset-bottom, 0px));
   margin-bottom:0;
   /* Avoid FAB overlap on the right on narrow screens */
   padding-right: var(--fab-right-pad, 0px);
@@ -1185,6 +1185,7 @@ footer.container{
 /* Official support button container */
 .support-cta{ display:flex; justify-content:center; align-items:center; margin: 6px 0 18px 0; }
 .support-cta img{ display:block; height:44px; width:auto; }
+@media (max-width:420px){ .support-cta img{ height:36px } }
 /* Footer links row */
 .footer-links{ display:flex; justify-content:center; align-items:center; gap:10px; margin:8px 0; color:var(--muted); }
 .footer-links a{ text-decoration:none; font-weight:600; }
