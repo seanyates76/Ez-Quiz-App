@@ -486,31 +486,11 @@ body[data-theme="light"] .gen-toolbar{
 }
 
 @media (max-width:720px){
-  .gen-toolbar{
-    grid-template-columns:minmax(0, 1.8fr) minmax(140px, 0.8fr);
-    grid-template-areas:
-      "topic topic"
-      "difficulty length"
-      "actions actions";
-    padding:calc(var(--space-3) + 2px) clamp(16px, 5vw, 22px);
-    gap:var(--space-2);
-  }
-  .gen-toolbar > .toolbar-field:first-of-type,
-  .gen-toolbar > .toolbar-field.toolbar-field--difficulty,
-  .gen-toolbar .number-field,
-  .gen-toolbar .action-stack,
-  .gen-toolbar #generateBtn,
-  .gen-toolbar #optionsBtn{
-    min-width:0;
-    width:100%;
-  }
-  .gen-toolbar > .toolbar-field.toolbar-field--difficulty{ min-width:220px; }
-  .gen-toolbar .number-field{ max-width:220px; justify-self:end; }
-  .gen-toolbar .action-stack,
-  .gen-toolbar #generateBtn,
-  .gen-toolbar #optionsBtn{
-    justify-self:stretch;
-  }
+  .gen-toolbar{ grid-template-columns:1fr; grid-template-areas:"left" "actions"; padding:calc(var(--space-3) + 2px) clamp(16px, 5vw, 22px); gap:var(--space-2); }
+  .gen-toolbar > .toolbar-left{ grid-template-columns:minmax(0,1.8fr) minmax(140px,.8fr); }
+  .toolbar-left .toolbar-field--difficulty{ min-width:0; }
+  .toolbar-left .number-field{ max-width:none; justify-self:stretch; }
+  .gen-toolbar .action-stack{ justify-self:stretch; }
 }
 
 @media (max-width:420px){
