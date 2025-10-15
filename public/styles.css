@@ -445,7 +445,8 @@ body[data-theme="dark"] .site-header .brand-link{
   grid-template-columns:minmax(220px,1.8fr) minmax(200px,1.2fr) minmax(96px,auto) auto;
   grid-template-areas:"topic difficulty length actions";
   align-items:center;
-  gap:var(--space-2);
+  column-gap:var(--space-1);
+  row-gap:var(--space-2);
   background:linear-gradient(180deg, rgba(21,25,37,.96), rgba(21,25,37,.9));
   border:1px solid var(--field-border);
   border-radius:var(--radius-card);
@@ -468,8 +469,7 @@ body[data-theme="light"] .gen-toolbar{
 .gen-toolbar .action-stack{ grid-area:actions; align-self:center; display:grid; grid-auto-rows:var(--toolbar-height, 44px); gap:var(--space-1); }
 
 .gen-toolbar #generateBtn,
-.gen-toolbar #optionsBtn,
-.gen-toolbar #startToolbarBtn{
+.gen-toolbar #optionsBtn{
   justify-self:end;
   align-self:stretch;
   min-height:var(--toolbar-height, 44px);
