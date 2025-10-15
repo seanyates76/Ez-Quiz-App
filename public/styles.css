@@ -1354,27 +1354,30 @@ body[data-locked="true"] .gen-toolbar{ opacity:.6; pointer-events:none; filter:g
 }
 .update-banner:not(.hidden){ display:flex; }
 
-/* Question Types (Options) mobile-friendly chips */
-.qt-row{ align-items:center }
+/* Question Types (Options) — chip-like labels, keep native checks visible */
+.qt-row{ align-items:center; gap:10px; }
 .qt-row label{
-  display:flex;
+  display:inline-flex;
   align-items:center;
-  gap:6px;
-  padding:0;
-  border:0;
-  background:transparent;
-  border-radius:0;
+  gap:8px;
+  padding:8px 12px;
+  border:1px solid var(--field-border);
+  background:var(--panel-2);
+  border-radius:var(--radius-control);
   font-size:.95rem;
+  cursor:pointer;
+  transition:background .15s ease, border-color .15s ease, color .15s ease, box-shadow .18s ease;
 }
-.qt-row input[type="checkbox"]{
-  margin:0;
-  transform:scale(1);
+body[data-theme="light"] .qt-row label{ background:var(--panel); }
+.qt-row label:hover{ background:var(--field-hover); border-color:var(--border); }
+.qt-row label:focus-within{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
+.qt-row input[type="checkbox"]{ margin:0; transform:scale(1); }
+/* Progressive enhancement: highlighted chip for checked */
+.qt-row label:has(input:checked){
+  border-color:var(--primary);
+  background:color-mix(in srgb, var(--primary) 8%, var(--panel) 92%);
 }
-.qt-row label:has(input:checked){ color:inherit; font-weight:inherit; }
-.qt-row label:focus-within{
-  outline:1px solid var(--ring);
-  outline-offset:2px;
-}
+.qt-row label:has(input:disabled){ opacity:.65; cursor:not-allowed; }
 @media (max-width:600px){
   .qt-row .lbl{ flex: 1 0 100% }
   .qt-row label{ flex: 1 1 calc(50% - 8px); min-width: 140px; }
