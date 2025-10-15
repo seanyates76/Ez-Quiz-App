@@ -115,6 +115,27 @@ body[data-visual="soft"][data-theme="light"]{
   /* Keep light ring readable; slightly reduced */
   --c-focus-ring: rgba(113,140,255,0.26);
 }
+/* Soft variant component polish: flatter surfaces, quieter borders */
+body[data-visual="soft"] .btn{ border-color: transparent; }
+body[data-visual="soft"] .btn-outline{ border-color: var(--border-strong); }
+body[data-visual="soft"] .card,
+body[data-visual="soft"] .modal__dialog,
+body[data-visual="soft"] .gen-toolbar,
+body[data-visual="soft"] .options-panel,
+body[data-visual="soft"] .ie-card,
+body[data-visual="soft"] .ie-toolbar,
+body[data-visual="soft"] .adv-mode-toggle,
+body[data-visual="soft"] .opt-switch{ border-color: transparent; }
+body[data-visual="soft"] .gen-toolbar{ background: var(--panel); }
+body[data-visual="soft"][data-theme="light"] .gen-toolbar{ background: var(--panel); }
+
+/* Slimmer buttons on larger screens */
+@media (min-width: 900px){
+  body[data-visual="soft"] .btn{ padding: 8px 12px; min-width: 96px; }
+  body[data-visual="soft"] .gen-toolbar{ --toolbar-height: 40px; }
+  body[data-visual="soft"] .gen-toolbar #generateBtn,
+  body[data-visual="soft"] .gen-toolbar #optionsBtn{ min-width: 112px; font-size: .9rem; }
+}
 *,*::before,*::after{box-sizing:border-box}
 html{font-size:var(--fz-2); line-height:var(--lh-2); color-scheme:dark;}
 body{margin:0; min-height:100vh; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--text); display:flex; flex-direction:column;}
