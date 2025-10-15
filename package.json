@@ -6,6 +6,7 @@
   "description": "Static PWA + Netlify Functions for EZ Quiz",
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest -i --passWithNoTests",
+    "ui:check": "node ./scripts/ui-check.mjs",
     "lint": "eslint . || true",
     "lint:fix": "eslint . --fix || true",
     "fmt:check": "prettier -c . || true",
@@ -19,6 +20,7 @@
     "nodemailer": "^7.0.9"
   },
   "devDependencies": {
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "puppeteer": "^22.12.1"
   }
 }

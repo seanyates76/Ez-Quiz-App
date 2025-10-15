@@ -144,7 +144,20 @@ document.addEventListener('DOMContentLoaded', ()=>{
   wireStartHint();
   wireLockGuards();
   wireQuizLocks();
-  // No toolbar Start: ensure primary flow is Generate here; Start remains in Options
+  // Mirror toolbar Start to the main Start button; hide duplicate in Options
+  try{
+    const startTop = document.getElementById('startToolbarBtn');
+    const startMain = document.getElementById('startBtn');
+    if(startTop && startMain){
+      // Hide the Options-panel Start to avoid duplication
+      try{ startMain.style.display = 'none'; startMain.setAttribute('aria-hidden','true'); }catch{}
+      const sync = ()=>{ startTop.disabled = !!startMain.disabled; };
+      startTop.addEventListener('click', (e)=>{ e.preventDefault(); if(!startTop.disabled) startMain.click(); });
+      const mo = new MutationObserver(sync);
+      mo.observe(startMain, { attributes:true, attributeFilter:['disabled'] });
+      sync();
+    }
+  }catch{}
   wireBrandSwap();
   wireSupportSwap();
   wireFooterModals();

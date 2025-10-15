@@ -468,7 +468,7 @@ body[data-theme="light"] .gen-toolbar{
 .gen-toolbar .number-field{ grid-area:length; min-width:96px; align-self:center; }
 .gen-toolbar .action-stack{ grid-area:actions; align-self:center; justify-self:end; display:grid; grid-auto-rows:var(--toolbar-height, 44px); gap:var(--space-1); max-width:100%; }
 
-.gen-toolbar #generateBtn,
+.gen-toolbar #startToolbarBtn,
 .gen-toolbar #optionsBtn{
   justify-self:end;
   align-self:stretch;
