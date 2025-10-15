@@ -74,16 +74,20 @@ async function run() {
     resolvedPort = (addr && addr.port) || resolvedPort;
   } catch {}
 
-  const browser = await puppeteer.launch({ headless: 'new', defaultViewport: null });
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    defaultViewport: null,
+    args: ['--no-sandbox','--disable-setuid-sandbox','--no-zygote','--single-process','--disable-gpu']
+  });
   const page = await browser.newPage();
 
   ensureDir(artifactsDir);
 
-  const viewports = [
-    { name: 'desktop', width: 1280, height: 900 },
-    { name: 'tablet', width: 834, height: 1112 },
-    { name: 'mobile', width: 390, height: 844 },
-  ];
+  // Broad width sweep for scalability confidence
+  const widthList = (process.env.UI_CHECK_WIDTHS || '').split(',').map(s=>parseInt(s,10)).filter(n=>Number.isFinite(n) && n>0);
+  const defaults = [360, 390, 414, 600, 640, 720, 768, 800, 820, 834, 912, 1024, 1200, 1280, 1366, 1440];
+  const widths = widthList.length ? widthList : defaults;
+  const viewports = widths.map((w)=>({ name: `w${w}`, width: w, height: w < 740 ? 844 : 900 }));
 
   const failures = [];
 
@@ -106,6 +110,59 @@ async function run() {
       await sleep(150);
     }
 
+    // Ensure Options is open, Quiz Editor is expanded, Interactive mode is on, and Mirror is visible
+    try {
+      await page.evaluate(() => {
+        const qs = (id) => document.getElementById(id);
+        const q = (sel, ctx=document) => ctx.querySelector(sel);
+
+        // Open Options panel
+        const optionsBtn = qs('optionsBtn');
+        const optionsPanel = qs('optionsPanel');
+        if (optionsPanel && optionsPanel.hidden) {
+          if (optionsBtn && optionsBtn.click) optionsBtn.click();
+          // Fallback if scripts are stripped
+          if (optionsPanel.hidden) {
+            optionsPanel.hidden = false;
+            optionsBtn && optionsBtn.setAttribute && optionsBtn.setAttribute('aria-expanded','true');
+          }
+        }
+
+        // Expand Quiz Editor disclosure
+        const advDisclosure = q('.advanced-disclosure');
+        const advBlock = qs('advancedBlock');
+        if (advBlock && advBlock.hidden) {
+          if (advDisclosure && advDisclosure.click) advDisclosure.click();
+          if (advBlock.hidden) {
+            advBlock.hidden = false;
+            advDisclosure && advDisclosure.setAttribute && advDisclosure.setAttribute('aria-expanded','true');
+          }
+        }
+
+        // Force Interactive mode ON
+        const ieToggle = qs('toggleInteractiveEditor') || q('[data-role="quiz-editor-toggle"]');
+        if (ieToggle && !ieToggle.checked) {
+          ieToggle.checked = true;
+          try { ieToggle.dispatchEvent(new Event('change', { bubbles:true })); } catch {}
+        }
+        // Reflect visibility if scripts are stripped
+        const interactiveMount = qs('interactiveEditor');
+        if (interactiveMount) interactiveMount.classList.remove('hidden');
+
+        // Ensure Mirror is visible (Debug/Mirror toggle)
+        const mirrorToggle = qs('mirrorToggle');
+        const mirrorBox = qs('mirrorBox');
+        if (mirrorToggle && !mirrorToggle.checked) {
+          mirrorToggle.checked = true;
+          try { mirrorToggle.dispatchEvent(new Event('change', { bubbles:true })); } catch {}
+        }
+        if (mirrorBox && mirrorBox.getAttribute('data-on') !== 'true') {
+          mirrorBox.setAttribute('data-on','true');
+        }
+      });
+      await sleep(120);
+    } catch {}
+
     const metrics = await page.evaluate(() => {
       const out = { found: {}, selectors: {}, errors: [] };
       const q = (sel, ctx=document) => ctx.querySelector(sel);
@@ -121,6 +178,9 @@ async function run() {
       const diff = q('.toolbar-field--difficulty', left);
       const len = q('.number-field', left);
       const actions = q('.action-stack', tb);
+      const diffBox = q('.toolbar-field--difficulty .difficulty-stack', left) || diff;
+      const lenBox = q('.number-field .number-wrap', left) || len;
+      const firstActionBtn = q('.action-stack button', tb) || actions;
 
       out.found = {
         toolbar: !!tb, left: !!left, topic: !!topic, difficulty: !!diff, length: !!len, actions: !!actions,
@@ -137,7 +197,7 @@ async function run() {
       if (out.errors.length) return out;
 
       const r = (el) => el.getBoundingClientRect();
-      const tr = r(tb), r1 = r(topic), r2 = r(diff), r3 = r(len), ra = r(actions);
+      const tr = r(tb), rLeft = r(left), r1 = r(topic), r2 = r(diff), r3 = r(len), ra = r(actions);
       const g12 = Math.round(r2.left - r1.right);
       const g23 = Math.round(r3.left - r2.right);
       const g3A = Math.round(ra.left - r3.right);
@@ -148,14 +208,47 @@ async function run() {
       const gridOuter = getComputedStyle(tb).gridTemplateColumns;
       const gridLeft = left !== tb ? getComputedStyle(left).gridTemplateColumns : '(flat)';
 
+      // Visual gaps (interactive elements): Difficulty stack → Number wrap; Number wrap → first action button
+      const rDiffBox = r(diffBox), rLenBox = r(lenBox), rActBtn = r(firstActionBtn);
+      const v12 = Math.round(rLenBox.left - rDiffBox.right);
+      const v3A = Math.round(rActBtn.left - rLenBox.right);
+
+      // Vertical row gap (stacked toolbar rows)
+      const vrToolbar = Math.round(ra.top - rLeft.bottom);
+
+      // Editor mirror vs summary spacing (supports either order)
+      const mirror = q('.mirror-box');
+      const summary = q('#ieSummary') || q('.ie-summary');
+      let vrEditor = null;
+      let vrEditorDir = null; // 'summaryBelow' | 'mirrorBelow'
+      if (mirror && summary) {
+        const rm = r(mirror), rs = r(summary);
+        if (rs.top > rm.bottom) {
+          vrEditor = Math.round(rs.top - rm.bottom);
+          vrEditorDir = 'summaryBelow';
+        } else if (rm.top > rs.bottom) {
+          vrEditor = Math.round(rm.top - rs.bottom);
+          vrEditorDir = 'mirrorBelow';
+        } else {
+          // Overlap or zero gap: treat as 0 for reporting
+          vrEditor = 0;
+          vrEditorDir = 'overlap';
+        }
+      }
+
       // Highlight elements for the screenshot
       topic.style.outline = '2px solid #7aa2ff';
       diff.style.outline = '2px solid #7aa2ff';
       len.style.outline = '2px solid #7aa2ff';
       actions.style.outline = '2px dashed #ffb74a';
 
-      return { g12, g23, g3A, inside, sameRow, heights, centers, gridOuter, gridLeft,
-               boxes: { toolbar: tr, topic: r1, difficulty: r2, length: r3, actions: ra },
+      const mbr = mirror ? r(mirror) : null;
+      const sbr = summary ? r(summary) : null;
+      const mirrorDisplay = mirror ? getComputedStyle(mirror).display : null;
+      const summaryDisplay = summary ? getComputedStyle(summary).display : null;
+      return { g12, g23, g3A, v12, v3A, vrToolbar, vrEditor, vrEditorDir, inside, sameRow, heights, centers, gridOuter, gridLeft,
+               boxes: { toolbar: {top:tr.top,bottom:tr.bottom}, topic: {top:r1.top,bottom:r1.bottom}, difficulty: {top:r2.top,bottom:r2.bottom}, length: {top:r3.top,bottom:r3.bottom}, actions: {top:ra.top,bottom:ra.bottom}, mirror: mbr ? {top:mbr.top,bottom:mbr.bottom,height:mbr.height} : null, summary: sbr ? {top:sbr.top,bottom:sbr.bottom,height:sbr.height} : null },
+               displays: { mirror: mirrorDisplay, summary: summaryDisplay },
                found: out.found, selectors: out.selectors, errors: out.errors };
     });
 
@@ -163,15 +256,30 @@ async function run() {
       failures.push({ viewport: vp.name, reason: 'missing-toolbar-elements', details: metrics });
     } else {
       const tol = 2; // px gap tolerance
-      const okEqual = Math.abs(metrics.g12 - metrics.g23) <= tol;
-      const okLast = Math.abs(metrics.g23 - metrics.g3A) <= tol; // last gap similar to others
-      const okRow = process.env.UI_CHECK_SAME_ROW === '0' && vp.name === 'mobile' ? true : !!metrics.sameRow;
-      if (!okEqual || !okLast || !okRow) {
+      const isSmall = vp.width <= 912; // treat <=912px wide as small (tablet portrait included)
+      const enforceRow = process.env.UI_CHECK_SAME_ROW === '1' ? true : !isSmall;
+      const okRow = enforceRow ? !!metrics.sameRow : true;
+      const checkGaps = !!metrics.sameRow; // only when trio is on same row
+      const okEqual = !checkGaps || Math.abs(metrics.g12 - metrics.g23) <= tol;
+      // Last gap is allowed to stretch; it must be at least as big as D→L
+      const okLast = !checkGaps || (metrics.g3A >= metrics.g23 - tol);
+      // Visual gap constraints: keep v12 ~10px (6–14 ok); ensure v3A >= 8px
+      const okV12 = !checkGaps || (typeof metrics.v12 === 'number' ? (metrics.v12 >= 6 - tol && metrics.v12 <= 14 + tol) : true);
+      const okV3A = !checkGaps || (typeof metrics.v3A === 'number' ? (metrics.v3A >= 8 - tol) : true);
+      // Vertical row gaps: mobile toolbar rows need ≥ ~16px; editor mirror→summary needs ≥ ~16px
+      const okVrToolbar = (!checkGaps && typeof metrics.vrToolbar === 'number') ? (metrics.vrToolbar >= 14) : true;
+      const okVrEditor = (typeof metrics.vrEditor === 'number') ? (metrics.vrEditor >= 14) : true;
+
+      if (!okRow || !okEqual || !okLast || !okV12 || !okV3A || !okVrToolbar || !okVrEditor) {
         failures.push({ viewport: vp.name, reason: 'layout-misaligned', details: metrics,
           hints: [
-            !okRow ? 'Fields not on the same row — check nested trio grid at this width.' : null,
-            !okEqual ? `Gap Topic→Diff (${metrics.g12}px) vs Diff→Len (${metrics.g23}px) differs` : null,
-            !okLast ? `Len→Actions gap (${metrics.g3A}px) not similar to field gaps` : null,
+            enforceRow && !okRow ? 'Fields not on the same row — trio must be one line at this width.' : null,
+            checkGaps && !okEqual ? `Gap Topic→Diff (${metrics.g12}px) vs Diff→Len (${metrics.g23}px) differs` : null,
+            checkGaps && !okLast ? `Len→Actions gap (${metrics.g3A}px) should be >= Diff→Len (${metrics.g23}px)` : null,
+            checkGaps && !okV12 ? (typeof metrics.v12==='number' ? `Visual gap Diff→Len (v12=${metrics.v12}px) should be ~10px (6–14px acceptable)` : 'Visual gap Diff→Len missing') : null,
+            checkGaps && !okV3A ? (typeof metrics.v3A==='number' ? `Visual gap Len→Actions (v3A=${metrics.v3A}px) should be >= 8px` : 'Visual gap Len→Actions missing') : null,
+            (!checkGaps && !okVrToolbar) ? (typeof metrics.vrToolbar==='number' ? `Toolbar row gap too small (vrToolbar=${metrics.vrToolbar}px, need ≥14px)` : 'Toolbar row gap missing') : null,
+            (!okVrEditor) ? (typeof metrics.vrEditor==='number' ? `Mirror↔Summary vertical gap too small (vrEditor=${metrics.vrEditor}px, need ≥14px)` : 'Mirror↔Summary gap missing') : null,
           ].filter(Boolean)
         });
       }

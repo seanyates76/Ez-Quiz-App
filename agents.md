@@ -14,6 +14,27 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - Full stack: `netlify dev` from repo root; copy env vars from `ENV.md`. Use `AI_PROVIDER=echo` if you lack API keys.
 - Health: `/.netlify/functions/health` when running through Netlify.
 
+## Visual UI Checks (toolbar + responsive)
+
+We now ship a viewport‑aware UI check that validates the generator toolbar layout at multiple widths and writes screenshots + measured metrics. It’s designed to prevent regressions where the Difficulty→Length gap grows, or the Length control visually hugs the action buttons at tablet sizes.
+
+- Install once: `npm i` (Puppeteer is a dev dep)
+- Run sweep: `npm run ui:check`
+  - Artifacts: `.artifacts/ui/toolbar-<viewport>.png` and `.json`
+  - Default widths: `360,390,414,600,640,720,768,800,820,834,912,1024,1200,1280,1366,1440`
+  - Override widths: `UI_CHECK_WIDTHS=375,820,1280 npm run ui:check`
+  - Notes: The runner uses a small static server; if blocked, it falls back to inline HTML+CSS (no scripts) to still measure layout. It launches Chromium with sandbox‑safe flags by default.
+
+What it enforces
+- Topic→Difficulty and Difficulty→Length wrapper gaps equal within 2px (when on the same row)
+- Length→Actions wrapper gap is allowed to stretch, but never less than the field gap
+- Visual gaps (interactive elements):
+  - Diff→Length ≈ 10px (6–14 acceptable)
+  - Length→Actions ≥ 8px (prevents “sticking”)
+- Actions stay inside the toolbar (no overflow)
+
+CI‑friendly: The script exits non‑zero on failure and prints a self‑diagnosing report (selectors, computed grids, gap values, y‑centers, hints) so it’s easy to spot what drifted.
+
 ## Recent polish
 - 2025-10-14 — Stabilize Jest (in-band); add providers/dom/css tests; ignore .artifacts (via ezq-head).
 - Unified UI tokens, lighter shadows, refined Options/Quiz Editor surfaces.
@@ -60,6 +81,12 @@ We sometimes ship new features in “beta” mode (same build; beta is a runtime
 - Before promoting quiz v2 to end users: update the client fetch path to send `format=quiz-json`, surface the structured data in UI, and add regression tests for the new payload.
 - Next exploration: story-board the explanations UI (visual spec + API hook) before wiring it up so we can document the flow alongside implementation.
 - Next agent: append your updates here (date + highlight) so this stays a living log.
+
+### Agent playbook (quick)
+- Local smoke: `npm test` (Node tests + DOM/CSS sanity)
+- UI snapshot sweep: `npm run ui:check` (review `.artifacts/ui/`)
+- Full stack: `netlify dev` (`AI_PROVIDER=echo` if no keys)
+- If the toolbar gaps regress, iterate only in `public/styles.css` within `.gen-toolbar` + `.toolbar-left` and re‑run `ui:check` until green.
 
 — Codex (GPT-5)
 
