@@ -108,6 +108,20 @@ function wireFooterModals(){
   }catch{}
 }
 
+function adjustFabReserve(){
+  try{
+    const root = document.documentElement;
+    const stack = document.getElementById('floatingActions');
+    let reservePx = 16;
+    if (stack && stack.offsetParent !== null) {
+      const rect = stack.getBoundingClientRect();
+      // Use height plus a small margin; clamp to sensible range
+      reservePx = Math.max(12, Math.min(160, Math.round(rect.height + 24)));
+    }
+    root.style.setProperty('--fab-reserve', reservePx + 'px');
+  }catch{}
+}
+
 document.addEventListener('DOMContentLoaded', ()=>{
   wireMirror();
   wireStartHint();
@@ -116,6 +130,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   wireBrandSwap();
   wireSupportSwap();
   wireFooterModals();
+  adjustFabReserve();
+  window.addEventListener('resize', adjustFabReserve);
   // IE fallback: ensure the IE toggle at least shows/hides the mount
   try{
     const toggle = document.getElementById('toggleInteractiveEditor') || document.querySelector('[data-role="quiz-editor-toggle"]');
