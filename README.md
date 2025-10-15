@@ -18,6 +18,16 @@ Testing
 - Install dependencies: `npm install`
 - Run the unit suite: `npm test`
 
+Automation & Head CLI (local)
+-----------------------------
+- Tools live in `../ezq-dev-tools`. Install and run quick checks:
+  - `cd ../ezq-dev-tools && ./scripts/install.sh`
+  - `./bin/ezq-head run quick` (smoke, lint, ui, parser, repo, audit)
+- Propose + iterate (dry):
+  - `printf '%s' '{"action":"run_extensive","brief":"<one-line goal>","iterations":3}' | ./bin/ezq-head tool`
+- Artifacts and reports live under `../ezq-dev-tools/.ezq/runs/<run_id>/artifacts`.
+- Default is dry-run; committing/pushing is always explicit and confirmed.
+
 Features
 - Generate + Quiz Editor with Mirror; import `.txt` or paste.
 - Keyboard: Enter to start/advance; Backspace to go back.
