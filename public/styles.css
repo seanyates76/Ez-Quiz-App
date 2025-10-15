@@ -135,9 +135,9 @@ body[data-visual="soft"][data-theme="light"] .gen-toolbar{ background: var(--pan
   body[data-visual="soft"] .gen-toolbar{ --toolbar-height: 36px; }
   body[data-visual="soft"] .gen-toolbar #generateBtn,
   body[data-visual="soft"] .gen-toolbar #optionsBtn{ min-width: 112px; font-size: .9rem; }
-  /* Tight number field: 3 characters wide (desktop) */
+  /* Tight number field: 8 characters wide (desktop) */
   .gen-toolbar .number-wrap{ width:auto; }
-  .gen-toolbar #countInput{ width:3ch; min-width:3ch; }
+  .gen-toolbar #countInput{ width:8ch; min-width:8ch; }
 }
 *,*::before,*::after{box-sizing:border-box}
 html{font-size:var(--fz-2); line-height:var(--lh-2); color-scheme:dark;}

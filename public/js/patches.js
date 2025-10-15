@@ -149,6 +149,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     const startTop = document.getElementById('startToolbarBtn');
     const startMain = document.getElementById('startBtn');
     if(startTop && startMain){
+      // Hide duplicate Start button in advanced panel when toolbar Start exists
+      try{ startMain.style.display = 'none'; startMain.setAttribute('aria-hidden','true'); }catch{}
       const sync = ()=>{ startTop.disabled = !!startMain.disabled; };
       startTop.addEventListener('click', (e)=>{ e.preventDefault(); if(!startTop.disabled) startMain.click(); });
       const mo = new MutationObserver(sync);
