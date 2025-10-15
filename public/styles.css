@@ -685,6 +685,7 @@ body[data-theme="light"] .number-wrap{ background:var(--panel); }
   border:1px solid var(--field-border);
   background:var(--panel-2);
   min-height:var(--toolbar-height, 44px);
+  height:var(--toolbar-height, 44px);
   transition:border-color .18s ease, background .18s ease, box-shadow .18s ease;
 }
 body[data-theme="light"] .difficulty-stack{ background:var(--panel); }
@@ -707,7 +708,7 @@ body[data-theme="light"] .difficulty-stack{ background:var(--panel); }
   --dot-size:4px;
   position:relative;
   width:100%;
-  padding:6px 0;
+  padding:0;
 }
 .difficulty-slider input[type="range"]{
   width:100%;
