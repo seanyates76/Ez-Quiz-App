@@ -1182,6 +1182,9 @@ footer.container{
   /* Avoid FAB overlap on the right on narrow screens */
   padding-right: var(--fab-right-pad, 0px);
 }
+/* Official support button container */
+.support-cta{ display:flex; justify-content:center; align-items:center; margin: 6px 0 18px 0; }
+.support-cta img{ display:block; height:44px; width:auto; }
 /* Helper text under toolbar */
 .subtle-help{ font-size:.9rem; opacity:.75; margin:.25rem 0 0 .25rem }
 

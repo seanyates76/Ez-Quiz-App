@@ -80,12 +80,21 @@ function wireBrandSwap(){
   }catch{}
 }
 
+function wireSupportSwap(){
+  try{
+    const bmc = document.getElementById('bmcButton');
+    const fallback = document.getElementById('coffeeFab');
+    if(bmc && fallback){ fallback.classList.add('hidden'); fallback.setAttribute('aria-hidden','true'); }
+  }catch{}
+}
+
 document.addEventListener('DOMContentLoaded', ()=>{
   wireMirror();
   wireStartHint();
   wireLockGuards();
   wireQuizLocks();
   wireBrandSwap();
+  wireSupportSwap();
   // IE fallback: ensure the IE toggle at least shows/hides the mount
   try{
     const toggle = document.getElementById('toggleInteractiveEditor') || document.querySelector('[data-role="quiz-editor-toggle"]');
