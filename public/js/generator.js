@@ -154,6 +154,37 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   // Initialize primary action based on advanced visibility
   setPrimaryAction(advBlock && !advBlock.hidden ? 'generate' : 'start');
 
+  // Track last generated params and "dirty since generation" state
+  function getParamsSnapshot(){
+    const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
+    const topic = topicRaw || 'General knowledge';
+    let count = parseInt((countInput?.value || pbCount?.value || '10'), 10);
+    if(!Number.isFinite(count)) count = 10;
+    count = Math.max(1, Math.min(50, count));
+    const difficulty = getDifficultyKey();
+    return { topic, count, difficulty };
+  }
+  function setLastGen(params){
+    const ui = (window.EZQ.ui = window.EZQ.ui || {});
+    ui.lastGen = { topic: params.topic, count: params.count, difficulty: params.difficulty };
+    ui.genDirty = false;
+    // Reset primary according to layout state when not dirty
+    setPrimaryAction(advBlock && !advBlock.hidden ? 'generate' : 'start');
+  }
+  function markDirtyIfChanged(){
+    const ui = (window.EZQ.ui = window.EZQ.ui || {});
+    const last = ui.lastGen;
+    const curr = getParamsSnapshot();
+    const changed = !last || last.topic !== curr.topic || last.count !== curr.count || last.difficulty !== curr.difficulty;
+    ui.genDirty = !!changed;
+    if(ui.genDirty){ setPrimaryAction('generate'); }
+    else { setPrimaryAction(advBlock && !advBlock.hidden ? 'generate' : 'start'); }
+  }
+  // Mark dirty when topic, count, or difficulty changes after a generation
+  topicInput?.addEventListener('input', markDirtyIfChanged);
+  countInput?.addEventListener('input', markDirtyIfChanged);
+  difficultySlider?.addEventListener('input', markDirtyIfChanged);
+
   loadBtn?.addEventListener('click', ()=> fileInput?.click());
   fileInput?.addEventListener('change', ()=>{
     const f = fileInput.files && fileInput.files[0]; if(!f) return;
@@ -179,12 +210,14 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } setEditorText(last); /* mirror stays hidden by default */ runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
 
   generateBtn?.addEventListener('click', async ()=>{
+    const ui = (window.EZQ.ui = window.EZQ.ui || {});
     const mode = generateBtn?.getAttribute('data-mode') || 'start';
     const editorText = (editor?.value || '').trim();
     const topicTyped = (topicInput?.value || '').trim();
-    // Prefer existing editor content (IE or manual paste) when present,
-    // regardless of current mode. Fallback to AI only when editor is empty.
-    if(editorText.length){
+    const isDirty = !!ui.genDirty;
+    // Prefer existing editor content only when parameters are not dirty.
+    // When dirty, force a fresh generation to reflect new inputs.
+    if(editorText.length && !isDirty){
       runParseFlow(editorText, topicTyped || 'Custom', '');
       if(S.quiz.questions && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); }
       return;
@@ -193,9 +226,10 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     if(mode==='generate'){
       setEditorText('');
     }
+    const snap = getParamsSnapshot();
     const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
-    const topic = topicRaw || 'General knowledge';
-    let count = parseInt((countInput?.value || pbCount?.value || '10'), 10); if(!Number.isFinite(count)) count = 10; count = Math.max(1, Math.min(50, count)); if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
+    const topic = snap.topic; if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
+    let count = snap.count;
     // Gather options
     const types = [ qtMC?.checked ? 'MC':null, qtTF?.checked? 'TF':null, qtYN?.checked? 'YN':null, qtMT?.checked? 'MT':null ].filter(Boolean);
     const difficulty = getDifficultyKey();
@@ -211,6 +245,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       try{ setMirrorVisible(true); }catch{}
       const title = (out && out.title) ? out.title : '';
       runParseFlow(lines, topic, title);
+      setLastGen({ topic, count, difficulty });
       if (mode==='start' && S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
     }catch(err){
       const msg = String(err && err.message || err || 'Error'); let pretty = msg;
