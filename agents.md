@@ -83,3 +83,9 @@ Codex (CLI) can consume a Context Packet built by the Head and return a JSON sum
 - Output: artifacts at `.ezq/runs/<run_id>/artifacts/codex/{context-packet.json,codex-output.txt}`
 - The last line of `codex-output.txt` is JSON: `{ summary, proposed_diffs, verify, uncertainty, next_hint }`
 - Review then apply patches manually (or wire auto‑apply later behind conflict simulation)
+
+## Next Agent Agenda
+- UI Visual Refresh: soften outlined wrappers (tokens + shadows) with accessible focus states.
+- Media Input (Phase 1): PDF/Image import UI stub with drag-drop and file picker; graceful fallback if function not deployed.
+- Tests: add DOM/css sanity cases for new UI; keep Jest in-band.
+- See: docs/agenda-ui-visual-refresh-media-input.md
