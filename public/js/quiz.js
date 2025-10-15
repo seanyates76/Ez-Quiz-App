@@ -239,7 +239,14 @@ export function renderResults(){
   const chipText = showTime
     ? `${correctCountFull}/${baseQs.length} • ${formatDuration(Math.max(0,duration))}`
     : `${correctCountFull}/${baseQs.length}`;
-  if(chip) chip.textContent = chipText;
+  if(chip){
+    chip.textContent = chipText;
+    // Visual grade: good (>=80%), mid (50–79%), bad (<50%)
+    const ratio = baseQs.length ? (correctCountFull / baseQs.length) : 0;
+    const grade = ratio >= 0.8 ? 'score-good' : (ratio < 0.5 ? 'score-bad' : 'score-mid');
+    chip.classList.remove('score-good','score-mid','score-bad');
+    chip.classList.add(grade);
+  }
 }
 
 function buildUserAnswerDetail(q,a){

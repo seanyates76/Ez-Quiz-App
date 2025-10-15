@@ -980,6 +980,27 @@ details.advanced > summary{display:none}
   background:var(--panel-2); color:var(--text);
   border:1px solid var(--field-border);
 }
+/* Results chip: make score pop visually */
+#resultsView #resultsChip{
+  height:36px; min-width:88px; padding:0 14px;
+  font-size:16px; font-weight:700; letter-spacing:.02em;
+  color:#fff; border:0;
+  background:linear-gradient(135deg, var(--primary), #8bb6ff);
+  box-shadow:0 10px 24px rgba(15,23,42,.28);
+  text-shadow:0 1px 0 rgba(0,0,0,.25);
+}
+#resultsView #resultsChip.score-good{
+  background:linear-gradient(135deg, var(--success), color-mix(in srgb, var(--success) 70%, white 30%));
+  box-shadow:0 10px 24px rgba(34,197,94,.35);
+}
+#resultsView #resultsChip.score-mid{
+  background:linear-gradient(135deg, var(--brand), var(--primary));
+  box-shadow:0 10px 24px rgba(98,112,243,.28);
+}
+#resultsView #resultsChip.score-bad{
+  background:linear-gradient(135deg, var(--danger), color-mix(in srgb, var(--danger) 65%, white 35%));
+  box-shadow:0 10px 24px rgba(255,93,108,.35);
+}
 .prog{flex:1; height:8px; background:var(--panel-2); border:1px solid var(--field-border); border-radius:999px; overflow:hidden}
 .prog-bar{height:100%; width:0%; background:linear-gradient(90deg, var(--primary), #8bb6ff); transition:width .25s ease}
 
