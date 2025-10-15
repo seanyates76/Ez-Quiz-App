@@ -51,3 +51,6 @@ icons/source.png
 
 # Local Netlify folder
 .netlify
+
+# Local artifacts written by dev tooling
+.artifacts/
