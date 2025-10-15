@@ -95,6 +95,26 @@ body[data-theme="light"] {
   --c-focus-ring:rgba(113,140,255,0.28);
   color-scheme:light;
 }
+/* Soft Outlines visual variant — lighter borders, softer focus, gentler shadow */
+body[data-visual="soft"]{
+  /* Dark theme defaults (applies unless data-theme="light") */
+  --c-border-weak: rgba(255,255,255,0.06);
+  --c-border-strong: rgba(255,255,255,0.12);
+  /* Component borders pick the weaker tone */
+  --field-border: var(--c-border-weak);
+  /* Softer card shadow, slightly larger feather */
+  --shadow-card: 0 6px 18px rgba(0,0,0,0.20);
+  /* Focus ring remains very visible, just a touch subtler */
+  --c-focus-ring: rgba(113,140,255,0.32);
+}
+body[data-visual="soft"][data-theme="light"]{
+  --c-border-weak: rgba(15,23,42,0.10);
+  --c-border-strong: rgba(15,23,42,0.16);
+  --field-border: var(--c-border-weak);
+  --shadow-card: 0 10px 24px rgba(15,23,42,0.08);
+  /* Keep light ring readable; slightly reduced */
+  --c-focus-ring: rgba(113,140,255,0.26);
+}
 *,*::before,*::after{box-sizing:border-box}
 html{font-size:var(--fz-2); line-height:var(--lh-2); color-scheme:dark;}
 body{margin:0; min-height:100vh; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--text); display:flex; flex-direction:column;}
