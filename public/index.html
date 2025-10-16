@@ -8,7 +8,7 @@
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="styles.css?v=1.5.17" />
 </head>
-<body data-theme="dark" data-clip="bitmap">
+<body data-theme="dark">
   <header class="site-header" role="banner">
     <div class="site-header__row">
       <div class="brand">
@@ -45,7 +45,12 @@
           <span class="toolbar-label">Topic</span>
           <div class="input-affix topic-affix">
             <input id="topicInput" type="text" class="toolbar-input has-affix" placeholder="e.g. Animals" />
-            <button id="importBtn" class="affix-btn btn-icon clip beta-only" type="button" title="Attach PDF/Image (beta)" aria-label="Attach PDF or Image (beta)"></button>
+            <button id="importBtn" class="affix-btn beta-only" type="button" title="Attach PDF/Image (beta)" aria-label="Attach PDF or Image (beta)">
+              <svg class="icon-clip" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M16 6v9a4 4 0 11-8 0V6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 7.5v7.5a2.5 2.5 0 11-5 0V7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
             <input id="importFile" type="file" accept="application/pdf,image/*" style="display:none" />
           </div>
         </label>
