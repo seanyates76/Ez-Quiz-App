@@ -1643,7 +1643,7 @@ body[data-beta] .beta-only{ display:inline-flex; }
 .input-affix:hover .affix-btn{ color:var(--text); border-left-color:var(--border); background:var(--field-hover); }
 .input-affix:focus-within .affix-btn{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); border-left-color:var(--ring); background:var(--panel); }
 .affix-btn:active{ filter:brightness(0.98); }
-.icon-clip{ display:block; width:18px; height:18px; max-width: calc(var(--affix-w) - 14px); max-height: calc(var(--affix-w) - 14px); margin-top:1px; }
+.icon-clip{ display:block; width:18px; height:18px; max-width: calc(var(--affix-w) - 14px); max-height: calc(var(--affix-w) - 14px); overflow:visible; transform:translateY(0.5px); }
 .icon-clip{ shape-rendering:geometricPrecision; }
 
 /* Drag indicator focused on the topic input only */
