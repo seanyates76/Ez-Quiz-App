@@ -57,6 +57,51 @@ function init(){
   wireQuizControls();
   wireResultsControls();
 
+  // Ensure paperclip icon renders: try local webfont, fallback to inline SVG if loading fails
+  (function ensurePaperclip(){
+    try{
+      const test = async () => {
+        if (!('fonts' in document)) return false;
+        try {
+          // Try both the local alias and the Google name
+          const ok1 = await document.fonts.load("24px 'EZQ Material Symbols'");
+          const ok2 = await document.fonts.load("24px 'Material Symbols Rounded'");
+          return (ok1 && ok1.length) || (ok2 && ok2.length);
+        } catch { return false; }
+      };
+      const swap = () => {
+        const nodes = document.querySelectorAll('.affix-btn .material-symbols-rounded, .affix-btn .msr');
+        nodes.forEach((n) => {
+          if (!n || n.getAttribute('data-ezq-svg') === '1') return;
+          const btn = n.closest('.affix-btn');
+          if (!btn) return;
+          n.setAttribute('data-ezq-svg','1');
+          n.innerHTML = '';
+          // Inline fallback SVG (rounded paperclip)
+          const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+          svg.setAttribute('width','20'); svg.setAttribute('height','20');
+          svg.setAttribute('viewBox','0 0 24 24'); svg.setAttribute('fill','none');
+          svg.setAttribute('aria-hidden','true');
+          const p1 = document.createElementNS('http://www.w3.org/2000/svg','path');
+          p1.setAttribute('d','M16 6v9a4 4 0 11-8 0V6');
+          p1.setAttribute('stroke','currentColor'); p1.setAttribute('stroke-width','1.8');
+          p1.setAttribute('stroke-linecap','round'); p1.setAttribute('stroke-linejoin','round');
+          const p2 = document.createElementNS('http://www.w3.org/2000/svg','path');
+          p2.setAttribute('d','M14 7.5v7.5a2.5 2.5 0 11-5 0V7.5');
+          p2.setAttribute('stroke','currentColor'); p2.setAttribute('stroke-width','1.8');
+          p2.setAttribute('stroke-linecap','round'); p2.setAttribute('stroke-linejoin','round');
+          svg.appendChild(p1); svg.appendChild(p2);
+          n.appendChild(svg);
+        });
+      };
+      // Try immediately; if not loaded within a short window, swap
+      Promise.race([
+        test(),
+        new Promise(res => setTimeout(()=>res(false), 400))
+      ]).then((ok)=>{ if(!ok) swap(); });
+    }catch{}
+  })();
+
   (function hydrateVersionDetails(){
     const PRODUCTION_VERSION = 'v3.3';
     const versionCopy = document.querySelector('[data-version-copy]');
