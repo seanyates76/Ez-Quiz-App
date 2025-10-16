@@ -1662,7 +1662,10 @@ body[data-beta] .beta-only{ display:inline-flex; }
   transition:background .15s ease, border-color .15s ease, color .15s ease, box-shadow .18s ease;
 }
 .topic-affix .affix-btn{ border-left:none; }
-.affix-btn:hover{ color:var(--text); background:var(--field-hover); }
+.affix-btn:hover{ background:transparent; }
+.affix-btn:hover .msr{ opacity:1; filter:brightness(.85); }
+.affix-btn:active{ background:var(--panel-2); }
+.affix-btn:active .msr{ filter:brightness(.8); }
 .affix-btn .msr{ opacity:.65; transform:translateX(1px); }
 .affix-btn:focus-visible .msr, .affix-btn:hover .msr{ opacity:1; }
 .affix-btn:focus-visible{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
