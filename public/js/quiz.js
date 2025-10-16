@@ -236,7 +236,7 @@ export function renderResults(){
       const exp = isBeta ? `<div id=\"explain-${origIdx}\" class=\"explain\" hidden role=\"status\" aria-live=\"polite\"></div>` : '';
       return `<div class="missed-item is-correct" data-orig="${origIdx}">` + header + line + exp + `</div>`;
     } else {
-      const yours = `<div class="user-ans ans-wrong"><strong>Your answer:</strong> ${userDetail}</div>`;
+      const yours = `<div class="user-ans ans-wrong"><strong>Your answer:</strong> ${userDetail} <span class="chip tag bad">Incorrect</span></div>`;
       const corr = `<div><strong>Correct:</strong> ${correctDetail}</div>`;
       const exp = isBeta ? `<div id=\"explain-${origIdx}\" class=\"explain\" hidden role=\"status\" aria-live=\"polite\"></div>` : '';
       return `<div class="missed-item is-wrong" data-orig="${origIdx}">` + header + yours + corr + exp + `</div>`;
@@ -449,7 +449,7 @@ function renderMTResult(origIdx, q, a){
     const ok = (u>=0 && u===c);
     const your = u>=0 ? `— <span class="ans-text">${escapeHTML(rightText(u))}</span>` : `— <span class="ans-text">No selection</span>`;
     const corr = c>=0 ? `— <span class="ans-text">${escapeHTML(rightText(c))}</span>` : '';
-    const yourLine = `<div class=\"mt-your\"><span class=\"lbl\">Your answer</span> <span class=\"chip letter ${ok?'good':'bad'}\">${toLetter(u)}</span> ${your}${ok ? ' <span class=\\\"chip tag good\\\">Correct</span>' : ''}</div>`;
+    const yourLine = `<div class=\"mt-your\"><span class=\"lbl\">Your answer</span> <span class=\"chip letter ${ok?'good':'bad'}\">${toLetter(u)}</span> ${your}${ok ? ' <span class=\\\"chip tag good\\\">Correct</span>' : ' <span class=\\\"chip tag bad\\\">Incorrect</span>'}</div>`;
     const corrLine = ok ? '' : `<div class=\"mt-correct\"><span class=\"lbl\">Correct answer</span> <span class=\"chip letter\">${toLetter(c)}</span> ${corr}</div>`;
     return `
       <div class="mt-row ${ok?'is-correct':'is-wrong'}">

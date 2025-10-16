@@ -805,7 +805,9 @@ body[data-theme="light"] .difficulty-track::before{ background:rgba(76,115,196,.
   transition:opacity .2s ease, transform .2s ease;
 }
 body[data-theme="light"] .options-panel{ background:var(--panel); }
+.options-panel{ opacity:0; transform:translateY(-2px); transition:opacity .16s ease, transform .16s ease }
 .options-panel[hidden]{display:none}
+.options-panel:not([hidden]){ opacity:1; transform:none }
 .options-regular .lbl{color:var(--muted); font-size:14px}
 .opt-switch{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--field-border); background:var(--panel-2); border-radius:var(--radius-control);}
 body[data-theme="light"] .opt-switch{ background:var(--panel); }
@@ -983,6 +985,7 @@ details.advanced > summary{display:none}
 /* Small tag-like chip for inline status (e.g., Correct) */
 .chip.tag{ height:22px; min-width:0; padding:0 8px; font-size:12px }
 .chip.tag.good{ background:rgba(34,197,94,.14); border-color:rgba(34,197,94,.35); color:var(--success) }
+.chip.tag.bad{ background:rgba(255,93,108,.14); border-color:rgba(255,93,108,.35); color:var(--danger) }
 /* Results score: graphical segmented bar (ditch pill) */
 #resultsView #resultsChip{
   display:inline-flex; align-items:center; gap:10px;
@@ -1002,7 +1005,7 @@ details.advanced > summary{display:none}
 #resultsView #resultsChip .sg-cell.filled{ background: var(--primary); border-color: transparent; }
 #resultsView #resultsChip .sg-label{ font-weight:700; }
 #resultsView #resultsChip .sg-time{ color: var(--muted); font-weight:600; font-size:.9rem; }
-.prog{flex:1; height:8px; background:var(--panel-2); border:1px solid var(--field-border); border-radius:999px; overflow:hidden}
+.prog{flex:1; height:10px; background:var(--panel-2); border:1px solid var(--field-border); border-radius:999px; overflow:hidden}
 .prog-bar{height:100%; width:0%; background:linear-gradient(90deg, var(--primary), #8bb6ff); transition:width .25s ease}
 
 /* Quiz title row */
@@ -1085,10 +1088,15 @@ details.advanced > summary{display:none}
 /* Results card typography and dividers */
 .results-missed .missed-item > div:first-child{ font-size: var(--fz-3); font-weight: 600; margin-bottom: 6px; }
 .results-missed .missed-item .user-ans + div{ border-top:1px solid var(--field-border); margin-top: 10px; padding-top: 10px; }
+/* Slight vertical spacing within MT rows */
+.results-missed .missed-item .mt-row{ margin:4px 0 }
 /* Inline explanation block */
-.explain{ margin-top:10px; border:1px solid var(--field-border); background:var(--panel-2); border-radius:10px; padding:10px; font-size:.9rem; line-height:1.4 }
+.explain{ margin-top:10px; border:1px solid var(--field-border); background:var(--panel-2); border-radius:10px; padding:10px; font-size:.9rem; line-height:1.4; max-width:66ch; margin-left:auto; margin-right:auto; opacity:0; transform:translateY(-2px); transition:opacity .16s ease, transform .16s ease }
+.explain:not([hidden]){ opacity:1; transform:none }
 .explain.soon{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; white-space: pre; text-align: center }
-.res-head{ display:flex; align-items:baseline; gap:8px; justify-content:space-between }
+.res-head{ display:flex; align-items:baseline; gap:8px; justify-content:space-between; flex-wrap:wrap }
+.res-head .explain-btn{ margin-left:auto }
+@media (max-width:600px){ .res-head .explain-btn{ margin-top:6px } }
 
 /* Two-column results on desktop */
 @media (min-width: 1024px){ .results-missed{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
