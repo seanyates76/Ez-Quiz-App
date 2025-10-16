@@ -17,6 +17,7 @@ Testing
 -------
 - Install dependencies: `npm install`
 - Run the unit suite: `npm test`
+ - UI layout sweep (toolbar): `npm run ui:check` (artifacts in `.artifacts/ui`) — set `UI_CHECK_WIDTHS=320,375,414,600` to target specific widths.
 
 Automation & Head CLI (local)
 -----------------------------
@@ -74,6 +75,10 @@ Troubleshooting Updates (Mobile/PWA)
 - If stuck on an old version: open with `?clear=1` (or `#clear-cache`).
 - Or Settings → Reset App: clears caches and unregisters service workers.
 - On iOS/Safari, you may need to remove site data and reopen once.
+
+Dev Tips
+- Beta Explain renders only in beta mode. Enable via Settings → Beta features, or visit `/beta` to set `FEATURE_FLAGS=beta` (sets a cookie) — the app also reflects beta via `body[data-beta]`.
+- Primary button mode debug: set `localStorage.setItem('EZQ_DEBUG','1')` to log primary action mode transitions in the console.
 
 Changelog Highlights
 - 1.5.0-beta.9: AI fallback chain covers `/.netlify/functions/generate-quiz`, `/api/generate`, and the Netlify hosts (`https://ez-quiz.netlify.app`, `https://eq-quiz.netlify.app`); CSP `connect-src` allows those domains; backend defaults to `gemini-2.5-flash-lite-preview-09-2025`; cache-buster v1.5.14 (SW cache v123).
