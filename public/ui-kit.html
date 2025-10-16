@@ -50,24 +50,13 @@
       <article class="card" aria-label="Focal paperclip">
         <div class="card__body">
           <div class="fp-box" style="display:grid; place-items:center; gap:12px; padding:8px 0;">
-            <!-- Extra headroom and even-weight strokes -->
-            <svg class="fp-clip" width="72" height="72" viewBox="0 0 26 26" fill="none" aria-hidden="true" style="overflow:visible">
-              <path d="M8 16 V9 a4.5 4.5 0 0 1 4.5-4.5 H17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M17 4.5 V16 a6.5 6.5 0 1 1 -10 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M11.5 20 V12.5 a2.7 2.7 0 0 1 2.7-2.7 H17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <div class="row hero-affix" style="width:100%; align-items:center; justify-content:center; gap:14px;">
+            <!-- Bitmap-masked button (24px) centered -->
+            <button class="btn btn-icon clip" aria-label="Attach"></button>
+            <div class="row hero-affix" style="width:100%; align-items:center; justify-content:center; gap:8px;">
               <span class="pill" aria-hidden="true">Affix (24px)</span>
               <div class="input-affix affix-demo" style="max-width:420px;">
                 <input class="toolbar-input has-affix" placeholder="Topic… (mock)" />
-                <button class="affix-btn" type="button" aria-label="Attach">
-                  <!-- Same geometry, scaled down; padded viewBox -->
-                  <svg class="icon-clip" width="20" height="20" viewBox="0 0 26 26" fill="none" aria-hidden="true" style="overflow:visible">
-                    <path d="M8 16 V9 a4.5 4.5 0 0 1 4.5-4.5 H17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M17 4.5 V16 a6.5 6.5 0 1 1 -10 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M11.5 20 V12.5 a2.7 2.7 0 0 1 2.7-2.7 H17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
+                <button class="btn btn-icon clip" type="button" aria-label="Attach"></button>
               </div>
             </div>
           </div>
