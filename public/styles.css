@@ -1687,7 +1687,14 @@ body[data-theme="light"] .topic-affix{ background:var(--panel); }
   min-height:var(--toolbar-height, 36px);
   padding:0 12px;
 }
-.topic-affix .affix-btn{ border-left:none; width:var(--toolbar-height, 36px); top:0; bottom:0; right:0; }
+.topic-affix .affix-btn{
+  border-left:none;
+  width:var(--toolbar-height, 36px);
+  height:calc(var(--toolbar-height, 36px) - 3px);
+  top:0;
+  right:0;
+  bottom:auto;
+}
 .topic-affix:focus-within{ box-shadow:0 0 0 2px var(--c-focus-ring); }
 .topic-affix .msr{ opacity:.65; transform:translateX(1px); }
 .topic-affix:focus-within .msr{ opacity:1; }
