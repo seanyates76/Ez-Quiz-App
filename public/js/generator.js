@@ -224,6 +224,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
 
   // Initialize primary action based on current state
   setPrimaryAction();
+  updatePrimaryHint();
 
   // Track last generated params and "dirty since generation" state
   function getParamsSnapshot(){
