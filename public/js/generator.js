@@ -113,19 +113,33 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const qtMT = $('qtMT');
   const startBtn2 = $('startBtn');
 
-  // Primary action: Start by default; Generate when QE open; Start after generation
+  // Primary action: Start | Generate | Regenerate
+  function snapshotChanged(last, curr){
+    if(!last || !curr) return false;
+    return last.topic !== curr.topic || last.count !== curr.count || last.difficulty !== curr.difficulty;
+  }
   function computePrimaryMode(){
     const hasLoaded = Array.isArray(S.quiz?.questions) && S.quiz.questions.length > 0;
     const qeOpen = !!(optionsPanel && !optionsPanel.hidden && advBlock && !advBlock.hidden);
-    if (hasLoaded) return 'start';
+    const editorHasText = !!(editor && (editor.value||'').trim());
+    const ui = (window.EZQ.ui = window.EZQ.ui || {});
+    const last = ui.lastGeneratedParams;
+    const curr = getParamsSnapshot();
+    const changed = snapshotChanged(last, curr);
+    if (hasLoaded) {
+      if (qeOpen && last && changed) return 'regenerate';
+      return 'start';
+    }
+    if (editorHasText) return 'start';
     return qeOpen ? 'generate' : 'start';
   }
   function setPrimaryAction(mode){
     const ui = (window.EZQ.ui = window.EZQ.ui || {});
-    const m = mode ? ((mode === 'generate') ? 'generate' : 'start') : computePrimaryMode();
+    const m = mode || computePrimaryMode();
     ui.primaryMode = m;
-    const label = (m === 'generate') ? 'Generate' : 'Start';
-    generateBtn?.setAttribute('data-mode', m);
+    const label = m === 'regenerate' ? 'Regenerate' : (m === 'generate' ? 'Generate' : 'Start');
+    const dataMode = (m === 'regenerate') ? 'generate' : m;
+    generateBtn?.setAttribute('data-mode', dataMode);
     if (generateBtn) generateBtn.textContent = label;
   }
   const clampDifficultyIndex = (idx)=>{
@@ -174,7 +188,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   }
   function setLastGen(params){
     const ui = (window.EZQ.ui = window.EZQ.ui || {});
-    ui.lastGen = { topic: params.topic, count: params.count, difficulty: params.difficulty };
+    ui.lastGeneratedParams = { topic: params.topic, count: params.count, difficulty: params.difficulty };
     ui.genDirty = false;
     // Reset primary according to layout state when not dirty
     setPrimaryAction();
@@ -182,11 +196,11 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   }
   function markDirtyIfChanged(){
     const ui = (window.EZQ.ui = window.EZQ.ui || {});
-    const last = ui.lastGen;
+    const last = ui.lastGeneratedParams;
     const curr = getParamsSnapshot();
-    const changed = !!last && (last.topic !== curr.topic || last.count !== curr.count || last.difficulty !== curr.difficulty);
+    const changed = snapshotChanged(last, curr);
     ui.genDirty = !!changed; // keep for potential future behavior
-    try{ const hint=document.getElementById('regenHint'); if(hint){ hint.textContent = changed ? 'Updated inputs — press Generate' : ''; hint.hidden = !changed; } }catch{}
+    try{ const hint=document.getElementById('regenHint'); if(hint){ hint.textContent = (changed && last) ? 'Updated inputs — press Regenerate' : ''; hint.hidden = !(changed && last); } }catch{}
     setPrimaryAction();
   }
   // Mark dirty when topic, count, or difficulty changes after a generation
@@ -215,7 +229,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     setEditorText(demo); try{ setMirrorVisible(true); }catch{}; runParseFlow(demo, 'Demo', '');
   });
 
-  clearBtn?.addEventListener('click', ()=>{ setEditorText(''); const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); try{ const ui=(window.EZQ.ui=window.EZQ.ui||{}); ui.lastGen=null; ui.genDirty=false; const hint=document.getElementById('regenHint'); if(hint) hint.hidden=true; }catch{} setPrimaryAction(); });
+  clearBtn?.addEventListener('click', ()=>{ setEditorText(''); const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); try{ const ui=(window.EZQ.ui=window.EZQ.ui||{}); ui.lastGeneratedParams=null; ui.genDirty=false; const hint=document.getElementById('regenHint'); if(hint) hint.hidden=true; }catch{} setPrimaryAction(); });
   loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } setEditorText(last); try{ setMirrorVisible(true); }catch{}; runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
 
   generateBtn?.addEventListener('click', async ()=>{
@@ -230,7 +244,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       if(S.quiz.questions && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); }
       return;
     }
-    // In Generate mode, always regenerate fresh content: clear editor/mirror first
+    // In Generate/Regenerate, always (re)generate fresh content: clear editor/mirror first
     if(mode==='generate'){
       setEditorText('');
     }
@@ -256,7 +270,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       setLastGen({ topic, count, difficulty });
       // After (re)generation completes, flip back to Start per spec
       setPrimaryAction('start');
-      if (mode==='start' && S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
+      if (S.quiz.questions && S.quiz.questions.length && (!optionsPanel || optionsPanel.hidden)) { syncSettingsFromUI(); beginQuiz(); }
     }catch(err){
       const msg = String(err && err.message || err || 'Error'); let pretty = msg;
       try { const parsed = JSON.parse(msg); const status = parsed.status; const body = parsed.body; if(status === 429 || /quota|rate limit/i.test(JSON.stringify(body))){ pretty = 'Rate limit hit. Please wait ~30s and try again.'; } else if (typeof body === 'object' && body && body.error){ pretty = body.error; } } catch {}
