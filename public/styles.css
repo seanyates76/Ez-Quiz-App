@@ -1633,7 +1633,7 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
   font-variation-settings:
     "FILL" 0,
     "wght" 400,
-    "GRAD" 0,
+    "GRAD" 100,
     "OPSZ" 24;
 }
 /* (reverted) no bitmap paperclip mask or btn-icon */
@@ -1663,9 +1663,9 @@ body[data-beta] .beta-only{ display:inline-flex; }
 }
 .topic-affix .affix-btn{ border-left:none; }
 .input-affix:hover .affix-btn{ color:var(--text); background:var(--field-hover); }
-.input-affix:focus-within .affix-btn{ box-shadow:0 0 0 2px var(--c-focus-ring); background:var(--panel); }
+.input-affix:focus-within .affix-btn{ background:var(--panel); }
 .affix-btn .msr{ opacity:.65; transform:translateX(1px); }
-.input-affix:focus-within .affix-btn .msr{ opacity:1; }
+.affix-btn:focus-visible .msr, .affix-btn:hover .msr{ opacity:1; }
 .affix-btn:focus-visible{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
 .affix-btn:active{ filter:brightness(0.98); }
 .icon-clip{ display:block; width:18px; height:18px; max-width: calc(var(--affix-w) - 14px); max-height: calc(var(--affix-w) - 14px); overflow:visible; transform:translateY(0.5px); }
@@ -1697,7 +1697,7 @@ body[data-theme="light"] .topic-affix{ background:var(--panel); }
 }
 .topic-affix:focus-within{ box-shadow:0 0 0 2px var(--c-focus-ring); }
 .topic-affix .msr{ opacity:.65; transform:translate(1px, -0.5px); }
-.topic-affix:focus-within .msr{ opacity:1; }
+.topic-affix:focus-within .affix-btn{ box-shadow:none; }
 .icon-clip{ shape-rendering:geometricPrecision; }
 
 /* Drag indicator focused on the topic input only */
