@@ -1623,8 +1623,15 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
 .btn-icon{ width:40px; height:40px; display:inline-grid; place-items:center; color:currentColor; padding:0; background:transparent; border:0; }
 
 /* Material Symbols Rounded (webfont icon) */
+@font-face{
+  font-family: 'EZQ Material Symbols';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/material-symbols-rounded.woff2') format('woff2');
+}
 .msr, .material-symbols-rounded{
-  font-family: "Material Symbols Rounded";
+  font-family: 'EZQ Material Symbols', 'Material Symbols Rounded';
   font-weight: 400;
   font-style: normal;
   font-size: 24px;
