@@ -188,7 +188,7 @@ export function renderResults(){
   const indexMap = (Array.isArray(S.quiz.indexMap) && S.quiz.indexMap.length)
     ? S.quiz.indexMap
     : S.quiz.questions.map((_,i)=>i);
-  const isBeta = !!(S.settings && S.settings.betaEnabled);
+  const isBeta = !!((S.settings && S.settings.betaEnabled) || (typeof document !== 'undefined' && document.body && document.body.dataset && document.body.dataset.beta === 'true'));
   // Prefer persistent originalAnswers when available; fallback to mapping current run
   let answersFull;
   if (Array.isArray(S.quiz.originalAnswers) && S.quiz.originalAnswers.length === baseQs.length) {
@@ -326,7 +326,7 @@ function wireExplainDelegation(){
     const key = `${hash}|${idx}`;
     box.hidden = false; box.textContent = 'Generating explanation…';
     // In beta, teaser only — no network call
-    if (S.settings && S.settings.betaEnabled) {
+    if ((S.settings && S.settings.betaEnabled) || (typeof document !== 'undefined' && document.body && document.body.dataset && document.body.dataset.beta === 'true')) {
       const teaser = [
         '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',
         '┃          FEATURE COMING SOON          ┃',
@@ -433,6 +433,7 @@ function buildCorrectAnswerDetail(q){
 }
 
 function renderMTResult(origIdx, q, a){
+  const isBeta = !!(S.settings && S.settings.betaEnabled);
   // Build map of correct right indexes by left index
   const correctMap = new Array(q.left.length).fill(-1);
   (Array.isArray(q.pairs)?q.pairs:[]).forEach(([li,ri])=>{ correctMap[li]=ri; });
@@ -455,9 +456,10 @@ function renderMTResult(origIdx, q, a){
       </div>`;
   }).join('');
   const okAll = Array.isArray(a)&&a.length&&a.every((ri,li)=>ri===correctMap[li]);
-  const exp = `<div id="explain-${origIdx}" class="explain" hidden role="status" aria-live="polite"></div>`;
+  const exp = isBeta ? `<div id="explain-${origIdx}" class="explain" hidden role="status" aria-live="polite"></div>` : '';
+  const explainBtn = isBeta ? ` <button type="button" class="chip-btn explain-btn" data-explain="${origIdx}">Explain</button>` : '';
   return `<div class="missed-item ${okAll?'is-correct':'is-wrong'}" data-orig="${origIdx}">
-    <div class="res-head"><strong>${(origIdx+1)}.</strong> ${escapeHTML(q.text)} <button type="button" class="chip-btn explain-btn" data-explain="${origIdx}">Explain</button></div>
+    <div class="res-head"><strong>${(origIdx+1)}.</strong> ${escapeHTML(q.text)}${explainBtn}</div>
     <div class="mt-result">${rows}</div>
     ${exp}
   </div>`;

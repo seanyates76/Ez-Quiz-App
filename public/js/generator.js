@@ -118,6 +118,9 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     if(!last || !curr) return false;
     return last.topic !== curr.topic || last.count !== curr.count || last.difficulty !== curr.difficulty;
   }
+  function __devDebug(){
+    try{ return !!(localStorage.getItem('EZQ_DEBUG') || /localhost|127\.0\.0\.1/.test(location && location.hostname)); }catch{ return false; }
+  }
   function computePrimaryMode(){
     const hasLoaded = Array.isArray(S.quiz?.questions) && S.quiz.questions.length > 0;
     const qeOpen = !!(optionsPanel && !optionsPanel.hidden && advBlock && !advBlock.hidden);
@@ -148,6 +151,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
                    : 'start';
     generateBtn?.setAttribute('data-mode', dataMode);
     if (generateBtn) generateBtn.textContent = label;
+    if(__devDebug() && ui.__lastPrimaryLogged !== m){ try{ console.debug('[ezq:dev] primary-action', { mode: m }); }catch{} ui.__lastPrimaryLogged = m; }
   }
   function updatePrimaryHint(){
     try{
