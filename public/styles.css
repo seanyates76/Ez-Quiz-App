@@ -1622,25 +1622,25 @@ body[data-beta] .beta-only{ display:inline-flex; }
 .gen-toolbar.drag-on{ outline: 2px dashed var(--focus,#7aa2ff); outline-offset: 2px; }
 
 /* Inline affix (paperclip) inside Topic input */
-.input-affix{ position:relative; width:100%; }
-.input-affix .toolbar-input.has-affix{ padding-right: 42px; }
+.input-affix{ position:relative; width:100%; overflow:visible; }
+.input-affix .toolbar-input.has-affix{ padding-right: 56px; }
 .affix-btn{
   position:absolute;
-  top:50%; right:8px; transform:translateY(-50%);
-  width:28px; height:28px;
-  display:inline-flex; align-items:center; justify-content:center;
-  border:1px solid transparent;
+  top:2px; bottom:2px; right:2px;
+  width:44px;
+  display:flex; align-items:center; justify-content:center;
+  border-left:1px solid var(--field-border);
   background:transparent;
   color:var(--muted);
-  border-radius:50%;
+  border-radius:0 var(--radius-control) var(--radius-control) 0;
   cursor:pointer;
   line-height:1;
   font-size:16px;
   transition:background .15s ease, border-color .15s ease, color .15s ease, box-shadow .18s ease;
 }
-.input-affix:hover .affix-btn{ color:var(--text); border-color:var(--border); background:var(--field-hover); }
-.input-affix:focus-within .affix-btn{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); border-color:var(--ring); background:var(--panel); }
-.affix-btn:active{ transform: translateY(calc(-50% + 1px)); }
+.input-affix:hover .affix-btn{ color:var(--text); border-left-color:var(--border); background:var(--field-hover); }
+.input-affix:focus-within .affix-btn{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); border-left-color:var(--ring); background:var(--panel); }
+.affix-btn:active{ filter:brightness(0.98); }
 .icon-clip{ display:block; width:18px; height:18px; }
 .icon-clip{ shape-rendering:geometricPrecision; }
 
