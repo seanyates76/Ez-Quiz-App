@@ -131,9 +131,18 @@ async function openaiCall({ apiKey, model = 'gpt-4o-mini', prompt }){
   return (data?.choices?.[0]?.message?.content || '').trim();
 }
 
+function toTitleCase(str){
+  if(!str) return '';
+  return String(str)
+    .toLowerCase()
+    .replace(/(^|[\s_-])([a-z])/g, (_, p1, p2) => `${p1}${p2.toUpperCase()}`)
+    .trim();
+}
+
 function echoGenerate({ topic, count, types, kind }){
   const out = [];
   const t = topic || 'General knowledge';
+  const T = toTitleCase(t);
   const allowed = Array.isArray(types) && types.length ? types.map(x=>x.toUpperCase()).filter(x=>/^(MC|TF|YN|MT)$/.test(x)) : ['MC','TF','YN','MT'];
   const pickType = (i)=> allowed[i % allowed.length];
   if(kind === 'structured'){
@@ -143,32 +152,32 @@ function echoGenerate({ topic, count, types, kind }){
       if(tt==='MC'){
         questions.push({
           type: 'MC',
-          prompt: `${t}: Sample MC ${i+1}?`,
-          options: ['One','Two','Three','Four'],
+          prompt: `About ${T} — Sample Q ${i+1}?`,
+          options: ['Option A','Option B','Option C','Option D'],
           correct: ['A'],
         });
       } else if(tt==='TF'){
-        questions.push({ type: 'TF', prompt: `${t}: Sample TF ${i+1}.`, correct: true });
+        questions.push({ type: 'TF', prompt: `About ${T} — Sample Q ${i+1}.`, correct: true });
       } else if(tt==='YN'){
-        questions.push({ type: 'YN', prompt: `${t}: Sample YN ${i+1}?`, correct: true });
+        questions.push({ type: 'YN', prompt: `About ${T} — Sample Q ${i+1}?`, correct: true });
       } else {
         questions.push({
           type: 'MT',
-          prompt: `${t}: Match ${i+1}.`,
-          left: ['Prompt 1','Prompt 2'],
-          right: ['Answer A','Answer B'],
+          prompt: `About ${T} — Match ${i+1}.`,
+          left: ['Term 1','Term 2'],
+          right: ['Definition A','Definition B'],
           matches: [[1,'A'],[2,'B']],
         });
       }
     }
-    return JSON.stringify({ title: `${t} Quiz`, topic: t, questions }, null, 2);
+    return JSON.stringify({ title: `${T} Quiz`, topic: T, questions }, null, 2);
   }
   for(let i=0;i<count;i++){
     const tt = pickType(i);
-    if(tt==='MC') out.push(`MC|${t}: Sample MC ${i+1}?|A) One;B) Two;C) Three;D) Four|A`);
-    else if(tt==='TF') out.push(`TF|${t}: Sample TF ${i+1}.|T`);
-    else if(tt==='YN') out.push(`YN|${t}: Sample YN ${i+1}?|Y`);
-    else out.push(`MT|${t}: Match ${i+1}.|1) L1;2) L2|A) R1;B) R2|1-A,2-B`);
+    if(tt==='MC') out.push(`MC|About ${T} — Sample Q ${i+1}?|A) Option A;B) Option B;C) Option C;D) Option D|A`);
+    else if(tt==='TF') out.push(`TF|About ${T} — Sample Q ${i+1}.|T`);
+    else if(tt==='YN') out.push(`YN|About ${T} — Sample Q ${i+1}?|Y`);
+    else out.push(`MT|About ${T} — Match ${i+1}.|1) Term 1;2) Term 2|A) Definition A;B) Definition B|1-A,2-B`);
   }
   return out.join('\n');
 }

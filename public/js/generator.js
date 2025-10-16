@@ -113,12 +113,77 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const qtMT = $('qtMT');
   const startBtn2 = $('startBtn');
 
-  // Primary action mode machine
+  // Primary action: Start | Generate | Regenerate
+  function snapshotChanged(last, curr){
+    if(!last || !curr) return false;
+    return last.topic !== curr.topic || last.count !== curr.count || last.difficulty !== curr.difficulty;
+  }
+  function computePrimaryMode(){
+    const hasLoaded = Array.isArray(S.quiz?.questions) && S.quiz.questions.length > 0;
+    const qeOpen = !!(optionsPanel && !optionsPanel.hidden && advBlock && !advBlock.hidden);
+    const editorHasText = !!(editor && (editor.value||'').trim());
+    const ui = (window.EZQ.ui = window.EZQ.ui || {});
+    const last = ui.lastGeneratedParams;
+    const curr = getParamsSnapshot();
+    const changed = snapshotChanged(last, curr);
+    if (hasLoaded) {
+      if (last && changed) return qeOpen ? 'regenerate' : 'start-new';
+      return 'start';
+    }
+    // No quiz loaded
+    if (editorHasText) return 'start';
+    return qeOpen ? 'generate' : 'start';
+  }
   function setPrimaryAction(mode){
-    const m = (mode === 'generate') ? 'generate' : 'start';
-    (window.EZQ.ui = window.EZQ.ui || {}).primaryMode = m;
-    generateBtn?.setAttribute('data-mode', m);
-    if (generateBtn) generateBtn.textContent = (m === 'generate') ? 'Generate' : 'Start';
+    const ui = (window.EZQ.ui = window.EZQ.ui || {});
+    const m = mode || computePrimaryMode();
+    ui.primaryMode = m;
+    const label = m === 'regenerate' ? 'Regenerate' : (m === 'start-new' ? 'Start New' : 'Start');
+    const dataMode = (m === 'regenerate') ? 'generate' : (m === 'start-new' ? 'start-new' : 'start');
+    generateBtn?.setAttribute('data-mode', dataMode);
+    if (generateBtn) generateBtn.textContent = label;
+  }
+  function updatePrimaryHint(){
+    try{
+      const hint=document.getElementById('regenHint'); if(!hint) return;
+      const mode = computePrimaryMode();
+      const hasLoaded = Array.isArray(S.quiz?.questions) && S.quiz.questions.length > 0;
+      const qeOpen = !!(optionsPanel && !optionsPanel.hidden && advBlock && !advBlock.hidden);
+      const editorHasText = !!(editor && (editor.value||'').trim());
+      const ui = (window.EZQ.ui = window.EZQ.ui || {});
+      const last = ui.lastGeneratedParams;
+      const curr = getParamsSnapshot();
+      const changed = snapshotChanged(last, curr);
+
+      // No quiz cases
+      if(!hasLoaded){
+        if(editorHasText){
+          hint.textContent = 'Start will parse your text and begin.';
+          hint.hidden = false; return;
+        }
+        if(qeOpen){
+          hint.textContent = 'Enter Topic, Difficulty, and Length, then click Generate to fill the editor.';
+          hint.hidden = false; return;
+        }
+        hint.textContent = 'Enter Topic, Difficulty, and Length. Start will generate and begin a new quiz.';
+        hint.hidden = false; return;
+      }
+
+      // Quiz loaded
+      if(last && changed){
+        if(mode === 'regenerate'){
+          hint.textContent = 'Changes detected. Regenerate updates the editor; press Start to begin.';
+          hint.hidden = false; return;
+        }
+        if(mode === 'start-new'){
+          hint.textContent = 'Changes detected. Start New will generate a new quiz and begin.';
+          hint.hidden = false; return;
+        }
+      }
+      // Loaded, unchanged
+      hint.textContent = 'Quiz ready. Press Start to begin.';
+      hint.hidden = false;
+    }catch{}
   }
   const clampDifficultyIndex = (idx)=>{
     if(Number.isNaN(idx)) return 2;
@@ -151,14 +216,46 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     setDifficultyValue(DIFFICULTY_VALUES[idx]);
   });
 
-  // Initialize primary action based on advanced visibility
-  setPrimaryAction(advBlock && !advBlock.hidden ? 'generate' : 'start');
+  // Initialize primary action based on current state
+  setPrimaryAction();
+
+  // Track last generated params and "dirty since generation" state
+  function getParamsSnapshot(){
+    const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
+    const topic = topicRaw || 'General knowledge';
+    let count = parseInt((countInput?.value || pbCount?.value || '10'), 10);
+    if(!Number.isFinite(count)) count = 10;
+    count = Math.max(1, Math.min(50, count));
+    const difficulty = getDifficultyKey();
+    return { topic, count, difficulty };
+  }
+  function setLastGen(params){
+    const ui = (window.EZQ.ui = window.EZQ.ui || {});
+    ui.lastGeneratedParams = { topic: params.topic, count: params.count, difficulty: params.difficulty };
+    ui.genDirty = false;
+    // Reset primary according to layout state when not dirty
+    setPrimaryAction();
+    try{ const hint=document.getElementById('regenHint'); if(hint) hint.hidden = true; }catch{}
+  }
+  function markDirtyIfChanged(){
+    const ui = (window.EZQ.ui = window.EZQ.ui || {});
+    const last = ui.lastGeneratedParams;
+    const curr = getParamsSnapshot();
+    const changed = snapshotChanged(last, curr);
+    ui.genDirty = !!changed; // keep for potential future behavior
+    updatePrimaryHint();
+    setPrimaryAction();
+  }
+  // Mark dirty when topic, count, or difficulty changes after a generation
+  topicInput?.addEventListener('input', markDirtyIfChanged);
+  countInput?.addEventListener('input', markDirtyIfChanged);
+  difficultySlider?.addEventListener('input', markDirtyIfChanged);
 
   loadBtn?.addEventListener('click', ()=> fileInput?.click());
   fileInput?.addEventListener('change', ()=>{
     const f = fileInput.files && fileInput.files[0]; if(!f) return;
     const reader = new FileReader();
-    reader.onload = () => { const text = String(reader.result || ''); setEditorText(text); /* mirror stays hidden by default */ runParseFlow(text, f.name || 'Imported', ''); statusBox && (statusBox.textContent = `Loaded ${f.name} (${text.length} chars)`); };
+    reader.onload = () => { const text = String(reader.result || ''); setEditorText(text); try{ setMirrorVisible(true); }catch{}; runParseFlow(text, f.name || 'Imported', ''); statusBox && (statusBox.textContent = `Loaded ${f.name} (${text.length} chars)`); };
     reader.onerror = () => { statusBox && (statusBox.textContent = 'Failed to read file'); };
     reader.readAsText(f);
   });
@@ -172,30 +269,60 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       'MT|Match ports to services.|1) 22;2) 53|A) SSH;B) DNS|1-A,2-B',
       'TF|Lightning never strikes the same place twice.|F',
     ].join('\n');
-    setEditorText(demo); /* mirror stays hidden by default */ runParseFlow(demo, 'Demo', '');
+    setEditorText(demo); try{ setMirrorVisible(true); }catch{}; runParseFlow(demo, 'Demo', '');
   });
 
-  clearBtn?.addEventListener('click', ()=>{ setEditorText(''); const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); });
-  loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } setEditorText(last); /* mirror stays hidden by default */ runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
+  clearBtn?.addEventListener('click', ()=>{ setEditorText(''); const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); try{ const ui=(window.EZQ.ui=window.EZQ.ui||{}); ui.lastGeneratedParams=null; ui.genDirty=false; const hint=document.getElementById('regenHint'); if(hint) hint.hidden=true; }catch{} setPrimaryAction(); });
+  loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } setEditorText(last); try{ setMirrorVisible(true); }catch{}; runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
 
   generateBtn?.addEventListener('click', async ()=>{
-    const mode = generateBtn?.getAttribute('data-mode') || 'start';
+    const ui = (window.EZQ.ui = window.EZQ.ui || {});
+    const mode = generateBtn?.getAttribute('data-mode') || computePrimaryMode();
     const editorText = (editor?.value || '').trim();
     const topicTyped = (topicInput?.value || '').trim();
-    // Prefer existing editor content (IE or manual paste) when present,
-    // regardless of current mode. Fallback to AI only when editor is empty.
-    if(editorText.length){
+    const isDirty = !!ui.genDirty;
+    // In Start mode, prefer existing editor content or run/generate+start
+    if(mode==='start' && editorText.length){
       runParseFlow(editorText, topicTyped || 'Custom', '');
       if(S.quiz.questions && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); }
       return;
     }
-    // In Generate mode, always regenerate fresh content: clear editor/mirror first
-    if(mode==='generate'){
+    if(mode==='start' && !editorText.length){
+      if(Array.isArray(S.quiz?.questions) && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); return; }
+      // No quiz yet: Start should generate + start
+      const snap = getParamsSnapshot();
+      const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
+      const topic = snap.topic; if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
+      let count = snap.count;
+      const types = [ qtMC?.checked ? 'MC':null, qtTF?.checked? 'TF':null, qtYN?.checked? 'YN':null, qtMT?.checked? 'MT':null ].filter(Boolean);
+      const difficulty = getDifficultyKey();
+      try{
+        statusBox && (statusBox.textContent = 'Generating via AI…');
+        generateBtn.disabled = true; showVeil(Math.floor(Math.random()*MESSAGES.length));
+        const out = await generateWithAI(topic, count, { types, difficulty });
+        const lines = out && out.lines || '';
+        if(!lines){ statusBox && (statusBox.textContent = 'AI did not return any lines. Try again or use the Prompt Builder.'); generateBtn.disabled = false; hideVeil('Nothing yet…'); return; }
+        setEditorText(lines); try{ setMirrorVisible(true); }catch{}
+        const title = (out && out.title) ? out.title : '';
+        runParseFlow(lines, topic, title);
+        setLastGen({ topic, count, difficulty });
+        setPrimaryAction('start');
+        if (S.quiz.questions && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); }
+      }catch(err){
+        const msg = String(err && err.message || err || 'Error'); let pretty = msg;
+        try { const parsed = JSON.parse(msg); const status = parsed.status; const body = parsed.body; if(status === 429 || /quota|rate limit/i.test(JSON.stringify(body))){ pretty = 'Rate limit hit. Please wait ~30s and try again.'; } else if (typeof body === 'object' && body && body.error){ pretty = body.error; } } catch {}
+        statusBox && (statusBox.textContent = `Generation failed: ${pretty}`);
+      }finally{ generateBtn.disabled = false; hideVeil('Done'); }
+      return;
+    }
+    // In Generate/Regenerate/Start New, (re)generate fresh content first
+    if(mode==='generate' || mode==='start-new'){
       setEditorText('');
     }
+    const snap = getParamsSnapshot();
     const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
-    const topic = topicRaw || 'General knowledge';
-    let count = parseInt((countInput?.value || pbCount?.value || '10'), 10); if(!Number.isFinite(count)) count = 10; count = Math.max(1, Math.min(50, count)); if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
+    const topic = snap.topic; if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
+    let count = snap.count;
     // Gather options
     const types = [ qtMC?.checked ? 'MC':null, qtTF?.checked? 'TF':null, qtYN?.checked? 'YN':null, qtMT?.checked? 'MT':null ].filter(Boolean);
     const difficulty = getDifficultyKey();
@@ -211,7 +338,12 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       try{ setMirrorVisible(true); }catch{}
       const title = (out && out.title) ? out.title : '';
       runParseFlow(lines, topic, title);
-      if (mode==='start' && S.quiz.questions && S.quiz.questions.length) { syncSettingsFromUI(); beginQuiz(); }
+      setLastGen({ topic, count, difficulty });
+      // After (re)generation completes
+      if(mode==='start-new'){
+        if (S.quiz.questions && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); }
+      }
+      setPrimaryAction('start');
     }catch(err){
       const msg = String(err && err.message || err || 'Error'); let pretty = msg;
       try { const parsed = JSON.parse(msg); const status = parsed.status; const body = parsed.body; if(status === 429 || /quota|rate limit/i.test(JSON.stringify(body))){ pretty = 'Rate limit hit. Please wait ~30s and try again.'; } else if (typeof body === 'object' && body && body.error){ pretty = body.error; } } catch {}
@@ -234,8 +366,8 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     setMirrorVisible(isOn);
   }
   function applyMirrorToggle(){ const on = !!mirrorToggle?.checked; setMirrorVisible(on); }
-  function openOptions(){ if(!optionsPanel) return; optionsPanel.hidden = false; optionsBtn?.setAttribute('aria-expanded','true'); reflectOptionsFromSettings(); applyMirrorToggle(); if(advDisclosure && advBlock){ const shouldOpen = !!getShowQuizEditorPreference(); advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false'); advBlock.hidden = !shouldOpen; setPrimaryAction(shouldOpen? 'generate':'start'); } document.addEventListener('keydown', onEscCloseOptions); document.addEventListener('click', onDocClick, true); }
-  function closeOptions(){ if(!optionsPanel) return; optionsPanel.hidden = true; optionsBtn?.setAttribute('aria-expanded','false'); document.removeEventListener('keydown', onEscCloseOptions); document.removeEventListener('click', onDocClick, true); setPrimaryAction('start'); optionsBtn?.focus(); }
+  function openOptions(){ if(!optionsPanel) return; optionsPanel.hidden = false; optionsBtn?.setAttribute('aria-expanded','true'); reflectOptionsFromSettings(); applyMirrorToggle(); if(advDisclosure && advBlock){ const shouldOpen = !!getShowQuizEditorPreference(); advDisclosure.setAttribute('aria-expanded', shouldOpen? 'true':'false'); advBlock.hidden = !shouldOpen; } setPrimaryAction(); updatePrimaryHint(); document.addEventListener('keydown', onEscCloseOptions); document.addEventListener('click', onDocClick, true); }
+  function closeOptions(){ if(!optionsPanel) return; optionsPanel.hidden = true; optionsBtn?.setAttribute('aria-expanded','false'); document.removeEventListener('keydown', onEscCloseOptions); document.removeEventListener('click', onDocClick, true); setPrimaryAction(); updatePrimaryHint(); optionsBtn?.focus(); }
   function onEscCloseOptions(e){ if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }}
   optionsBtn?.addEventListener('click', ()=>{ if(optionsPanel?.hidden){ openOptions(); } else { closeOptions(); } });
   // Click-away to close
@@ -254,10 +386,10 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   // Click-away listener is attached only while open (see openOptions/closeOptions)
 
   // Quiz Editor disclosure behavior (formerly “Advanced”)
-  function toggleAdvanced(open){ if(!advDisclosure||!advBlock) return; const willOpen = (open===undefined) ? (advDisclosure.getAttribute('aria-expanded')!=='true') : !!open; advDisclosure.setAttribute('aria-expanded', String(willOpen)); advBlock.hidden = !willOpen; setPrimaryAction(willOpen? 'generate':'start'); }
+  function toggleAdvanced(open){ if(!advDisclosure||!advBlock) return; const willOpen = (open===undefined) ? (advDisclosure.getAttribute('aria-expanded')!=='true') : !!open; advDisclosure.setAttribute('aria-expanded', String(willOpen)); advBlock.hidden = !willOpen; setPrimaryAction(); updatePrimaryHint(); }
   advDisclosure?.addEventListener('click', ()=> toggleAdvanced());
   advDisclosure?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleAdvanced(); } else if(e.key==='Escape'){ e.preventDefault(); closeOptions(); }});
-  if(advBlock){ const mo = new MutationObserver(()=>{ setPrimaryAction(advBlock.hidden ? 'start':'generate'); }); mo.observe(advBlock, { attributes:true, attributeFilter:['hidden','class','style'] }); }
+  if(advBlock){ const mo = new MutationObserver(()=>{ setPrimaryAction(); updatePrimaryHint(); }); mo.observe(advBlock, { attributes:true, attributeFilter:['hidden','class','style'] }); }
 
   // Focus trap for Options panel when open
   function trapFocusOptions(e){

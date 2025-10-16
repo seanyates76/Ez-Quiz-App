@@ -30,5 +30,13 @@ Versioning & releases
 Tests
 - This repo doesn’t have automated tests; manual verification is expected. The CI checks version consistency across files.
 
+Local Netlify metadata
+- The `.netlify/` folder is created by Netlify CLI (`netlify dev`) and is ignored by Git. It can include a `state.json` with a local `siteId` and a coarse, IP‑based geolocation snapshot used only to emulate `context.geo` in local development.
+- This data is not part of the app, is never bundled or deployed, and should not be committed.
+- If your tools still surface `.netlify/` changes, you can add a local exclude without touching the repo:
+  - `echo .netlify >> .git/info/exclude`
+- If `.netlify/` was accidentally committed in a fork, remove it from version control and recommit:
+  - `git rm -r --cached .netlify && git commit -m "Remove .netlify from repo"`
+
 Code of Conduct
 - Be respectful and collaborative. See `CODE_OF_CONDUCT.md`.

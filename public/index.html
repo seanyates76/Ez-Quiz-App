@@ -6,7 +6,7 @@
   <title>EZ Quiz</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.5.14" />
+  <link rel="stylesheet" href="styles.css?v=1.5.17" />
 </head>
 <body data-theme="dark">
   <header class="site-header" role="banner">
@@ -40,13 +40,14 @@
 
       <!-- Top toolbar (simple generate form) -->
       <div class="gen-toolbar" role="group" aria-label="Generate toolbar">
+        <div class="toolbar-left">
         <label class="toolbar-field">
           <span class="toolbar-label">Topic</span>
           <input id="topicInput" type="text" class="toolbar-input" placeholder="e.g. Animals" />
         </label>
-        <div class="toolbar-pair">
+        <label class="toolbar-field toolbar-field--difficulty">
+          <span class="toolbar-label">Difficulty</span>
           <div class="difficulty-stack">
-            <label for="difficultySlider" class="difficulty-label">Difficulty</label>
             <div class="difficulty-slider">
               <div class="difficulty-track" aria-hidden="true">
                 <span class="difficulty-dot"></span>
@@ -56,19 +57,27 @@
               <input id="difficultySlider" type="range" min="0" max="4" step="1" value="2" aria-valuetext="Medium" />
             </div>
           </div>
-          <label class="toolbar-field narrow number-field">
-            <span class="toolbar-label">Length</span>
-            <div class="number-wrap">
-              <input id="countInput" type="number" class="toolbar-input" min="1" step="1" value="10" />
-              <div class="stepper-group" role="group" aria-label="Adjust length">
-                <button type="button" class="stepper stepper-up" data-step="up" aria-label="Increase length">▲</button>
-                <button type="button" class="stepper stepper-down" data-step="down" aria-label="Decrease length">▼</button>
-              </div>
+        </label>
+        <label class="toolbar-field narrow number-field">
+          <span class="toolbar-label">Length</span>
+          <div class="number-wrap">
+            <input id="countInput" type="number" class="toolbar-input" min="1" step="1" value="10" />
+            <div class="stepper-group" role="group" aria-label="Adjust length">
+              <button type="button" class="stepper stepper-up" data-step="up" aria-label="Increase length">▲</button>
+              <button type="button" class="stepper stepper-down" data-step="down" aria-label="Decrease length">▼</button>
             </div>
-          </label>
+          </div>
+        </label>
         </div>
-        <button id="generateBtn" class="btn primary" aria-label="Generate only (fills editor and mirror)">Generate</button>
-        <button id="optionsBtn" class="btn" aria-haspopup="true" aria-expanded="false" aria-controls="optionsPanel">Options ▾</button>
+        <div class="action-stack">
+          <button id="generateBtn" class="btn primary" type="button" aria-label="Primary action">Start</button>
+          <button id="optionsBtn" class="btn btn-outline" aria-haspopup="true" aria-expanded="false" aria-controls="optionsPanel">Options ▾</button>
+      </div>
+    </div>
+
+      <!-- Subtle hint when inputs change after generation -->
+      <div id="regenHint" class="regen-hint" role="status" aria-live="polite" hidden>
+        Updated inputs — press Regenerate
       </div>
 
       <!-- Options Drop-Down (includes Quiz Editor tools) -->
@@ -228,9 +237,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
   <footer class="container" role="contentinfo">
     <nav aria-label="Footer">
       <div class="footer-links" role="list">
-        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" role="listitem">v1.5.0-beta.9</a>
-        <span aria-hidden="true">•</span>
-        <a id="changelogLink" href="#" data-modal="releaseNotesModal" role="listitem">Changelog</a>
+        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" role="listitem">v1.5.0-beta.11</a>
         <span aria-hidden="true">•</span>
         <a id="privacyLink" href="#" data-modal="privacyModal" role="listitem">Privacy</a>
         <span aria-hidden="true">•</span>
@@ -464,6 +471,15 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <ul>
             <li>Stable AI fallback loop now ships to everyone.</li>
             <li>All recent UI polish and cache busts are part of the main app.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>v1.5.0-beta.11</h4>
+          <ul>
+            <li><strong>Results:</strong> continuous score bar, mobile overflow fixes, subtle transitions.</li>
+            <li><strong>Generator:</strong> mobile stack layout refined; increased vertical spacing; Difficulty given more width.</li>
+            <li><strong>Primary button:</strong> Start by default; Generate when QE open; flips back to Start after generation.</li>
+            <li><strong>Explain (beta):</strong> centered ribbon teaser only; real explanations coming soon.</li>
           </ul>
         </section>
         <section>

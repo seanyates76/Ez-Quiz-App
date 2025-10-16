@@ -123,10 +123,41 @@ function adjustFabReserve(){
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
+  // Visual variant: soft outlines (activates with ?visual=soft and persists)
+  try{
+    const KEY = 'EZQ_VISUAL';
+    const applyVisual = ()=>{
+      const pref = (localStorage.getItem(KEY)||'').toLowerCase();
+      if(pref === 'soft') document.body.setAttribute('data-visual','soft');
+      else document.body.removeAttribute('data-visual');
+    };
+    const params = new URLSearchParams(window.location.search || '');
+    if(params.has('visual')){
+      const v = String(params.get('visual')||'').toLowerCase();
+      if(v === 'soft') localStorage.setItem(KEY,'soft');
+      else if(v === 'default' || v === 'off' || v === 'hard') localStorage.removeItem(KEY);
+    }
+    applyVisual();
+  }catch{}
+
   wireMirror();
   wireStartHint();
   wireLockGuards();
   wireQuizLocks();
+  // Mirror toolbar Start to the main Start button; hide duplicate in Options
+  try{
+    const startTop = document.getElementById('startToolbarBtn');
+    const startMain = document.getElementById('startBtn');
+    if(startTop && startMain){
+      // Hide the Options-panel Start to avoid duplication
+      try{ startMain.style.display = 'none'; startMain.setAttribute('aria-hidden','true'); }catch{}
+      const sync = ()=>{ startTop.disabled = !!startMain.disabled; };
+      startTop.addEventListener('click', (e)=>{ e.preventDefault(); if(!startTop.disabled) startMain.click(); });
+      const mo = new MutationObserver(sync);
+      mo.observe(startMain, { attributes:true, attributeFilter:['disabled'] });
+      sync();
+    }
+  }catch{}
   wireBrandSwap();
   wireSupportSwap();
   wireFooterModals();
