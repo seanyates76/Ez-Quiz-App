@@ -289,6 +289,79 @@ async function run() {
     const snap = await page.screenshot({ fullPage: false });
     writeFileSync(join(artifactsDir, `toolbar-${vp.name}.png`), snap);
     try { writeFileSync(join(artifactsDir, `toolbar-${vp.name}.json`), JSON.stringify(metrics, null, 2)); } catch {}
+
+    // --- Results phase: render a synthetic results view and validate layout ---
+    let rmetrics = null;
+    try {
+      await page.evaluate(async () => {
+        const S = (window.EZQ = window.EZQ || {});
+        // Basic sample covering MC (partial wrong), YN (correct), MT (mixed)
+        const qs = [
+          { type: 'MC', text: 'Which numbers are prime?', options: ['2','4','5','9'], correct: [0,2] },
+          { type: 'YN', text: 'Is 0 an even number?', correct: true },
+          { type: 'MT', text: 'Match ports to services.', left: ['22','53'], right: ['SSH','DNS'], pairs: [[0,0],[1,1]] },
+        ];
+        const ans = [ [0], true, [0, -1] ];
+        S.quiz = S.quiz || {};
+        S.quiz.originalQuestions = qs.slice();
+        S.quiz.originalAnswers = ans.slice();
+        S.quiz.questions = qs.slice();
+        S.quiz.answers = ans.slice();
+        S.quiz.indexMap = qs.map((_, i) => i);
+        S.quiz.startedAt = Date.now() - 65000;
+        S.quiz.finishedAt = Date.now();
+        S.settings = S.settings || {};
+        S.settings.timerEnabled = true;
+        S.settings.betaEnabled = false;
+        try { document.body.removeAttribute('data-beta'); } catch {}
+        // Import quiz module and render results view
+        const mod = await import('/js/quiz.js');
+        mod.renderResults();
+        mod.setMode('results');
+      });
+
+      await sleep(80);
+
+      rmetrics = await page.evaluate(() => {
+        const headerRow = document.querySelector('.results-header-row');
+        const chip = document.getElementById('resultsChip');
+        const scoreBar = chip ? chip.querySelector('.score-bar') : null;
+        const width = window.innerWidth;
+        const docOverflow = document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
+        const bodyOverflow = document.body.scrollWidth > window.innerWidth + 1;
+        const headerBounds = headerRow ? headerRow.getBoundingClientRect() : null;
+        const headerOverflow = headerBounds ? (headerBounds.right > (document.documentElement.clientWidth + 0.5)) : false;
+        const scoreWidth = scoreBar ? Math.round(scoreBar.getBoundingClientRect().width) : 0;
+        const scoreOK = !!scoreBar && scoreWidth >= 70 && scoreWidth <= Math.min(200, Math.round(width * 0.5));
+        const rowStyle = headerRow ? getComputedStyle(headerRow) : null;
+        const wrapOK = rowStyle ? (rowStyle.flexWrap === 'wrap') : false;
+        const hasExplain = !!document.querySelector('.explain-btn'); // should be false in non-beta
+        return { docOverflow, bodyOverflow, headerOverflow, scoreWidth, scoreOK, wrapOK, hasExplain };
+      });
+    } catch (err) {
+      rmetrics = { error: String(err && err.message || err || 'results-metrics-failed') };
+    }
+
+    const rsnap = await page.screenshot({ fullPage: false });
+    writeFileSync(join(artifactsDir, `results-${vp.name}.png`), rsnap);
+    try { writeFileSync(join(artifactsDir, `results-${vp.name}.json`), JSON.stringify(rmetrics, null, 2)); } catch {}
+
+    if (!rmetrics || rmetrics.error) {
+      failures.push({ viewport: vp.name, reason: 'results-metrics-error', details: rmetrics });
+    } else {
+      if (rmetrics.docOverflow || rmetrics.bodyOverflow || rmetrics.headerOverflow) {
+        failures.push({ viewport: vp.name, reason: 'results-overflow', details: rmetrics });
+      }
+      if (!rmetrics.scoreOK) {
+        failures.push({ viewport: vp.name, reason: 'results-scorebar-width', details: rmetrics });
+      }
+      if (!rmetrics.wrapOK) {
+        failures.push({ viewport: vp.name, reason: 'results-header-wrap', details: rmetrics });
+      }
+      if (rmetrics.hasExplain) {
+        failures.push({ viewport: vp.name, reason: 'results-explain-gating', details: rmetrics });
+      }
+    }
   }
 
   await browser.close();
@@ -308,7 +381,9 @@ async function run() {
       if (typeof m.g12 === 'number') lines.push(`  Gaps: T→D=${m.g12}px, D→L=${m.g23}px, L→A=${m.g3A}px`);
       if (m.centers) lines.push(`  Centers (y): ${m.centers.join(', ')}`);
       if (f.hints?.length) lines.push(`  Hints: ${f.hints.join(' | ')}`);
-      lines.push(`  Artifacts: .artifacts/ui/toolbar-${f.viewport}.png${m ? ' + .json' : ''}`);
+      const isResults = String(f.reason || '').startsWith('results');
+      const base = isResults ? 'results' : 'toolbar';
+      lines.push(`  Artifacts: .artifacts/ui/${base}-${f.viewport}.png + .json`);
       return lines.join('\n');
     }).join('\n');
     console.error('[ui-check] FAIL\n' + pretty);
