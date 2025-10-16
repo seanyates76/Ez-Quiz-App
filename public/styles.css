@@ -1639,9 +1639,9 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
 /* (reverted) no bitmap paperclip mask or btn-icon */
 /* clip mask removed (reverted) */
 /* Beta-only visibility helper */
-.beta-only{ display:none; }
-body[data-beta] .beta-only{ display:inline-flex; }
-body[data-beta] .btn-icon.beta-only{ display:inline-grid; }
+.beta-only{ display:none !important; }
+body[data-beta] .beta-only{ display:inline-flex !important; }
+body[data-beta] .btn-icon.beta-only{ display:inline-grid !important; }
 /* Optional visual cue while dragging over toolbar for media import */
 .gen-toolbar.drag-on{ outline: 2px dashed var(--focus,#7aa2ff); outline-offset: 2px; }
 
