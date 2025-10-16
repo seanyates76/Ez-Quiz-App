@@ -491,7 +491,7 @@ body[data-theme="light"] .gen-toolbar{
     padding:calc(var(--space-3) + 2px) clamp(16px, 5vw, 22px);
     row-gap: var(--sp-10);
   }
-  .gen-toolbar > .toolbar-left{ grid-template-columns:1fr 1fr; row-gap: var(--sp-6); }
+  .gen-toolbar > .toolbar-left{ grid-template-columns:2fr 1fr; row-gap: var(--sp-6); }
   /* Topic spans full row; Difficulty + Length share next row */
   .gen-toolbar > .toolbar-left > .toolbar-field:first-of-type{ grid-column: 1 / -1; }
   .toolbar-left .toolbar-field--difficulty{ min-width:0; }
@@ -1292,6 +1292,8 @@ body[data-locked="true"] .gen-toolbar{ opacity:.6; pointer-events:none; filter:g
   .btn{padding:10px 12px; font-size:14px; min-width:0}
   /* Maintain generous vertical spacing when stacked; tighten only column gap */
   .gen-toolbar{padding:12px; row-gap: var(--sp-10); column-gap: 8px}
+  /* Give Difficulty more room than Length on very small screens */
+  .gen-toolbar > .toolbar-left{ grid-template-columns:2fr 1fr; }
   .number-wrap{ border-radius:14px; }
   .stepper-group{ width:28px; }
   .stepper{ font-size:.6rem; }

@@ -1,6 +1,18 @@
 Changelog
 =========
 
+2025-10-15 — 1.5.0-beta.11
+- Results
+  - Continuous score bar replaces segmented cells.
+  - Mobile overflow fixes (wrapping, header wrap, clamped teaser width).
+  - Inline “Correct/Incorrect” tags; improved spacing and transitions.
+- Generator/Toolbar
+  - Mobile stack: Topic / (Difficulty + Length) / Start / Options.
+  - Increased stacked vertical spacing; Difficulty given more width on small screens.
+  - Primary button: Start by default; Generate only when QE open; flips back to Start after generation.
+- Explain (beta)
+  - Gated “Explain” buttons to beta; show centered ribbon teaser.
+
 2025-10-09 — Dev smoke test hardening
 - Added dev smoke checks run via `npm run smoke` (uses ../ezq-dev-tools/tests/smoke.mjs)
 - Guards: fail on browser console errors and API 4xx/5xx
