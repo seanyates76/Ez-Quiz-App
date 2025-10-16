@@ -1662,8 +1662,7 @@ body[data-beta] .beta-only{ display:inline-flex; }
   transition:background .15s ease, border-color .15s ease, color .15s ease, box-shadow .18s ease;
 }
 .topic-affix .affix-btn{ border-left:none; }
-.input-affix:hover .affix-btn{ color:var(--text); background:var(--field-hover); }
-.input-affix:focus-within .affix-btn{ background:var(--panel); }
+.affix-btn:hover{ color:var(--text); background:var(--field-hover); }
 .affix-btn .msr{ opacity:.65; transform:translateX(1px); }
 .affix-btn:focus-visible .msr, .affix-btn:hover .msr{ opacity:1; }
 .affix-btn:focus-visible{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
@@ -1695,7 +1694,8 @@ body[data-theme="light"] .topic-affix{ background:var(--panel); }
   bottom:0;
   height:auto;
 }
-.topic-affix:focus-within{ box-shadow:0 0 0 2px var(--c-focus-ring); }
+.topic-affix:focus-within{ box-shadow:none; }
+.topic-affix:hover:not(:has(.affix-btn:hover)){ box-shadow:0 0 0 2px var(--c-focus-ring); }
 .topic-affix .msr{ opacity:.65; transform:translate(1px, -0.5px); }
 .topic-affix:focus-within .affix-btn{ box-shadow:none; }
 .icon-clip{ shape-rendering:geometricPrecision; }
