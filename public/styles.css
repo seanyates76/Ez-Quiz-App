@@ -987,11 +987,11 @@ details.advanced > summary{display:none}
   background:transparent; border:0; box-shadow:none; text-shadow:none;
 }
 #resultsView #resultsChip .score-graph{
-  --sg-size: 12px;
+  --sg-size: 14px;
   display:grid; grid-auto-flow:column; grid-auto-columns: var(--sg-size); gap:4px;
 }
 #resultsView #resultsChip .sg-cell{
-  width: var(--sg-size); height: 14px;
+  width: var(--sg-size); height: var(--sg-size);
   border-radius:4px;
   background: var(--panel-2);
   border: 1px solid var(--field-border);
@@ -1058,7 +1058,7 @@ details.advanced > summary{display:none}
 }
 
 /* Results */
-.results-header-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 8px}
+.results-header-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 var(--sp-4)}
 .results-header-left{display:flex; align-items:center; gap:10px}
 .results-filter{display:flex; gap:8px}
 .chip-btn{
@@ -1068,16 +1068,23 @@ details.advanced > summary{display:none}
 .chip-btn:hover{filter:brightness(1.06)}
 .chip-btn:focus-visible{outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow)}
 .chip-btn.active{ background:var(--primary); color:#fff; border-color:transparent }
-.results-summary{margin-bottom:12px}
-.results-missed{display:grid; gap:10px}
+.results-summary{margin-bottom:var(--sp-4)}
+.results-missed{display:grid; gap:var(--sp-3)}
 .results-missed .missed-item{
-  padding:12px; border:1px solid var(--border); border-radius:var(--radius-card); background:var(--panel-2);
-  border-left:4px solid transparent;
+  padding:14px; border:1px solid var(--border); border-radius:var(--radius-card); background:var(--panel-2);
+  border-left:5px solid transparent;
 }
 .results-missed .missed-item.is-correct{ border-left-color: var(--success) }
 .results-missed .missed-item.is-wrong{ border-left-color: var(--danger) }
 .results-actions{margin-top:14px; align-items:center}
 .results-actions .flex-spacer{flex:1 1 0}
+
+/* Results card typography and dividers */
+.results-missed .missed-item > div:first-child{ font-size: var(--fz-3); font-weight: 600; margin-bottom: 6px; }
+.results-missed .missed-item .user-ans + div{ border-top:1px solid var(--field-border); margin-top: 10px; padding-top: 10px; }
+
+/* Two-column results on desktop */
+@media (min-width: 1024px){ .results-missed{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
 
 /* Brand accent on Retake button */
 #retakeBtn.btn{background:var(--brand); border-color:transparent; color:#fff}

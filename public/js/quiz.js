@@ -328,8 +328,8 @@ function renderMTResult(idx, q, a){
     const u = (userArr[li] != null ? userArr[li] : -1);
     const c = (correctMap[li] != null ? correctMap[li] : -1);
     const ok = (u>=0 && u===c);
-    const your = u>=0 ? `${toLetter(u)} — <span class="ans-text">${escapeHTML(rightText(u))}</span>` : `? — <span class="ans-text">No selection</span>`;
-    const corr = c>=0 ? `${toLetter(c)} — <span class="ans-text">${escapeHTML(rightText(c))}</span>` : '';
+    const your = u>=0 ? `— <span class="ans-text">${escapeHTML(rightText(u))}</span>` : `— <span class="ans-text">No selection</span>`;
+    const corr = c>=0 ? `— <span class="ans-text">${escapeHTML(rightText(c))}</span>` : '';
     return `
       <div class="mt-row ${ok?'is-correct':'is-wrong'}">
         <div class="mt-left"><span class="chip num">${li+1}</span> ${escapeHTML(lt)}</div>
