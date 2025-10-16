@@ -1624,7 +1624,7 @@ body[data-beta] .beta-only{ display:inline-flex; }
 .gen-toolbar.drag-on{ outline: 2px dashed var(--focus,#7aa2ff); outline-offset: 2px; }
 
 /* Inline affix (paperclip) inside Topic input */
-.input-affix{ position:relative; width:100%; overflow:visible; --affix-gap: 0px; --affix-w: var(--toolbar-height, 44px); }
+.input-affix{ position:relative; width:100%; min-width:0; overflow:visible; --affix-gap: 0px; --affix-w: var(--toolbar-height, 44px); }
 .input-affix .toolbar-input.has-affix{ padding-right: calc(var(--affix-w) + 12px); }
 .affix-btn{
   position:absolute;
