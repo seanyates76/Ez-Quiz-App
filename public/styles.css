@@ -1619,6 +1619,17 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
   padding:0 2px;
 }
 .regen-hint[hidden]{ display:none !important; }
+/* Paperclip bitmap mask: default to DPR-aware WebP assets */
+.btn-icon{ width:40px; height:40px; display:inline-grid; place-items:center; padding:0; }
+.clip{
+  --icon: url('/icons/paperclip@1x.webp');
+  --size: 24px;
+  background-color: currentColor;
+  -webkit-mask: var(--icon) center / var(--size) no-repeat;
+          mask: var(--icon) center / var(--size) no-repeat;
+}
+@media (min-resolution: 2dppx){ .clip{ --icon: url('/icons/paperclip@2x.webp'); } }
+@media (min-resolution: 3dppx){ .clip{ --icon: url('/icons/paperclip@3x.webp'); } }
 /* clip mask removed (reverted) */
 /* Beta-only visibility helper */
 .beta-only{ display:none; }
@@ -1645,6 +1656,7 @@ body[data-beta] .beta-only{ display:inline-flex; }
 }
 .input-affix:hover .affix-btn{ color:var(--text); border-left-color:var(--border); background:var(--field-hover); }
 .input-affix:focus-within .affix-btn{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); border-left-color:var(--ring); background:var(--panel); }
+.affix-btn:focus-visible{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
 .affix-btn:active{ filter:brightness(0.98); }
 .icon-clip{ display:block; width:18px; height:18px; max-width: calc(var(--affix-w) - 14px); max-height: calc(var(--affix-w) - 14px); overflow:visible; transform:translateY(0.5px); }
 .icon-clip{ shape-rendering:geometricPrecision; }
