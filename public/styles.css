@@ -999,7 +999,7 @@ details.advanced > summary{display:none}
 }
 #resultsView #resultsChip .score-bar{
   display:inline-block; vertical-align:middle;
-  width:clamp(120px, 18vw, 220px); height:10px;
+  width:clamp(90px, 36vw, 180px); height:10px;
   background:var(--panel-2); border:1px solid var(--field-border);
   border-radius:999px; overflow:hidden;
 }
@@ -1069,9 +1069,9 @@ details.advanced > summary{display:none}
 }
 
 /* Results */
-.results-header-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 var(--sp-4)}
-.results-header-left{display:flex; align-items:center; gap:10px}
-.results-filter{display:flex; gap:8px}
+.results-header-row{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin:0 0 var(--sp-4); flex-wrap:wrap}
+.results-header-left{display:flex; align-items:baseline; gap:8px; flex:1 1 280px; min-width:0; flex-wrap:wrap}
+.results-filter{display:flex; gap:8px; flex:0 1 auto; min-width:0}
 .chip-btn{
   border:1px solid var(--field-border); background:var(--panel-2); color:var(--text);
   border-radius:999px; padding:6px 10px; cursor:pointer; font-size:13px; line-height:1; font-weight:600;
@@ -1106,6 +1106,10 @@ details.advanced > summary{display:none}
 
 /* Two-column results on desktop */
 @media (min-width: 1024px){ .results-missed{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+/* Tight handling for very small screens */
+@media (max-width: 600px){
+  .results-filter{ flex: 1 1 100%; justify-content:flex-start; margin-top:6px }
+}
 
 /* Brand accent on Retake button */
 #retakeBtn.btn{background:var(--brand); border-color:transparent; color:#fff}
