@@ -450,7 +450,8 @@ body[data-theme="dark"] .site-header .brand-link{
   border:1px solid var(--field-border);
   border-radius:var(--radius-card);
   padding:var(--space-2) var(--space-3);
-  margin:0 auto 16px;
+  /* Slight breathing room above/below toolbar for rhythm */
+  margin:var(--sp-3) auto var(--sp-4);
   max-width:960px;
   box-shadow:var(--shadow-card);
   grid-auto-rows:minmax(var(--toolbar-height), auto);
