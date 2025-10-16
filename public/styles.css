@@ -1619,18 +1619,7 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
   padding:0 2px;
 }
 .regen-hint[hidden]{ display:none !important; }
-/* Bitmap-masked paperclip icon tinted by currentColor */
-.clip{
-  --icon: url('/icons/paperclip@1x.webp');
-  --size: 24px; /* visual glyph */
-  background-color: currentColor;
-  -webkit-mask: var(--icon) center / var(--size) no-repeat;
-          mask: var(--icon) center / var(--size) no-repeat;
-  transform: rotate(11deg);
-  opacity:.96;
-}
-@media (min-resolution: 2dppx){ .clip{ --icon: url('/icons/paperclip@2x.webp'); } }
-@media (min-resolution: 3dppx){ .clip{ --icon: url('/icons/paperclip@3x.webp'); } }
+/* clip mask removed (reverted) */
 /* Beta-only visibility helper */
 .beta-only{ display:none; }
 body[data-beta] .beta-only{ display:inline-flex; }
@@ -1645,7 +1634,7 @@ body[data-beta] .beta-only{ display:inline-flex; }
   top:0; bottom:0; right:0;
   width:var(--affix-w);
   display:flex; align-items:center; justify-content:center;
-  border-left:none;
+  border-left:1px solid var(--field-border);
   background:transparent;
   color:var(--muted);
   border-radius:0 var(--radius-control) var(--radius-control) 0;
