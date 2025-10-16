@@ -330,20 +330,13 @@ function wireExplainDelegation(){
     box.hidden = false; box.textContent = 'Generating explanation…';
     if(__EXPL_CACHE.has(key)) { box.textContent = __EXPL_CACHE.get(key); return; }
     // Build client-side fallback from question object
-    const buildClientExplanation = (q)=>{
-      if(!q||!q.type) return 'No explanation available.';
-      const txt = (q.text||'').trim();
-      if(q.type==='MC'){
-        const idxs = Array.isArray(q.correct)? q.correct.slice() : [];
-        const texts = idxs.map(i => (q.options && q.options[i]) ? String(q.options[i]).trim() : '').filter(Boolean);
-        if(!texts.length) return 'No explanation available.';
-        const list = texts.length === 1 ? texts[0] : texts.slice(0,-1).join(', ') + ' and ' + texts[texts.length-1];
-        return `Correct ${texts.length>1?'options':'option'}: ${list}.`;
-      }
-      if(q.type==='TF') return `This statement is ${q.correct ? 'True' : 'False'}.`;
-      if(q.type==='YN') return `The answer is ${q.correct ? 'Yes' : 'No'}.`;
-      if(q.type==='MT') return `The left items match their corresponding right items based on meaning or association.`;
-      return 'No explanation available.';
+    const buildClientExplanation = (_q)=>{
+      // Professional placeholder in text art (ribbon), centered via CSS
+      return [
+        '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',
+        '┃          FEATURE COMING SOON          ┃',
+        '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛'
+      ].join('\n');
     };
     try{
       const res = await fetch('/.netlify/functions/explain-answers-lazy', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ lines, index: idx }) });
@@ -353,20 +346,20 @@ function wireExplainDelegation(){
         const q = Array.isArray(base) ? base[idx] : null;
         const text = buildClientExplanation(q);
         __EXPL_CACHE.set(key, text);
-        box.textContent = text;
+        box.textContent = text; box.classList.add('soon');
         return;
       }
       const data = await res.json();
       const exp = (data && data.explanations && (data.explanations[String(idx)]||data.explanations[idx])) || {};
       const text = String(exp.explanation || 'No explanation available.');
       __EXPL_CACHE.set(key, text);
-      box.textContent = text;
+      box.textContent = text; box.classList.remove('soon');
     }catch(err){
       const base = (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) ? S.quiz.originalQuestions : S.quiz.questions;
       const q = Array.isArray(base) ? base[idx] : null;
       const text = buildClientExplanation(q);
       __EXPL_CACHE.set(key, text);
-      box.textContent = text;
+      box.textContent = text; box.classList.add('soon');
     }
   });
 }
