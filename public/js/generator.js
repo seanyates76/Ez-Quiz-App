@@ -179,8 +179,9 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     const ui = (window.EZQ.ui = window.EZQ.ui || {});
     const last = ui.lastGen;
     const curr = getParamsSnapshot();
-    const changed = !last || last.topic !== curr.topic || last.count !== curr.count || last.difficulty !== curr.difficulty;
-    ui.genDirty = !!changed;
+    const hasLoaded = Array.isArray(S.quiz?.questions) && S.quiz.questions.length > 0;
+    const changed = !!last && (last.topic !== curr.topic || last.count !== curr.count || last.difficulty !== curr.difficulty);
+    ui.genDirty = !!(hasLoaded && changed);
     if(ui.genDirty){
       setPrimaryAction('generate');
       try{ const hint=document.getElementById('regenHint'); if(hint){ hint.textContent='Updated inputs — press Regenerate'; hint.hidden=false; } }catch{}
@@ -198,7 +199,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   fileInput?.addEventListener('change', ()=>{
     const f = fileInput.files && fileInput.files[0]; if(!f) return;
     const reader = new FileReader();
-    reader.onload = () => { const text = String(reader.result || ''); setEditorText(text); /* mirror stays hidden by default */ runParseFlow(text, f.name || 'Imported', ''); statusBox && (statusBox.textContent = `Loaded ${f.name} (${text.length} chars)`); };
+    reader.onload = () => { const text = String(reader.result || ''); setEditorText(text); try{ setMirrorVisible(true); }catch{}; runParseFlow(text, f.name || 'Imported', ''); statusBox && (statusBox.textContent = `Loaded ${f.name} (${text.length} chars)`); };
     reader.onerror = () => { statusBox && (statusBox.textContent = 'Failed to read file'); };
     reader.readAsText(f);
   });
@@ -212,11 +213,11 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       'MT|Match ports to services.|1) 22;2) 53|A) SSH;B) DNS|1-A,2-B',
       'TF|Lightning never strikes the same place twice.|F',
     ].join('\n');
-    setEditorText(demo); /* mirror stays hidden by default */ runParseFlow(demo, 'Demo', '');
+    setEditorText(demo); try{ setMirrorVisible(true); }catch{}; runParseFlow(demo, 'Demo', '');
   });
 
-  clearBtn?.addEventListener('click', ()=>{ setEditorText(''); const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); });
-  loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } setEditorText(last); /* mirror stays hidden by default */ runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
+  clearBtn?.addEventListener('click', ()=>{ setEditorText(''); const startBtn=$('startBtn'); if(startBtn) startBtn.disabled = true; statusBox && (statusBox.textContent = 'Cleared.'); try{ const ui=(window.EZQ.ui=window.EZQ.ui||{}); ui.lastGen=null; ui.genDirty=false; const hint=document.getElementById('regenHint'); if(hint) hint.hidden=true; }catch{} setPrimaryAction(advBlock && !advBlock.hidden ? 'generate' : 'start'); });
+  loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } setEditorText(last); try{ setMirrorVisible(true); }catch{}; runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
 
   generateBtn?.addEventListener('click', async ()=>{
     const ui = (window.EZQ.ui = window.EZQ.ui || {});
