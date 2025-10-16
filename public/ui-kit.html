@@ -343,7 +343,7 @@
       </div>
     </section>
 
-    <section class="section" id="icons-font">
+    <section class="section ms-guard" id="icons-font" hidden>
       <h2>Paperclip via Icon Font (Material Symbols)</h2>
       <article class="card" aria-label="Material Symbols options">
         <div class="card__body">
@@ -619,6 +619,17 @@
         updateThemeToggleState();
       });
       updateThemeToggleState();
+
+      // Show Material Symbols section only if font loads
+      try {
+        if (document.fonts && document.fonts.load) {
+          document.fonts.load('24px "Material Symbols Rounded"').then((list) => {
+            const ok = Array.isArray(list) ? list.length > 0 : !!list;
+            const sec = document.getElementById('icons-font');
+            if (ok && sec) { sec.hidden = false; }
+          }).catch(() => {});
+        }
+      } catch {}
 
       // Modal behavior
       const openBtn = document.getElementById('openModalBtn');
