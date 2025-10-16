@@ -1085,6 +1085,9 @@ details.advanced > summary{display:none}
 /* Results card typography and dividers */
 .results-missed .missed-item > div:first-child{ font-size: var(--fz-3); font-weight: 600; margin-bottom: 6px; }
 .results-missed .missed-item .user-ans + div{ border-top:1px solid var(--field-border); margin-top: 10px; padding-top: 10px; }
+/* Inline explanation block */
+.explain{ margin-top:10px; border:1px solid var(--field-border); background:var(--panel-2); border-radius:10px; padding:10px; font-size:.9rem; line-height:1.4 }
+.res-head{ display:flex; align-items:baseline; gap:8px; justify-content:space-between }
 
 /* Two-column results on desktop */
 @media (min-width: 1024px){ .results-missed{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
