@@ -228,7 +228,7 @@ export function renderResults(){
     const userDetail = buildUserAnswerDetail(q,a);
     const correctDetail = buildCorrectAnswerDetail(q);
     return `<div class="missed-item ${item.isCorrect ? 'is-correct' : 'is-wrong'}">`
-      + `<div><strong>Q${item.idx}.</strong> ${escapeHTML(item.text)}</div>`
+      + `<div><strong>${item.idx}.</strong> ${escapeHTML(item.text)}</div>`
       + `<div class="user-ans ${item.isCorrect ? 'ans-correct' : 'ans-wrong'}"><strong>Your answer:</strong> ${userDetail}</div>`
       + `<div><strong>Correct:</strong> ${correctDetail}</div>`
       + `</div>`;
@@ -264,15 +264,13 @@ function buildUserAnswerDetail(q,a){
   }
   if(q.type==='TF'){
     if(typeof a!=='boolean') return '';
-    const letter = a ? 'T':'F';
     const text = a ? 'True':'False';
-    return `${letter} — <span class="ans-text">${text}</span>`;
+    return `<span class="chip">${text}</span>`;
   }
   if(q.type==='YN'){
     if(typeof a!=='boolean') return '';
-    const letter = a ? 'Y':'N';
     const text = a ? 'Yes':'No';
-    return `${letter} — <span class="ans-text">${text}</span>`;
+    return `<span class="chip">${text}</span>`;
   }
   if(q.type==='MT'){
     const arr=Array.isArray(a)?a:[];
@@ -297,14 +295,12 @@ function buildCorrectAnswerDetail(q){
     }).join(', ');
   }
   if(q.type==='TF'){
-    const letter = q.correct ? 'T':'F';
     const text = q.correct ? 'True':'False';
-    return `${letter} — <span class="ans-text">${text}</span>`;
+    return `<span class="chip">${text}</span>`;
   }
   if(q.type==='YN'){
-    const letter = q.correct ? 'Y':'N';
     const text = q.correct ? 'Yes':'No';
-    return `${letter} — <span class="ans-text">${text}</span>`;
+    return `<span class="chip">${text}</span>`;
   }
   if(q.type==='MT'){
     const pairs = Array.isArray(q.pairs)?q.pairs:[];
@@ -332,7 +328,7 @@ function renderMTResult(idx, q, a){
     const corr = c>=0 ? `— <span class="ans-text">${escapeHTML(rightText(c))}</span>` : '';
     return `
       <div class="mt-row ${ok?'is-correct':'is-wrong'}">
-        <div class="mt-left"><span class="chip num">${li+1}</span> ${escapeHTML(lt)}</div>
+        <div class="mt-left">${escapeHTML(lt)}</div>
         <div class="mt-your"><span class="lbl">Your match</span> <span class="chip letter ${ok?'good':'bad'}">${toLetter(u)}</span> ${your}</div>
         <div class="mt-correct"><span class="lbl">Correct match</span> <span class="chip letter">${toLetter(c)}</span> ${corr}</div>
       </div>`;
