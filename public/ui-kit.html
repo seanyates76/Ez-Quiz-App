@@ -20,6 +20,12 @@
     .affix-demo { --toolbar-height: 40px; min-width: 0; width: 100%; }
     .row .affix-demo { flex: 1 1 240px; width: auto; min-width: 0; }
     .row .pill { flex: 0 0 auto; }
+    /* Clamp affix width inside cards to avoid spill */
+    #main .card .row .input-affix{ flex:1 1 0; min-width:0; max-width:100%; }
+    #main .card{ overflow:hidden; }
+    /* Temporarily hide the legacy options grid until curated */
+    #icons-paperclip{ display:none; }
+    #icons-font{ display:none; }
   </style>
   </head>
 <body>
