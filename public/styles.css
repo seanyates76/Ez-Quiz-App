@@ -993,18 +993,18 @@ details.advanced > summary{display:none}
   height:auto; min-width:0; padding:0; border-radius:0;
   background:transparent; border:0; box-shadow:none; text-shadow:none;
 }
-#resultsView #resultsChip .score-graph{
-  --sg-size: 14px;
-  display:grid; grid-auto-flow:column; grid-auto-columns: var(--sg-size); gap:4px;
+#resultsView #resultsChip .score-bar{
+  display:inline-block; vertical-align:middle;
+  width:clamp(120px, 18vw, 220px); height:10px;
+  background:var(--panel-2); border:1px solid var(--field-border);
+  border-radius:999px; overflow:hidden;
 }
-#resultsView #resultsChip .sg-cell{
-  width: var(--sg-size); height: var(--sg-size);
-  border-radius:4px;
-  background: var(--panel-2);
-  border: 1px solid var(--field-border);
+#resultsView #resultsChip .score-fill{
+  display:block; height:100%; width:0%;
+  background:linear-gradient(90deg, var(--primary), #8bb6ff);
+  transition:width .25s ease;
 }
-#resultsView #resultsChip .sg-cell.filled{ background: var(--primary); border-color: transparent; }
-#resultsView #resultsChip .sg-label{ font-weight:700; }
+#resultsView #resultsChip .score-label{ font-weight:700; }
 #resultsView #resultsChip .sg-time{ color: var(--muted); font-weight:600; font-size:.9rem; }
 .prog{flex:1; height:10px; background:var(--panel-2); border:1px solid var(--field-border); border-radius:999px; overflow:hidden}
 .prog-bar{height:100%; width:0%; background:linear-gradient(90deg, var(--primary), #8bb6ff); transition:width .25s ease}

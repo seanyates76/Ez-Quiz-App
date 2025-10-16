@@ -250,15 +250,11 @@ export function renderResults(){
   if(chip){
     const labelText = `${correctCountFull}/${baseQs.length}`;
     const timeText = showTime ? formatDuration(Math.max(0,duration)) : '';
-    // Build segmented bar (one cell per question)
-    const cells = Array.from({ length: baseQs.length }, (_, i) => i < correctCountFull
-      ? '<span class="sg-cell filled" aria-hidden="true"></span>'
-      : '<span class="sg-cell" aria-hidden="true"></span>'
-    ).join('');
+    const pct = baseQs.length ? Math.round((correctCountFull / baseQs.length) * 100) : 0;
     const aria = showTime ? `${correctCountFull} out of ${baseQs.length} in ${timeText}` : `${correctCountFull} out of ${baseQs.length}`;
     chip.setAttribute('aria-label', aria);
-    chip.innerHTML = `<span class="score-graph" aria-hidden="true">${cells}</span>`
-      + `<span class="sg-label">${labelText}</span>`
+    chip.innerHTML = `<span class="score-bar" aria-hidden="true"><span class=\"score-fill\" style=\"width:${pct}%\"></span></span>`
+      + `<span class="score-label">${labelText}</span>`
       + (showTime ? `<span class="sg-time">${timeText}</span>` : '');
   }
 }
