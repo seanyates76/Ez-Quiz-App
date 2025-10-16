@@ -1690,13 +1690,13 @@ body[data-theme="light"] .topic-affix{ background:var(--panel); }
 .topic-affix .affix-btn{
   border-left:none;
   width:var(--toolbar-height, 36px);
-  height:calc(var(--toolbar-height, 36px) - 1px);
-  top:0.5px;
+  top:0;
   right:0;
-  bottom:auto;
+  bottom:0;
+  height:auto;
 }
 .topic-affix:focus-within{ box-shadow:0 0 0 2px var(--c-focus-ring); }
-.topic-affix .msr{ opacity:.65; transform:translateX(1px); }
+.topic-affix .msr{ opacity:.65; transform:translate(1px, -0.5px); }
 .topic-affix:focus-within .msr{ opacity:1; }
 .icon-clip{ shape-rendering:geometricPrecision; }
 
