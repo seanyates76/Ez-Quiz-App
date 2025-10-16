@@ -1710,3 +1710,4 @@ body[data-theme="light"] .topic-affix{ background:var(--panel); }
 .results-missed .missed-item .mt-left,
 .results-missed .missed-item .mt-your,
 .results-missed .missed-item .mt-correct{ min-width:0; overflow-wrap:anywhere; word-break:break-word }
+.input-affix .toolbar-input:hover{ background:transparent; }
