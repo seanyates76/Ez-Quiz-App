@@ -1084,6 +1084,7 @@ details.advanced > summary{display:none}
 .results-missed .missed-item{
   padding:14px; border:1px solid var(--border); border-radius:var(--radius-card); background:var(--panel-2);
   border-left:5px solid transparent;
+  overflow-wrap:anywhere; word-break:break-word; min-width:0;
 }
 .results-missed .missed-item.is-correct{ border-left-color: var(--success) }
 .results-missed .missed-item.is-wrong{ border-left-color: var(--danger) }
@@ -1096,9 +1097,9 @@ details.advanced > summary{display:none}
 /* Slight vertical spacing within MT rows */
 .results-missed .missed-item .mt-row{ margin:4px 0 }
 /* Inline explanation block */
-.explain{ margin-top:10px; border:1px solid var(--field-border); background:var(--panel-2); border-radius:10px; padding:10px; font-size:.9rem; line-height:1.4; max-width:66ch; margin-left:auto; margin-right:auto; opacity:0; transform:translateY(-2px); transition:opacity .16s ease, transform .16s ease }
+.explain{ margin-top:10px; border:1px solid var(--field-border); background:var(--panel-2); border-radius:10px; padding:10px; font-size:.9rem; line-height:1.4; max-width:66ch; margin-left:auto; margin-right:auto; opacity:0; transform:translateY(-2px); transition:opacity .16s ease, transform .16s ease; overflow-x:hidden }
 .explain:not([hidden]){ opacity:1; transform:none }
-.explain.soon{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; white-space: pre; text-align: center }
+.explain.soon{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; white-space: pre; text-align: center; font-size: clamp(10px, 3.2vw, 14px) }
 .res-head{ display:flex; align-items:baseline; gap:8px; justify-content:space-between; flex-wrap:wrap }
 .res-head .explain-btn{ margin-left:auto }
 @media (max-width:600px){ .res-head .explain-btn{ margin-top:6px } }
@@ -1607,3 +1608,7 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
   padding:0 2px;
 }
 .regen-hint[hidden]{ display:none !important; }
+.res-head{ min-width:0; overflow-wrap:anywhere; word-break:break-word }
+.results-missed .missed-item .mt-left,
+.results-missed .missed-item .mt-your,
+.results-missed .missed-item .mt-correct{ min-width:0; overflow-wrap:anywhere; word-break:break-word }
