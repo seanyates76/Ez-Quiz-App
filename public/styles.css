@@ -980,6 +980,9 @@ details.advanced > summary{display:none}
   background:var(--panel-2); color:var(--text);
   border:1px solid var(--field-border);
 }
+/* Small tag-like chip for inline status (e.g., Correct) */
+.chip.tag{ height:22px; min-width:0; padding:0 8px; font-size:12px }
+.chip.tag.good{ background:rgba(34,197,94,.14); border-color:rgba(34,197,94,.35); color:var(--success) }
 /* Results score: graphical segmented bar (ditch pill) */
 #resultsView #resultsChip{
   display:inline-flex; align-items:center; gap:10px;

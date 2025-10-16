@@ -227,11 +227,15 @@ export function renderResults(){
     }
     const userDetail = buildUserAnswerDetail(q,a);
     const correctDetail = buildCorrectAnswerDetail(q);
-    return `<div class="missed-item ${item.isCorrect ? 'is-correct' : 'is-wrong'}">`
-      + `<div><strong>${item.idx}.</strong> ${escapeHTML(item.text)}</div>`
-      + `<div class="user-ans ${item.isCorrect ? 'ans-correct' : 'ans-wrong'}"><strong>Your answer:</strong> ${userDetail}</div>`
-      + `<div><strong>Correct:</strong> ${correctDetail}</div>`
-      + `</div>`;
+    const header = `<div><strong>${item.idx}.</strong> ${escapeHTML(item.text)}</div>`;
+    if (item.isCorrect) {
+      const line = `<div class="user-ans ans-correct"><strong>Answer:</strong> ${userDetail} <span class=\"chip tag good\">Correct</span></div>`;
+      return `<div class="missed-item is-correct">` + header + line + `</div>`;
+    } else {
+      const yours = `<div class="user-ans ans-wrong"><strong>Your answer:</strong> ${userDetail}</div>`;
+      const corr = `<div><strong>Correct:</strong> ${correctDetail}</div>`;
+      return `<div class="missed-item is-wrong">` + header + yours + corr + `</div>`;
+    }
   }).join('');
   // Sync retake controls UI when results are shown/updated
   try{ updateRetakeUI(); }catch{}
@@ -326,11 +330,13 @@ function renderMTResult(idx, q, a){
     const ok = (u>=0 && u===c);
     const your = u>=0 ? `— <span class="ans-text">${escapeHTML(rightText(u))}</span>` : `— <span class="ans-text">No selection</span>`;
     const corr = c>=0 ? `— <span class="ans-text">${escapeHTML(rightText(c))}</span>` : '';
+    const yourLine = `<div class=\"mt-your\"><span class=\"lbl\">Your answer</span> <span class=\"chip letter ${ok?'good':'bad'}\">${toLetter(u)}</span> ${your}${ok ? ' <span class=\\\"chip tag good\\\">Correct</span>' : ''}</div>`;
+    const corrLine = ok ? '' : `<div class=\"mt-correct\"><span class=\"lbl\">Correct answer</span> <span class=\"chip letter\">${toLetter(c)}</span> ${corr}</div>`;
     return `
       <div class="mt-row ${ok?'is-correct':'is-wrong'}">
         <div class="mt-left">${escapeHTML(lt)}</div>
-        <div class="mt-your"><span class="lbl">Your answer</span> <span class="chip letter ${ok?'good':'bad'}">${toLetter(u)}</span> ${your}</div>
-        <div class="mt-correct"><span class="lbl">Correct answer</span> <span class="chip letter">${toLetter(c)}</span> ${corr}</div>
+        ${yourLine}
+        ${corrLine}
       </div>`;
   }).join('');
   return `<div class="missed-item ${Array.isArray(a)&&a.length&&a.every((ri,li)=>ri===correctMap[li])?'is-correct':'is-wrong'}">
