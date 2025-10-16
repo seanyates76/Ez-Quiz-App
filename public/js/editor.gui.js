@@ -222,10 +222,25 @@ const IE2 = (()=>{
     bind('ieImport', ()=>{ syncFromEditor(); setSummaryHint('Synced from raw text'); });
     bind('ieClear', ()=>{ state.model=[]; syncToEditor(); renderCards(); setSummaryHint('Cleared all questions'); });
 
-    // Keyboard shortcuts for reliability even if pointer events are blocked
+    // Keyboard shortcuts (disabled when QE closed or text inputs are active)
+    function isQEVisible(){
+      try{
+        const op = document.getElementById('optionsPanel');
+        if(!op || op.hidden) return false;
+        const adv = document.getElementById('advancedBlock');
+        if(!adv || adv.hidden) return false;
+        const mount = document.getElementById('interactiveEditor');
+        if(!mount || mount.classList.contains('hidden')) return false;
+        return true;
+      }catch{ return false; }
+    }
     document.addEventListener('keydown', (e)=>{
       if(!state.enabled) return;
+      if(!isQEVisible()) return; // QE closed or manual editor active
       if(e.ctrlKey||e.metaKey||e.altKey) return;
+      // Don't trigger when typing in inputs/textareas/contenteditable (e.g., Topic field or manual editor)
+      const ae = document.activeElement;
+      if(ae && ((ae.tagName==='INPUT') || (ae.tagName==='TEXTAREA') || (ae.tagName==='SELECT') || (ae.isContentEditable===true))) return;
       const k = (typeof e.key === 'string') ? e.key.toLowerCase() : '';
       if(!k) return;
       if(k==='m'){
