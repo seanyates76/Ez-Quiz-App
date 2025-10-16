@@ -1087,6 +1087,7 @@ details.advanced > summary{display:none}
 .results-missed .missed-item .user-ans + div{ border-top:1px solid var(--field-border); margin-top: 10px; padding-top: 10px; }
 /* Inline explanation block */
 .explain{ margin-top:10px; border:1px solid var(--field-border); background:var(--panel-2); border-radius:10px; padding:10px; font-size:.9rem; line-height:1.4 }
+.explain.soon{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; white-space: pre; text-align: center }
 .res-head{ display:flex; align-items:baseline; gap:8px; justify-content:space-between }
 
 /* Two-column results on desktop */
