@@ -1690,8 +1690,8 @@ body[data-theme="light"] .topic-affix{ background:var(--panel); }
 .topic-affix .affix-btn{
   border-left:none;
   width:var(--toolbar-height, 36px);
-  height:calc(var(--toolbar-height, 36px) - 3px);
-  top:0;
+  height:calc(var(--toolbar-height, 36px) - 2px);
+  top:1px;
   right:0;
   bottom:auto;
 }
