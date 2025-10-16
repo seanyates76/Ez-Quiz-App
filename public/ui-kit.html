@@ -5,10 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>EZQ UI Kit</title>
   <link rel="stylesheet" href="./styles.css?v=dev">
+  <!-- Material Symbols (variable icon font) for icon previews only -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:FILL,wght,GRAD,opsz@0..1,300..700,-50..200,20..48&display=swap" rel="stylesheet">
   <style>
     .section { margin-block: 2rem; }
     .row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
     .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    /* Material Symbols helper */
+    .ms { font-family: 'Material Symbols Rounded', sans-serif; font-weight: normal; font-style: normal; font-size: 24px; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; }
+    .ms.outline { font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24; }
+    .ms.filled { font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24; }
+    .affix-demo { --toolbar-height: 40px; min-width: 260px; }
   </style>
   </head>
 <body>
@@ -332,6 +341,38 @@
         </div>
 
       </div>
+    </section>
+
+    <section class="section" id="icons-font">
+      <h2>Paperclip via Icon Font (Material Symbols)</h2>
+      <article class="card" aria-label="Material Symbols options">
+        <div class="card__body">
+          <p class="muted small">These use the Material Symbols variable font (Rounded). They typically render with consistent metrics and won’t clip at the top. Try outlined vs filled, different weights, and sizes.</p>
+          <div class="row" style="align-items:center">
+            <span class="pill">Outlined</span>
+            <span class="ms outline" aria-hidden="true">attach_file</span>
+            <span class="ms outline" style="font-variation-settings:'FILL' 0,'wght' 600,'GRAD' 0,'opsz' 24" aria-hidden="true">attach_file</span>
+            <span class="ms outline" style="font-size:20px; font-variation-settings:'FILL' 0,'wght' 550,'GRAD' 0,'opsz' 20" aria-hidden="true">attach_file</span>
+          </div>
+          <div class="row" style="align-items:center; margin-top:.5rem">
+            <span class="pill">Filled</span>
+            <span class="ms filled" aria-hidden="true">attach_file</span>
+            <span class="ms filled" style="font-variation-settings:'FILL' 1,'wght' 700,'GRAD' 0,'opsz' 24" aria-hidden="true">attach_file</span>
+            <span class="ms filled" style="font-size:20px; font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 20" aria-hidden="true">attach_file</span>
+          </div>
+          <div class="row" style="margin-top:.75rem">
+            <span class="pill">Affix</span>
+            <div class="input-affix affix-demo">
+              <input class="toolbar-input has-affix" placeholder="Topic… (mock)" />
+              <button class="affix-btn" type="button" aria-label="Attach (outlined)"><span class="ms outline" aria-hidden="true">attach_file</span></button>
+            </div>
+            <div class="input-affix affix-demo">
+              <input class="toolbar-input has-affix" placeholder="Topic… (mock)" />
+              <button class="affix-btn" type="button" aria-label="Attach (filled)"><span class="ms filled" aria-hidden="true">attach_file</span></button>
+            </div>
+          </div>
+        </div>
+      </article>
     </section>
     <section class="section" id="checks">
       <h2>Checkboxes & Radios</h2>
