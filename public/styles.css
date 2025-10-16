@@ -1620,21 +1620,13 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
 }
 .regen-hint[hidden]{ display:none !important; }
 /* Bitmap-masked paperclip icon tinted by currentColor */
-:root{
-  --clip-size: 24px;
-  --clip-icon-svg: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'>\
-  <path d='M8 16 V9 a4.5 4.5 0 0 1 4.5-4.5 H17' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/>\
-  <path d='M17 4.5 V16 a6.5 6.5 0 1 1 -10 0' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/>\
-  <path d='M11.5 20 V12.5 a2.7 2.7 0 0 1 2.7-2.7 H17' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/>\
-</svg>");
-}
 .clip{
-  --icon: var(--clip-icon-svg);
-  --size: var(--clip-size);
+  --icon: url('/icons/paperclip.svg');
+  --size: 20px; /* visual glyph */
   background-color: currentColor;
   -webkit-mask: var(--icon) center / var(--size) no-repeat;
           mask: var(--icon) center / var(--size) no-repeat;
+  transform: rotate(11deg);
   opacity:.96;
 }
 /* Optional: opt in to bitmap WebP assets when present by adding data-clip="bitmap" on <body> */
