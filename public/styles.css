@@ -294,7 +294,7 @@ body[data-theme="light"] .btn-solid{color:#f7f9ff;}
 .btn-outline{background:transparent; border-color:var(--border-strong);}
 .btn-outline:hover{background:var(--panel-2);}
 .btn-outline:active{background:var(--panel-3);}
-.btn-icon{ width:var(--toolbar-height, 44px); height:var(--toolbar-height, 44px); display:inline-grid; place-items:center; padding:0; }
+.btn-icon{ width:40px; height:40px; display:inline-grid; place-items:center; padding:0; }
 .btn-icon{ color:var(--text); }
 .card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-card); padding:var(--sp-4); margin-bottom:var(--sp-4); box-shadow:var(--shadow-card);}
 .card__header{margin-bottom:var(--sp-3);}
@@ -1647,7 +1647,7 @@ body[data-beta] .beta-only{ display:inline-flex; }
   top:0; bottom:0; right:0;
   width:var(--affix-w);
   display:flex; align-items:center; justify-content:center;
-  border-left:1px solid var(--field-border);
+  border-left:none;
   background:transparent;
   color:var(--muted);
   border-radius:0 var(--radius-control) var(--radius-control) 0;
