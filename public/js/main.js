@@ -36,7 +36,8 @@ function init(){
   
   const betaCookieActive = hasCookieFlag('beta');
   const betaActive = hasFlag('beta') || betaCookieActive;
-  if (betaActive) {
+  const onBetaRoute = typeof window !== 'undefined' && window.location && String(window.location.pathname || '').startsWith('/beta');
+  if (betaActive && onBetaRoute) {
     document.body.dataset.beta = 'true';
   } else {
     document.body.removeAttribute('data-beta');
