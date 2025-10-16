@@ -1619,6 +1619,24 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
   padding:0 2px;
 }
 .regen-hint[hidden]{ display:none !important; }
+
+/* Icon button wrapper (for webfont icons) */
+.btn-icon{ width:40px; height:40px; display:inline-grid; place-items:center; color:currentColor; padding:0; background:transparent; border:0; }
+
+/* Material Symbols Rounded (webfont icon) */
+.msr{
+  font-family: "Material Symbols Rounded";
+  font-weight: 400;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  display: inline-block;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "OPSZ" 24;
+}
 /* (reverted) no bitmap paperclip mask or btn-icon */
 /* clip mask removed (reverted) */
 /* Beta-only visibility helper */

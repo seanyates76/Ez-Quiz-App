@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>EZ Quiz</title>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="styles.css?v=1.5.17" />
@@ -45,11 +47,8 @@
           <span class="toolbar-label">Topic</span>
           <div class="input-affix topic-affix">
             <input id="topicInput" type="text" class="toolbar-input has-affix" placeholder="e.g. Animals" />
-            <button id="importBtn" class="affix-btn beta-only" type="button" title="Attach PDF/Image (beta)" aria-label="Attach PDF or Image (beta)">
-              <svg class="icon-clip" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M16 6v9a4 4 0 11-8 0V6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M14 7.5v7.5a2.5 2.5 0 11-5 0V7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+            <button id="importBtn" class="affix-btn btn-icon beta-only" type="button" title="Attach PDF/Image (beta)" aria-label="Attach PDF or Image (beta)">
+              <span class="msr" aria-hidden="true">attach_file</span>
             </button>
             <input id="importFile" type="file" accept="application/pdf,image/*" style="display:none" />
           </div>
