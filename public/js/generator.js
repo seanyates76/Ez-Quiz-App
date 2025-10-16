@@ -132,8 +132,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     }
     // No quiz loaded
     if (editorHasText) return 'start';
-    // Default is Start even when QE open
-    return 'start';
+    return qeOpen ? 'generate' : 'start';
   }
   function setPrimaryAction(mode){
     const ui = (window.EZQ.ui = window.EZQ.ui || {});
@@ -149,29 +148,41 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       const hint=document.getElementById('regenHint'); if(!hint) return;
       const mode = computePrimaryMode();
       const hasLoaded = Array.isArray(S.quiz?.questions) && S.quiz.questions.length > 0;
+      const qeOpen = !!(optionsPanel && !optionsPanel.hidden && advBlock && !advBlock.hidden);
+      const editorHasText = !!(editor && (editor.value||'').trim());
       const ui = (window.EZQ.ui = window.EZQ.ui || {});
       const last = ui.lastGeneratedParams;
       const curr = getParamsSnapshot();
       const changed = snapshotChanged(last, curr);
+
+      // No quiz cases
       if(!hasLoaded){
-        // No quiz yet
-        hint.textContent = 'Start will generate a new quiz';
-        hint.hidden = false;
-        return;
+        if(editorHasText){
+          hint.textContent = 'Start will parse your text and begin.';
+          hint.hidden = false; return;
+        }
+        if(qeOpen){
+          hint.textContent = 'Enter Topic, Difficulty, and Length, then click Generate to fill the editor.';
+          hint.hidden = false; return;
+        }
+        hint.textContent = 'Enter Topic, Difficulty, and Length. Start will generate and begin a new quiz.';
+        hint.hidden = false; return;
       }
+
+      // Quiz loaded
       if(last && changed){
         if(mode === 'regenerate'){
-          hint.textContent = 'Updated inputs — Regenerate updates the editor; Start will generate and begin';
-          hint.hidden = false;
-        } else if(mode === 'start-new'){
-          hint.textContent = 'Updated inputs — Start New will generate a new quiz and begin';
-          hint.hidden = false;
-        } else {
-          hint.hidden = true;
+          hint.textContent = 'Changes detected. Regenerate updates the editor; press Start to begin.';
+          hint.hidden = false; return;
         }
-      } else {
-        hint.hidden = true;
+        if(mode === 'start-new'){
+          hint.textContent = 'Changes detected. Start New will generate a new quiz and begin.';
+          hint.hidden = false; return;
+        }
       }
+      // Loaded, unchanged
+      hint.textContent = 'Quiz ready. Press Start to begin.';
+      hint.hidden = false;
     }catch{}
   }
   const clampDifficultyIndex = (idx)=>{
