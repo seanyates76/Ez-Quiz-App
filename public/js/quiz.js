@@ -334,8 +334,11 @@ function wireExplainDelegation(){
       if(!q||!q.type) return 'No explanation available.';
       const txt = (q.text||'').trim();
       if(q.type==='MC'){
-        const letters = (Array.isArray(q.correct)?q.correct:[]).map(i=>String.fromCharCode(65+i)).join(' and ');
-        return `Correct answer${(Array.isArray(q.correct)&&q.correct.length>1)?'s':''}: ${letters}. Choices are designed so only the correct option${(Array.isArray(q.correct)&&q.correct.length>1)?'s':''} fit${(Array.isArray(q.correct)&&q.correct.length>1)?'':'s'} the question.`;
+        const idxs = Array.isArray(q.correct)? q.correct.slice() : [];
+        const texts = idxs.map(i => (q.options && q.options[i]) ? String(q.options[i]).trim() : '').filter(Boolean);
+        if(!texts.length) return 'No explanation available.';
+        const list = texts.length === 1 ? texts[0] : texts.slice(0,-1).join(', ') + ' and ' + texts[texts.length-1];
+        return `Correct ${texts.length>1?'options':'option'}: ${list}.`;
       }
       if(q.type==='TF') return `This statement is ${q.correct ? 'True' : 'False'}.`;
       if(q.type==='YN') return `The answer is ${q.correct ? 'Yes' : 'No'}.`;
