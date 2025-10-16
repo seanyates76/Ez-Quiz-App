@@ -246,53 +246,61 @@
     <section class="section" id="checks">
       <h2>Checkboxes & Radios</h2>
       <div class="grid" role="group" aria-label="Switches and toggles">
-        <div>
-          <h3>Opt Switch</h3>
-          <div class="row">
-            <label class="opt-switch"><input type="checkbox" /> <span>Timer</span></label>
-            <label class="opt-switch"><input type="checkbox" checked /> <span>Countdown</span></label>
-            <label class="opt-switch"><input type="checkbox" disabled /> <span>Disabled</span></label>
-          </div>
-          <div class="row" style="margin-top:.5rem">
-            <label class="opt-switch small mirror-toggle">
-              <input type="checkbox" />
-              <span class="mirror-toggle-label">Mirror (small)</span>
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <h3>Options Row (qt-row)</h3>
-          <div class="row qt-row" style="margin-top:8px">
-            <span class="lbl">Question Types</span>
-            <label><input type="checkbox" checked /> <span>Multiple Choice</span></label>
-            <label><input type="checkbox" /> <span>True/False</span></label>
-            <label><input type="checkbox" /> <span>Yes/No</span></label>
-            <label><input type="checkbox" disabled /> <span>Matching (disabled)</span></label>
-          </div>
-        </div>
-
-        <div>
-          <h3>Quiz Options — Checkboxes</h3>
-          <div id="quizView">
-            <div class="options">
-              <label class="opt"><input type="checkbox" /> <span>Option A</span></label>
-              <label class="opt"><input type="checkbox" checked /> <span>Option B (checked)</span></label>
-              <label class="opt"><input type="checkbox" disabled /> <span>Option C (disabled)</span></label>
+        <article class="card" aria-label="Opt Switch">
+          <div class="card__body">
+            <h3>Opt Switch</h3>
+            <div class="row">
+              <label class="opt-switch"><input type="checkbox" /> <span>Timer</span></label>
+              <label class="opt-switch"><input type="checkbox" checked /> <span>Countdown</span></label>
+              <label class="opt-switch"><input type="checkbox" disabled /> <span>Disabled</span></label>
+            </div>
+            <div class="row" style="margin-top:.5rem">
+              <label class="opt-switch small mirror-toggle">
+                <input type="checkbox" />
+                <span class="mirror-toggle-label">Mirror (small)</span>
+              </label>
             </div>
           </div>
-        </div>
+        </article>
 
-        <div>
-          <h3>Quiz Options — Radios</h3>
-          <div id="quizView">
-            <div class="options">
-              <label class="opt"><input type="radio" name="mc-demo" /> <span>Choice 1</span></label>
-              <label class="opt"><input type="radio" name="mc-demo" checked /> <span>Choice 2 (checked)</span></label>
-              <label class="opt"><input type="radio" name="mc-demo" disabled /> <span>Choice 3 (disabled)</span></label>
+        <article class="card" aria-label="Options Row (qt-row)">
+          <div class="card__body">
+            <h3>Options Row (qt-row)</h3>
+            <div class="row qt-row" style="margin-top:8px">
+              <span class="lbl">Question Types</span>
+              <label><input type="checkbox" checked /> <span>Multiple Choice</span></label>
+              <label><input type="checkbox" /> <span>True/False</span></label>
+              <label><input type="checkbox" /> <span>Yes/No</span></label>
+              <label><input type="checkbox" disabled /> <span>Matching (disabled)</span></label>
             </div>
           </div>
-        </div>
+        </article>
+
+        <article class="card" aria-label="Quiz Options — Checkboxes">
+          <div class="card__body">
+            <h3>Quiz Options — Checkboxes</h3>
+            <div id="quizView">
+              <div class="options">
+                <label class="opt"><input type="checkbox" /> <span>Option A</span></label>
+                <label class="opt"><input type="checkbox" checked /> <span>Option B (checked)</span></label>
+                <label class="opt"><input type="checkbox" disabled /> <span>Option C (disabled)</span></label>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" aria-label="Quiz Options — Radios">
+          <div class="card__body">
+            <h3>Quiz Options — Radios</h3>
+            <div id="quizView">
+              <div class="options">
+                <label class="opt"><input type="radio" name="mc-demo" /> <span>Choice 1</span></label>
+                <label class="opt"><input type="radio" name="mc-demo" checked /> <span>Choice 2 (checked)</span></label>
+                <label class="opt"><input type="radio" name="mc-demo" disabled /> <span>Choice 3 (disabled)</span></label>
+              </div>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -330,34 +338,44 @@
     </section>
     <section class="section" id="buttons">
       <h2>Buttons</h2>
-      <div class="row" aria-label="Button variants">
-        <button type="button" class="btn">Default</button>
-        <button type="button" class="btn btn-solid">Solid</button>
-        <button type="button" class="btn btn-outline">Outline</button>
-        <button type="button" class="btn" disabled>Disabled</button>
-      </div>
+      <article class="card" aria-label="Button variants">
+        <div class="card__body">
+          <div class="row" aria-label="Button variants">
+            <button type="button" class="btn">Default</button>
+            <button type="button" class="btn btn-solid">Solid</button>
+            <button type="button" class="btn btn-outline">Outline</button>
+            <button type="button" class="btn" disabled>Disabled</button>
+          </div>
+        </div>
+      </article>
     </section>
 
   <section class="section" id="inputs">
       <h2>Inputs</h2>
       <div class="grid" role="group" aria-label="Input examples">
-        <div>
-          <label for="textInput">Text Input</label><br>
-          <input id="textInput" class="input" type="text" placeholder="Enter text">
-        </div>
-        <div>
-          <label for="selectInput">Select Input</label><br>
-          <select id="selectInput" class="input">
-            <option value="">Choose an option</option>
-            <option>Option A</option>
-            <option>Option B</option>
-            <option>Option C</option>
-          </select>
-        </div>
-        <div>
-          <label for="textareaInput">Textarea Input</label><br>
-          <textarea id="textareaInput" class="input" rows="4" placeholder="Type your message"></textarea>
-        </div>
+        <article class="card" aria-label="Text Input">
+          <div class="card__body">
+            <label for="textInput">Text Input</label><br>
+            <input id="textInput" class="input" type="text" placeholder="Enter text">
+          </div>
+        </article>
+        <article class="card" aria-label="Select Input">
+          <div class="card__body">
+            <label for="selectInput">Select Input</label><br>
+            <select id="selectInput" class="input">
+              <option value="">Choose an option</option>
+              <option>Option A</option>
+              <option>Option B</option>
+              <option>Option C</option>
+            </select>
+          </div>
+        </article>
+        <article class="card" aria-label="Textarea Input">
+          <div class="card__body">
+            <label for="textareaInput">Textarea Input</label><br>
+            <textarea id="textareaInput" class="input" rows="4" placeholder="Type your message"></textarea>
+          </div>
+        </article>
       </div>
     </section>
 
