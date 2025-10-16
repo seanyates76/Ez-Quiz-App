@@ -329,16 +329,41 @@ function wireExplainDelegation(){
     const key = `${hash}|${idx}`;
     box.hidden = false; box.textContent = 'Generating explanation…';
     if(__EXPL_CACHE.has(key)) { box.textContent = __EXPL_CACHE.get(key); return; }
+    // Build client-side fallback from question object
+    const buildClientExplanation = (q)=>{
+      if(!q||!q.type) return 'No explanation available.';
+      const txt = (q.text||'').trim();
+      if(q.type==='MC'){
+        const letters = (Array.isArray(q.correct)?q.correct:[]).map(i=>String.fromCharCode(65+i)).join(' and ');
+        return `Correct answer${(Array.isArray(q.correct)&&q.correct.length>1)?'s':''}: ${letters}. Choices are designed so only the correct option${(Array.isArray(q.correct)&&q.correct.length>1)?'s':''} fit${(Array.isArray(q.correct)&&q.correct.length>1)?'':'s'} the question.`;
+      }
+      if(q.type==='TF') return `This statement is ${q.correct ? 'True' : 'False'}.`;
+      if(q.type==='YN') return `The answer is ${q.correct ? 'Yes' : 'No'}.`;
+      if(q.type==='MT') return `The left items match their corresponding right items based on meaning or association.`;
+      return 'No explanation available.';
+    };
     try{
       const res = await fetch('/.netlify/functions/explain-answers-lazy', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ lines, index: idx }) });
-      if(!res.ok){ throw new Error(`HTTP ${res.status}`); }
+      if(!res.ok){
+        // Fallback to client stub on non-OK (e.g., 404 in static preview)
+        const base = (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) ? S.quiz.originalQuestions : S.quiz.questions;
+        const q = Array.isArray(base) ? base[idx] : null;
+        const text = buildClientExplanation(q);
+        __EXPL_CACHE.set(key, text);
+        box.textContent = text;
+        return;
+      }
       const data = await res.json();
       const exp = (data && data.explanations && (data.explanations[String(idx)]||data.explanations[idx])) || {};
       const text = String(exp.explanation || 'No explanation available.');
       __EXPL_CACHE.set(key, text);
       box.textContent = text;
     }catch(err){
-      box.textContent = 'Could not generate explanation. Please try again.';
+      const base = (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) ? S.quiz.originalQuestions : S.quiz.questions;
+      const q = Array.isArray(base) ? base[idx] : null;
+      const text = buildClientExplanation(q);
+      __EXPL_CACHE.set(key, text);
+      box.textContent = text;
     }
   });
 }
