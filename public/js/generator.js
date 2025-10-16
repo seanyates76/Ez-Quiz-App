@@ -138,8 +138,14 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     const ui = (window.EZQ.ui = window.EZQ.ui || {});
     const m = mode || computePrimaryMode();
     ui.primaryMode = m;
-    const label = m === 'regenerate' ? 'Regenerate' : (m === 'start-new' ? 'Start New' : 'Start');
-    const dataMode = (m === 'regenerate') ? 'generate' : (m === 'start-new' ? 'start-new' : 'start');
+    const label = (m === 'regenerate') ? 'Regenerate'
+                : (m === 'start-new') ? 'Start New'
+                : (m === 'generate') ? 'Generate'
+                : 'Start';
+    const dataMode = (m === 'regenerate') ? 'generate'
+                   : (m === 'start-new') ? 'start-new'
+                   : (m === 'generate') ? 'generate'
+                   : 'start';
     generateBtn?.setAttribute('data-mode', dataMode);
     if (generateBtn) generateBtn.textContent = label;
   }
