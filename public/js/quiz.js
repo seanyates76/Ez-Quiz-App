@@ -188,6 +188,7 @@ export function renderResults(){
   const indexMap = (Array.isArray(S.quiz.indexMap) && S.quiz.indexMap.length)
     ? S.quiz.indexMap
     : S.quiz.questions.map((_,i)=>i);
+  const isBeta = !!(S.settings && S.settings.betaEnabled);
   // Prefer persistent originalAnswers when available; fallback to mapping current run
   let answersFull;
   if (Array.isArray(S.quiz.originalAnswers) && S.quiz.originalAnswers.length === baseQs.length) {
@@ -229,22 +230,22 @@ export function renderResults(){
     }
     const userDetail = buildUserAnswerDetail(q,a);
     const correctDetail = buildCorrectAnswerDetail(q);
-    const header = `<div class="res-head"><strong>${item.idx}.</strong> ${escapeHTML(item.text)} <button type="button" class="chip-btn explain-btn" data-explain="${origIdx}">Explain</button></div>`;
+    const header = `<div class="res-head"><strong>${item.idx}.</strong> ${escapeHTML(item.text)}${isBeta ? ` <button type=\"button\" class=\"chip-btn explain-btn\" data-explain=\"${origIdx}\">Explain</button>` : ''}</div>`;
     if (item.isCorrect) {
       const line = `<div class="user-ans ans-correct"><strong>Answer:</strong> ${userDetail} <span class=\"chip tag good\">Correct</span></div>`;
-      const exp = `<div id="explain-${origIdx}" class="explain" hidden role="status" aria-live="polite"></div>`;
+      const exp = isBeta ? `<div id=\"explain-${origIdx}\" class=\"explain\" hidden role=\"status\" aria-live=\"polite\"></div>` : '';
       return `<div class="missed-item is-correct" data-orig="${origIdx}">` + header + line + exp + `</div>`;
     } else {
       const yours = `<div class="user-ans ans-wrong"><strong>Your answer:</strong> ${userDetail}</div>`;
       const corr = `<div><strong>Correct:</strong> ${correctDetail}</div>`;
-      const exp = `<div id="explain-${origIdx}" class="explain" hidden role="status" aria-live="polite"></div>`;
+      const exp = isBeta ? `<div id=\"explain-${origIdx}\" class=\"explain\" hidden role=\"status\" aria-live=\"polite\"></div>` : '';
       return `<div class="missed-item is-wrong" data-orig="${origIdx}">` + header + yours + corr + exp + `</div>`;
     }
   }).join('');
   // Sync retake controls UI when results are shown/updated
   try{ updateRetakeUI(); }catch{}
-  // Wire Explain delegation once
-  try{ wireExplainDelegation(); }catch{}
+  // Wire Explain delegation once (beta only)
+  try{ if(S.settings && S.settings.betaEnabled){ wireExplainDelegation(); } }catch{}
   // Update chip after we know full correctness
   if(chip){
     const labelText = `${correctCountFull}/${baseQs.length}`;
@@ -328,6 +329,16 @@ function wireExplainDelegation(){
     const hash = hashLines(lines);
     const key = `${hash}|${idx}`;
     box.hidden = false; box.textContent = 'Generating explanation…';
+    // In beta, teaser only — no network call
+    if (S.settings && S.settings.betaEnabled) {
+      const teaser = [
+        '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',
+        '┃          FEATURE COMING SOON          ┃',
+        '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛'
+      ].join('\n');
+      box.textContent = teaser; box.classList.add('soon');
+      return;
+    }
     if(__EXPL_CACHE.has(key)) { box.textContent = __EXPL_CACHE.get(key); return; }
     // Build client-side fallback from question object
     const buildClientExplanation = (_q)=>{
