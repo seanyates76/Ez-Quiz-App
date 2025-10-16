@@ -329,8 +329,8 @@ function renderMTResult(idx, q, a){
     return `
       <div class="mt-row ${ok?'is-correct':'is-wrong'}">
         <div class="mt-left">${escapeHTML(lt)}</div>
-        <div class="mt-your"><span class="lbl">Your match</span> <span class="chip letter ${ok?'good':'bad'}">${toLetter(u)}</span> ${your}</div>
-        <div class="mt-correct"><span class="lbl">Correct match</span> <span class="chip letter">${toLetter(c)}</span> ${corr}</div>
+        <div class="mt-your"><span class="lbl">Your answer</span> <span class="chip letter ${ok?'good':'bad'}">${toLetter(u)}</span> ${your}</div>
+        <div class="mt-correct"><span class="lbl">Correct answer</span> <span class="chip letter">${toLetter(c)}</span> ${corr}</div>
       </div>`;
   }).join('');
   return `<div class="missed-item ${Array.isArray(a)&&a.length&&a.every((ri,li)=>ri===correctMap[li])?'is-correct':'is-wrong'}">
