@@ -320,6 +320,8 @@ textarea,
   padding:var(--sp-4) var(--sp-4);
   transition:border-color var(--dur-1) var(--easing), background-color var(--dur-1) var(--easing), box-shadow var(--dur-2) var(--easing);
 }
+/* Select caret breathing room (shift text left to give arrow space) */
+select{ padding-right: calc(var(--sp-4) + 10px); }
 input[type="text"]:hover,
 input[type="number"]:hover,
 select:hover,
@@ -1053,7 +1055,7 @@ details.advanced > summary{display:none}
 #quizView .mtleft{align-self:center}
 #quizView .mtright select{
   width:100%; border:1px solid var(--field-border); background:var(--field);
-  color:var(--text); border-radius:10px; padding:8px 10px;
+  color:var(--text); border-radius:10px; padding:8px 18px 8px 10px; /* extra right padding for caret */
 }
 #quizView .mtright select:focus{outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow)}
  @media (max-width:560px){
