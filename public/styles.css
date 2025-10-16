@@ -492,9 +492,13 @@ body[data-theme="light"] .gen-toolbar{
     row-gap: var(--sp-10);
   }
   .gen-toolbar > .toolbar-left{ grid-template-columns:1fr 1fr; }
+  /* Topic spans full row; Difficulty + Length share next row */
+  .gen-toolbar > .toolbar-left > .toolbar-field:first-of-type{ grid-column: 1 / -1; }
   .toolbar-left .toolbar-field--difficulty{ min-width:0; }
   .toolbar-left .number-field{ max-width:none; justify-self:stretch; }
   .gen-toolbar .action-stack{ justify-self:stretch; margin-top: var(--sp-8); }
+  /* Make Start and Options full-width on mobile */
+  .gen-toolbar .action-stack .btn{ width:100%; }
 }
 
 /* superseded by the consolidated <=720px rules */
