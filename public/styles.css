@@ -605,7 +605,7 @@ body[data-theme="light"] .number-wrap .toolbar-input:is(:-moz-autofill, :-moz-au
 /* Keep Length compact in the toolbar */
 .gen-toolbar .number-wrap{ width:auto; }
 body[data-theme="light"] .number-wrap{ background:var(--panel); }
-.number-wrap:hover{ background:var(--field-hover); border-color:var(--border); }
+.number-wrap:hover{ background:inherit; border-color:var(--border); }
 .number-wrap:focus-within{ box-shadow:0 0 0 2px var(--c-focus-ring); background:var(--panel); }
 .number-wrap .toolbar-input{
   flex:1 1 auto;
