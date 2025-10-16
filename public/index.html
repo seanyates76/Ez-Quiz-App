@@ -47,8 +47,9 @@
             <input id="topicInput" type="text" class="toolbar-input has-affix" placeholder="e.g. Animals" />
             <button id="importBtn" class="affix-btn beta-only" type="button" title="Attach PDF/Image (beta)" aria-label="Attach PDF or Image (beta)">
               <svg class="icon-clip" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M9 4v13a3 3 0 006 0V4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 6v10a1 1 0 002 0V6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Vertical paperclip: outer loop + inner loop -->
+                <path d="M16 6v9a4 4 0 11-8 0V6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 7.5v7.5a2.5 2.5 0 11-5 0V7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
             <input id="importFile" type="file" accept="application/pdf,image/*" style="display:none" />
