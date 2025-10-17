@@ -1620,7 +1620,7 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
 .regen-hint[hidden]{ display:none !important; }
 
 /* Icon button wrapper (for webfont icons) */
-.btn-icon{ width:40px; height:40px; display:inline-grid; place-items:center; color:currentColor; padding:0; background:transparent; border:0; }
+.btn-icon{ width:40px; height:40px; display:inline-grid; place-items:center; color:currentColor; padding:0; background:transparent; border:0; overflow:visible; line-height:0; }
 
 /* Material Symbols Rounded (webfont icon) */
 .msr, .material-symbols-rounded{
@@ -1667,7 +1667,7 @@ body[data-beta] .btn-icon.beta-only{ display:inline-grid !important; }
   color:var(--muted);
   border-radius:0 var(--radius-control) var(--radius-control) 0;
   cursor:pointer;
-  line-height:1;
+  line-height:0;
   font-size:16px;
   transition:background .15s ease, border-color .15s ease, color .15s ease, box-shadow .18s ease;
 }
@@ -1680,7 +1680,7 @@ body[data-beta] .btn-icon.beta-only{ display:inline-grid !important; }
 .affix-btn:focus-visible .msr, .affix-btn:hover .msr, .affix-btn:focus-visible .material-symbols-rounded, .affix-btn:hover .material-symbols-rounded{ opacity:1; }
 .affix-btn:focus-visible{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
 .affix-btn:active{ filter:brightness(0.98); }
-.icon-clip{ display:block; width:18px; height:18px; max-width: calc(var(--affix-w) - 14px); max-height: calc(var(--affix-w) - 14px); overflow:visible; transform:translateY(0.5px); }
+.icon-clip{ display:block; width:20px; height:20px; max-width: calc(var(--affix-w) - 14px); max-height: calc(var(--affix-w) - 14px); overflow:visible; vertical-align:middle; }
 
 /* Topic field: match Length wrapper geometry (border on wrapper, input borderless) */
 .topic-affix{
