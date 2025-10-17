@@ -1636,7 +1636,7 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
     "FILL" 0,
     "wght" 400,
     "GRAD" 100,
-    "OPSZ" 24;
+    "opsz" 24;
 }
 /* (reverted) no bitmap paperclip mask or btn-icon */
 /* clip mask removed (reverted) */
@@ -1702,7 +1702,7 @@ body[data-theme="light"] .topic-affix{ background:var(--panel); }
 }
 .topic-affix:focus-within{ box-shadow:none; }
 .topic-affix:hover:not(:has(.affix-btn:hover)){ box-shadow:0 0 0 2px var(--c-focus-ring); }
-.topic-affix .msr, .topic-affix .material-symbols-rounded{ opacity:.65; transform:translate(1px, -0.5px); }
+.topic-affix .msr, .topic-affix .material-symbols-rounded{ opacity:.65; transform:translateX(1px); }
 .topic-affix:focus-within .affix-btn{ box-shadow:none; }
 .icon-clip{ shape-rendering:geometricPrecision; }
 

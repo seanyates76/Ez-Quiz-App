@@ -79,6 +79,13 @@ self.addEventListener('fetch', (event) => {
   if (req.url.includes('/.netlify/functions/')) return; // let network handle serverless calls
   if (req.method !== 'GET') return;
 
+  // Do not intercept cross-origin requests (e.g., Google Fonts). Let the
+  // browser fetch them under style-src/font-src rather than connect-src.
+  try {
+    const u = new URL(req.url);
+    if (u.origin !== self.location.origin) return;
+  } catch {}
+
   // Network-first for navigations (guarantee fresh HTML when online)
   if (req.mode === 'navigate') {
     event.respondWith((async () => {
