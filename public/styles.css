@@ -1630,8 +1630,15 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
   font-size: 24px;
   line-height: 1;
   display: inline-block;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   font-variant-ligatures: normal;
   font-feature-settings: 'liga';
+  font-synthesis: none;
   font-variation-settings:
     "FILL" 0,
     "wght" 400,
