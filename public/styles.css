@@ -1688,7 +1688,7 @@ body[data-beta] .btn-icon.beta-only{ display:inline-grid !important; }
 .affix-btn:focus-visible .msr, .affix-btn:hover .msr, .affix-btn:focus-visible .material-symbols-rounded, .affix-btn:hover .material-symbols-rounded{ opacity:1; }
 .affix-btn:focus-visible{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); }
 .affix-btn:active{ filter:brightness(0.98); }
-.icon-clip{ display:block; width:20px; height:20px; max-width: calc(var(--affix-w) - 14px); max-height: calc(var(--affix-w) - 14px); overflow:visible; vertical-align:middle; }
+
 
 /* Topic field: match Length wrapper geometry (border on wrapper, input borderless) */
 .topic-affix{
