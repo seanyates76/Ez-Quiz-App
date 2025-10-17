@@ -1622,17 +1622,9 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
 /* Icon button wrapper (for webfont icons) */
 .btn-icon{ width:40px; height:40px; display:inline-grid; place-items:center; color:currentColor; padding:0; background:transparent; border:0; overflow:visible; line-height:0; }
 
-/* Material Symbols Rounded (webfont icon) */
-.@font-face{}
-@font-face{
-  font-family: 'Material Symbols Rounded';
-  font-style: normal;
-  font-weight: 100 700;
-  font-display: block;
-  src: url('/fonts/MaterialSymbolsRounded.woff2') format('woff2');
-}
+/* Material Symbols Rounded helpers (no external font; emoji used instead) */
 .msr, .material-symbols-rounded{
-  font-family: 'Material Symbols Rounded', system-ui, sans-serif;
+  font-family: system-ui, sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 24px;
@@ -1719,6 +1711,7 @@ body[data-theme="light"] .topic-affix{ background:var(--panel); }
 .topic-affix:focus-within{ box-shadow:none; }
 .topic-affix:hover:not(:has(.affix-btn:hover)){ box-shadow:0 0 0 2px var(--c-focus-ring); }
 .topic-affix .msr, .topic-affix .material-symbols-rounded{ opacity:.65; transform:translateX(1px); }
+.topic-affix .emoji-icon{ display:inline-block; opacity:.65; transform:translateX(1px); font-size:18px; line-height:1; }
 .topic-affix:focus-within .affix-btn{ box-shadow:none; }
 /* remove shape-rendering to avoid odd stroke bounds interactions */
 
