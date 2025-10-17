@@ -1623,6 +1623,14 @@ body[data-theme="light"] .ie-status::before{ box-shadow:0 0 0 4px rgba(15,23,42,
 .btn-icon{ width:40px; height:40px; display:inline-grid; place-items:center; color:currentColor; padding:0; background:transparent; border:0; overflow:visible; line-height:0; }
 
 /* Material Symbols Rounded (webfont icon) */
+.@font-face{}
+@font-face{
+  font-family: 'Material Symbols Rounded';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: block;
+  src: url('/fonts/MaterialSymbolsRounded.woff2') format('woff2');
+}
 .msr, .material-symbols-rounded{
   font-family: 'Material Symbols Rounded', system-ui, sans-serif;
   font-weight: 400;
@@ -1691,6 +1699,7 @@ body[data-beta] .btn-icon.beta-only{ display:inline-grid !important; }
   background:var(--panel-2);
   border-radius:var(--radius-control);
   min-height:var(--toolbar-height, 36px);
+  overflow:visible;
 }
 body[data-theme="light"] .topic-affix{ background:var(--panel); }
 .topic-affix .toolbar-input{
@@ -1711,7 +1720,8 @@ body[data-theme="light"] .topic-affix{ background:var(--panel); }
 .topic-affix:hover:not(:has(.affix-btn:hover)){ box-shadow:0 0 0 2px var(--c-focus-ring); }
 .topic-affix .msr, .topic-affix .material-symbols-rounded{ opacity:.65; transform:translateX(1px); }
 .topic-affix:focus-within .affix-btn{ box-shadow:none; }
-.icon-clip{ shape-rendering:geometricPrecision; }
+/* remove shape-rendering to avoid odd stroke bounds interactions */
+
 
 /* Drag indicator focused on the topic input only */
 .topic-affix.drag-on{ outline: 2px dashed var(--focus,#7aa2ff); outline-offset: 2px; border-radius: var(--radius-control); }
