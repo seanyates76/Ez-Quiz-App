@@ -132,7 +132,7 @@ body[data-visual="soft"][data-theme="light"] .gen-toolbar{ background: var(--pan
 /* Slimmer buttons on larger screens */
 @media (min-width: 900px){
   body[data-visual="soft"] .btn{ padding: 8px 12px; min-width: 96px; }
-  body[data-visual="soft"] .gen-toolbar{ --toolbar-height: 36px; }
+  body[data-visual="soft"] .gen-toolbar{ --toolbar-height: 40px; }
   body[data-visual="soft"] .gen-toolbar #generateBtn,
   body[data-visual="soft"] .gen-toolbar #optionsBtn{ min-width: 112px; font-size: .9rem; }
   /* Tight number field: 8 characters wide (desktop) */
@@ -441,7 +441,7 @@ body[data-theme="dark"] .site-header .brand-link{
 
 /* Generate toolbar */
 .gen-toolbar{
-  --toolbar-height:clamp(40px, 4vw, 44px);
+  --toolbar-height:40px;
   display:grid;
   grid-template-columns:max-content 1fr max-content;
   grid-template-areas:"left . actions";
@@ -464,18 +464,18 @@ body[data-theme="light"] .gen-toolbar{
   box-shadow:0 8px 20px rgba(15,23,42,.12);
 }
 .gen-toolbar > *{ min-width:0; }
-.gen-toolbar > .toolbar-left{ grid-area:left; display:grid; grid-template-columns:minmax(220px,1.8fr) minmax(200px,1.2fr) max-content; column-gap:var(--space-1); align-items:center; }
+.gen-toolbar > .toolbar-left{ grid-area:left; display:grid; grid-template-columns:minmax(220px,1.8fr) minmax(200px,1.2fr) max-content; column-gap:var(--space-1); align-items:flex-start; }
 .toolbar-left > .toolbar-field:first-of-type{ grid-column:1; }
 .toolbar-left .toolbar-field{ justify-self:stretch; width:100%; }
 .toolbar-left .number-field{ justify-self:stretch; width:100%; }
 .toolbar-left .number-field .number-wrap{ width:auto; }
 .toolbar-left .toolbar-field--difficulty{ min-width:0; justify-self:start; }
-.gen-toolbar .action-stack{ grid-area:actions; align-self:center; justify-self:end; display:grid; grid-auto-rows:var(--toolbar-height, 44px); gap:var(--space-1); max-width:100%; }
+.gen-toolbar .action-stack{ grid-area:actions; align-self:center; justify-self:end; display:grid; grid-auto-rows:var(--toolbar-height, 40px); gap:var(--space-1); max-width:100%; }
 
 .gen-toolbar #optionsBtn{
   justify-self:end;
   align-self:stretch;
-  min-height:var(--toolbar-height, 44px);
+  min-height:var(--toolbar-height, 40px);
   padding:0 16px;
   border-radius:var(--radius-control);
   font-size:.95rem;
@@ -524,7 +524,7 @@ body[data-theme="light"] .gen-toolbar{
   background:var(--panel-2);
   color:var(--text);
   border-radius:var(--radius-control);
-  min-height:var(--toolbar-height, 44px);
+  min-height:var(--toolbar-height, 40px);
   padding:0 12px;
   font-size:.95rem;
   transition:background .15s ease, border-color .15s ease, box-shadow .18s ease;
@@ -591,7 +591,7 @@ body[data-theme="light"] .number-wrap .toolbar-input:is(:-moz-autofill, :-moz-au
   border-radius:var(--radius-control);
   overflow:hidden;
   transition:background .15s ease, border-color .15s ease, box-shadow .18s ease;
-  min-height:var(--toolbar-height, 44px);
+  min-height:var(--toolbar-height, 40px);
 }
 /* Keep Length compact in the toolbar */
 .gen-toolbar .number-wrap{ width:auto; }
@@ -610,7 +610,7 @@ body[data-theme="light"] .number-wrap{ background:var(--panel); }
   border:0;
   background:transparent;
   padding:0 12px;
-  min-height:var(--toolbar-height, 44px);
+  min-height:var(--toolbar-height, 40px);
   color:var(--text);
   box-shadow:none;
 }
@@ -680,8 +680,8 @@ body[data-theme="light"] .number-wrap{ background:var(--panel); }
   border-radius:var(--radius-control);
   border:1px solid var(--field-border);
   background:var(--panel-2);
-  min-height:var(--toolbar-height, 44px);
-  height:var(--toolbar-height, 44px);
+  min-height:var(--toolbar-height, 40px);
+  height:var(--toolbar-height, 40px);
   transition:border-color .18s ease, background .18s ease, box-shadow .18s ease;
 }
 body[data-theme="light"] .difficulty-stack{ background:var(--panel); }
@@ -1313,7 +1313,7 @@ body[data-locked="true"] .gen-toolbar{ opacity:.6; pointer-events:none; filter:g
 @media (max-width:480px){
   .brand-logo{height:38px}
   .gen-toolbar{gap:8px}
-  .toolbar-input{min-height:38px; font-size:14px}
+  .toolbar-input{min-height:var(--toolbar-height, 40px); font-size:14px}
   .quiz-title-row h2{font-size:18px}
   .btn{padding:9px 10px; font-size:13px}
   #quizView .quiz-nav-row .btn{padding:10px 10px}
@@ -1626,7 +1626,7 @@ body[data-beta] .affix-btn.beta-only{ display:flex; }
 .gen-toolbar.drag-on{ outline: 2px dashed var(--focus,#7aa2ff); outline-offset: 2px; }
 
 /* Inline affix (paperclip) inside Topic input */
-.input-affix{ position:relative; width:100%; overflow:visible; --affix-gap: 0px; --affix-w: var(--toolbar-height, 44px); }
+.input-affix{ position:relative; width:100%; overflow:visible; --affix-gap: 0px; --affix-w: var(--toolbar-height, 40px); }
 body[data-beta] .input-affix .toolbar-input.has-affix{ padding-right: calc(var(--affix-w) + 12px); }
 .affix-btn{
   position:absolute;
