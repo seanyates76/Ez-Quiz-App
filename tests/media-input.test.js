@@ -1,19 +1,26 @@
 'use strict';
 
-const fs = require('node:fs');
-const path = require('node:path');
-
-function read(rel){ return fs.readFileSync(path.resolve(__dirname, rel), 'utf8'); }
+const { loadDocument } = require('./utils');
 
 describe('Media Input (beta) UI stub', () => {
-  const html = read('../public/index.html');
-  test('has import button and file input', () => {
-    expect(html).toMatch(/id=\"importBtn\"/);
-    expect(html).toMatch(/id=\"importFile\"/);
+  const document = loadDocument('public/index.html');
+
+  test('has import button flagged as beta-only with accessible labeling', () => {
+    const importBtn = document.getElementById('importBtn');
+    expect(importBtn).not.toBeNull();
+    expect(importBtn.classList.contains('beta-only')).toBe(true);
+    expect(importBtn.getAttribute('title')).toMatch(/Attach PDF\/Image/);
+    expect(importBtn.getAttribute('aria-label')).toMatch(/Attach PDF or Image/);
   });
-  test('file input accepts pdf and images', () => {
-    expect(html).toMatch(/accept=\"[^\"]*application\/pdf[^\"]*\"/);
-    expect(html).toMatch(/accept=\"[^\"]*image\/*[^\"]*\"/);
+
+  test('file input accepts pdf and images and stays hidden', () => {
+    const fileInput = document.getElementById('importFile');
+    expect(fileInput).not.toBeNull();
+    expect(fileInput.getAttribute('type')).toBe('file');
+
+    const accept = fileInput.getAttribute('accept') || '';
+    expect(accept.includes('application/pdf')).toBe(true);
+    expect(accept.includes('image/')).toBe(true);
+    expect(fileInput.getAttribute('style')).toMatch(/display\s*:\s*none/);
   });
 });
-
