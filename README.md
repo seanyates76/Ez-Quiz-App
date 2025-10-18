@@ -81,7 +81,7 @@ Dev Tips
 - Primary button mode debug: set `localStorage.setItem('EZQ_DEBUG','1')` to log primary action mode transitions in the console.
 
 Changelog Highlights
-- 1.5.0-beta.9: AI fallback chain covers `/.netlify/functions/generate-quiz`, `/api/generate`, and the Netlify hosts (`https://ez-quiz.netlify.app`, `https://eq-quiz.netlify.app`); CSP `connect-src` allows those domains; backend defaults to `gemini-2.5-flash-lite-preview-09-2025`; cache-buster v1.5.14 (SW cache v123).
+- 1.5.0-beta.9: AI fallback chain covers `/.netlify/functions/generate-quiz`, `/api/generate`, and the Netlify hosts (`https://ez-quiz.netlify.app`, `https://eq-quiz.netlify.app`); CSP `connect-src` allows those domains; backend defaults to `gemini-2.5-flash-lite-preview-09-2025`; cache-buster v1.5.17 (SW cache v125).
 - 1.5.0-beta.8: AI hotfix — client points at `/.netlify/functions/generate-quiz` first plus cache-buster v1.5.13 (SW cache v122).
 - 1.5.0-beta.7: Softer borders/focus ring tokens, roomy generator toolbar on wide phones, and cache-buster v1.5.12.
 - 1.5.0-beta.5: Generator slider rebuilt with inline steppers; Interactive Editor now default with pill toggle; Options/Settings split refined.
