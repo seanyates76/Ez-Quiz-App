@@ -695,6 +695,25 @@ body[data-theme="light"] .difficulty-stack{ background:var(--panel); }
   box-shadow:var(--focus-shadow);
   background:var(--panel);
 }
+.gen-toolbar .toolbar-input:hover,
+.gen-toolbar .number-wrap:hover,
+.gen-toolbar .number-wrap .toolbar-input:hover,
+.gen-toolbar .difficulty-stack:hover{
+  background:var(--panel-2);
+  border-color:var(--field-border);
+  color:inherit;
+}
+body[data-theme="light"] .gen-toolbar .toolbar-input:hover,
+body[data-theme="light"] .gen-toolbar .number-wrap:hover,
+body[data-theme="light"] .gen-toolbar .difficulty-stack:hover{
+  background:var(--panel);
+  border-color:var(--field-border);
+}
+.gen-toolbar .number-wrap .toolbar-input:hover{ background:transparent; }
+.gen-toolbar .stepper:hover{
+  background:transparent;
+  color:var(--muted);
+}
 .difficulty-label{
   font-size:.75rem;
   font-weight:600;
