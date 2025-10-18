@@ -1,26 +1,42 @@
 'use strict';
 
-const fs = require('node:fs');
-const path = require('node:path');
-
-function read(rel){ return fs.readFileSync(path.resolve(__dirname, rel), 'utf8'); }
+const { loadDocument } = require('./utils');
 
 describe('Footer makeover', () => {
-  const html = read('../public/index.html');
+  let document;
+  let footer;
+
+  beforeAll(async () => {
+    document = await loadDocument('public/index.html');
+    footer = document.querySelector('footer[role="contentinfo"]');
+  });
 
   test('footer nav exists', () => {
-    expect(html).toMatch(/<nav aria-label=\"Footer\">/);
+    expect(footer).not.toBeNull();
+    const nav = footer.querySelector('nav[aria-label="Footer"]');
+    expect(nav).not.toBeNull();
   });
 
   test('footer-links row present with required links', () => {
-    expect(html).toMatch(/class=\"footer-links\"/);
-    expect(html).toMatch(/id=\"privacyLink\"/);
-    expect(html).toMatch(/id=\"termsLink\"/);
+    const linksRow = footer.querySelector('.footer-links');
+    expect(linksRow).not.toBeNull();
+
+    const privacy = footer.querySelector('#privacyLink');
+    const terms = footer.querySelector('#termsLink');
+    expect(privacy).not.toBeNull();
+    expect(terms).not.toBeNull();
+    expect(privacy.getAttribute('role')).toBe('listitem');
+    expect(terms.getAttribute('role')).toBe('listitem');
   });
 
-  test('support-cta present', () => {
-    expect(html).toMatch(/class=\"support-cta\"/);
-    expect(html).toMatch(/cdn\.buymeacoffee\.com/);
+  test('support-cta present with external link safeguards', () => {
+    const supportCta = footer.querySelector('.support-cta');
+    expect(supportCta).not.toBeNull();
+
+    const anchor = supportCta.querySelector('a#bmcButton');
+    expect(anchor).not.toBeNull();
+    expect(anchor.getAttribute('href')).toContain('buymeacoffee');
+    expect(anchor.getAttribute('target')).toBe('_blank');
+    expect(anchor.getAttribute('rel')).toContain('noopener');
   });
 });
-
