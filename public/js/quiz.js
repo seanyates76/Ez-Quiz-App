@@ -1,4 +1,5 @@
 import { S } from './state.js';
+import { isBetaEnabled } from './beta.mjs';
 import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel, mmSsToMs, showUpdateBannerIfReady, bindOnce } from './utils.js';
 
 // Retake scope constants
@@ -188,7 +189,7 @@ export function renderResults(){
   const indexMap = (Array.isArray(S.quiz.indexMap) && S.quiz.indexMap.length)
     ? S.quiz.indexMap
     : S.quiz.questions.map((_,i)=>i);
-  const isBeta = !!((S.settings && S.settings.betaEnabled) || (typeof document !== 'undefined' && document.body && document.body.dataset && document.body.dataset.beta === 'true'));
+  const isBeta = isBetaEnabled(S.settings);
   // Prefer persistent originalAnswers when available; fallback to mapping current run
   let answersFull;
   if (Array.isArray(S.quiz.originalAnswers) && S.quiz.originalAnswers.length === baseQs.length) {
@@ -245,7 +246,7 @@ export function renderResults(){
   // Sync retake controls UI when results are shown/updated
   try{ updateRetakeUI(); }catch{}
   // Wire Explain delegation once (beta only)
-  try{ if(S.settings && S.settings.betaEnabled){ wireExplainDelegation(); } }catch{}
+  try{ if(isBetaEnabled(S.settings)){ wireExplainDelegation(); } }catch{}
   // Update chip after we know full correctness
   if(chip){
     const labelText = `${correctCountFull}/${baseQs.length}`;
@@ -326,7 +327,7 @@ function wireExplainDelegation(){
     const key = `${hash}|${idx}`;
     box.hidden = false; box.textContent = 'Generating explanation…';
     // In beta, teaser only — no network call
-    if ((S.settings && S.settings.betaEnabled) || (typeof document !== 'undefined' && document.body && document.body.dataset && document.body.dataset.beta === 'true')) {
+    if (isBetaEnabled(S.settings)) {
       const teaser = [
         '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',
         '┃          FEATURE COMING SOON          ┃',
@@ -433,7 +434,7 @@ function buildCorrectAnswerDetail(q){
 }
 
 function renderMTResult(origIdx, q, a){
-  const isBeta = !!(S.settings && S.settings.betaEnabled);
+  const isBeta = isBetaEnabled(S.settings);
   // Build map of correct right indexes by left index
   const correctMap = new Array(q.left.length).fill(-1);
   (Array.isArray(q.pairs)?q.pairs:[]).forEach(([li,ri])=>{ correctMap[li]=ri; });
