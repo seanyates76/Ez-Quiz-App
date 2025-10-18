@@ -755,6 +755,8 @@ body[data-theme="light"] .gen-toolbar .difficulty-stack:hover{
   display:block;
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
+  touch-action:pan-x;
+  -ms-touch-action:pan-x;
 }
 .difficulty-slider input[type="range"]::-webkit-slider-runnable-track{
   height:var(--track-height);
