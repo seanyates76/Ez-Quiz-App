@@ -14,13 +14,13 @@ Hey future helper! This repo ships the [ez-quiz.app](https://ez-quiz.app) PWA pl
 - Full stack: `netlify dev` from repo root; copy env vars from `ENV.md`. Use `AI_PROVIDER=echo` if you lack API keys.
 - Health: `/.netlify/functions/health` when running through Netlify.
 
-## Visual UI Checks (toolbar + responsive)
+## Visual UI Checks (toolbar + results)
 
 We now ship a viewport‑aware UI check that validates the generator toolbar layout at multiple widths and writes screenshots + measured metrics. It’s designed to prevent regressions where the Difficulty→Length gap grows, or the Length control visually hugs the action buttons at tablet sizes.
 
 - Install once: `npm i` (Puppeteer is a dev dep)
 - Run sweep: `npm run ui:check`
-  - Artifacts: `.artifacts/ui/toolbar-<viewport>.png` and `.json`
+  - Artifacts: `.artifacts/ui/toolbar-<viewport>.png` + `.json` and `.artifacts/ui/results-<viewport>.png` + `.json`
   - Default widths: `360,390,414,600,640,720,768,800,820,834,912,1024,1200,1280,1366,1440`
   - Override widths: `UI_CHECK_WIDTHS=375,820,1280 npm run ui:check`
   - Notes: The runner uses a small static server; if blocked, it falls back to inline HTML+CSS (no scripts) to still measure layout. It launches Chromium with sandbox‑safe flags by default.
@@ -33,9 +33,16 @@ What it enforces
   - Length→Actions ≥ 8px (prevents “sticking”)
 - Actions stay inside the toolbar (no overflow)
 
+Results checks
+- Results header wraps without horizontal overflow at small widths (e.g., 320–375)
+- Page and header have no horizontal overflow in Results
+- Score bar width stays within its clamp (proportional to viewport, never too small/large)
+- Explain button absent in non‑beta mode (beta gating respected)
+
 CI‑friendly: The script exits non‑zero on failure and prints a self‑diagnosing report (selectors, computed grids, gap values, y‑centers, hints) so it’s easy to spot what drifted.
 
 ## Recent polish
+- 2025-10-16 — Results Explain is strictly beta‑gated and won’t render outside beta (checked via `S.settings.betaEnabled` or `body[data-beta]`). Added a tiny dev‑only log for primary action mode changes; enable with `localStorage.setItem('EZQ_DEBUG','1')` to print `[ezq:dev] primary-action` in console.
 - 2025-10-14 — Stabilize Jest (in-band); add providers/dom/css tests; ignore .artifacts (via ezq-head).
 - Unified UI tokens, lighter shadows, refined Options/Quiz Editor surfaces.
 - Removed theme radio row from Options (theme lives in Settings modal only).
@@ -49,7 +56,7 @@ CI‑friendly: The script exits non‑zero on failure and prints a self‑diagno
 - 2025-09-24 — Smoothed Topic autofill, restored footer reserve tint, bumped cache-busters (v1.5.11) + SW cache v120.
 - 2025-09-25 — Softened borders/focus rings, widened toolbar on big phones, cache-buster v1.5.12 + SW cache v121.
 - 2025-09-25 — Added client fallback to `/.netlify/functions/generate-quiz` when `/api/generate` is missing.
-- 2025-09-26 — Hardened AI endpoint selection; CSP connect-src allowlist for both Netlify fallbacks; backend default `gemini-2.5-flash-lite-preview-09-2025`. Cache-busters v1.5.14 + SW cache v123.
+- 2025-09-26 — Hardened AI endpoint selection; CSP connect-src allowlist for both Netlify fallbacks; backend default `gemini-2.5-flash-lite-preview-09-2025`. Cache-busters v1.5.17 + SW cache v125.
 - 2025-09-27 — Removed unused legacy root assets and a stub in `settings.js`. Restored explicit Netlify fallback allowlist.
 - 2025-09-30 — Quiet info bar for version/highlights. Version indicator moved into Settings. Settings defaults to prod build v3.3.
 - 2025-10-01 — Quiz Editor graduated from beta to stable (main feature). Orientation/docs updated.

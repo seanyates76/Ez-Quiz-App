@@ -1,7 +1,7 @@
 import { S } from './state.js';
 import { $, byQSA, mmSsToMs } from './utils.js';
 import { parseEditorInput } from './parser.js';
-import { generateWithAI } from './api.js?v=1.5.14';
+import { generateWithAI } from './api.js?v=1.5.17';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
 import { applyTheme, saveSettingsToStorage, getShowQuizEditorPreference } from './settings.js';
 import { STORAGE_KEYS } from './state.js';
@@ -44,8 +44,10 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const countInput = $('countInput');
   const countUpBtn = document.querySelector('[data-step="up"]');
   const countDownBtn = document.querySelector('[data-step="down"]');
-  const pbTopic = $('pbTopic');
-  const pbCount = $('pbCount');
+  const importBtn = $('importBtn');
+  const importFile = $('importFile');
+  const toolbar = document.querySelector('.gen-toolbar');
+  const topicAffix = document.querySelector('.topic-affix');
   const editor = $('editor');
   const mirror = $('mirror');
   const statusBox = $('status');
@@ -77,6 +79,78 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   };
   const copyPromptsBtn = $('copyPromptsBtn');
   const exportTxtBtn = $('exportTxtBtn');
+  
+  // --- Media Import (beta) ---
+  function isBeta(){ try{ return document.body?.dataset?.beta === 'true' || !!S.settings?.betaEnabled; }catch{ return false; } }
+  function setHint(msg){ try{ const hint=document.getElementById('regenHint'); if(hint){ hint.textContent = msg; hint.hidden = false; } }catch{} }
+  function clearHint(){ try{ const hint=document.getElementById('regenHint'); if(hint){ hint.hidden = true; } }catch{} }
+  async function postIngest(payload){
+    const endpoint = '/.netlify/functions/ingest-media';
+    try{
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-ezq-beta': '1' },
+        body: JSON.stringify(payload),
+      });
+      const ct = res.headers.get('content-type')||'';
+      const isJson = ct.includes('application/json');
+      const data = isJson ? await res.json() : await res.text();
+      return { ok: res.ok, status: res.status, data };
+    }catch(err){
+      return { ok: false, status: 0, data: { error: String(err&&err.message||err||'Network error') } };
+    }
+  }
+  function toBase64(file){
+    return new Promise((resolve,reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        try{
+          const url = String(reader.result||'');
+          const comma = url.indexOf(',');
+          const meta = url.slice(0, comma);
+          const b64 = comma>=0 ? url.slice(comma+1) : '';
+          resolve({ base64: b64, meta });
+        }catch(e){ reject(e); }
+      };
+      reader.onerror = ()=> reject(reader.error||new Error('Read failed'));
+      reader.readAsDataURL(file);
+    });
+  }
+  async function handleMediaFile(file){
+    if(!file) return;
+    const type = String(file.type||'');
+    if(!(type.startsWith('image/') || type === 'application/pdf')){ setHint('Unsupported file. Choose a PDF or image.'); return; }
+    setHint('Importing…');
+    try{
+      const { base64 } = await toBase64(file);
+      const resp = await postIngest({ name:file.name||'', type, size:file.size||0, data: base64 });
+      if(resp.ok && resp.data && resp.data.text){
+        // If backend returns extracted text, fill editor + parse
+        const text = String(resp.data.text||'');
+        setEditorText(text);
+        try{ setMirrorVisible(true); }catch{}
+        runParseFlow(text, file.name||'Imported', '');
+        setHint('Imported text added to editor.');
+      } else {
+        // Friendly fallback messages
+        if(resp.status === 404){ setHint('Media import not enabled on this site.'); }
+        else if(resp.status === 501){ setHint('Media ingest is not enabled yet (beta stub).'); }
+        else if(resp.status === 403){ setHint('Media import is beta-only. Enable beta in Settings or visit /beta.'); }
+        else { setHint('Media import unavailable.'); }
+      }
+    }catch{
+      setHint('Import failed.');
+    }
+  }
+  importBtn?.addEventListener('click', ()=>{ if(!isBeta()) return; importFile?.click(); });
+  importFile?.addEventListener('change', ()=>{ if(!isBeta()) return; const f=importFile.files&&importFile.files[0]; if(!f) return; handleMediaFile(f); importFile.value=''; });
+  // Drag-drop on toolbar (beta)
+  const onDragOver = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.add('drag-on'); };
+  const clearDrag = (el)=>{ el.classList.remove('drag-on'); };
+  const onDrop = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.remove('drag-on'); const dt=e.dataTransfer; if(!dt||!dt.files||!dt.files.length) return; handleMediaFile(dt.files[0]); };
+  topicAffix?.addEventListener('dragover', (e)=> onDragOver(e, topicAffix));
+  topicAffix?.addEventListener('dragleave', ()=> clearDrag(topicAffix));
+  topicAffix?.addEventListener('drop', (e)=> onDrop(e, topicAffix));
 
   function updateMirrorText(raw){
     if(!mirror) return;
@@ -118,6 +192,9 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     if(!last || !curr) return false;
     return last.topic !== curr.topic || last.count !== curr.count || last.difficulty !== curr.difficulty;
   }
+  function __devDebug(){
+    try{ return !!(localStorage.getItem('EZQ_DEBUG') || /localhost|127\.0\.0\.1/.test(location && location.hostname)); }catch{ return false; }
+  }
   function computePrimaryMode(){
     const hasLoaded = Array.isArray(S.quiz?.questions) && S.quiz.questions.length > 0;
     const qeOpen = !!(optionsPanel && !optionsPanel.hidden && advBlock && !advBlock.hidden);
@@ -148,6 +225,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
                    : 'start';
     generateBtn?.setAttribute('data-mode', dataMode);
     if (generateBtn) generateBtn.textContent = label;
+    if(__devDebug() && ui.__lastPrimaryLogged !== m){ try{ console.debug('[ezq:dev] primary-action', { mode: m }); }catch{} ui.__lastPrimaryLogged = m; }
   }
   function updatePrimaryHint(){
     try{
@@ -228,9 +306,9 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
 
   // Track last generated params and "dirty since generation" state
   function getParamsSnapshot(){
-    const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
+    const topicRaw = (topicInput?.value || '').trim();
     const topic = topicRaw || 'General knowledge';
-    let count = parseInt((countInput?.value || pbCount?.value || '10'), 10);
+    let count = parseInt((countInput?.value || '10'), 10);
     if(!Number.isFinite(count)) count = 10;
     count = Math.max(1, Math.min(50, count));
     const difficulty = getDifficultyKey();
@@ -298,7 +376,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       if(Array.isArray(S.quiz?.questions) && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); return; }
       // No quiz yet: Start should generate + start
       const snap = getParamsSnapshot();
-      const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
+      const topicRaw = (topicInput?.value || '').trim();
       const topic = snap.topic; if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
       let count = snap.count;
       const types = [ qtMC?.checked ? 'MC':null, qtTF?.checked? 'TF':null, qtYN?.checked? 'YN':null, qtMT?.checked? 'MT':null ].filter(Boolean);
@@ -327,7 +405,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       setEditorText('');
     }
     const snap = getParamsSnapshot();
-    const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
+    const topicRaw = (topicInput?.value || '').trim();
     const topic = snap.topic; if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
     let count = snap.count;
     // Gather options
