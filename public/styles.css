@@ -577,6 +577,60 @@ body[data-theme="light"] .number-wrap .toolbar-input:is(:-moz-autofill, :-moz-au
 }
 .toolbar-input:hover{ background:var(--field-hover); border-color:var(--border); }
 .toolbar-input:focus{ outline:1px solid var(--ring); outline-offset:2px; border-color:var(--ring); box-shadow:var(--focus-shadow); background:var(--panel); }
+
+/* Beta Prompt Builder focus polish */
+body[data-beta="true"] :is(label, div, section, fieldset, .pb-field, .prompt-builder__field):has(> #pbTopic){
+  border-color:var(--field-border);
+  box-shadow:none;
+}
+body[data-beta="true"] :is(label, div, section, fieldset, .pb-field, .prompt-builder__field):has(> #pbTopic):focus-within{
+  outline:none;
+  box-shadow:none;
+  border-color:var(--field-border);
+}
+body[data-beta="true"] .pb-field:focus-within,
+body[data-beta="true"] .prompt-builder__field:focus-within,
+body[data-beta="true"] .toolbar-field:has(#pbTopic):focus-within{
+  outline:none;
+  box-shadow:none;
+  border-color:var(--field-border);
+}
+body[data-beta="true"] #pbTopic,
+body[data-beta="true"] [data-prompt-builder-topic]{
+  background:var(--panel);
+  border:1px solid var(--field-border);
+  border-radius:var(--radius-control);
+  transition:border-color .15s ease, box-shadow .15s ease, outline-color .15s ease;
+}
+body[data-beta="true"] #pbTopic:focus,
+body[data-beta="true"] #pbTopic:focus-visible,
+body[data-beta="true"] [data-prompt-builder-topic]:focus,
+body[data-beta="true"] [data-prompt-builder-topic]:focus-visible{
+  outline:1px solid var(--ring);
+  outline-offset:2px;
+  border-color:var(--ring);
+  box-shadow:var(--focus-shadow);
+}
+body[data-beta="true"] #pbAttach,
+body[data-beta="true"] [data-role="pb-attach"],
+body[data-beta="true"] [data-prompt-builder-attach]{
+  border:1px solid transparent;
+  border-radius:var(--radius-control);
+  background:var(--panel-2);
+  transition:border-color .15s ease, box-shadow .15s ease, outline-color .15s ease, background-color .15s ease;
+}
+body[data-beta="true"] #pbAttach:focus,
+body[data-beta="true"] #pbAttach:focus-visible,
+body[data-beta="true"] [data-role="pb-attach"]:focus,
+body[data-beta="true"] [data-role="pb-attach"]:focus-visible,
+body[data-beta="true"] [data-prompt-builder-attach]:focus,
+body[data-beta="true"] [data-prompt-builder-attach]:focus-visible{
+  outline:1px solid var(--ring);
+  outline-offset:2px;
+  border-color:var(--ring);
+  box-shadow:var(--focus-shadow);
+  background:var(--panel);
+}
 .gen-toolbar #countInput{ text-align:center; }
 .gen-toolbar #countInput{ width:6ch; min-width:6ch; }
 .number-wrap{
