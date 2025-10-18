@@ -1645,9 +1645,6 @@ body[data-beta] .beta-only{ display:inline-flex; }
 .affix-btn:active{ filter:brightness(0.98); }
 .icon-clip{ display:block; width:18px; height:18px; max-width: calc(var(--affix-w) - 14px); max-height: calc(var(--affix-w) - 14px); margin-top:1px; }
 .icon-clip{ shape-rendering:geometricPrecision; }
-.icon-clip--beta{ display:none; }
-[data-beta] .icon-clip--beta{ display:block; }
-[data-beta] .icon-clip--legacy{ display:none; }
 
 /* Drag indicator focused on the topic input only */
 .topic-affix.drag-on{ outline: 2px dashed var(--focus,#7aa2ff); outline-offset: 2px; border-radius: var(--radius-control); }
