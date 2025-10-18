@@ -48,8 +48,6 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const importFile = $('importFile');
   const toolbar = document.querySelector('.gen-toolbar');
   const topicAffix = document.querySelector('.topic-affix');
-  const pbTopic = $('pbTopic');
-  const pbCount = $('pbCount');
   const editor = $('editor');
   const mirror = $('mirror');
   const statusBox = $('status');
@@ -308,9 +306,9 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
 
   // Track last generated params and "dirty since generation" state
   function getParamsSnapshot(){
-    const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
+    const topicRaw = (topicInput?.value || '').trim();
     const topic = topicRaw || 'General knowledge';
-    let count = parseInt((countInput?.value || pbCount?.value || '10'), 10);
+    let count = parseInt((countInput?.value || '10'), 10);
     if(!Number.isFinite(count)) count = 10;
     count = Math.max(1, Math.min(50, count));
     const difficulty = getDifficultyKey();
@@ -378,7 +376,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       if(Array.isArray(S.quiz?.questions) && S.quiz.questions.length){ syncSettingsFromUI(); beginQuiz(); return; }
       // No quiz yet: Start should generate + start
       const snap = getParamsSnapshot();
-      const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
+      const topicRaw = (topicInput?.value || '').trim();
       const topic = snap.topic; if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
       let count = snap.count;
       const types = [ qtMC?.checked ? 'MC':null, qtTF?.checked? 'TF':null, qtYN?.checked? 'YN':null, qtMT?.checked? 'MT':null ].filter(Boolean);
@@ -407,7 +405,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       setEditorText('');
     }
     const snap = getParamsSnapshot();
-    const topicRaw = (topicInput?.value || pbTopic?.value || '').trim();
+    const topicRaw = (topicInput?.value || '').trim();
     const topic = snap.topic; if(!topicRaw){ statusBox && (statusBox.textContent = 'Using default topic: General knowledge'); }
     let count = snap.count;
     // Gather options
