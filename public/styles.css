@@ -525,9 +525,11 @@ body[data-theme="light"] .gen-toolbar{
   color:var(--text);
   border-radius:var(--radius-control);
   min-height:var(--toolbar-height, 40px);
+  height:var(--toolbar-height, 40px);
   padding:0 12px;
   font-size:.95rem;
   transition:background .15s ease, border-color .15s ease, box-shadow .18s ease;
+  box-sizing:border-box;
 }
 body[data-theme="light"] .toolbar-input{ background:var(--panel); }
 .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus),
@@ -592,6 +594,7 @@ body[data-theme="light"] .number-wrap .toolbar-input:is(:-moz-autofill, :-moz-au
   overflow:hidden;
   transition:background .15s ease, border-color .15s ease, box-shadow .18s ease;
   min-height:var(--toolbar-height, 40px);
+  height:var(--toolbar-height, 40px);
 }
 /* Keep Length compact in the toolbar */
 .gen-toolbar .number-wrap{ width:auto; }
@@ -611,6 +614,7 @@ body[data-theme="light"] .number-wrap{ background:var(--panel); }
   background:transparent;
   padding:0 12px;
   min-height:var(--toolbar-height, 40px);
+  height:100%;
   color:var(--text);
   box-shadow:none;
 }
@@ -1632,6 +1636,7 @@ body[data-beta] .input-affix .toolbar-input.has-affix{ padding-right: calc(var(-
   position:absolute;
   top:0; bottom:0; right:0;
   width:var(--affix-w);
+  height:var(--toolbar-height, 40px);
   display:flex; align-items:center; justify-content:center;
   border-left:1px solid var(--field-border);
   background:transparent;
