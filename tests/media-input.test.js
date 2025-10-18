@@ -3,7 +3,11 @@
 const { loadDocument } = require('./utils');
 
 describe('Media Input (beta) UI stub', () => {
-  const document = loadDocument('public/index.html');
+  let document;
+
+  beforeAll(async () => {
+    document = await loadDocument('public/index.html');
+  });
 
   test('has import button flagged as beta-only with accessible labeling', () => {
     const importBtn = document.getElementById('importBtn');

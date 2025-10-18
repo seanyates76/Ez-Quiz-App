@@ -3,8 +3,13 @@
 const { loadDocument } = require('./utils');
 
 describe('Footer makeover', () => {
-  const document = loadDocument('public/index.html');
-  const footer = document.querySelector('footer[role="contentinfo"]');
+  let document;
+  let footer;
+
+  beforeAll(async () => {
+    document = await loadDocument('public/index.html');
+    footer = document.querySelector('footer[role="contentinfo"]');
+  });
 
   test('footer nav exists', () => {
     expect(footer).not.toBeNull();

@@ -5,8 +5,8 @@ const { loadDocument } = require('./utils');
 describe('public/index.html structure', () => {
   let document;
 
-  beforeAll(() => {
-    document = loadDocument('public/index.html');
+  beforeAll(async () => {
+    document = await loadDocument('public/index.html');
   });
 
   test('exposes key controls and editor surfaces by id', () => {
