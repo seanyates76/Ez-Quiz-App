@@ -2,6 +2,8 @@ import { S } from './state.js';
 import { $, byQSA, mmSsToMs } from './utils.js';
 import { parseEditorInput } from './parser.js';
 import { generateWithAI } from './api.js?v=1.5.17';
+import { ImportController } from './import-controller.js';
+import { sniffFileKind, isSupportedImportKind } from './file-type-validation.js';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
 import { applyTheme, saveSettingsToStorage, getShowQuizEditorPreference } from './settings.js';
 import { STORAGE_KEYS } from './state.js';
@@ -46,6 +48,13 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const countDownBtn = document.querySelector('[data-step="down"]');
   const importBtn = $('importBtn');
   const importFile = $('importFile');
+  const importCtl = new ImportController();
+  const MIME_BY_KIND = {
+    pdf: 'application/pdf',
+    png: 'image/png',
+    jpeg: 'image/jpeg',
+    gif: 'image/gif',
+  };
   const toolbar = document.querySelector('.gen-toolbar');
   const topicAffix = document.querySelector('.topic-affix');
   const editor = $('editor');
@@ -84,26 +93,49 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   function isBeta(){ try{ return document.body?.dataset?.beta === 'true' || !!S.settings?.betaEnabled; }catch{ return false; } }
   function setHint(msg){ try{ const hint=document.getElementById('regenHint'); if(hint){ hint.textContent = msg; hint.hidden = false; } }catch{} }
   function clearHint(){ try{ const hint=document.getElementById('regenHint'); if(hint){ hint.hidden = true; } }catch{} }
-  async function postIngest(payload){
+  async function postIngest(payload, { signal } = {}){
     const endpoint = '/.netlify/functions/ingest-media';
     try{
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-ezq-beta': '1' },
         body: JSON.stringify(payload),
+        signal,
       });
       const ct = res.headers.get('content-type')||'';
       const isJson = ct.includes('application/json');
       const data = isJson ? await res.json() : await res.text();
       return { ok: res.ok, status: res.status, data };
     }catch(err){
+      if(err && err.name === 'AbortError'){ throw err; }
       return { ok: false, status: 0, data: { error: String(err&&err.message||err||'Network error') } };
     }
   }
-  function toBase64(file){
+  function toBase64(file, { signal } = {}){
     return new Promise((resolve,reject)=>{
       const reader = new FileReader();
+      let settled = false;
+      const cleanup = ()=>{
+        settled = true;
+        reader.onload = null;
+        reader.onerror = null;
+        if(signal){
+          try{ signal.removeEventListener('abort', abort); }catch{}
+        }
+      };
+      const abort = ()=>{
+        if(settled) return;
+        cleanup();
+        try{ reader.abort(); }catch{}
+        reject(new DOMException('Aborted','AbortError'));
+      };
+      if(signal){
+        if(signal.aborted){ return abort(); }
+        signal.addEventListener('abort', abort, { once: true });
+      }
       reader.onload = ()=>{
+        if(settled) return;
+        cleanup();
         try{
           const url = String(reader.result||'');
           const comma = url.indexOf(',');
@@ -112,42 +144,84 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
           resolve({ base64: b64, meta });
         }catch(e){ reject(e); }
       };
-      reader.onerror = ()=> reject(reader.error||new Error('Read failed'));
+      reader.onerror = ()=>{
+        if(settled) return;
+        cleanup();
+        reject(reader.error||new Error('Read failed'));
+      };
       reader.readAsDataURL(file);
     });
   }
-  async function handleMediaFile(file){
+  async function handleImportFile(file){
     if(!file) return;
-    const type = String(file.type||'');
-    if(!(type.startsWith('image/') || type === 'application/pdf')){ setHint('Unsupported file. Choose a PDF or image.'); return; }
-    setHint('Importing…');
+    const { token, signal } = importCtl.start();
     try{
-      const { base64 } = await toBase64(file);
-      const resp = await postIngest({ name:file.name||'', type, size:file.size||0, data: base64 });
-      if(resp.ok && resp.data && resp.data.text){
-        // If backend returns extracted text, fill editor + parse
+      importBtn?.setAttribute('disabled', 'true');
+      clearHint();
+      if(importCtl.isCurrent(token)) setHint('Importing…');
+
+      const kind = await sniffFileKind(file);
+      if(!importCtl.isCurrent(token)) return;
+      if(!isSupportedImportKind(kind)){
+        if(importCtl.isCurrent(token)) setHint('Unsupported file. Choose a PDF or image.');
+        return;
+      }
+
+      const { base64 } = await toBase64(file, { signal });
+      if(!importCtl.isCurrent(token)) return;
+
+      const resp = await postIngest({
+        name: file.name||'',
+        type: file.type || MIME_BY_KIND[kind] || '',
+        size: file.size||0,
+        data: base64,
+        kind,
+      }, { signal });
+      if(!importCtl.isCurrent(token)) return;
+
+      if(resp && resp.ok && resp.data && resp.data.text){
         const text = String(resp.data.text||'');
-        setEditorText(text);
-        try{ setMirrorVisible(true); }catch{}
-        runParseFlow(text, file.name||'Imported', '');
-        setHint('Imported text added to editor.');
-      } else {
-        // Friendly fallback messages
-        if(resp.status === 404){ setHint('Media import not enabled on this site.'); }
-        else if(resp.status === 501){ setHint('Media ingest is not enabled yet (beta stub).'); }
-        else if(resp.status === 403){ setHint('Media import is beta-only. Enable beta in Settings or visit /beta.'); }
+        if(importCtl.isCurrent(token)){
+          setEditorText(text);
+          try{ setMirrorVisible(true); }catch{}
+          try{
+            runParseFlow(text, file.name||'Imported', '');
+            setHint('Imported text added to editor.');
+          }catch(e){
+            setHint(`Parse error: ${e && e.message ? e.message : 'Unknown error'}`);
+          }
+        }
+      } else if(importCtl.isCurrent(token)){
+        if(resp && resp.status === 404){ setHint('Media import not enabled on this site.'); }
+        else if(resp && resp.status === 501){ setHint('Media ingest is not enabled yet (beta stub).'); }
+        else if(resp && resp.status === 403){ setHint('Media import is beta-only. Enable beta in Settings or visit /beta.'); }
+        else if(resp && resp.data && resp.data.error){ setHint(String(resp.data.error)); }
         else { setHint('Media import unavailable.'); }
       }
-    }catch{
-      setHint('Import failed.');
+    }catch(err){
+      if(err && err.name === 'AbortError'){ return; }
+      if(importCtl.isCurrent(token)){
+        setHint(`Import error: ${err && err.message ? err.message : 'Unknown error'}`);
+      }
+    }finally{
+      importCtl.finish(token);
+      if(importCtl.isCurrent(token)){
+        importBtn?.removeAttribute('disabled');
+      }
+      if(importFile) importFile.value='';
     }
   }
   importBtn?.addEventListener('click', ()=>{ if(!isBeta()) return; importFile?.click(); });
-  importFile?.addEventListener('change', ()=>{ if(!isBeta()) return; const f=importFile.files&&importFile.files[0]; if(!f) return; handleMediaFile(f); importFile.value=''; });
+  importFile?.addEventListener('change', async ()=>{
+    if(!isBeta()) return;
+    const f = importFile?.files && importFile.files[0];
+    if(!f) return;
+    await handleImportFile(f);
+  });
   // Drag-drop on toolbar (beta)
   const onDragOver = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.add('drag-on'); };
   const clearDrag = (el)=>{ el.classList.remove('drag-on'); };
-  const onDrop = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.remove('drag-on'); const dt=e.dataTransfer; if(!dt||!dt.files||!dt.files.length) return; handleMediaFile(dt.files[0]); };
+  const onDrop = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.remove('drag-on'); const dt=e.dataTransfer; if(!dt||!dt.files||!dt.files.length) return; handleImportFile(dt.files[0]); };
   topicAffix?.addEventListener('dragover', (e)=> onDragOver(e, topicAffix));
   topicAffix?.addEventListener('dragleave', ()=> clearDrag(topicAffix));
   topicAffix?.addEventListener('drop', (e)=> onDrop(e, topicAffix));
