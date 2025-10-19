@@ -2,6 +2,7 @@ import { S } from './state.js';
 import { $, byQSA, mmSsToMs } from './utils.js';
 import { parseEditorInput } from './parser.js';
 import { generateWithAI } from './api.js?v=1.5.17';
+import { createImportHandler } from './importer.js?v=1.5.17';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
 import { applyTheme, saveSettingsToStorage, getShowQuizEditorPreference } from './settings.js';
 import { STORAGE_KEYS } from './state.js';
@@ -82,21 +83,39 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   
   // --- Media Import (beta) ---
   function isBeta(){ try{ return document.body?.dataset?.beta === 'true' || !!S.settings?.betaEnabled; }catch{ return false; } }
-  function setHint(msg){ try{ const hint=document.getElementById('regenHint'); if(hint){ hint.textContent = msg; hint.hidden = false; } }catch{} }
-  function clearHint(){ try{ const hint=document.getElementById('regenHint'); if(hint){ hint.hidden = true; } }catch{} }
-  async function postIngest(payload){
+  function setHint(msg){
+    try{
+      const hint = document.getElementById('regenHint');
+      if(hint){
+        hint.textContent = msg;
+        hint.hidden = !msg;
+      }
+    }catch{}
+  }
+  function clearHint(){
+    try{
+      const hint = document.getElementById('regenHint');
+      if(hint){
+        hint.textContent = '';
+        hint.hidden = true;
+      }
+    }catch{}
+  }
+  async function postIngest(payload, { signal } = {}){
     const endpoint = '/.netlify/functions/ingest-media';
     try{
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-ezq-beta': '1' },
         body: JSON.stringify(payload),
+        signal,
       });
       const ct = res.headers.get('content-type')||'';
       const isJson = ct.includes('application/json');
       const data = isJson ? await res.json() : await res.text();
       return { ok: res.ok, status: res.status, data };
     }catch(err){
+      if(err && err.name === 'AbortError') throw err;
       return { ok: false, status: 0, data: { error: String(err&&err.message||err||'Network error') } };
     }
   }
@@ -116,38 +135,23 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       reader.readAsDataURL(file);
     });
   }
-  async function handleMediaFile(file){
-    if(!file) return;
-    const type = String(file.type||'');
-    if(!(type.startsWith('image/') || type === 'application/pdf')){ setHint('Unsupported file. Choose a PDF or image.'); return; }
-    setHint('Importing…');
-    try{
-      const { base64 } = await toBase64(file);
-      const resp = await postIngest({ name:file.name||'', type, size:file.size||0, data: base64 });
-      if(resp.ok && resp.data && resp.data.text){
-        // If backend returns extracted text, fill editor + parse
-        const text = String(resp.data.text||'');
-        setEditorText(text);
-        try{ setMirrorVisible(true); }catch{}
-        runParseFlow(text, file.name||'Imported', '');
-        setHint('Imported text added to editor.');
-      } else {
-        // Friendly fallback messages
-        if(resp.status === 404){ setHint('Media import not enabled on this site.'); }
-        else if(resp.status === 501){ setHint('Media ingest is not enabled yet (beta stub).'); }
-        else if(resp.status === 403){ setHint('Media import is beta-only. Enable beta in Settings or visit /beta.'); }
-        else { setHint('Media import unavailable.'); }
-      }
-    }catch{
-      setHint('Import failed.');
-    }
-  }
+  const { handleImportFile } = createImportHandler({
+    importBtn,
+    importFile,
+    setHint,
+    clearHint,
+    setEditorText,
+    setMirrorVisible,
+    runParseFlow,
+    postIngest,
+    toBase64,
+  });
   importBtn?.addEventListener('click', ()=>{ if(!isBeta()) return; importFile?.click(); });
-  importFile?.addEventListener('change', ()=>{ if(!isBeta()) return; const f=importFile.files&&importFile.files[0]; if(!f) return; handleMediaFile(f); importFile.value=''; });
+  importFile?.addEventListener('change', ()=>{ if(!isBeta()) return; const f=importFile.files&&importFile.files[0]; if(!f) return; handleImportFile(f).catch(()=>{}); });
   // Drag-drop on toolbar (beta)
   const onDragOver = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.add('drag-on'); };
   const clearDrag = (el)=>{ el.classList.remove('drag-on'); };
-  const onDrop = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.remove('drag-on'); const dt=e.dataTransfer; if(!dt||!dt.files||!dt.files.length) return; handleMediaFile(dt.files[0]); };
+  const onDrop = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.remove('drag-on'); const dt=e.dataTransfer; if(!dt||!dt.files||!dt.files.length) return; handleImportFile(dt.files[0]).catch(()=>{}); };
   topicAffix?.addEventListener('dragover', (e)=> onDragOver(e, topicAffix));
   topicAffix?.addEventListener('dragleave', ()=> clearDrag(topicAffix));
   topicAffix?.addEventListener('drop', (e)=> onDrop(e, topicAffix));
