@@ -41,6 +41,8 @@ function init(){
   } else {
     document.body.removeAttribute('data-beta');
   }
+  // Force-sync settings flag with computed beta state to avoid transient mismatch
+  try { S.settings.betaEnabled = !!betaActive; } catch {}
 
   // Check for beta auto-redirect when preference is set but cookie missing
   if (S.settings.betaEnabled && !betaCookieActive && window.location.pathname === '/' && !window.location.search.includes('no-beta-redirect')) {
@@ -129,8 +131,9 @@ function init(){
         await Promise.all(regs.map(r => r.unregister().catch(() => {})));
       }
     } catch {}
-    // Small delay to ensure unregister settles before reload
-    setTimeout(() => { try { window.location.reload(true); } catch { window.location.reload(); } }, 200);
+    // After async cleanup completes, perform a deterministic replace to avoid BFCache
+    try { window.location.replace(window.location.href); }
+    catch { window.location.reload(); }
   }
 
   // Wire Reset App button (Settings → Quiz Editor)
