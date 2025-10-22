@@ -1,6 +1,15 @@
 Changelog
 =========
 
+2025-10-22 — 1.5.18-hotfix
+- Reset
+  - Performs a cache-busting navigation to avoid BFCache/stale state after clearing SW + caches.
+  - Cancels any pending beta soft reload and disables the Reset button after confirm to prevent double-trigger.
+- Beta gating
+  - Applies `body[data-beta]` at first paint from cookie to prevent flicker/mismatch in the Topic input + paperclip.
+- Maintenance
+  - Asset query tokens bumped to v1.5.18 and service worker cache advanced to v126 for consistent first-load behavior.
+
 2025-10-22 — 1.5.0-beta.12
 - UI
   - Explain (beta) shows a localized toast near the result item; removed the inline ribbon block.
