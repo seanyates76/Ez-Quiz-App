@@ -134,8 +134,11 @@ export function wireSettingsPanel(els){
     try{
       if(S.settings.betaEnabled){
         addCookieFlag('beta');
+        // Schedule a refresh after Settings modal closes to apply beta consistently
+        try{ const g = (window.__EZQ__ = window.__EZQ__ || {}); g.__betaRefreshPending = true; }catch{}
       }else{
         clearCookieFlag('beta');
+        try{ const g = (window.__EZQ__ = window.__EZQ__ || {}); g.__betaRefreshPending = false; }catch{}
       }
     }catch{}
   });

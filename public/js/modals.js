@@ -42,7 +42,17 @@ export function wireModals({ onPause, onResume }){
   };
   Object.entries(closeMap).forEach(([btnId, modalId])=>{
     const btn=document.getElementById(btnId);
-    btn?.addEventListener('click', ()=>{ closeModal(modalId); if(onResume) onResume(); });
+    btn?.addEventListener('click', ()=>{
+      closeModal(modalId);
+      // If Settings was closed and a beta refresh is pending, reload softly
+      if(modalId === 'settingsModal'){
+        try{
+          const g = (window.__EZQ__ = window.__EZQ__ || {});
+          if(g.__betaRefreshPending){ g.__betaRefreshPending = false; if(onResume) onResume(); setTimeout(()=>{ try{ window.location.reload(true); }catch{ window.location.reload(); } }, 60); return; }
+        }catch{}
+      }
+      if(onResume) onResume();
+    });
   });
   document.addEventListener('click', (e)=>{ const t=e.target; if(t && t.matches('.modal__backdrop')){ const id=t.getAttribute('data-close'); if(id){ closeModal(id); if(onResume) onResume(); } } });
 
