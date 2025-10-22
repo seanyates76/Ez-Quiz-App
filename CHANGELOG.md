@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2025-10-22 — 1.5.18-hotfix
+2025-10-22 — v3.3 (hotfix) / 1.5.18-hotfix
 - Reset
   - Performs a cache-busting navigation to avoid BFCache/stale state after clearing SW + caches.
   - Cancels any pending beta soft reload and disables the Reset button after confirm to prevent double-trigger.
