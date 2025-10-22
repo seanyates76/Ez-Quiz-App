@@ -33,7 +33,17 @@ Getting started
 
 Known notes
 - Service worker updates require a hard refresh on first deploy (Shift+Reload)
-- If the header wordmark source is changed, use `icons/brand-title-source.png`
+ - If the header wordmark source is changed, use `icons/brand-title-source.png`
+
+EZ Quiz Web v1.5.0-beta.12
+==========================
+
+Release date: 2025-10-22
+
+Highlights
+- Explain (beta): Localized toast near the result item; inline block removed. Full explanations will arrive in a future release.
+- Topic input polish: Topic + paperclip unified as a single control with one soft focus border; hover/autofill no longer cause double highlights.
+- Tests: Stabilized jsdom environment; hardened HTML parsing for DOM tests; header‑byte tests use Node Blob.
 EZ Quiz Web v1.1.0
 ===================
 

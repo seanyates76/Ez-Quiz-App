@@ -1,6 +1,15 @@
 Changelog
 =========
 
+2025-10-22 — 1.5.0-beta.12
+- UI
+  - Explain (beta) shows a localized toast near the result item; removed the inline ribbon block.
+  - Topic input + paperclip act as a single control: one soft focus border, no double outlines, and no redundant hover/autofill highlights.
+- Dev/Test
+  - Stabilized DOM tests: added `jest-environment-jsdom`, hardened HTML parsing in `tests/utils.js` to avoid parse5 ESM paths, and used Node Blob for header‑byte tests.
+- Beta
+  - Media import remains a stub when not deployed; UI shows friendly hints on 403/404/501.
+
 2025-10-15 — 1.5.0-beta.11
 - Results
   - Continuous score bar replaces segmented cells.

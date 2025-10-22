@@ -18,6 +18,7 @@ Testing
 - Install dependencies: `npm install`
 - Run the unit suite: `npm test`
  - UI layout sweep (toolbar): `npm run ui:check` (artifacts in `.artifacts/ui`) — set `UI_CHECK_WIDTHS=320,375,414,600` to target specific widths.
+ - DOM tests run under jsdom (`jest-environment-jsdom`). HTML parsing is hardened in test helpers to avoid parse5 ESM path issues.
 
 Automation & Head CLI (local)
 -----------------------------
@@ -37,6 +38,8 @@ Features
 - PWA: offline shell, maskable icons, safe‑area‑aware layout.
 - Floating actions: Feedback panel + Support link.
 - Help & FAQ: Sleek modal with concise Q/A format; smooth transitions; opening a new modal replaces the current one.
+ - Explain (beta): Tapping Explain shows a small localized toast near the result item. Full explanations are coming; non‑beta does not make network calls.
+ - Topic Import UI: Topic input and the paperclip import button act as a single, tidy control with one soft focus border, and no redundant hover/autofill highlights.
 
 Interactive Editor (beta)
 -------------------------
@@ -81,6 +84,7 @@ Dev Tips
 - Primary button mode debug: set `localStorage.setItem('EZQ_DEBUG','1')` to log primary action mode transitions in the console.
 
 Changelog Highlights
+- 1.5.0-beta.12: Explain (beta) localized toast; Topic+paperclip unified with single soft focus border and de‑noised hover/autofill; test environment stabilized with jsdom.
 - 1.5.0-beta.9: AI fallback chain covers `/.netlify/functions/generate-quiz`, `/api/generate`, and the Netlify hosts (`https://ez-quiz.netlify.app`, `https://eq-quiz.netlify.app`); CSP `connect-src` allows those domains; backend defaults to `gemini-2.5-flash-lite-preview-09-2025`; cache-buster v1.5.17 (SW cache v125).
 - 1.5.0-beta.8: AI hotfix — client points at `/.netlify/functions/generate-quiz` first plus cache-buster v1.5.13 (SW cache v122).
 - 1.5.0-beta.7: Softer borders/focus ring tokens, roomy generator toolbar on wide phones, and cache-buster v1.5.12.

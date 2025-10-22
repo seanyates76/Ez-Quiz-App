@@ -42,6 +42,7 @@ Results checks
 CI‑friendly: The script exits non‑zero on failure and prints a self‑diagnosing report (selectors, computed grids, gap values, y‑centers, hints) so it’s easy to spot what drifted.
 
 ## Recent polish
+- 2025-10-22 — Explain (beta) moved to a localized toast (no inline ribbon). Topic input + paperclip unified as a single control with one soft focus border; hover/autofill de‑noised. Stabilized DOM tests (jsdom environment, safer HTML parsing) and used Node Blob for header‑byte tests.
 - 2025-10-16 — Results Explain is strictly beta‑gated and won’t render outside beta (checked via `S.settings.betaEnabled` or `body[data-beta]`). Added a tiny dev‑only log for primary action mode changes; enable with `localStorage.setItem('EZQ_DEBUG','1')` to print `[ezq:dev] primary-action` in console.
 - 2025-10-14 — Stabilize Jest (in-band); add providers/dom/css tests; ignore .artifacts (via ezq-head).
 - Unified UI tokens, lighter shadows, refined Options/Quiz Editor surfaces.
