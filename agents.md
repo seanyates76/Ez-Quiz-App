@@ -41,6 +41,17 @@ Results checks
 
 CI‑friendly: The script exits non‑zero on failure and prints a self‑diagnosing report (selectors, computed grids, gap values, y‑centers, hints) so it’s easy to spot what drifted.
 
+## Pre‑Merge Maintenance (UI changes)
+- Bump cache‑busters + SW together when UI assets change:
+  - index.html: update query tokens for `styles.css`, `js/main.js`, `js/auto-refresh.js`, `js/patches.js`, `js/editor.gui.js`.
+  - Module imports: update query tokens in `public/js/main.js` (generator import), `public/js/generator.js` (api import), and `public/js/editor.gui.js` (generator import).
+  - Service worker: bump `CACHE_NAME` and keep every `RELATIVE_URLS` entry aligned to the new query tokens.
+- Verify:
+  - `npm test` and `npm run ui:check`.
+  - Load the app once and confirm new CSS/JS are served; update banner logic works.
+  - `/?clear=1` and Settings → Reset App behave as expected.
+- Don’t bump cache/version when only server code changes.
+
 ## Recent polish
 - 2025-10-22 — Explain (beta) moved to a localized toast (no inline ribbon). Topic input + paperclip unified as a single control with one soft focus border; hover/autofill de‑noised. Stabilized DOM tests (jsdom environment, safer HTML parsing) and used Node Blob for header‑byte tests.
 - 2025-10-16 — Results Explain is strictly beta‑gated and won’t render outside beta (checked via `S.settings.betaEnabled` or `body[data-beta]`). Added a tiny dev‑only log for primary action mode changes; enable with `localStorage.setItem('EZQ_DEBUG','1')` to print `[ezq:dev] primary-action` in console.

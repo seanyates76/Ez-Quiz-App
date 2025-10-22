@@ -73,6 +73,7 @@ Deploy (Netlify)
 - Build: none. Publish dir: `public/`.
 - Use a custom domain and enable HTTPS.
 - **Beta Route**: Edge function at `/beta` provides access to beta features. See [BETA_DOCUMENTATION.md](BETA_DOCUMENTATION.md) for details.
+ - UI changes: when shipping visible UI changes, bump the service worker cache name (in `public/sw.js`) and the versioned query strings in `index.html` and related module imports (`public/js/*`) to prevent stale clients.
 
 Troubleshooting Updates (Mobile/PWA)
 - If stuck on an old version: open with `?clear=1` (or `#clear-cache`).

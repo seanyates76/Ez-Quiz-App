@@ -25,7 +25,10 @@ Interactive Editor (beta)
 
 Versioning & releases
 - Update the footer version in `public/index.html`, `package.json` version, and add a `CHANGELOG.md` entry.
-- Bump service worker cache and asset query strings to avoid stale clients.
+- For UI changes, bump service worker cache and asset query strings to avoid stale clients:
+  - `public/sw.js`: bump `CACHE_NAME` and align `RELATIVE_URLS` entries to the new query tokens.
+  - `public/index.html`: bump `?v=` tokens for `styles.css` and module script tags.
+  - `public/js/*`: update query tokens in module imports (e.g., `main.js` → generator import; `generator.js` → api import; `editor.gui.js` → generator import).
 
 Tests
 - This repo doesn’t have automated tests; manual verification is expected. The CI checks version consistency across files.
