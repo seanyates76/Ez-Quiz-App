@@ -34,3 +34,37 @@ export function bindOnce(el, type, handler, flagName){
   el.addEventListener(type, handler);
   el[key] = true;
 }
+
+// Localized toast near an anchor element
+export function showToastNear(anchor, message, opts = {}){
+  try{
+    if(!anchor || !anchor.getBoundingClientRect) return;
+    const rect = anchor.getBoundingClientRect();
+    const t = document.createElement('div');
+    t.className = 'toast-fly';
+    t.role = 'status';
+    t.textContent = String(message || '');
+    // Position: prefer above the anchor; fallback below if near top edge
+    const margin = 8;
+    let top = rect.top - margin;
+    let placeAbove = true;
+    if (top < 24) { placeAbove = false; top = rect.bottom + margin; }
+    const left = Math.round(rect.left + rect.width / 2);
+    t.style.position = 'fixed';
+    t.style.top = `${Math.round(top)}px`;
+    t.style.left = `${left}px`;
+    t.style.transform = placeAbove ? 'translate(-50%, -8px)' : 'translate(-50%, 8px)';
+    t.style.zIndex = '1200';
+    document.body.appendChild(t);
+    // Animate in
+    requestAnimationFrame(() => t.classList.add('show'));
+    const lifetime = Number.isFinite(opts.ms) ? Math.max(800, Math.min(10000, opts.ms)) : 2200;
+    setTimeout(() => {
+      try{
+        t.classList.remove('show');
+        t.classList.add('hide');
+        setTimeout(() => { t.remove(); }, 180);
+      }catch{}
+    }, lifetime);
+  }catch{}
+}

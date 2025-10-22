@@ -591,6 +591,18 @@ body[data-theme="light"] .number-wrap .toolbar-input:is(:-moz-autofill, :-moz-au
   background:var(--panel-2);
 }
 body[data-theme="light"] .toolbar-input:focus{ background:var(--panel); }
+
+/* Unify Topic input + affix focus ring at the wrapper level to avoid overlap */
+.input-affix:focus-within{
+  outline:none;
+  box-shadow:none;
+  border-color:var(--focus-border-soft);
+  border-radius:var(--radius-control);
+}
+.input-affix .toolbar-input:focus{
+  box-shadow:none; /* let the wrapper draw the ring */
+  border-color:var(--field-border); /* keep seam calm while wrapper shows focus */
+}
 .gen-toolbar #countInput{ text-align:center; }
 .gen-toolbar #countInput{ width:6ch; min-width:6ch; }
 .number-wrap{
@@ -1140,10 +1152,10 @@ details.advanced > summary{display:none}
 .results-missed .missed-item .user-ans + div{ border-top:1px solid var(--field-border); margin-top: 10px; padding-top: 10px; }
 /* Slight vertical spacing within MT rows */
 .results-missed .missed-item .mt-row{ margin:4px 0 }
-/* Inline explanation block */
-.explain{ margin-top:10px; border:1px solid var(--field-border); background:var(--panel-2); border-radius:10px; padding:10px; font-size:.9rem; line-height:1.4; max-width:66ch; margin-left:auto; margin-right:auto; opacity:0; transform:translateY(-2px); transition:opacity .16s ease, transform .16s ease; overflow-x:hidden }
-.explain:not([hidden]){ opacity:1; transform:none }
-.explain.soon{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; white-space: pre; text-align: center; font-size: clamp(10px, 3.2vw, 14px) }
+/* Localized toast near anchor */
+.toast-fly{ background:var(--panel-2); color:var(--text); border:1px solid var(--border); border-radius:calc(var(--radius-control)); padding:8px 10px; box-shadow:var(--shadow-card); opacity:0; transition:opacity .14s var(--easing), transform .14s var(--easing); font-size:13px; line-height:1.35; pointer-events:none; max-width:min(88vw, 420px); text-align:center }
+.toast-fly.show{ opacity:1; }
+.toast-fly.hide{ opacity:0; }
 .res-head{ display:flex; align-items:baseline; gap:8px; justify-content:space-between; flex-wrap:wrap }
 .res-head .explain-btn{ margin-left:auto }
 @media (max-width:600px){ .res-head .explain-btn{ margin-top:6px } }
@@ -1668,15 +1680,59 @@ body[data-beta] .affix-btn.beta-only{ display:flex; }
 .gen-toolbar.drag-on{ outline: 2px dashed var(--focus,#7aa2ff); outline-offset: 2px; }
 
 /* Inline affix (paperclip) inside Topic input */
-.input-affix{ position:relative; width:100%; overflow:visible; --affix-gap: 0px; --affix-w: var(--toolbar-height, 40px); }
-body[data-beta] .input-affix .toolbar-input.has-affix{ padding-right: calc(var(--affix-w) + 12px); }
-.affix-btn{
-  position:absolute;
-  top:0; bottom:0; right:0;
-  width:var(--affix-w);
+.input-affix{
+  position:relative;
+  display:flex;
+  align-items:stretch;
+  width:100%;
+  overflow:visible;
+  --affix-w: var(--toolbar-height, 40px);
+  border:1px solid var(--field-border);
+  background:var(--panel-2);
+  border-radius:var(--radius-control);
+  min-height:var(--toolbar-height, 40px);
   height:var(--toolbar-height, 40px);
+  transition:background .15s ease, border-color .15s ease, box-shadow .18s ease;
+}
+body[data-theme="light"] .input-affix{ background:var(--panel); }
+.input-affix .toolbar-input{
+  flex:1 1 auto;
+  border:0 !important;
+  background:transparent !important;
+  height:100%;
+  padding:0 12px;
+  border-radius:0;
+  box-shadow:none !important;
+}
+.input-affix .toolbar-input:hover,
+.input-affix .toolbar-input:focus{
+  background:transparent !important;
+  box-shadow:none !important;
+}
+.input-affix .toolbar-input:focus-visible{
+  outline:none !important;
+  box-shadow:none !important;
+}
+.input-affix .toolbar-input:is(:-webkit-autofill, :-webkit-autofill:hover, :-webkit-autofill:focus){
+  -webkit-text-fill-color:var(--text);
+  background:transparent !important;
+  border:0 !important;
+  -webkit-box-shadow:none !important;
+  box-shadow:none !important;
+}
+.input-affix .toolbar-input:is(:-moz-autofill, :-moz-autofill:hover, :-moz-autofill:focus){
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+.affix-btn{
+  position:static;
+  flex:0 0 var(--affix-w);
+  width:var(--affix-w);
+  height:100%;
   display:flex; align-items:center; justify-content:center;
-  border-left:1px solid var(--field-border);
+  border:0;
+  border-left:0; /* no inner divider to avoid extra lines */
   background:transparent;
   color:var(--muted);
   border-radius:0 var(--radius-control) var(--radius-control) 0;
@@ -1685,8 +1741,21 @@ body[data-beta] .input-affix .toolbar-input.has-affix{ padding-right: calc(var(-
   font-size:16px;
   transition:background .15s ease, border-color .15s ease, color .15s ease, box-shadow .18s ease;
 }
-.input-affix:hover .affix-btn{ color:var(--text); border-left-color:var(--border); background:var(--field-hover); }
-.input-affix:focus-within .affix-btn{ outline:1px solid var(--ring); outline-offset:2px; box-shadow:var(--focus-shadow); border-left-color:var(--ring); background:var(--panel); }
+body[data-theme="light"] .input-affix .affix-btn{ background:transparent; }
+.input-affix:focus-within{
+  outline:none;
+  outline-offset:0;
+  box-shadow:none;
+  border-color:var(--focus-border-soft);
+  border-radius:var(--radius-control);
+}
+.input-affix:hover:not(:focus-within){ border-color:var(--field-border); }
+/* Paperclip remains neutral on hover to reduce visual noise */
+.affix-btn:hover{ background:transparent; color:inherit; border-left-color:transparent; }
+/* When Topic input is focused, keep affix subtle — no big outline */
+.input-affix:focus-within .affix-btn{ outline:none; box-shadow:none; background:transparent; border-left-color:transparent; }
+/* Only show a ring when the button itself is keyboard-focused */
+.affix-btn:focus-visible{ outline:none; box-shadow:none; background:transparent; color:inherit; border-left-color:transparent; }
 .affix-btn:active{ filter:brightness(0.98); }
 .icon-clip{ display:block; width:18px; height:18px; max-width: calc(var(--affix-w) - 14px); max-height: calc(var(--affix-w) - 14px); margin-top:1px; }
 .icon-clip{ shape-rendering:geometricPrecision; }
