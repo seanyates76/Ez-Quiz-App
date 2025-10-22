@@ -1,4 +1,5 @@
 'use strict';
+const { Blob: NodeBlob } = require('buffer');
 
 const { loadBrowserModule } = require('./utils');
 
@@ -15,7 +16,7 @@ describe('file type validation', () => {
     return Uint8Array.from(pairs.map((pair) => parseInt(pair, 16)));
   };
 
-  const makeBlob = (hex) => new Blob([fromHex(hex)]);
+  const makeBlob = (hex) => new NodeBlob([fromHex(hex)]);
 
   test('detects pdf headers', async () => {
     const blob = makeBlob('255044462d312e350a00'); // %PDF-1.5\n

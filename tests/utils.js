@@ -3,6 +3,12 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
+// Polyfill encoders for jsdom/whatwg-url under Jest when missing
+try {
+  const u = require('node:util');
+  if (typeof global.TextEncoder === 'undefined' && u.TextEncoder) global.TextEncoder = u.TextEncoder;
+  if (typeof global.TextDecoder === 'undefined' && u.TextDecoder) global.TextDecoder = u.TextDecoder;
+} catch {}
 let jsdomModulePromise;
 
 async function getJsdomModule() {
@@ -40,9 +46,32 @@ function loadBrowserModule(relPath, namedExports) {
 
 async function loadDocument(relPath) {
   const html = readFile(relPath);
-  const { JSDOM } = await getJsdomModule();
-  const { window } = new JSDOM(html);
-  return window.document;
+  // Prefer global DOM when test env is jsdom to avoid ESM/CJS parse5 issues
+  try {
+    if (typeof window !== 'undefined' && window) {
+      if (typeof window.DOMParser === 'function') {
+        const parser = new window.DOMParser();
+        return parser.parseFromString(html, 'text/html');
+      }
+      // jsdom env present but no DOMParser: write into existing document
+      if (window.document && typeof window.document.open === 'function') {
+        const doc = window.document;
+        doc.open();
+        doc.write(html);
+        doc.close();
+        return doc;
+      }
+    }
+  } catch {}
+  // Create a detached HTMLDocument when no parser API present but window exists
+  if (typeof window !== 'undefined' && window && window.document && window.document.implementation) {
+    try {
+      const doc = window.document.implementation.createHTMLDocument('');
+      doc.documentElement.innerHTML = html;
+      return doc;
+    } catch {}
+  }
+  throw new Error('No DOM environment available for loadDocument');
 }
 
 module.exports = {
