@@ -2,7 +2,7 @@ import { S } from './state.js';
 import { $, byQSA, showUpdateBannerIfReady } from './utils.js';
 import { loadSettingsFromStorage, applyTheme, reflectSettingsIntoUI, wireSettingsPanel } from './settings.js';
 import { wireModals } from './modals.js';
-import { wireGenerator } from './generator.js?v=1.5.17';
+import { wireGenerator } from './generator.js?v=1.5.18';
 import { setMode, beginQuiz, renderCurrentQuestion, updateNavButtons, updateProgress, wireQuizControls, wireResultsControls, pauseTimerIfQuiz, resumeTimerIfQuiz, syncSettingsFromUI } from './quiz.js';
 import { has as hasFlag, hasCookie as hasCookieFlag } from './flags.js';
 
@@ -109,6 +109,9 @@ function init(){
 
   // Emergency: hard-reset caches + service workers when needed
   async function hardReset() {
+    // Ensure any pending beta-triggered soft reloads are cancelled
+    try { const g = (window.__EZQ__ = window.__EZQ__ || {}); g.__betaRefreshPending = false; } catch {}
+
     try { localStorage.clear(); } catch {}
     try {
       // Best-effort: ask SWs to clear caches in their context
@@ -131,9 +134,14 @@ function init(){
         await Promise.all(regs.map(r => r.unregister().catch(() => {})));
       }
     } catch {}
-    // After async cleanup completes, perform a deterministic replace to avoid BFCache
-    try { window.location.replace(window.location.href); }
-    catch { window.location.reload(); }
+    // After async cleanup completes, perform a cache-busting navigation to avoid BFCache/stale state
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('reset', String(Date.now()));
+      window.location.replace(url.toString());
+    } catch {
+      try { window.location.reload(true); } catch { window.location.reload(); }
+    }
   }
 
   // Wire Reset App button (Settings → Quiz Editor)
@@ -141,12 +149,12 @@ function init(){
     const btn = document.getElementById('resetApp');
     btn?.addEventListener('click', () => {
       const ok = window.confirm('Reset app data and refresh? This clears caches, service workers, and local data.');
-      if (ok) hardReset();
+      if (ok) { try { btn.disabled = true; } catch {} hardReset(); }
     });
     // URL triggers for stuck mobile clients
     try {
       const q = new URLSearchParams(location.search);
-      if (q.get('clear') === '1' || location.hash === '#clear-cache') hardReset();
+      if (q.get('clear') === '1' || location.hash === '#clear-cache') { try { const g=(window.__EZQ__=window.__EZQ__||{}); g.__betaRefreshPending=false; }catch{} hardReset(); }
     } catch {}
   })();
 
