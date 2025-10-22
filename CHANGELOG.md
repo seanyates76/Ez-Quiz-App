@@ -1,6 +1,15 @@
 Changelog
 =========
 
+2025-10-22 — 1.5.0-beta.12
+- UI
+  - Explain (beta) shows a localized toast near the result item; removed the inline ribbon block.
+  - Topic input + paperclip act as a single control: one soft focus border, no double outlines, and no redundant hover/autofill highlights.
+- Dev/Test
+  - Stabilized DOM tests: added `jest-environment-jsdom`, hardened HTML parsing in `tests/utils.js` to avoid parse5 ESM paths, and used Node Blob for header‑byte tests.
+- Beta
+  - Media import remains a stub when not deployed; UI shows friendly hints on 403/404/501.
+
 2025-10-15 — 1.5.0-beta.11
 - Results
   - Continuous score bar replaces segmented cells.
@@ -27,11 +36,11 @@ Changelog
 - Graduated the beta line to production, keeping the resilient AI fallback rotation so Generate/Start survive missing rewrites or proxy issues.
 - Adopted the softened UI tokens, responsive toolbar grid, and balanced spacing from the recent betas as the default production experience.
 - Finalized Quiz Editor parity: interactive/manual modes, mirror controls, and defaults stay aligned for everyday authoring.
-- Maintained asset cache busting (query strings v1.5.14, service worker cache v123) to deliver the release instantly across clients.
+- Maintained asset cache busting (query strings v1.5.17, service worker cache v125) to deliver the release instantly across clients.
 
 2025-09-26 — 1.5.0-beta.9
 - Resilience: AI calls now cycle through `/.netlify/functions/generate-quiz`, `/api/generate`, and Netlify hosts (`https://ez-quiz.netlify.app/.netlify/functions/generate-quiz`, `https://eq-quiz.netlify.app/.netlify/functions/generate-quiz`), covering missing rewrites or third-party proxies.
-- Maintenance: asset query strings bumped to v1.5.14 and service worker cache advanced to v123 to flush cached modules (api/generator/main/editor).
+- Maintenance: asset query strings bumped to v1.5.17 and service worker cache advanced to v125 to flush cached modules (api/generator/main/editor).
 - Security: CSP `connect-src` now includes the Netlify hosts (including `https://ez-quiz.netlify.app`) so the fallback calls aren’t blocked client-side.
 - Gemini: default model bumped to `gemini-2.5-flash-lite-preview-09-2025`; override `GEMINI_MODEL` only if your account supports a different version.
 

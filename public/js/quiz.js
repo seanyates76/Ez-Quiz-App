@@ -1,5 +1,6 @@
 import { S } from './state.js';
-import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel, mmSsToMs, showUpdateBannerIfReady, bindOnce } from './utils.js';
+import { isBetaEnabled } from './beta.mjs';
+import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel, mmSsToMs, showUpdateBannerIfReady, bindOnce, showToastNear } from './utils.js';
 
 // Retake scope constants
 const RETAKE_MISSED = 'missed';
@@ -188,7 +189,7 @@ export function renderResults(){
   const indexMap = (Array.isArray(S.quiz.indexMap) && S.quiz.indexMap.length)
     ? S.quiz.indexMap
     : S.quiz.questions.map((_,i)=>i);
-  const isBeta = !!(S.settings && S.settings.betaEnabled);
+  const isBeta = isBetaEnabled(S.settings);
   // Prefer persistent originalAnswers when available; fallback to mapping current run
   let answersFull;
   if (Array.isArray(S.quiz.originalAnswers) && S.quiz.originalAnswers.length === baseQs.length) {
@@ -233,19 +234,17 @@ export function renderResults(){
     const header = `<div class="res-head"><strong>${item.idx}.</strong> ${escapeHTML(item.text)}${isBeta ? ` <button type=\"button\" class=\"chip-btn explain-btn\" data-explain=\"${origIdx}\">Explain</button>` : ''}</div>`;
     if (item.isCorrect) {
       const line = `<div class="user-ans ans-correct"><strong>Answer:</strong> ${userDetail} <span class=\"chip tag good\">Correct</span></div>`;
-      const exp = isBeta ? `<div id=\"explain-${origIdx}\" class=\"explain\" hidden role=\"status\" aria-live=\"polite\"></div>` : '';
-      return `<div class="missed-item is-correct" data-orig="${origIdx}">` + header + line + exp + `</div>`;
+      return `<div class="missed-item is-correct" data-orig="${origIdx}">` + header + line + `</div>`;
     } else {
       const yours = `<div class="user-ans ans-wrong"><strong>Your answer:</strong> ${userDetail} <span class="chip tag bad">Incorrect</span></div>`;
       const corr = `<div><strong>Correct:</strong> ${correctDetail}</div>`;
-      const exp = isBeta ? `<div id=\"explain-${origIdx}\" class=\"explain\" hidden role=\"status\" aria-live=\"polite\"></div>` : '';
-      return `<div class="missed-item is-wrong" data-orig="${origIdx}">` + header + yours + corr + exp + `</div>`;
+      return `<div class="missed-item is-wrong" data-orig="${origIdx}">` + header + yours + corr + `</div>`;
     }
   }).join('');
   // Sync retake controls UI when results are shown/updated
   try{ updateRetakeUI(); }catch{}
   // Wire Explain delegation once (beta only)
-  try{ if(S.settings && S.settings.betaEnabled){ wireExplainDelegation(); } }catch{}
+  try{ if(isBetaEnabled(S.settings)){ wireExplainDelegation(); } }catch{}
   // Update chip after we know full correctness
   if(chip){
     const labelText = `${correctCountFull}/${baseQs.length}`;
@@ -259,115 +258,14 @@ export function renderResults(){
   }
 }
 
-// Lightweight in-memory cache for explanations
-const __EXPL_CACHE = new Map(); // key: `${hash}|${idx}` -> text
-
-function hashLines(lines){
-  try{
-    const s = Array.isArray(lines) ? lines.join('\n') : String(lines||'');
-    let h=5381; for(let i=0;i<s.length;i++){ h=((h<<5)+h) ^ s.charCodeAt(i); } return String(h>>>0);
-  }catch{ return '0'; }
-}
-
-function collectExplainLines(baseQs){
-  try{
-    const raw = localStorage.getItem('ezq.last') || '';
-    const arr = raw.split('\n').map(s=>s.trim()).filter(Boolean);
-    if(arr.length) return arr;
-  }catch{}
-  // Fallback: reconstruct from question objects
-  const toLetters = (arr)=> (Array.isArray(arr)?arr:[]).map(i=> String.fromCharCode(65+i));
-  const lines = (Array.isArray(baseQs)?baseQs:[]).map((q)=>{
-    if(!q||!q.type) return '';
-    const text = (q.text||'').trim();
-    if(q.type==='MC'){
-      const opts = (q.options||[]).map((t,i)=> `${String.fromCharCode(65+i)}) ${String(t||'').trim()}`).join(';');
-      const ans = toLetters(q.correct||[]).join(',');
-      if(!text||!opts||!ans) return '';
-      return `MC|${text}|${opts}|${ans}`;
-    }
-    if(q.type==='TF') return `TF|${text}|${q.correct?'T':'F'}`;
-    if(q.type==='YN') return `YN|${text}|${q.correct?'Y':'N'}`;
-    if(q.type==='MT'){
-      const left=(q.left||[]).map((t,i)=>`${i+1}) ${String(t||'').trim()}`).join(';');
-      const right=(q.right||[]).map((t,i)=>`${String.fromCharCode(65+i)}) ${String(t||'').trim()}`).join(';');
-      let pairs='';
-      if(Array.isArray(q.matches)){
-        const out=[]; for(let li=0; li<q.matches.length; li++){ const ri=q.matches[li]; if(Number.isInteger(ri) && ri>=0){ out.push(`${li+1}-${String.fromCharCode(65+ri)}`); } }
-        pairs = out.join(',');
-      } else if(Array.isArray(q.pairs)){
-        pairs = q.pairs.map(([li,ri])=> `${li+1}-${String.fromCharCode(65+ri)}`).join(',');
-      }
-      if(!text||!left||!right||!pairs) return '';
-      return `MT|${text}|${left}|${right}|${pairs}`;
-    }
-    return '';
-  }).filter(Boolean);
-  return lines;
-}
-
 function wireExplainDelegation(){
   const host = document.getElementById('missedList'); if(!host) return;
   if(host.__explBound) return; host.__explBound = true;
-  host.addEventListener('click', async (e)=>{
+  host.addEventListener('click', (e)=>{
     const btn = e.target && (e.target.closest ? e.target.closest('.explain-btn') : null);
     if(!btn) return;
     e.preventDefault();
-    const idx = parseInt(btn.getAttribute('data-explain')||'-1',10);
-    if(!Number.isFinite(idx) || idx<0) return;
-    const box = document.getElementById(`explain-${idx}`);
-    if(!box) return;
-    // Toggle if already visible with content
-    if(!box.hidden && box.textContent && box.textContent.trim()) { box.hidden = true; return; }
-    // Collect lines + cache
-    const baseQs = (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) ? S.quiz.originalQuestions : S.quiz.questions;
-    const lines = collectExplainLines(baseQs);
-    const hash = hashLines(lines);
-    const key = `${hash}|${idx}`;
-    box.hidden = false; box.textContent = 'Generating explanation…';
-    // In beta, teaser only — no network call
-    if (S.settings && S.settings.betaEnabled) {
-      const teaser = [
-        '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',
-        '┃          FEATURE COMING SOON          ┃',
-        '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛'
-      ].join('\n');
-      box.textContent = teaser; box.classList.add('soon');
-      return;
-    }
-    if(__EXPL_CACHE.has(key)) { box.textContent = __EXPL_CACHE.get(key); return; }
-    // Build client-side fallback from question object
-    const buildClientExplanation = (_q)=>{
-      // Professional placeholder in text art (ribbon), centered via CSS
-      return [
-        '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',
-        '┃          FEATURE COMING SOON          ┃',
-        '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛'
-      ].join('\n');
-    };
-    try{
-      const res = await fetch('/.netlify/functions/explain-answers-lazy', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ lines, index: idx }) });
-      if(!res.ok){
-        // Fallback to client stub on non-OK (e.g., 404 in static preview)
-        const base = (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) ? S.quiz.originalQuestions : S.quiz.questions;
-        const q = Array.isArray(base) ? base[idx] : null;
-        const text = buildClientExplanation(q);
-        __EXPL_CACHE.set(key, text);
-        box.textContent = text; box.classList.add('soon');
-        return;
-      }
-      const data = await res.json();
-      const exp = (data && data.explanations && (data.explanations[String(idx)]||data.explanations[idx])) || {};
-      const text = String(exp.explanation || 'No explanation available.');
-      __EXPL_CACHE.set(key, text);
-      box.textContent = text; box.classList.remove('soon');
-    }catch(err){
-      const base = (Array.isArray(S.quiz.originalQuestions) && S.quiz.originalQuestions.length) ? S.quiz.originalQuestions : S.quiz.questions;
-      const q = Array.isArray(base) ? base[idx] : null;
-      const text = buildClientExplanation(q);
-      __EXPL_CACHE.set(key, text);
-      box.textContent = text; box.classList.add('soon');
-    }
+    showToastNear(btn, 'Explanations are coming soon.');
   });
 }
 
@@ -433,6 +331,7 @@ function buildCorrectAnswerDetail(q){
 }
 
 function renderMTResult(origIdx, q, a){
+  const isBeta = isBetaEnabled(S.settings);
   // Build map of correct right indexes by left index
   const correctMap = new Array(q.left.length).fill(-1);
   (Array.isArray(q.pairs)?q.pairs:[]).forEach(([li,ri])=>{ correctMap[li]=ri; });
@@ -455,11 +354,10 @@ function renderMTResult(origIdx, q, a){
       </div>`;
   }).join('');
   const okAll = Array.isArray(a)&&a.length&&a.every((ri,li)=>ri===correctMap[li]);
-  const exp = `<div id="explain-${origIdx}" class="explain" hidden role="status" aria-live="polite"></div>`;
+  const explainBtn = isBeta ? ` <button type="button" class="chip-btn explain-btn" data-explain="${origIdx}">Explain</button>` : '';
   return `<div class="missed-item ${okAll?'is-correct':'is-wrong'}" data-orig="${origIdx}">
-    <div class="res-head"><strong>${(origIdx+1)}.</strong> ${escapeHTML(q.text)} <button type="button" class="chip-btn explain-btn" data-explain="${origIdx}">Explain</button></div>
+    <div class="res-head"><strong>${(origIdx+1)}.</strong> ${escapeHTML(q.text)}${explainBtn}</div>
     <div class="mt-result">${rows}</div>
-    ${exp}
   </div>`;
 }
 

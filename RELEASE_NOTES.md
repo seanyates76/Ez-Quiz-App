@@ -6,7 +6,7 @@ Release date: 2025-09-30
 Highlights
 - Stable AI fallback loop now protects Generate/Start for everyone.
 - Recent beta UI polish is standard across the app.
-- Cache busts (`v1.5.14`, SW cache `v123`) ship the update quickly.
+- Cache busts (`v1.5.17`, SW cache `v125`) ship the update quickly.
 
 EZ Quiz Web v1.0.0
 ===================
@@ -33,7 +33,17 @@ Getting started
 
 Known notes
 - Service worker updates require a hard refresh on first deploy (Shift+Reload)
-- If the header wordmark source is changed, use `icons/brand-title-source.png`
+ - If the header wordmark source is changed, use `icons/brand-title-source.png`
+
+EZ Quiz Web v1.5.0-beta.12
+==========================
+
+Release date: 2025-10-22
+
+Highlights
+- Explain (beta): Localized toast near the result item; inline block removed. Full explanations will arrive in a future release.
+- Topic input polish: Topic + paperclip unified as a single control with one soft focus border; hover/autofill no longer cause double highlights.
+- Tests: Stabilized jsdom environment; hardened HTML parsing for DOM tests; header‑byte tests use Node Blob.
 EZ Quiz Web v1.1.0
 ===================
 
@@ -121,7 +131,7 @@ Release date: 2025-09-26
 
 Highlights
 - Resilient AI calls: client now cycles through `/.netlify/functions/generate-quiz`, `/api/generate`, and the Netlify hosts (`https://ez-quiz.netlify.app`, `https://eq-quiz.netlify.app`) so Start/Generate survive missing rewrites or external proxies.
-- Cache bust: Asset query strings bumped to v1.5.14 with service worker cache v123 to guarantee the new fallback ships instantly.
+- Cache bust: Asset query strings bumped to v1.5.17 with service worker cache v125 to guarantee the new fallback ships instantly.
 - Security: CSP `connect-src` now whitelists the Netlify hosts (including `https://ez-quiz.netlify.app`) so browser policies allow the fallback calls.
 - Gemini update: default backend model is now `gemini-2.5-flash-lite-preview-09-2025`; override `GEMINI_MODEL` only if you have access to a different version.
 - Reminder: All UI polish from beta.7 (softened surfaces, roomy toolbar, consistent spacing) remains in place.

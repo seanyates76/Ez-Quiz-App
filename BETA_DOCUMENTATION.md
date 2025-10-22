@@ -58,6 +58,16 @@ Add the guard to Netlify Functions that should be beta-only (e.g., MCP, experime
 - **Opt in:** Visit `/beta` (cookie) or add `x-ezq-beta: 1` header in dev/CI.
 - **Opt out:** `/beta?off=1` clears the cookie and future requests return `403` until re-enabled.
 
+## Explain (beta)
+
+- In beta builds, Explain buttons show a small localized toast near the result item.
+- Full explanation plumbing (server + UI) remains experimental and may change. Non‑beta builds do not make any explanation network calls.
+
+## Media Import (beta)
+
+- Media import posts to `/.netlify/functions/ingest-media`. If the function is not deployed or disabled, the UI shows friendly hints (403/404/501).
+- Enable via Settings → Beta features or visit `/beta` to set the cookie.
+
 ## Troubleshooting
 
 - If the browser keeps returning `403`, confirm the cookie exists and is not blocked.

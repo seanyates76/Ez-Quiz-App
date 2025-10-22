@@ -43,7 +43,16 @@
         <div class="toolbar-left">
         <label class="toolbar-field">
           <span class="toolbar-label">Topic</span>
-          <input id="topicInput" type="text" class="toolbar-input" placeholder="e.g. Animals" />
+          <div class="input-affix topic-affix">
+            <input id="topicInput" type="text" class="toolbar-input has-affix" placeholder="e.g. Animals" />
+            <button id="importBtn" class="affix-btn beta-only" type="button" title="Attach PDF/Image (beta)" aria-label="Attach PDF or Image (beta)">
+              <svg class="icon-clip icon-clip--beta" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                <!-- Material Symbols Rounded “attach_file” icon (beta only) -->
+                <path fill="currentColor" d="M16.5 6.75v10.58c0 2.09-1.53 3.95-3.61 4.15-2.39.23-4.39-1.64-4.39-3.98V5.14c0-1.31.94-2.5 2.24-2.63 1.5-.15 2.76 1.02 2.76 2.49v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6.75c0-.41-.34-.75-.75-.75s-.75.34-.75.75v8.61c0 1.31.94 2.5 2.24 2.63 1.5.15 2.76-1.02 2.76-2.49V5.17c0-2.09-1.53-3.95-3.61-4.15C9.01.79 7 2.66 7 5v12.27c0 2.87 2.1 5.44 4.96 5.71 3.29.3 6.04-2.26 6.04-5.48V6.75c0-.41-.34-.75-.75-.75s-.75.34-.75.75z"/>
+              </svg>
+            </button>
+            <input id="importFile" type="file" accept="application/pdf,image/*" style="display:none" />
+          </div>
         </label>
         <label class="toolbar-field toolbar-field--difficulty">
           <span class="toolbar-label">Difficulty</span>
@@ -72,7 +81,7 @@
         <div class="action-stack">
           <button id="generateBtn" class="btn primary" type="button" aria-label="Primary action">Start</button>
           <button id="optionsBtn" class="btn btn-outline" aria-haspopup="true" aria-expanded="false" aria-controls="optionsPanel">Options ▾</button>
-      </div>
+        </div>
     </div>
 
       <!-- Subtle hint when inputs change after generation -->
@@ -237,7 +246,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
   <footer class="container" role="contentinfo">
     <nav aria-label="Footer">
       <div class="footer-links" role="list">
-        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" role="listitem">v1.5.0-beta.11</a>
+        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" role="listitem">v1.5.0-beta.12</a>
         <span aria-hidden="true">•</span>
         <a id="privacyLink" href="#" data-modal="privacyModal" role="listitem">Privacy</a>
         <span aria-hidden="true">•</span>
@@ -261,6 +270,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
       <div id="veilMsg" class="veil__msg">Loading…</div>
     </div>
   </div>
+
 
   <!-- Help Modal (filled FAQ) -->
   <div id="helpModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle" aria-hidden="true">
@@ -441,8 +451,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
         </div>
         <fieldset class="fieldgroup">
           <legend>Beta Features</legend>
-          <label><input type="checkbox" id="betaEnabled" /> <span>Enable beta features and auto-redirect to /beta</span></label>
-          <p class="muted small">When enabled, you'll automatically be redirected to the beta version of the app on future visits.</p>
+          <label><input type="checkbox" id="betaEnabled" /> <span>Enable beta features</span></label>
         </fieldset>
 
         <p class="muted small settings-version" data-version-copy>
@@ -474,6 +483,14 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           </ul>
         </section>
         <section>
+          <h4>v1.5.0-beta.12</h4>
+          <ul>
+            <li><strong>Explain (beta):</strong> localized toast near result items; inline block removed.</li>
+            <li><strong>Topic input:</strong> unified control with a single soft focus border; hover/autofill no longer cause double highlights.</li>
+            <li><strong>Tests:</strong> jsdom environment and resilient DOM parsing; header‑byte tests use Node Blob.</li>
+          </ul>
+        </section>
+        <section>
           <h4>v1.5.0-beta.11</h4>
           <ul>
             <li><strong>Results:</strong> continuous score bar, mobile overflow fixes, subtle transitions.</li>
@@ -486,7 +503,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <h4>v1.5.0-beta.9</h4>
           <ul>
             <li><strong>Serverless fallback:</strong> AI calls now roll through <code>/.netlify/functions/generate-quiz</code>, <code>/api/generate</code>, and the default Netlify domain so missing rewrites or proxies no longer break Start/Generate.</li>
-            <li><strong>Cache bust:</strong> bumped asset query strings to v1.5.14 and service worker cache to v123 so every client grabs the fix immediately.</li>
+            <li><strong>Cache bust:</strong> bumped asset query strings to v1.5.17 and service worker cache to v125 so every client grabs the fix immediately.</li>
             <li><strong>AI fix:</strong> refreshed the Gemini model so Generate and Start deliver quizzes again without extra setup.</li>
             <li><strong>Previous polish retained:</strong> softened surfaces, wide-phone toolbar, and consistent spacing from beta.7 remain.</li>
           </ul>
@@ -619,10 +636,10 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
 
   
 
-  <script type="module" src="js/main.js?v=1.5.14"></script>
-  <script type="module" src="js/auto-refresh.js?v=1.5.14"></script>
-  <script type="module" src="js/patches.js?v=1.5.14"></script>
-  <script type="module" src="js/editor.gui.js?v=1.5.14"></script>
+  <script type="module" src="js/main.js?v=1.5.17"></script>
+  <script type="module" src="js/auto-refresh.js?v=1.5.17"></script>
+  <script type="module" src="js/patches.js?v=1.5.17"></script>
+  <script type="module" src="js/editor.gui.js?v=1.5.17"></script>
 
   <!-- Floating actions: Feedback + Coffee -->
   <div id="floatingActions" class="fab-stack" aria-label="Quick actions">
