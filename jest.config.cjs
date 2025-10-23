@@ -1,4 +1,5 @@
 module.exports = {
   testEnvironment: 'jsdom',
-  moduleNameMapper: {}
+  moduleNameMapper: {},
+  testPathIgnorePatterns: ['/node_modules/', '/PR-2-Files/'],
 };

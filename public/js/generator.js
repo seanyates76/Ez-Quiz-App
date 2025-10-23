@@ -4,9 +4,13 @@ import { parseEditorInput } from './parser.js';
 import { generateWithAI } from './api.js?v=1.5.18';
 import { ImportController } from './import-controller.js';
 import { sniffFileKind, isSupportedImportKind } from './file-type-validation.js';
+import { attachDragDrop } from './drag-drop.js';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
 import { applyTheme, saveSettingsToStorage, getShowQuizEditorPreference } from './settings.js';
 import { STORAGE_KEYS } from './state.js';
+
+// Keep reference to drag/drop wiring so re-init can dispose previous listeners
+let __topicAffixDragHandle = null;
 
 export function runParseFlow(sourceText, topicLabel, fullTitle){
   const mirror = $('mirror');
@@ -222,9 +226,16 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   const onDragOver = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.add('drag-on'); };
   const clearDrag = (el)=>{ el.classList.remove('drag-on'); };
   const onDrop = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.remove('drag-on'); const dt=e.dataTransfer; if(!dt||!dt.files||!dt.files.length) return; handleImportFile(dt.files[0]); };
-  topicAffix?.addEventListener('dragover', (e)=> onDragOver(e, topicAffix));
-  topicAffix?.addEventListener('dragleave', ()=> clearDrag(topicAffix));
-  topicAffix?.addEventListener('drop', (e)=> onDrop(e, topicAffix));
+  // Use helper to attach listeners and ensure we can dispose on re-init
+  try { __topicAffixDragHandle?.dispose?.(); } catch {}
+  if (topicAffix) {
+    __topicAffixDragHandle = attachDragDrop(topicAffix, {
+      onDragEnter: (e) => onDragOver(e, topicAffix),
+      onDragOver: (e) => onDragOver(e, topicAffix),
+      onDragLeave: () => clearDrag(topicAffix),
+      onDrop: (e) => onDrop(e, topicAffix),
+    }, { preventDefault: true });
+  }
 
   function updateMirrorText(raw){
     if(!mirror) return;
@@ -658,4 +669,9 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   }
   countUpBtn?.addEventListener('click', ()=> adjustCount(1));
   countDownBtn?.addEventListener('click', ()=> adjustCount(-1));
+}
+
+// Optional teardown for SPA navigation or re-init
+export function disposeGenerator(){
+  try { __topicAffixDragHandle?.dispose?.(); } catch {}
 }
