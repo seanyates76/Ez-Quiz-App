@@ -92,6 +92,17 @@ describe('attachDragDrop', () => {
     expect(enter).toHaveBeenCalledTimes(0);
   });
 
+  test('returns handle with controller and dispose', () => {
+    const drop = jest.fn();
+    const handle = attachDragDrop(elem, { onDrop: drop });
+    expect(handle && typeof handle).toBe('object');
+    expect(typeof handle.dispose).toBe('function');
+    expect(handle.controller).toBeTruthy();
+    // controller.abort may be a function in native or our fallback
+    expect(typeof handle.controller.abort).toBe('function');
+    handle.dispose();
+  });
+
   test('throws on invalid element', () => {
     expect(() => attachDragDrop(null)).toThrow(/DOM node/i);
     expect(() => attachDragDrop({})).toThrow();
