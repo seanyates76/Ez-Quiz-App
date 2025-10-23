@@ -1,7 +1,7 @@
 import { S } from './state.js';
 import { $, byQSA, mmSsToMs } from './utils.js';
 import { parseEditorInput } from './parser.js';
-import { generateWithAI } from './api.js?v=1.5.18';
+import { generateWithAI } from './api.js?v=1.5.19';
 import { ImportController } from './import-controller.js';
 import { sniffFileKind, isSupportedImportKind } from './file-type-validation.js';
 import { attachDragDrop } from './drag-drop.js';
