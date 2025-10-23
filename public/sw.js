@@ -20,6 +20,7 @@ const RELATIVE_URLS = [
   'js/modals.js',
   'js/boot-beta.js?v=1.5.19',
   'js/generator.js?v=1.5.19',
+  'js/a11y-announcer.js?v=1.5.19',
   'js/a11y-announcer.js',
   'js/quiz.js',
   'js/beta.mjs',

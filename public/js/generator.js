@@ -5,7 +5,7 @@ import { generateWithAI } from './api.js?v=1.5.19';
 import { ImportController } from './import-controller.js';
 import { sniffFileKind, isSupportedImportKind } from './file-type-validation.js';
 import { attachDragDrop } from './drag-drop.js';
-import { announce } from './a11y-announcer.js';
+import { announce } from './a11y-announcer.js?v=1.5.19';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
 import { applyTheme, saveSettingsToStorage, getShowQuizEditorPreference } from './settings.js';
 import { STORAGE_KEYS } from './state.js';
