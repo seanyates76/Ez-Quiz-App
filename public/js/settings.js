@@ -132,13 +132,17 @@ export function wireSettingsPanel(els){
     saveSettingsToStorage();
     try{ setFlag('beta', !!S.settings.betaEnabled); }catch{}
     try{
+      const g = (window.__EZQ__ = window.__EZQ__ || {});
       if(S.settings.betaEnabled){
         addCookieFlag('beta');
-        // Schedule a refresh after Settings modal closes to apply beta consistently
-        try{ const g = (window.__EZQ__ = window.__EZQ__ || {}); g.__betaRefreshPending = true; }catch{}
+        // On close of Settings, navigate directly to /beta for immediate, clean gating
+        g.__betaPendingRedirect = '/beta';
+        g.__betaRefreshPending = false;
       }else{
         clearCookieFlag('beta');
-        try{ const g = (window.__EZQ__ = window.__EZQ__ || {}); g.__betaRefreshPending = false; }catch{}
+        // No auto-redirect on disable; leave page as-is
+        g.__betaPendingRedirect = null;
+        g.__betaRefreshPending = false;
       }
     }catch{}
   });
