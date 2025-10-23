@@ -134,13 +134,14 @@ function init(){
         await Promise.all(regs.map(r => r.unregister().catch(() => {})));
       }
     } catch {}
-    // After async cleanup completes, perform a cache-busting navigation to avoid BFCache/stale state
+    // After async cleanup completes, navigate cleanly to canonical route
+    // Prefer /beta when the cookie flag is present, otherwise root.
     try {
-      const url = new URL(window.location.href);
-      url.searchParams.set('reset', String(Date.now()));
-      window.location.replace(url.toString());
+      const target = (typeof hasCookieFlag === 'function' && hasCookieFlag('beta')) ? '/beta' : '/';
+      window.location.replace(target);
     } catch {
-      try { window.location.reload(true); } catch { window.location.reload(); }
+      try { window.location.href = (typeof hasCookieFlag === 'function' && hasCookieFlag('beta')) ? '/beta' : '/'; }
+      catch { try { window.location.reload(true); } catch { window.location.reload(); } }
     }
   }
 
