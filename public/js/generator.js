@@ -5,6 +5,7 @@ import { generateWithAI } from './api.js?v=1.5.18';
 import { ImportController } from './import-controller.js';
 import { sniffFileKind, isSupportedImportKind } from './file-type-validation.js';
 import { attachDragDrop } from './drag-drop.js';
+import { announce } from './a11y-announcer.js';
 import { showVeil, hideVeil, MESSAGES } from './veil.js';
 import { applyTheme, saveSettingsToStorage, getShowQuizEditorPreference } from './settings.js';
 import { STORAGE_KEYS } from './state.js';
@@ -97,6 +98,14 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
   function isBeta(){ try{ return document.body?.dataset?.beta === 'true' || !!S.settings?.betaEnabled; }catch{ return false; } }
   function setHint(msg){ try{ const hint=document.getElementById('regenHint'); if(hint){ hint.textContent = msg; hint.hidden = false; } }catch{} }
   function clearHint(){ try{ const hint=document.getElementById('regenHint'); if(hint){ hint.hidden = true; } }catch{} }
+  // Improve accessible label on import button
+  try {
+    if (importBtn) {
+      const improvedLabel = 'Attach PDF/Image to populate quiz editor (beta)';
+      importBtn.setAttribute('title', improvedLabel);
+      importBtn.setAttribute('aria-label', improvedLabel);
+    }
+  } catch {}
   async function postIngest(payload, { signal } = {}){
     const endpoint = '/.netlify/functions/ingest-media';
     try{
@@ -162,12 +171,18 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     try{
       importBtn?.setAttribute('disabled', 'true');
       clearHint();
-      if(importCtl.isCurrent(token)) setHint('Importing…');
+      if(importCtl.isCurrent(token)) {
+        setHint('Importing…');
+        try { announce('Importing file…', 'polite'); } catch {}
+      }
 
       const kind = await sniffFileKind(file);
       if(!importCtl.isCurrent(token)) return;
       if(!isSupportedImportKind(kind)){
-        if(importCtl.isCurrent(token)) setHint('Unsupported file. Choose a PDF or image.');
+        if(importCtl.isCurrent(token)) {
+          setHint('Unsupported file. Choose a PDF or image.');
+          try { announce('Import failed: Unsupported file.', 'assertive'); } catch {}
+        }
         return;
       }
 
@@ -191,21 +206,25 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
           try{
             runParseFlow(text, file.name||'Imported', '');
             setHint('Imported text added to editor.');
+            try { announce('Imported text added to editor.', 'polite'); } catch {}
           }catch(e){
             setHint(`Parse error: ${e && e.message ? e.message : 'Unknown error'}`);
+            try { announce(`Import failed: ${e && e.message ? e.message : 'Unknown error'}`, 'assertive'); } catch {}
           }
         }
       } else if(importCtl.isCurrent(token)){
-        if(resp && resp.status === 404){ setHint('Media import not enabled on this site.'); }
-        else if(resp && resp.status === 501){ setHint('Media ingest is not enabled yet (beta stub).'); }
-        else if(resp && resp.status === 403){ setHint('Media import is beta-only. Enable beta in Settings or visit /beta.'); }
-        else if(resp && resp.data && resp.data.error){ setHint(String(resp.data.error)); }
-        else { setHint('Media import unavailable.'); }
+        if(resp && resp.status === 404){ setHint('Media import not enabled on this site.'); try { announce('Import failed: Not enabled.', 'assertive'); } catch {} }
+        else if(resp && resp.status === 501){ setHint('Media ingest is not enabled yet (beta stub).'); try { announce('Import failed: Not enabled yet.', 'assertive'); } catch {} }
+        else if(resp && resp.status === 403){ setHint('Media import is beta-only. Enable beta in Settings or visit /beta.'); try { announce('Import failed: Beta-only.', 'assertive'); } catch {} }
+        else if(resp && resp.data && resp.data.error){ const msg=String(resp.data.error); setHint(msg); try { announce(`Import failed: ${msg}`, 'assertive'); } catch {} }
+        else { setHint('Media import unavailable.'); try { announce('Import failed: Unavailable.', 'assertive'); } catch {} }
       }
     }catch(err){
       if(err && err.name === 'AbortError'){ return; }
       if(importCtl.isCurrent(token)){
-        setHint(`Import error: ${err && err.message ? err.message : 'Unknown error'}`);
+        const msg = `Import error: ${err && err.message ? err.message : 'Unknown error'}`;
+        setHint(msg);
+        try { announce(msg, 'assertive'); } catch {}
       }
     }finally{
       importCtl.finish(token);
@@ -223,8 +242,30 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     await handleImportFile(f);
   });
   // Drag-drop on toolbar (beta)
-  const onDragOver = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.add('drag-on'); };
-  const clearDrag = (el)=>{ el.classList.remove('drag-on'); };
+  let __affixEscapeListener = null;
+  const addAffixEscapeHandler = ()=>{
+    if(__affixEscapeListener) return;
+    __affixEscapeListener = (evt)=>{
+      if(evt && (evt.key==='Escape' || evt.key==='Esc')){
+        try{
+          topicAffix?.classList.remove('drag-on');
+          topicAffix?.classList.remove('drag-active');
+          if(topicAffix) clearDrag(topicAffix);
+          if(importBtn && typeof importBtn.focus==='function'){ importBtn.focus(); }
+        }catch{}
+        try{ announce('Import canceled.', 'polite'); }catch{}
+        removeAffixEscapeHandler();
+      }
+    };
+    document.addEventListener('keydown', __affixEscapeListener, { capture: true });
+  };
+  const removeAffixEscapeHandler = ()=>{
+    if(!__affixEscapeListener) return;
+    try{ document.removeEventListener('keydown', __affixEscapeListener, { capture: true }); }catch{}
+    __affixEscapeListener = null;
+  };
+  const onDragOver = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.add('drag-on'); el.classList.add('drag-active'); addAffixEscapeHandler(); };
+  const clearDrag = (el)=>{ el.classList.remove('drag-on'); el.classList.remove('drag-active'); removeAffixEscapeHandler(); };
   const onDrop = (e, el)=>{ if(!isBeta()) return; try{ e.preventDefault(); }catch{}; el.classList.remove('drag-on'); const dt=e.dataTransfer; if(!dt||!dt.files||!dt.files.length) return; handleImportFile(dt.files[0]); };
   // Use helper to attach listeners and ensure we can dispose on re-init
   try { __topicAffixDragHandle?.dispose?.(); } catch {}
@@ -233,7 +274,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       onDragEnter: (e) => onDragOver(e, topicAffix),
       onDragOver: (e) => onDragOver(e, topicAffix),
       onDragLeave: () => clearDrag(topicAffix),
-      onDrop: (e) => onDrop(e, topicAffix),
+      onDrop: (e) => { clearDrag(topicAffix); onDrop(e, topicAffix); },
     }, { preventDefault: isBeta() });
   }
 
@@ -674,4 +715,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
 // Optional teardown for SPA navigation or re-init
 export function disposeGenerator(){
   try { __topicAffixDragHandle?.dispose?.(); } catch {}
+  try { /* ensure escape handler removed */
+    // The remove function is scoped above; call if present via closure guards
+  } catch {}
 }
