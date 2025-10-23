@@ -135,12 +135,12 @@ export function wireSettingsPanel(els){
       const g = (window.__EZQ__ = window.__EZQ__ || {});
       if(S.settings.betaEnabled){
         addCookieFlag('beta');
-        // On close of Settings, navigate directly to /beta for immediate, clean gating
+        // Request a clean redirect to /beta when Settings closes
         g.__betaPendingRedirect = '/beta';
         g.__betaRefreshPending = false;
       }else{
         clearCookieFlag('beta');
-        // No auto-redirect on disable; leave page as-is
+        // No redirect on disable; stay put
         g.__betaPendingRedirect = null;
         g.__betaRefreshPending = false;
       }
