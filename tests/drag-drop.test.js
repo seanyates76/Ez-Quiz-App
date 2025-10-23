@@ -53,5 +53,47 @@ describe('attachDragDrop', () => {
 
     handle2.dispose();
   });
-});
 
+  test('preventDefault is on by default', () => {
+    const over = jest.fn();
+    attachDragDrop(elem, { onDragOver: over });
+    const evt = new Event('dragover', { bubbles: true, cancelable: true });
+    elem.dispatchEvent(evt);
+    expect(over).toHaveBeenCalledTimes(1);
+    expect(evt.defaultPrevented).toBe(true);
+  });
+
+  test('preventDefault can be disabled', () => {
+    const over = jest.fn();
+    attachDragDrop(elem, { onDragOver: over }, { preventDefault: false });
+    const evt = new Event('dragover', { bubbles: true, cancelable: true });
+    elem.dispatchEvent(evt);
+    expect(over).toHaveBeenCalledTimes(1);
+    expect(evt.defaultPrevented).toBe(false);
+  });
+
+  test('controller.abort tears down listeners', () => {
+    const drop = jest.fn();
+    const handle = attachDragDrop(elem, { onDrop: drop });
+    elem.dispatchEvent(new Event('drop', { bubbles: true }));
+    expect(drop).toHaveBeenCalledTimes(1);
+    // Abort and ensure handler no longer fires
+    handle.controller.abort();
+    elem.dispatchEvent(new Event('drop', { bubbles: true }));
+    expect(drop).toHaveBeenCalledTimes(1);
+  });
+
+  test('dispose is idempotent', () => {
+    const enter = jest.fn();
+    const handle = attachDragDrop(elem, { onDragEnter: enter });
+    handle.dispose();
+    expect(() => handle.dispose()).not.toThrow();
+    elem.dispatchEvent(new Event('dragenter', { bubbles: true }));
+    expect(enter).toHaveBeenCalledTimes(0);
+  });
+
+  test('throws on invalid element', () => {
+    expect(() => attachDragDrop(null)).toThrow(/DOM node/i);
+    expect(() => attachDragDrop({})).toThrow();
+  });
+});
