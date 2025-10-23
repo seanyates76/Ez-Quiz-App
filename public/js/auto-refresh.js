@@ -18,9 +18,8 @@
         headers: { 'Accept': 'text/html' },
       });
       if(!res.ok) return;
-      const tag = res.headers.get('etag')
-        || res.headers.get('last-modified')
-        || res.headers.get('x-nf-request-id');
+      // Only use stable validators; avoid per-request IDs that cause loops
+      const tag = res.headers.get('etag') || res.headers.get('last-modified');
       if(currentTag && tag && tag !== currentTag){
         // Only reload automatically while on main menu (idle)
         const mode = (window.EZQ && window.EZQ.mode) || 'idle';
@@ -31,7 +30,7 @@
         // Otherwise, mark update to apply when returning to main menu
         try{ localStorage.setItem('ezq.update.ready','1'); }catch{}
       }
-      currentTag = tag;
+      if(tag) currentTag = tag;
     }catch{ /* silently ignore */ }
   }
 
