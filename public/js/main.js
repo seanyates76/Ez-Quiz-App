@@ -44,9 +44,9 @@ function init(){
   // Force-sync settings flag with computed beta state to avoid transient mismatch
   try { S.settings.betaEnabled = !!betaActive; } catch {}
 
-  // Check for beta auto-redirect when preference is set but cookie missing
-  if (S.settings.betaEnabled && !betaCookieActive && window.location.pathname === '/' && !window.location.search.includes('no-beta-redirect')) {
-    window.location.href = '/beta';
+  // Check for beta auto-redirect when landing on root: if beta is active (cookie or local flag), go to /beta
+  if ((betaActive || S.settings.betaEnabled) && window.location.pathname === '/' && !window.location.search.includes('no-beta-redirect')) {
+    try { window.location.replace('/beta'); } catch { window.location.href = '/beta'; }
     return;
   }
 
