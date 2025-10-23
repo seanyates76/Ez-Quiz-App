@@ -234,7 +234,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
       onDragOver: (e) => onDragOver(e, topicAffix),
       onDragLeave: () => clearDrag(topicAffix),
       onDrop: (e) => onDrop(e, topicAffix),
-    }, { preventDefault: true });
+    }, { preventDefault: isBeta() });
   }
 
   function updateMirrorText(raw){
