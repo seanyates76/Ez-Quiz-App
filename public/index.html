@@ -7,20 +7,9 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="styles.css?v=1.5.18" />
+  <script src="js/boot-beta.js?v=1.5.18"></script>
 </head>
 <body data-theme="dark">
-  <script>
-    // Apply beta gating ASAP based on cookie to avoid UI mismatches before JS init
-    (function(){
-      try{
-        var m = document.cookie.match(/(?:^|;\s*)FEATURE_FLAGS=([^;]+)/);
-        if(!m) return;
-        var flags = decodeURIComponent(m[1]||'');
-        var list = flags.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-        if(list.indexOf('beta') !== -1){ document.body.setAttribute('data-beta',''); }
-      }catch{}
-    })();
-  </script>
   <header class="site-header" role="banner">
     <div class="site-header__row">
       <div class="brand">

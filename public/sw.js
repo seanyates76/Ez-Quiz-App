@@ -18,6 +18,7 @@ const RELATIVE_URLS = [
   'js/api.js?v=1.5.18',
   'js/settings.js',
   'js/modals.js',
+  'js/boot-beta.js?v=1.5.18',
   'js/generator.js?v=1.5.18',
   'js/quiz.js',
   'js/beta.mjs',
