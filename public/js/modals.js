@@ -48,6 +48,17 @@ export function wireModals({ onPause, onResume }){
       if(modalId === 'settingsModal'){
         try{
           const g = (window.__EZQ__ = window.__EZQ__ || {});
+          const pendingTarget = g.__betaPendingRedirect;
+          if(pendingTarget){
+            g.__betaPendingRedirect = null;
+            g.__betaRefreshPending = false;
+            if(onResume) onResume();
+            setTimeout(()=>{
+              try{ window.location.replace(pendingTarget); }
+              catch{ window.location.href = pendingTarget; }
+            }, 60);
+            return;
+          }
           if(g.__betaRefreshPending){ g.__betaRefreshPending = false; if(onResume) onResume(); setTimeout(()=>{ try{ window.location.reload(true); }catch{ window.location.reload(); } }, 60); return; }
         }catch{}
       }
