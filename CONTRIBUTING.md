@@ -1,45 +1,93 @@
-Contributing to EZ Quiz Web
-===========================
+# Contributing to EZ-Quiz
 
-Thanks for your interest in contributing! This project is a lightweight, offline‑first PWA with no build step. Small, focused PRs are welcome.
+Thanks for taking the time to contribute!  
+EZ-Quiz is an open-source learning platform built to make self-directed study simple, accessible, and fun.  
+We welcome code, documentation, accessibility, and design contributions from anyone aligned with those goals.
 
-How to contribute
-- File an issue for bugs or small feature requests (use templates).
-- Fork and open a pull request describing the change and rationale.
-- Keep changes minimal and consistent with existing style; avoid adding dependencies.
+---
 
-Local setup
-- No build required. Open `public/index.html`, or serve `public/` via `python3 -m http.server` to enable service worker features.
+## 🧩 Project Overview
 
-Coding guidelines
-- JS: native ES modules in `public/js`, no frameworks or bundlers.
-- CSS: single `public/styles.css`, prefer variables and simple rules.
-- Accessibility: preserve visible focus, ARIA labels/roles, keyboard navigation.
-- Security: do not inject user content with `innerHTML`.
+**Repository:** [Ez-Quiz-App](https://github.com/seanyates76/Ez-Quiz-App)  
+**License:** MIT  
+**Live App:** [https://ez-quiz.app](https://ez-quiz.app)
 
-Interactive Editor (beta)
-- Feature flag: toggled via checkbox in the Quiz Editor panel; persist with localStorage only.
-- State: keep GUI state under `window.__EZQ__.ie` and keep it in sync with the raw Editor/Mirror.
-- Scope: MC/TF/YN only. MT may be added later.
-- A11y: form fields must be keyboard‑reachable; validation should not rely on color alone.
+The app runs entirely in vanilla JavaScript and is deployed through Netlify.  
+Structure overview:
+- /public/index.html → core UI layout  
+- /public/styles.css → global tokens, theme, and component styling  
+- /public/app.js → main logic and quiz state system (window.__EZQ__)  
+- /netlify/functions/ → serverless quiz generator & feedback endpoints  
 
-Versioning & releases
-- Update the footer version in `public/index.html`, `package.json` version, and add a `CHANGELOG.md` entry.
-- For UI changes, bump service worker cache and asset query strings to avoid stale clients:
-  - `public/sw.js`: bump `CACHE_NAME` and align `RELATIVE_URLS` entries to the new query tokens.
-  - `public/index.html`: bump `?v=` tokens for `styles.css` and module script tags.
-  - `public/js/*`: update query tokens in module imports (e.g., `main.js` → generator import; `generator.js` → api import; `editor.gui.js` → generator import).
+---
 
-Tests
-- This repo doesn’t have automated tests; manual verification is expected. The CI checks version consistency across files.
+## 🚀 How to Contribute
 
-Local Netlify metadata
-- The `.netlify/` folder is created by Netlify CLI (`netlify dev`) and is ignored by Git. It can include a `state.json` with a local `siteId` and a coarse, IP‑based geolocation snapshot used only to emulate `context.geo` in local development.
-- This data is not part of the app, is never bundled or deployed, and should not be committed.
-- If your tools still surface `.netlify/` changes, you can add a local exclude without touching the repo:
-  - `echo .netlify >> .git/info/exclude`
-- If `.netlify/` was accidentally committed in a fork, remove it from version control and recommit:
-  - `git rm -r --cached .netlify && git commit -m "Remove .netlify from repo"`
+### 1. Fork & Branch
+Create a feature branch from main using a clear name:  
+feature/improve-parser
 
-Code of Conduct
-- Be respectful and collaborative. See `CODE_OF_CONDUCT.md`.
+### 2. Scope Clearly
+Keep PRs small and focused:
+- HTML-only: Add or adjust DOM hooks, avoid style or logic edits.  
+- CSS-only: Adjust spacing, borders, or themes.  
+- JS-only: Update logic or state handling via window.__EZQ__.  
+
+If you’re touching multiple layers (HTML/CSS/JS), split it into multiple PRs unless trivial.
+
+### 3. Follow the House Rules
+- Vanilla JS only — no frameworks or build tools.  
+- Escape dynamic content with escapeHTML().  
+- Use hidden and .is-open for visibility toggling.  
+- Keep accessibility intact (focus outlines, tab navigation).  
+- Never introduce console errors.  
+
+### 4. Testing
+Before committing:
+1. Load the app locally or via Netlify Preview.  
+2. Generate a quiz (topic: “test”, 5 questions).  
+3. Run through keyboard navigation only.  
+4. Confirm #generatedMirror output works and no UI regressions occur.
+
+### 5. Commit & PR
+Use short, conventional messages:  
+feat(ui): refine results summary layout  
+fix(parser): handle empty question lines gracefully
+
+Each PR should include:
+- Summary of what changed and why.  
+- Files touched and scope (HTML/CSS/JS).  
+- Manual test steps.  
+- Screenshot or Deploy Preview link if applicable.  
+
+---
+
+## ✅ Acceptance Checklist
+
+Before your PR is reviewed:
+- [ ] No console errors or linter warnings  
+- [ ] Keyboard navigation works  
+- [ ] Layouts respect theme tokens  
+- [ ] Components have visible focus states  
+- [ ] window.__EZQ__ state remains stable  
+
+---
+
+## 💬 Communication
+
+- Open issues for bugs, suggestions, or discussions.  
+- Tag maintainers if feedback is blocking (@seanyates76).  
+- Abide by our Code of Conduct (./CODE_OF_CONDUCT.md).  
+- Respect Netlify preview build time — use one preview per branch.
+
+---
+
+## ❤️ Recognition
+
+Every contributor is listed in the GitHub Insights graph and release changelog.  
+Your contributions help make open learning better for everyone.
+
+---
+
+**Maintainer:** [Sean Yates](https://github.com/seanyates76)  
+For direct contact or moderation issues: ez.quizapp@gmail.com
