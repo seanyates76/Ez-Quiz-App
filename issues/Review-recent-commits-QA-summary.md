@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | HTML | ✅ Pass | Cache-buster refresh kept IDs/hooks intact. Help/Settings/Results anchors unchanged. |
 | CSS | ✅ Pass | No new CSS in this window; existing tokens unaffected. |
-| JS | ⚠️ Fail (Addressed) | PR #67 logic routes through existing modules; drag/drop helper disposes cleanly; beta redirects (`public/js/main.js`) work. However commit `18abc85` cleared the Settings-modal redirect hook, so enabling Beta no longer navigates to `/beta`. Fix provided in this PR by restoring the pending redirect handler (`public/js/modals.js`). |
+| JS | ⚠️ Fail (Addressed) | PR #67 logic routes through existing modules; drag/drop helper disposes cleanly; beta redirects (`public/js/main.js`) work. However commit `18abc85` cleared the Settings-modal redirect hook, so enabling Beta no longer navigates to `/beta`. Fix provided in this PR by restoring the pending redirect handler (`public/js/modals.js`) and covering backdrop dismissals. |
 | Netlify | ✅ Pass | `netlify/edge-functions/beta.ts` now uses `context.next()`; headers preserved. |
 
 ## Testing / Verification

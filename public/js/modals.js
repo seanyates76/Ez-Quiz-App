@@ -13,6 +13,33 @@ export function openModal(id){
 }
 export function closeModal(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('is-open'); el.setAttribute('aria-hidden','true'); }
 
+function handleSettingsClosed(onResume){
+  try{
+    const g = (window.__EZQ__ = window.__EZQ__ || {});
+    const pendingTarget = g.__betaPendingRedirect;
+    if(pendingTarget){
+      g.__betaPendingRedirect = null;
+      g.__betaRefreshPending = false;
+      if(onResume) onResume();
+      setTimeout(()=>{
+        try{ window.location.replace(pendingTarget); }
+        catch{ window.location.href = pendingTarget; }
+      }, 60);
+      return true;
+    }
+    if(g.__betaRefreshPending){
+      g.__betaRefreshPending = false;
+      if(onResume) onResume();
+      setTimeout(()=>{
+        try{ window.location.reload(true); }
+        catch{ window.location.reload(); }
+      }, 60);
+      return true;
+    }
+  }catch{}
+  return false;
+}
+
 export function wireModals({ onPause, onResume }){
   const map = {
     helpBtn:'helpModal',
@@ -44,28 +71,21 @@ export function wireModals({ onPause, onResume }){
     const btn=document.getElementById(btnId);
     btn?.addEventListener('click', ()=>{
       closeModal(modalId);
-      // If Settings was closed and a beta refresh is pending, reload softly
-      if(modalId === 'settingsModal'){
-        try{
-          const g = (window.__EZQ__ = window.__EZQ__ || {});
-          const pendingTarget = g.__betaPendingRedirect;
-          if(pendingTarget){
-            g.__betaPendingRedirect = null;
-            g.__betaRefreshPending = false;
-            if(onResume) onResume();
-            setTimeout(()=>{
-              try{ window.location.replace(pendingTarget); }
-              catch{ window.location.href = pendingTarget; }
-            }, 60);
-            return;
-          }
-          if(g.__betaRefreshPending){ g.__betaRefreshPending = false; if(onResume) onResume(); setTimeout(()=>{ try{ window.location.reload(true); }catch{ window.location.reload(); } }, 60); return; }
-        }catch{}
-      }
+      if(modalId === 'settingsModal' && handleSettingsClosed(onResume)) return;
       if(onResume) onResume();
     });
   });
-  document.addEventListener('click', (e)=>{ const t=e.target; if(t && t.matches('.modal__backdrop')){ const id=t.getAttribute('data-close'); if(id){ closeModal(id); if(onResume) onResume(); } } });
+  document.addEventListener('click', (e)=>{
+    const t=e.target;
+    if(t && t.matches('.modal__backdrop')){
+      const id=t.getAttribute('data-close');
+      if(id){
+        closeModal(id);
+        if(id==='settingsModal' && handleSettingsClosed(onResume)) return;
+        if(onResume) onResume();
+      }
+    }
+  });
 
   // Help accordion: only one open at a time
   const helpModal = document.getElementById('helpModal');
