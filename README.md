@@ -52,3 +52,7 @@ Report vulnerabilities via [SECURITY](SECURITY.md).
 
 ## License
 [MIT](LICENSE)
+
+Contact
+-------
+Questions or feedback? Open an issue or email ez.quizapp@gmail.com.
