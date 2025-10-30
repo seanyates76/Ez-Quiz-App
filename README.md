@@ -56,3 +56,42 @@ Report vulnerabilities via [SECURITY](SECURITY.md).
 Contact
 -------
 Questions or feedback? Open an issue or email ez.quizapp@gmail.com.
+
+Highlights
+----------
+- Instant quizzes from a topic or pasted notes (MC, TF, YN, MT)
+- Clean, responsive UI with an interactive editor + live mirror
+- Results you can trust: color‑coded answers; retake full or missed only
+- Installable PWA with offline shell and cache‑safe updates
+- Privacy‑first: no tracking; AI calls only when you opt in
+- Accessible: semantics, focus rings, keyboard flows
+
+Tech Stack
+----------
+- Front end: HTML/CSS/vanilla JS (ES modules), PWA service worker
+- Back end: Netlify Functions (Node, esbuild)
+- Tests: Jest + jsdom; UI sweeps via Puppeteer
+
+Security & Quality
+------------------
+- CodeQL static analysis on PRs and main
+- OpenSSF Scorecard scheduled scans
+- Dependabot for GitHub Actions
+
+Quick Start (Local)
+-------------------
+- Static preview: `cd public && python3 -m http.server 8000`
+- Full stack: `netlify dev` (set `AI_PROVIDER=echo` for offline)
+- Tests: `npm i && npm test`; UI: `npm run ui:check`
+
+Contributing & Policies
+-----------------------
+- See `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`
+- Conventional Commits encouraged; commit lint checks on PRs
+- License: MIT (`LICENSE`)
+
+Roadmap
+-------
+- Media input (PDF/image) with resilient fallbacks
+- Answer explanations UX (accessible, non‑blocking)
+- Additional UI regression checks for toolbar/results
