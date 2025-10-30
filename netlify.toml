@@ -1,0 +1,88 @@
+[build]
+  publish = "public"
+  # Skip builds if no meaningful runtime paths changed:
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- public/ src/ netlify/functions/ package*.json netlify.toml"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["@google/generative-ai", "nodemailer"]
+
+# Edge Functions
+[[edge_functions]]
+  function = "beta"
+  path = "/beta"
+
+# ---------- Environments ----------
+# Production (main)
+[context.production]
+  environment = { EZQ_ENV = "production" }
+
+# Staging / second production (beta)
+[context."branch:beta"]
+  environment = { EZQ_ENV = "staging", FEATURE_FLAGS = "true" }
+
+# MCP implementation branch
+[context."branch:mcp-implementation"]
+  environment = { QUIZ_RESPONSE = "v2", FEATURE_FLAGS = "true" }
+
+# ---------- Security Headers ----------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    # Keep CSP minimal; update if adding external origins.
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.buymeacoffee.com; font-src 'self' data:; connect-src 'self' https://ez-quiz.netlify.app https://eq-quiz.netlify.app https://ezquiz.dev https://cdn.buymeacoffee.com https://app.netlify.com; frame-src 'self' https://app.netlify.com;"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/styles.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ---------- Redirects / Functions ----------
+[[redirects]]
+  from = "/api/generate"
+  to = "/.netlify/functions/generate-quiz"
+  status = 200
+
+[[redirects]]
+  from = "/api/health"
+  to = "/.netlify/functions/health"
+  status = 200
+
+# Optional: expose a tidy API path for MCP (keeps UI code simple)
+[[redirects]]
+  from = "/api/mcp"
+  to = "/.netlify/functions/mcp"
+  status = 200
+  force = true
+
+# SPA fallback. Note: Edge Functions run before redirects,
+# so /beta is handled by the edge function and won't be swallowed by this.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

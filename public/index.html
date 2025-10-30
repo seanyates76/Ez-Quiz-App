@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EZ Quiz</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css?v=1.5.19" />
+  <link rel="stylesheet" href="/styles.tokens.css">
+  <link rel="stylesheet" href="/styles.backdrop.css">
+  <script src="js/boot-beta.js?v=1.5.19"></script>
+</head>
+<body data-theme="dark">
+  <header class="site-header" role="banner">
+    <div class="site-header__row">
+      <div class="brand">
+        <a href="/" class="brand-link" aria-label="EZ Quiz Home">
+          <!-- Use a transparent placeholder at start; JS sets the theme-specific logo -->
+          <img id="brandTitle"
+               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+               alt="EZ Quiz"
+               class="brand-logo"
+               data-dark="icons/brand-title-source.png"
+               data-light="icons/brand-title-source-light.png" />
+        </a>
+      </div>
+      <nav class="header-actions" aria-label="Utility">
+        <button id="helpBtn" class="icon-btn" title="Help" aria-haspopup="dialog" aria-controls="helpModal">?</button>
+        <button id="settingsBtn" class="icon-btn" title="Settings" aria-haspopup="dialog" aria-controls="settingsModal">⚙</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" id="app" role="main">
+    <!-- Generator Card -->
+    <section id="generatorCard" class="card">
+      <div id="updateBanner" class="update-banner hidden" hidden role="status" aria-live="polite">
+        <span>Update available. Refresh to apply.</span>
+        <span class="flex-spacer"></span>
+        <button id="updateRefreshBtn" class="btn primary" type="button">Refresh</button>
+      </div>
+
+      <!-- Top toolbar (simple generate form) -->
+      <div class="gen-toolbar" role="group" aria-label="Generate toolbar">
+        <div class="toolbar-left">
+        <label class="toolbar-field">
+          <span class="toolbar-label">Topic</span>
+          <div class="input-affix topic-affix">
+            <input id="topicInput" type="text" class="toolbar-input has-affix" placeholder="e.g. Animals" />
+            <button id="importBtn" class="affix-btn beta-only" type="button" title="Attach PDF/Image (beta)" aria-label="Attach PDF or Image (beta)">
+              <svg class="icon-clip icon-clip--beta" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                <!-- Material Symbols Rounded “attach_file” icon (beta only) -->
+                <path fill="currentColor" d="M16.5 6.75v10.58c0 2.09-1.53 3.95-3.61 4.15-2.39.23-4.39-1.64-4.39-3.98V5.14c0-1.31.94-2.5 2.24-2.63 1.5-.15 2.76 1.02 2.76 2.49v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6.75c0-.41-.34-.75-.75-.75s-.75.34-.75.75v8.61c0 1.31.94 2.5 2.24 2.63 1.5.15 2.76-1.02 2.76-2.49V5.17c0-2.09-1.53-3.95-3.61-4.15C9.01.79 7 2.66 7 5v12.27c0 2.87 2.1 5.44 4.96 5.71 3.29.3 6.04-2.26 6.04-5.48V6.75c0-.41-.34-.75-.75-.75s-.75.34-.75.75z"/>
+              </svg>
+            </button>
+            <input id="importFile" type="file" accept="application/pdf,image/*" style="display:none" />
+          </div>
+        </label>
+        <label class="toolbar-field toolbar-field--difficulty">
+          <span class="toolbar-label">Difficulty</span>
+          <div class="difficulty-stack">
+            <div class="difficulty-slider">
+              <div class="difficulty-track" aria-hidden="true">
+                <span class="difficulty-dot"></span>
+                <span class="difficulty-dot"></span>
+                <span class="difficulty-dot"></span>
+              </div>
+              <input id="difficultySlider" type="range" min="0" max="4" step="1" value="2" aria-valuetext="Medium" />
+            </div>
+          </div>
+        </label>
+        <label class="toolbar-field narrow number-field">
+          <span class="toolbar-label">Length</span>
+          <div class="number-wrap">
+            <input id="countInput" type="number" class="toolbar-input" min="1" step="1" value="10" />
+            <div class="stepper-group" role="group" aria-label="Adjust length">
+              <button type="button" class="stepper stepper-up" data-step="up" aria-label="Increase length">▲</button>
+              <button type="button" class="stepper stepper-down" data-step="down" aria-label="Decrease length">▼</button>
+            </div>
+          </div>
+        </label>
+        </div>
+        <div class="action-stack">
+          <button id="generateBtn" class="btn primary" type="button" aria-label="Primary action">Start</button>
+          <button id="optionsBtn" class="btn btn-outline" aria-haspopup="true" aria-expanded="false" aria-controls="optionsPanel">Options ▾</button>
+        </div>
+    </div>
+
+      <!-- Subtle hint when inputs change after generation -->
+      <div id="regenHint" class="regen-hint" role="status" aria-live="polite" hidden>
+        Updated inputs — press Regenerate
+      </div>
+
+      <!-- Options Drop-Down (includes Quiz Editor tools) -->
+      <div id="optionsPanel" class="options-panel" role="region" aria-label="Options" hidden>
+        <div class="options-regular">
+          <div class="row gap wrap">
+            <label class="opt-switch"><input type="checkbox" id="optTimerEnabled" /> <span>Timer</span></label>
+            <label class="opt-switch"><input type="checkbox" id="optCountdownMode" /> <span>Countdown</span></label>
+            <label class="inline small-field">Duration (mm:ss)
+              <input type="text" id="optTimerDuration" inputmode="numeric" placeholder="05:00" />
+            </label>
+          </div>
+          <div class="row gap wrap qt-row" style="margin-top:8px">
+            <span class="lbl">Question Types</span>
+            <label><input type="checkbox" id="qtMC" checked /> <span>Multiple Choice</span></label>
+            <label><input type="checkbox" id="qtTF" checked /> <span>True/False</span></label>
+            <label><input type="checkbox" id="qtYN" checked /> <span>Yes/No</span></label>
+            <label><input type="checkbox" id="qtMT" checked /> <span>Matching</span></label>
+          </div>
+          <div class="row gap" style="margin-top:8px">
+            <button id="saveDefaultsBtn" class="btn" type="button">Save defaults</button>
+            <button id="resetDefaultsBtn" class="btn btn-ghost" type="button">Reset defaults</button>
+            <span class="muted small">Settings auto‑save as you change them.</span>
+            <div id="defaultsStatus" class="sr-only" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="divider" role="separator" aria-orientation="horizontal"></div>
+        <div class="advanced-disclosure" role="button" tabindex="0" aria-expanded="false" aria-controls="advancedBlock">
+          <span>Quiz Editor</span>
+          <span class="caret" aria-hidden="true">▼</span>
+        </div>
+        <div id="advancedBlock" class="advanced-body" hidden>
+          <div class="adv-head">
+            <div class="adv-mode-toggle" role="group" aria-label="Quiz editor mode">
+              <button type="button" class="adv-mode-btn is-active" data-editor-mode="interactive" aria-pressed="true">Interactive</button>
+              <button type="button" class="adv-mode-btn" data-editor-mode="manual" aria-pressed="false">Manual</button>
+              <input id="toggleInteractiveEditor" data-role="quiz-editor-toggle" type="checkbox" class="sr-only" aria-hidden="true" checked />
+            </div>
+            <div class="adv-title-right">
+              <div class="spacer"></div>
+              <label class="opt-switch small mirror-toggle">
+                <input type="checkbox" id="mirrorToggle" />
+                <span class="mirror-toggle-label">Debug / Mirror</span>
+              </label>
+            </div>
+          </div>
+          <div id="interactiveEditor" aria-live="polite"></div>
+          <div class="adv-panels" data-editor-panels>
+            <div class="adv-left" data-editor-panel="manual" hidden>
+              <textarea id="editor" class="editor" rows="12" placeholder="MC|Question?|A) 1;B) 2|A&#10;TF|Statement.|T&#10;YN|Question?|Y&#10;MT|Match.|1) L1;2) L2|A) R1;B) R2|1-A,2-B"></textarea>
+            </div>
+            <div class="adv-right">
+              <div id="mirrorBox" class="mirror-box" data-on="false" data-empty="true">
+                <textarea id="mirror" class="mirror" rows="12" readonly aria-label="Generated quiz lines (read-only)" data-empty="true"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="adv-actions">
+            <div class="row gap adv-row">
+              <div class="adv-group files">
+                <button id="loadBtn" class="btn">Load .txt</button>
+                <input id="fileInput" type="file" accept=".txt" style="display:none" />
+                <button id="loadLastBtn" class="btn">Load last quiz</button>
+                <button id="demoBtn" class="btn">Use Demo Set</button>
+              </div>
+              <div class="adv-group run">
+                <button id="clearBtn" class="btn btn-ghost">Clear</button>
+                <button id="startBtn" class="btn" aria-describedby="startHelp" disabled>Start</button>
+              </div>
+            </div>
+            <div class="advanced-actions">
+              <button id="copyPromptsBtn" class="btn btn-ghost">Copy prompts</button>
+              <button id="exportTxtBtn" class="btn btn-ghost">Export .txt</button>
+            </div>
+          </div>
+          <details class="parser-ref" style="margin-top:8px">
+            <summary>Parser reference</summary>
+            <pre class="parser-block" aria-label="Example parser lines">MC|Question?|A) Opt1;B) Opt2|A
+TF|Statement.|T
+YN|Question?|Y
+MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
+          </details>
+          <div id="parseErrors" role="alert" aria-live="assertive" class="visually-hidden"></div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz View -->
+    <section id="quizView" class="card is-hidden" aria-labelledby="quizTitle">
+      <div class="quiz-title-row">
+        <h2 id="quizTitle">Quiz</h2>
+        <button id="backDuringQuiz" class="btn" type="button" title="Back to Menu">Back to Menu</button>
+      </div>
+      <div class="quiz-header-row">
+        <div id="timer" class="timer" aria-live="polite"></div>
+      </div>
+      <div id="questionHost"></div>
+      <div class="row gap quiz-nav-row">
+        <button id="prevBtn" class="btn">Previous</button>
+        <button id="nextBtn" class="btn success">Next</button>
+        <button id="finishBtn" class="btn primary">Finish</button>
+      </div>
+    </section>
+
+    <!-- Results View -->
+    <section id="resultsView" class="card is-hidden" aria-labelledby="resultsTitle">
+      <div class="results-header-row">
+        <div class="results-header-left">
+          <h2 id="resultsTitle">Results</h2>
+          <span id="resultsChip" class="chip" aria-live="polite"></span>
+        </div>
+        <div class="results-filter" role="group" aria-label="Results filter">
+          <button id="filterMissed" class="chip-btn" aria-pressed="false">Missed</button>
+          <button id="filterAll" class="chip-btn active" aria-pressed="true">All</button>
+        </div>
+      </div>
+      <div id="resultsSummary" class="results-summary"></div>
+      <div id="missedList" class="results-missed"></div>
+      <div class="row gap results-actions">
+        <button id="backToMenuBtn" class="btn">Back to Menu</button>
+        <span class="flex-spacer"></span>
+        <div id="retakeControl" class="retake-control" role="group" aria-label="Retake options">
+          <button id="retakePrimary"
+                  class="retake-primary"
+                  type="button"
+                  aria-label="Retake selected">
+            <span class="retake-label" id="retakeLabel">Retake: Missed</span>
+          </button>
+
+          <span class="retake-sep" aria-hidden="true">|</span>
+
+          <button id="retakeCaret"
+                  class="retake-caret"
+                  type="button"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  aria-label="Change retake scope">
+            ▾
+          </button>
+
+          <div id="retakeMenu"
+               class="retake-menu hidden"
+               role="menu"
+               aria-labelledby="retakeCaret">
+            <button class="retake-menu-item"
+                    id="retakeSwitch"
+                    role="menuitem"
+                    type="button">Retake All</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer: Support links -->
+  <footer class="container" role="contentinfo">
+    <nav aria-label="Footer">
+      <div class="footer-links" role="list">
+        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" role="listitem">v1.5.0-beta.12</a>
+        <span aria-hidden="true">•</span>
+        <a id="privacyLink" href="#" data-modal="privacyModal" role="listitem">Privacy</a>
+        <span aria-hidden="true">•</span>
+        <a id="termsLink" href="#" data-modal="termsModal" role="listitem">Terms</a>
+      </div>
+      <div class="support-cta" aria-label="Support">
+        <a id="bmcButton" href="https://www.buymeacoffee.com/seanyates78" target="_blank" rel="noopener noreferrer nofollow" aria-label="Buy me a coffee">
+          <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="217" height="60" />
+        </a>
+      </div>
+      <div class="footer-meta"><small class="muted">No tracking • Open source</small></div>
+    </nav>
+  </footer>
+
+  
+
+  <!-- Veil Loader -->
+  <div id="veil" class="veil" hidden aria-live="polite" aria-busy="true">
+    <div class="veil__panel">
+      <div class="spinner" aria-hidden="true"></div>
+      <div id="veilMsg" class="veil__msg">Loading…</div>
+    </div>
+  </div>
+
+
+  <!-- Help Modal (filled FAQ) -->
+  <div id="helpModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="helpModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="helpTitle">Help</h3>
+        <button id="helpClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <section>
+          <h4>Getting Started</h4>
+          <ul>
+            <li>Enter a topic in the <em>Topic</em> field, set Length and Difficulty.</li>
+            <li>Click <strong>Start</strong> to generate and begin the quiz, or open <strong>Options</strong> for more controls.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Generate vs Start</h4>
+          <ul>
+            <li><strong>Start</strong> (default): generates → parses → starts the quiz.</li>
+            <li><strong>Generate</strong> (Options → Quiz Editor open): fills the <em>Editor</em> and <em>Mirror</em> only; the quiz starts when you click <strong>Start</strong>.</li>
+            <li>Re‑using <strong>Generate</strong> clears the editor and creates a fresh set.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Options &amp; Quiz Editor</h4>
+          <ul>
+            <li>Options: Timer, Theme, Question Types, and Defaults.</li>
+            <li><strong>Quiz Editor</strong>: <strong>Editor</strong> (paste or load .txt), <strong>Mirror</strong> (raw lines), <strong>Copy prompts</strong>, <strong>Export .txt</strong>.</li>
+            <li>Supported types: Multiple Choice (single/multiple), True/False, Yes/No, Matching.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Defaults</h4>
+          <ul>
+            <li><strong>Save as default</strong> stores your Count, Difficulty, and Types for next time.</li>
+            <li>Use <strong>Reset defaults</strong> to clear saved generation defaults.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Timer &amp; Settings</h4>
+          <ul>
+            <li>Stopwatch or Countdown (mm:ss) in Settings; preferences persist locally.</li>
+            <li>Optional: Require answer to advance; Auto‑start after generate (Start mode only).</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Taking Quizzes</h4>
+          <ul>
+            <li>Navigation: Enter/Right = Next; Backspace/Left = Previous.</li>
+            <li>Answers: MC (A–D or 1–4), True/False (T/F), Yes/No (Y/N).</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Results &amp; Retakes</h4>
+          <ul>
+            <li>Results show score, time, and Missed/All (Missed first by default).</li>
+            <li>Retake missed only: use the caret next to <em>Retake</em>.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>AI Generation</h4>
+          <ul>
+            <li>Generate sends Topic, Length, Difficulty, and selected types to the AI.</li>
+            <li>If nothing returns, try again shortly (rate limits), use Demo Set, or paste lines into the editor.</li>
+          </ul>
+        </section>
+
+        <!-- Stacked accordions at bottom: What's New, FAQ, Parser Reference -->
+        <section>
+          <details class="help-accordion">
+            <summary>What's New</summary>
+            <ul>
+              <li><strong>Start vs Generate:</strong> Start runs the quiz; Generate fills Editor + Mirror.</li>
+              <li><strong>Options panel:</strong> Timer, Theme, Types, and Quiz Editor tools in one place.</li>
+              <li><strong>Quiz Editor:</strong> Editor, Mirror, Copy prompts, Export .txt.</li>
+              <li><strong>Defaults:</strong> Save Count/Difficulty/Types; Reset defaults clears them.</li>
+              <li><strong>Navigation polish:</strong> Equal-width fields on mobile; clearer focus.</li>
+            </ul>
+          </details>
+        </section>
+
+        <section>
+          <details class="help-accordion">
+            <summary>FAQ</summary>
+            <dl class="faq-list">
+              <dt><strong>Q:</strong> What’s the difference between “Start” and “Generate”?</dt>
+              <dd><strong>A:</strong> Generate fills the Editor and Mirror so you can review or edit. Start actually begins a quiz run — think Generate as “draft mode,” Start as “play mode.”</dd>
+
+              <dt><strong>Q:</strong> Why is the Mirror empty?</dt>
+              <dd><strong>A:</strong> The Mirror shows raw quiz lines (MC|, TF|, etc.). It stays blank until you Generate or paste lines into the Editor.</dd>
+
+              <dt><strong>Q:</strong> Can I edit the quiz before starting?</dt>
+              <dd><strong>A:</strong> Yes. Use the Editor to change or add your own questions. When you’re ready, click Start to run the version you’ve prepared.</dd>
+
+              <dt><strong>Q:</strong> What are the Retake options?</dt>
+              <dd><strong>A:</strong> Retake All repeats the full quiz. The caret menu lets you retake only the questions you missed, or shuffle everything for a fresh run.</dd>
+
+              <dt><strong>Q:</strong> How do I change settings like timer or theme?</dt>
+              <dd><strong>A:</strong> Open the ⚙ Settings menu. You can adjust timer length, appearance theme, and reset to defaults at any time (except while a quiz is running).</dd>
+
+              <dt><strong>Q:</strong> Where can I export or copy my quiz?</dt>
+              <dd><strong>A:</strong> In the Quiz Editor, you’ll find options to copy quiz lines for AI prompts or export them as a .txt file.</dd>
+
+              <dt><strong>Q:</strong> What happens if the app updates mid‑quiz?</dt>
+              <dd><strong>A:</strong> Nothing changes until you finish or exit. Updates only apply once you refresh or start a new quiz, so your current run is never interrupted.</dd>
+
+              <dt><strong>Q:</strong> How does feedback work?</dt>
+              <dd><strong>A:</strong> Feedback is sent securely through a server function. Messages are sanitized, rate‑limited, and delivered to the maintainer’s inbox.</dd>
+            </dl>
+          </details>
+        </section>
+
+        <section>
+          <details class="help-accordion parser-accordion">
+            <summary>Parser Reference</summary>
+            <pre class="parser-block" aria-label="Example parser lines">MC|Question?|A) Opt1;B) Opt2;C) Opt3;D) Opt4|A
+TF|Statement.|T
+YN|Question?|Y
+MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
+            <p class="muted small">Tip: For multiple answers, separate with commas (e.g., A,C).</p>
+            <p>Use the exact delimiters shown: pipes <code>|</code>, semicolons <code>;</code>, and labels like <code>A)</code> or <code>1)</code>.</p>
+          </details>
+        </section>
+
+        <div class="row" style="justify-content:flex-end; margin-top:8px">
+          <button id="helpBackToTop" class="btn btn-ghost" type="button">Back to top</button>
+        </div>
+      </div>
+      <footer class="modal__footer">
+        <button id="helpOk" class="btn">Close</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="settingsModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="settingsTitle">Settings</h3>
+        <button id="settingsClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <fieldset class="fieldgroup">
+          <legend>Timer</legend>
+          <label><input type="checkbox" id="timerEnabled" /> <span>Enable timer</span></label>
+          <label><input type="checkbox" id="countdownMode" /> <span>Countdown mode</span></label>
+          <label class="inline">
+            Duration (mm:ss)
+            <input type="text" id="timerDuration" inputmode="numeric" placeholder="05:00" />
+          </label>
+        </fieldset>
+
+        <fieldset class="fieldgroup">
+          <legend>Appearance</legend>
+          <label><input type="radio" name="theme" value="dark" checked /> <span>Dark</span></label>
+          <label><input type="radio" name="theme" value="light" /> <span>Light</span></label>
+          <label><input type="radio" name="theme" value="system" /> <span>System</span></label>
+        </fieldset>
+
+        <fieldset class="fieldgroup">
+          <legend>Quiz Editor</legend>
+          <label><input type="checkbox" id="alwaysShowQuizEditor" /> <span>Always show the Quiz Editor panel</span></label>
+        </fieldset>
+
+
+        <div class="row">
+          <button id="resetApp" class="btn danger">Reset App</button>
+        </div>
+        <fieldset class="fieldgroup">
+          <legend>Beta Features</legend>
+          <label><input type="checkbox" id="betaEnabled" /> <span>Enable beta features</span></label>
+        </fieldset>
+
+        <p class="muted small settings-version" data-version-copy>
+          Version <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" data-version-label>v3.3</a>
+          <span aria-hidden="true">·</span>
+          <span data-version-mode>Production</span> build
+        </p>
+      </div>
+      <footer class="modal__footer">
+        <button class="btn" id="settingsSave">Close</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Release Notes / What's New Modal -->
+  <div id="releaseNotesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="rnTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="releaseNotesModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="rnTitle">What's New</h3>
+        <button id="releaseNotesClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <section class="release-notes release-notes--production">
+          <h4>v3.3</h4>
+          <ul>
+            <li>Stable AI fallback loop now ships to everyone.</li>
+            <li>All recent UI polish and cache busts are part of the main app.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>v1.5.0-beta.12</h4>
+          <ul>
+            <li><strong>Explain (beta):</strong> localized toast near result items; inline block removed.</li>
+            <li><strong>Topic input:</strong> unified control with a single soft focus border; hover/autofill no longer cause double highlights.</li>
+            <li><strong>Tests:</strong> jsdom environment and resilient DOM parsing; header‑byte tests use Node Blob.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>v1.5.0-beta.11</h4>
+          <ul>
+            <li><strong>Results:</strong> continuous score bar, mobile overflow fixes, subtle transitions.</li>
+            <li><strong>Generator:</strong> mobile stack layout refined; increased vertical spacing; Difficulty given more width.</li>
+            <li><strong>Primary button:</strong> Start by default; Generate when QE open; flips back to Start after generation.</li>
+            <li><strong>Explain (beta):</strong> centered ribbon teaser only; real explanations coming soon.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>v1.5.0-beta.9</h4>
+          <ul>
+            <li><strong>Serverless fallback:</strong> AI calls now roll through <code>/.netlify/functions/generate-quiz</code>, <code>/api/generate</code>, and the default Netlify domain so missing rewrites or proxies no longer break Start/Generate.</li>
+            <li><strong>Cache bust:</strong> bumped asset query strings to v1.5.17 and service worker cache to v125 so every client grabs the fix immediately.</li>
+            <li><strong>AI fix:</strong> refreshed the Gemini model so Generate and Start deliver quizzes again without extra setup.</li>
+            <li><strong>Previous polish retained:</strong> softened surfaces, wide-phone toolbar, and consistent spacing from beta.7 remain.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>v1.5.0-beta.8</h4>
+          <ul>
+            <li><strong>Start/Generate hotfix:</strong> AI calls hit <code>/.netlify/functions/generate-quiz</code> first, keeping production alive when <code>/api/generate</code> rewrites vanish.</li>
+            <li><strong>Cache bust:</strong> bumped asset query strings to v1.5.13 and service worker cache to v122 for immediate delivery.</li>
+            <li><strong>Previous polish retained:</strong> softened surfaces, wide-phone toolbar, and consistent spacing from beta.7 remain.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>v1.5.0-beta.7</h4>
+          <ul>
+            <li><strong>Softer surfaces:</strong> inputs, cards, and chips now use muted 1px borders and a gentle blue-violet focus ring—no more neon glow.</li>
+            <li><strong>Generator breathing room:</strong> toolbar flips to a spacious two-column grid on wide phones (≈430–720px) so controls stop crowding each other.</li>
+            <li><strong>Consistent spacing:</strong> section labels, results cards, and modal groups pick up the same relaxed gaps and radius tokens.</li>
+            <li><strong>Deployment:</strong> cache-busted assets to v1.5.12 with service worker cache v121 for immediate delivery.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>v1.3.0-beta.0</h4>
+          <ul>
+            <li><strong>Interactive Editor (beta):</strong> opt‑in, card‑based authoring for MC/TF/YN that stays in sync with the raw Editor/Mirror (enable in the Quiz Editor).</li>
+            <li>Removed the gradient backdrop behind floating buttons; kept subtle shadows.</li>
+            <li>Added Reset App (clears caches + unregisters service workers).</li>
+            <li>Added URL reset: <code>?clear=1</code> or <code>#clear-cache</code> for stuck devices.</li>
+            <li>Bumped asset versions and service worker cache for reliable updates.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>v1.2.0-beta.4</h4>
+          <ul>
+            <li>Retake button always runs the full quiz; caret offers Missed only.</li>
+            <li>Footer version is clickable — now opens this modal.</li>
+            <li>Service worker cache bumped for offline freshness.</li>
+          </ul>
+        </section>
+      </div>
+      <footer class="modal__footer">
+        <button id="releaseNotesOk" class="btn">Close</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Modal -->
+  <div id="privacyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="privacyTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="privacyModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="privacyTitle">Privacy Policy</h3>
+        <button id="privacyClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <section>
+          <p class="muted small">Effective: 17 September 2025</p>
+          <p>EZ Quiz runs primarily on your device. We avoid collecting personal data and keep the experience self-contained whenever possible.</p>
+        </section>
+        <section>
+          <h4>What We Don’t Collect</h4>
+          <ul>
+            <li>No accounts, analytics scripts, or advertising trackers.</li>
+            <li>No storage of your quiz content on our servers.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>Stored Locally</h4>
+          <p>The app may store theme or timer preferences and the most recent quiz in your browser’s storage so you can pick up where you left off.</p>
+        </section>
+        <section>
+          <h4>Serverless Calls</h4>
+          <p>Optional AI generation and feedback submission use Netlify Functions. Requests include only the information needed to fulfil them. Third-party providers apply their own policies.</p>
+        </section>
+        <section>
+          <h4>Your Choices</h4>
+          <ul>
+            <li>Use the <strong>Reset App</strong> button or <code>?clear=1</code> to clear cached data.</li>
+            <li>Skip AI generation entirely—the editor works offline.</li>
+            <li>Contact us via the feedback panel for questions or requests.</li>
+          </ul>
+        </section>
+      </div>
+      <footer class="modal__footer">
+        <button id="privacyOk" class="btn">Close</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Terms of Use Modal -->
+  <div id="termsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="termsTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="termsModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="termsTitle">Terms of Use</h3>
+        <button id="termsClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <section>
+          <p class="muted small">Effective: 17 September 2025</p>
+          <p>By using EZ Quiz you agree to these terms and to the privacy policy. If you disagree, please refrain from using the app.</p>
+        </section>
+        <section>
+          <h4>Service</h4>
+          <p>The app delivers a browser-based quiz experience that can run offline. Optional AI generation may invoke third-party services.</p>
+        </section>
+        <section>
+          <h4>License</h4>
+          <p>You receive a personal, non-transferable license to use the app. Please do not reverse-engineer or redistribute it outside of what’s permitted by the project’s open-source license.</p>
+        </section>
+        <section>
+          <h4>Your Content</h4>
+          <ul>
+            <li>You are responsible for the questions or text you input.</li>
+            <li>Only submit content you have rights to share.</li>
+            <li>Do not upload or generate unlawful or harmful material.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>Liability</h4>
+          <p>The app is provided “as-is” without warranties. We are not liable for damages arising from use of the app.</p>
+        </section>
+      </div>
+      <footer class="modal__footer">
+        <button id="termsOk" class="btn">Close</button>
+      </footer>
+    </div>
+  </div>
+
+
+  
+
+  <script type="module" src="js/main.js?v=1.5.19"></script>
+  <script type="module" src="js/auto-refresh.js?v=1.5.19"></script>
+  <script type="module" src="js/patches.js?v=1.5.19"></script>
+  <script type="module" src="js/editor.gui.js?v=1.5.19"></script>
+
+  <!-- Floating actions: Feedback + Coffee -->
+  <div id="floatingActions" class="fab-stack" aria-label="Quick actions">
+    <a
+      id="feedbackFab"
+      class="fab"
+      href="#feedback"
+      aria-label="Open feedback panel"
+      title="Send Feedback"
+    >
+      💬
+      <span class="fab-label">Feedback</span>
+    </a>
+    <!-- Support link kept as fallback; auto-hidden if official BMC widget is present -->
+    <a
+      id="coffeeFab"
+      class="fab"
+      href="https://buymeacoffee.com/seanyates78"
+      target="_blank"
+      rel="noopener"
+      aria-label="Buy Me a Coffee"
+      title="Buy Me a Coffee"
+    >
+      ☕
+      <span class="fab-label">Support</span>
+    </a>
+  </div>
+
+  <!-- Toast (status/live region) -->
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- Inline Feedback Panel -->
+  <div id="feedbackPanel" class="fab-panel hidden" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+    <h2 id="feedbackTitle" class="sr-only">Send feedback</h2>
+    <div class="fab-panel__row">
+      <textarea id="feedbackMessage" class="fab-input" rows="4" maxlength="500" placeholder="Your feedback (required)" aria-label="Feedback message"></textarea>
+    </div>
+    <!-- Honeypot for spam bots: hidden field should remain empty -->
+    <input id="feedbackTrap" class="sr-only" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    <div class="fab-panel__row">
+      <input id="feedbackEmail" class="fab-input" type="email" placeholder="Email (optional)" aria-label="Your email (optional)" />
+    </div>
+    <div class="fab-panel__row" style="align-items:center">
+      <span id="feedbackCount" class="muted small">0/500</span>
+      <span class="flex-spacer"></span>
+      <button id="feedbackCancel" class="btn" type="button">Cancel</button>
+      <button id="feedbackSend" class="btn primary" type="button">Send</button>
+    </div>
+    <div id="feedbackStatus" class="status" aria-live="polite"></div>
+  </div>
+</body>
+</html>
