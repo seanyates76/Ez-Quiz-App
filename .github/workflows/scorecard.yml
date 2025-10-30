@@ -6,7 +6,7 @@ on:
     branches: ["main"]
 permissions:
   contents: read
-  id-token: write
+  id-token: read
   security-events: write
 jobs:
   analysis:
