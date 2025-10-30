@@ -28,6 +28,17 @@ Under the Hood
 - Lightweight, framework‑free front end
 - Versioned service worker updates safely
 
+Status
+------
+- Packages
+  - [x] Release automation (semantic-release)
+  - [x] Dependency updates (Dependabot)
+  - [x] Security scanning (CodeQL)
+  - [x] OpenSSF Scorecard (enabled)
+- Deployments
+  - [x] Production: https://ez-quiz.app/ (Netlify)
+  - [ ] Staging: (optional)
+
 Contributing & Policies
 -----------------------
 - See `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`
