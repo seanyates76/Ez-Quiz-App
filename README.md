@@ -1,62 +1,54 @@
-EZ Quiz — Beautiful, Fast, Privacy‑First Quizzes
-================================================
+# Ez-Quiz App
 
-[![Live](https://img.shields.io/badge/demo-ez--quiz.app-0b7fff)](https://ez-quiz.app/) [![PWA](https://img.shields.io/badge/PWA-installable-blueviolet)](#) [![Netlify Status](https://api.netlify.com/api/v1/badges/35b8697e-f228-4b5f-8065-6286e05246c8/deploy-status)](https://app.netlify.com/projects/eq-quiz/deploys)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/seanyates76/Ez-Quiz-App/badge?style=flat)](https://securityscorecards.dev/viewer/?uri=github.com/seanyates76/Ez-Quiz-App)
+[![License](https://img.shields.io/github/license/seanyates76/Ez-Quiz-App)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/seanyates76/Ez-Quiz-App?include_prereleases)](https://github.com/seanyates76/Ez-Quiz-App/releases)
+![Mirror](https://img.shields.io/badge/mirror-automated-blue)
 
-Create and play beautiful quizzes in seconds. Mobile‑first, keyboard‑friendly, and open source. Works great online (AI‑powered generation) and gracefully offline.
+A clean, production-ready quiz application designed for clarity, testability, and deployability.
 
-Highlights
----------
-- Instant quizzes from a topic or pasted text; Multiple Choice, True/False, Yes/No, Matching
-- Clean, responsive UI with an interactive Editor + live Mirror
-- Results you can trust: color‑coded answers, retake full or missed only
-- Installable PWA with offline shell and cache‑safe updates
-- Privacy‑first: no tracking; AI calls only when you opt in
-- Accessible: proper semantics, focus rings, and keyboard flows
+## Features
+- Fast, responsive UI and accessible UX
+- Configurable quiz banks and scoring
+- Exportable results
+- CI-ready and security-scanned
+- Tagged releases with changelog
 
-Live + Repo
------------
-- App: https://ez-quiz.app/
-- This repo: Public mirror of the dev codebase
+## Quickstart
+```bash
+# Clone
+git clone https://github.com/seanyates76/Ez-Quiz-App.git
+cd Ez-Quiz-App
 
-One‑click Deploy
-----------------
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/seanyates76/Ez-Quiz-App)
+# Install + run (adjust for your stack)
+# Node (example):
+# npm install
+# npm run dev
 
-Quick Start (Local)
--------------------
-- Static preview (no functions): `cd public && python3 -m http.server 8000`
-- Full stack (Netlify Functions): `netlify dev` from the repo root
-  - No keys? Set `AI_PROVIDER=echo` to run without contacting AI providers
-- Tests: `npm i && npm test` (Node + jsdom); UI check: `npm run ui:check`
+# Python (example):
+# pip install -r requirements.txt
+# uvicorn app:app --reload
+```
 
-Architecture at a Glance
-------------------------
-- Client: `public/` vanilla modules (`js/*.js`) + tokens in `styles.css`
-- Serverless: Netlify Functions in `netlify/functions/*`
-- Generation providers: `netlify/functions/lib/providers.js` (Gemini/OpenAI) via a shared prompt; `AI_PROVIDER=echo` for offline/dev
-- Beta gating: `requireBeta` on the server, `flags.js` on the client
+## Tech stack
+- App: TODO (React/Next.js? Svelte? FastAPI? Express?)
+- CI: GitHub Actions
+- Security: OpenSSF Scorecard, secret scanning
 
-Key Endpoints (Netlify Functions)
----------------------------------
-- `/.netlify/functions/generate-quiz` → generate from topic/seed text
-- `/.netlify/functions/send-feedback` → email feedback (nodemailer)
-- `/.netlify/functions/health` → quick health probe
+## Architecture
+- Modular core with clear separation of UI, domain, and data layers
+- Deterministic builds and environment-driven config
 
-Contributing & OSS
-------------------
-- We welcome contributions — please read `CONTRIBUTING.md`
-- Respectful participation is required — see `CODE_OF_CONDUCT.md`
-- Security issues: follow `SECURITY.md`
-- License: MIT (`LICENSE.txt`)
+## Roadmap
+- [ ] Authentication
+- [ ] Results insights/analytics
+- [ ] Pluggable storage backends
 
-Roadmap
--------
-- Media input (PDF/image) ingestion with resilient fallbacks
-- Explain answers UX (graduates from beta) with accessible patterns
-- Additional DOM/CSS regression checks for toolbar/results
+## Contributing
+See [CONTRIBUTING](CONTRIBUTING.md) and our [Code of Conduct](CODE_OF_CONDUCT.md). Good first issues are labeled “good first issue”.
 
-Screenshots
------------
-Add screenshots/GIFs here to showcase the toolbar, editor, and results.
+## Security
+Report vulnerabilities via [SECURITY](SECURITY.md).
 
+## License
+[MIT](LICENSE)
