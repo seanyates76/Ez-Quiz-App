@@ -6,13 +6,10 @@
   "description": "Static PWA + Netlify Functions for EZ Quiz",
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest -i --passWithNoTests",
-    "ui:check": "node ./scripts/ui-check.mjs",
     "lint": "eslint . || true",
     "lint:fix": "eslint . --fix || true",
     "fmt:check": "prettier -c . || true",
-    "fmt:write": "prettier -w . || true",
-    "test:parser": "node ./tests/parser.corpus.mjs || echo Parser corpus missing",
-    "reiterate": "node ../ezq-dev-tools/reiterate.mjs"
+    "fmt:write": "prettier -w . || true"
   },
   "dependencies": {
     "@google/generative-ai": "^0.20.0",
