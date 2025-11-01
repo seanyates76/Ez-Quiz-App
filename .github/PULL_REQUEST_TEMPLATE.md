@@ -1,11 +1,14 @@
 ## Summary
-Briefly describe the change and motivation.
+Briefly describe the change and why it’s needed.
+
+## Changes
+- 
 
 ## How to test
-Steps or commands to validate the change.
+Steps to verify locally (include `?clear=1` if relevant):
 
 ## Checklist
-- [ ] Tests added/updated
-- [ ] Docs updated (README/CHANGELOG)
-- [ ] Follows Conventional Commits
-- [ ] No secrets included
+- [ ] Version updated if user‑visible change
+- [ ] SW cache and asset query strings bumped if needed
+- [ ] No `console.log`/`debugger` left in code
+- [ ] Accessibility (focus, labels) preserved

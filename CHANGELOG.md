@@ -1,9 +1,3 @@
-## 1.0.0 (2025-10-30)
-
-### Features
-
-* initial release setup [skip netlify] ([e12aa46](https://github.com/seanyates76/Ez-Quiz-App/commit/e12aa46b5e353fa665746a6dfc4a918330c9d17e))
-
 Changelog
 =========
 

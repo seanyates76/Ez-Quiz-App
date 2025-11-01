@@ -1,15 +1,18 @@
 {
   "name": "ez-quiz-app",
-  "version": "1.0.0",
+  "version": "1.5.0-beta.12",
   "private": true,
   "license": "MIT",
   "description": "Static PWA + Netlify Functions for EZ Quiz",
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest -i --passWithNoTests",
+    "ui:check": "node ./scripts/ui-check.mjs",
     "lint": "eslint . || true",
     "lint:fix": "eslint . --fix || true",
     "fmt:check": "prettier -c . || true",
-    "fmt:write": "prettier -w . || true"
+    "fmt:write": "prettier -w . || true",
+    "test:parser": "node ./tests/parser.corpus.mjs || echo Parser corpus missing",
+    "reiterate": "node ../ezq-dev-tools/reiterate.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.20.0",

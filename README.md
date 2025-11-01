@@ -1,49 +1,76 @@
-Ez‑Quiz App
-===========
+EZ Quiz — Beautiful, Fast, Privacy‑First Quizzes
+================================================
 
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/seanyates76/Ez-Quiz-App/badge?style=flat)](https://securityscorecards.dev/viewer/?uri=github.com/seanyates76/Ez-Quiz-App) [![License](https://img.shields.io/github/license/seanyates76/Ez-Quiz-App)](LICENSE) [![Latest Release](https://img.shields.io/github/v/release/seanyates76/Ez-Quiz-App?include_prereleases)](https://github.com/seanyates76/Ez-Quiz-App/releases) ![Mirror](https://img.shields.io/badge/mirror-automated-blue) ![JavaScript](https://img.shields.io/badge/JavaScript-ES%20Modules-f7df1e?logo=javascript&logoColor=000&labelColor=f7df1e) ![Node.js](https://img.shields.io/badge/Node.js-Functions-3c873a?logo=nodedotjs&logoColor=fff) ![Netlify](https://img.shields.io/badge/Netlify-Serverless-00ad9f?logo=netlify&logoColor=fff)
+[![Live](https://img.shields.io/badge/demo-ez--quiz.app-0b7fff)](https://ez-quiz.app/) [![PWA](https://img.shields.io/badge/PWA-installable-blueviolet)](#) [![Netlify Status](https://api.netlify.com/api/v1/badges/35b8697e-f228-4b5f-8065-6286e05246c8/deploy-status)](https://app.netlify.com/sites/ez-quiz/deploys)
 
-Create and play quizzes in seconds with a clean, responsive interface. Keyboard‑friendly and offline‑ready.
+Create and play beautiful quizzes in seconds. Mobile‑first, keyboard‑friendly, and open source. Works great online (AI‑powered generation) and gracefully offline.
 
-Features
---------
-- Generate from a topic or create your own quiz
-- Multiple formats: Multiple Choice, True/False, Yes/No, Matching
-- Clear results with retake options (full or missed)
-- Installable PWA with cache‑safe updates
-- Accessibility by default
+Highlights
+---------
+- Instant quizzes from a topic or pasted text; Multiple Choice, True/False, Yes/No, Matching
+- Clean, responsive UI with an interactive Editor + live Mirror
+- Results you can trust: color‑coded answers, retake full or missed only
+- Installable PWA with offline shell and cache‑safe updates
+- Privacy‑first: no tracking; AI calls only when you opt in
+- Accessible: proper semantics, focus rings, and keyboard flows
 
-Live
-----
-- https://ez-quiz.app/
+Live + Repos
+------------
+- App: https://ez-quiz.app/
+- Public repo (mirror): https://github.com/seanyates76/Ez-Quiz-App
 
-Tech Stack
+One‑click Deploy
+----------------
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/seanyates76/Ez-Quiz-App)
+
+Quick Start (Local)
+-------------------
+- Static preview (no functions): `cd public && python3 -m http.server 8000`
+- Full stack (Netlify Functions): `netlify dev` from the repo root
+  - No keys? Set `AI_PROVIDER=echo` to run without contacting AI providers
+- Tests: `npm i && npm test` (Node + jsdom); UI check: `npm run ui:check`
+
+Architecture at a Glance
+------------------------
+- Client: `public/` vanilla modules (`js/*.js`) + tokens in `styles.css`
+- Serverless: Netlify Functions in `netlify/functions/*`
+- Generation providers: `netlify/functions/lib/providers.js` (Gemini/OpenAI) via a shared prompt; `AI_PROVIDER=echo` for offline/dev
+- Beta gating: `requireBeta` on the server, `flags.js` on the client
+
+Key Endpoints (Netlify Functions)
+---------------------------------
+- `/.netlify/functions/generate-quiz` → generate from topic/seed text
+- `/.netlify/functions/send-feedback` → email feedback (nodemailer)
+- `/.netlify/functions/health` → quick health probe
+
+Environment
+-----------
+- `AI_PROVIDER`: `gemini`, `openai`, or `echo` (dev)
+- Provider keys as needed; see `ENV.md` for full list
+
+Developing
 ----------
-- Front end: HTML/CSS/vanilla JS (ES modules), PWA service worker
-- Back end: Netlify Functions (Node, esbuild)
-- CI/Security: GitHub Actions, CodeQL, OpenSSF Scorecard, Dependabot
+- Lint/format: `npm run lint` / `npm run fmt:write`
+- UI snapshots: `npm run ui:check` (writes `.artifacts/ui/*`)
+- Local tools: `./scripts/ezq-head.sh run quick` (requires `../ezq-dev-tools`)
 
-Under the Hood
---------------
-- Lightweight, framework‑free front end
-- Versioned service worker updates safely
+Contributing & OSS
+------------------
+- We welcome contributions — please read `CONTRIBUTING.md`
+- Respectful participation is required — see `CODE_OF_CONDUCT.md`
+- Security issues: follow `SECURITY.md`
+- License: MIT (`LICENSE.txt`)
 
+Roadmap (Short List)
+--------------------
+- Media input (PDF/image) ingestion flow with graceful fallbacks
+- Explain answers UX (graduates from beta) with accessible patterns
+- More DOM/CSS regression checks for toolbar/results layouts
 
-Contributing & Policies
------------------------
-- See `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`
-- Conventional Commits encouraged; commit lint on PRs
-- License: MIT (`LICENSE`)
+Screenshots
+-----------
+Add screenshots/GIFs here to showcase the toolbar, editor, and results. For quick local visuals, open `public/ui-kit.html`.
 
-Future Updates
---------------
-- Media input (PDF/image) with resilient fallbacks
-- Answer explanations UX (accessible, non‑blocking)
-
-Contact
--------
-Open an issue or email ez.quizapp@gmail.com.
-
-Note
-----
-No tracking. Any AI calls are opt‑in.
+Why This Repo Exists
+--------------------
+This is the private dev repo that powers the public mirror (`Ez-Quiz-App`). A CI job mirrors a filtered subset of files to keep the public repo lean (no internal scripts/tests), while preserving OSS meta files for eligibility and trust.

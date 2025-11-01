@@ -1,0 +1,36 @@
+# Files and directories to EXCLUDE from the public mirror
+# Adjust as needed. Glob patterns are supported.
+
+# VCS/CI
+.git/
+.github/workflows/
+.gitignore
+
+# Local artifacts
+node_modules/
+.DS_Store
+.artifacts/
+.ezq/
+files/
+.netlify/
+
+# Docs heavy dirs to omit from mirror (keep key top-level meta files)
+docs/
+issues/
+tests/
+scripts/
+agents.md
+BETA_DOCUMENTATION.md
+LAZY_EXPLANATIONS.md
+
+# Tests and internal tooling (uncomment if desired)
+# tests/
+# scripts/
+# netlify/
+# docs/
+
+# Temporary or editor files
+*.swp
+*.log
+.env
+.env.*
