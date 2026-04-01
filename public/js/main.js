@@ -45,14 +45,14 @@ function init(){
   
   const betaCookieActive = hasCookieFlag('beta');
   const betaActive = hasFlag('beta') || betaCookieActive;
+  // Force-sync settings flag with computed beta state to avoid transient mismatch
+  try { S.settings.betaEnabled = !!betaActive; } catch {}
   if (betaActive) {
     document.body.dataset.beta = 'true';
   } else {
     document.body.removeAttribute('data-beta');
     syncExplainButtonsVisibility();
   }
-  // Force-sync settings flag with computed beta state to avoid transient mismatch
-  try { S.settings.betaEnabled = !!betaActive; } catch {}
 
   // Check for beta auto-redirect when landing on root: if beta is active (cookie or local flag), go to /beta
   if ((betaActive || S.settings.betaEnabled) && window.location.pathname === '/' && !window.location.search.includes('no-beta-redirect')) {
