@@ -1,73 +1,67 @@
-Ez-Quiz Dev
+Ez-Quiz App
 ===========
 
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/seanyates76/Ez-Quiz-App/badge?style=flat)](https://securityscorecards.dev/viewer/?uri=github.com/seanyates76/Ez-Quiz-App)
 [![License](https://img.shields.io/github/license/seanyates76/Ez-Quiz-App)](LICENSE.txt)
-![Mirror](https://img.shields.io/badge/Mirror-Ez--Quiz--App-blue)
+![Production Mirror](https://img.shields.io/badge/Repo-Production%20Mirror-blue)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES%20Modules-f7df1e?logo=javascript&logoColor=000&labelColor=f7df1e)
 ![Node.js](https://img.shields.io/badge/Node.js-Netlify%20Functions-3c873a?logo=nodedotjs&logoColor=fff)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/35b8697e-f228-4b5f-8065-6286e05246c8/deploy-status)](https://app.netlify.com/sites/ez-quiz/deploys)
 
-Development repository for **Ez-Quiz**, a quiz app built with vanilla JavaScript and Netlify Functions. This repo is the working source of truth; the filtered production mirror lives at **`seanyates76/Ez-Quiz-App`**.
+Ez-Quiz is a lightweight quiz app for generating, editing, and playing quizzes in a fast, keyboard-friendly interface.
 
-Ez-Quiz is designed to be:
+It is built to be:
 - fast and lightweight
 - accessible and keyboard-friendly
 - privacy-respecting
-- simple to run locally
+- easy to use without account friction
 
 Live app
 --------
 - https://ez-quiz.app/
 
-What’s in this repo
--------------------
-- quiz generation and play flow
-- PWA/service worker support
-- Netlify Functions for generation, feedback, and health endpoints
-- tests, CI workflows, and maintainer tooling
-- mirror workflow to the production mirror
+Features
+--------
+- Generate quizzes from a topic
+- Create and edit quizzes manually
+- Multiple formats: Multiple Choice, True/False, Yes/No, Matching
+- Installable PWA with cache-safe updates
+- Clear results with retake support
+- Optional AI-assisted generation and explanation flows
+
+What this repo is
+-----------------
+This is the **production mirror** for Ez-Quiz.
+
+- **Production repo:** `seanyates76/Ez-Quiz-App`
+- **Development source repo:** `seanyates76/Ez-Quiz-Dev`
+
+The app and dependency baseline originate upstream in the development repo and are mirrored here through a filtered sync. This repository exists as the public-facing production/project surface.
 
 Quick start
 -----------
 ```bash
-# Install dependencies
 npm install
 
-# Static preview (no functions)
+# Static preview
 cd public && python3 -m http.server 8000
 
-# Full stack local dev (Netlify functions)
+# Full local app with Netlify functions
 cd ..
 netlify dev
-# Tip: set AI_PROVIDER=echo to run without provider keys
 
 # Tests
 npm test
 npm run ui:check
 ```
 
-Repository model
-----------------
-This is the **development repo**.
-
-- **Dev repo:** `seanyates76/Ez-Quiz-Dev`
-- **Production mirror:** `seanyates76/Ez-Quiz-App`
-
-The production mirror is produced from this repo through a filtered sync defined by `.publicignore`, so internal files like workflow notes, test artifacts, scripts, and local tooling do not automatically flow downstream.
-
-Syncing with the production mirror
-----------------------------
-- **Pull production mirror → dev:** `npm run sync:public`
-- **Push dev → production mirror:** `.github/workflows/publish.yml` or `files/scripts/mirror.sh`
-- Always review the resulting diff before committing or opening a PR
-
 Architecture
 ------------
 - **Front end:** HTML, CSS, vanilla JS ES modules under `public/`
 - **Back end:** Netlify Functions under `netlify/functions/`
-- **Core entry point:** `public/index.html`
+- **Entry point:** `public/index.html`
 - **Client modules:** `public/js/*`
-- **Provider selection:** `netlify/functions/lib/providers.js`
+- **Provider logic:** `netlify/functions/lib/providers.js`
 
 Key endpoints
 -------------
@@ -77,12 +71,18 @@ Key endpoints
 
 Environment
 -----------
-See `ENV.md` for full setup details.
+See `ENV.md` for setup details.
 
 Common variables:
 - `AI_PROVIDER` = `gemini` | `openai` | `echo`
 - provider API keys as needed
 - feedback mailer variables for Netlify Functions
+
+Security and quality
+--------------------
+- Dependabot security updates enabled
+- Secret scanning and push protection enabled
+- CodeQL and OpenSSF Scorecard workflows enabled
 
 Contributing & policies
 -----------------------
