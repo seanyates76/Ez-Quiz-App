@@ -2,7 +2,7 @@ import { S } from './state.js';
 import { $, byQSA, showUpdateBannerIfReady } from './utils.js';
 import { loadSettingsFromStorage, applyTheme, reflectSettingsIntoUI, wireSettingsPanel } from './settings.js';
 import { wireModals } from './modals.js';
-import { wireGenerator } from './generator.js?v=1.5.28';
+import { wireGenerator } from './generator.js?v=1.5.27';
 import { setMode, beginQuiz, renderCurrentQuestion, updateNavButtons, updateProgress, wireQuizControls, wireResultsControls, pauseTimerIfQuiz, resumeTimerIfQuiz, syncSettingsFromUI, syncExplainButtonsVisibility } from './quiz.js';
 import { has as hasFlag, hasCookie as hasCookieFlag } from './flags.js';
 
@@ -45,14 +45,14 @@ function init(){
   
   const betaCookieActive = hasCookieFlag('beta');
   const betaActive = hasFlag('beta') || betaCookieActive;
-  // Force-sync settings flag with computed beta state to avoid transient mismatch
-  try { S.settings.betaEnabled = !!betaActive; } catch {}
   if (betaActive) {
     document.body.dataset.beta = 'true';
   } else {
     document.body.removeAttribute('data-beta');
     syncExplainButtonsVisibility();
   }
+  // Force-sync settings flag with computed beta state to avoid transient mismatch
+  try { S.settings.betaEnabled = !!betaActive; } catch {}
 
   // Check for beta auto-redirect when landing on root: if beta is active (cookie or local flag), go to /beta
   if ((betaActive || S.settings.betaEnabled) && window.location.pathname === '/' && !window.location.search.includes('no-beta-redirect')) {
