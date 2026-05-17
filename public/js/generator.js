@@ -764,6 +764,35 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     updateMirrorText(text);
   }
 
+  let manualParseTimer = null;
+  let lastManualParsedText = '';
+  function validateManualEditorPaste(){
+    const text = String(editor?.value || '');
+    updateMirrorText(text);
+    const trimmed = text.trim();
+    if(!trimmed){
+      lastManualParsedText = '';
+      return;
+    }
+    if(trimmed === lastManualParsedText) return;
+    const parsed = parseEditorInput(text);
+    if(parsed.error || parsed.errors.length || !parsed.questions.length){
+      if(statusBox && !(Array.isArray(S.quiz?.questions) && S.quiz.questions.length)){
+        statusBox.textContent = parsed.error || parsed.errors[0] || 'Paste valid EZ Quiz lines to unlock Start Quiz.';
+        statusBox.setAttribute('data-build-state', 'idle');
+      }
+      return;
+    }
+    lastManualParsedText = trimmed;
+    runParseFlow(text, topicInput?.value || 'Manual quiz', '');
+    setPrimaryAction();
+    updatePrimaryHint();
+  }
+  function scheduleManualEditorParse(){
+    if(manualParseTimer) clearTimeout(manualParseTimer);
+    manualParseTimer = setTimeout(validateManualEditorPaste, 180);
+  }
+
   // Options: controls
   const optTimerEnabled = $('optTimerEnabled');
   const optCountdownMode = $('optCountdownMode');
@@ -938,6 +967,7 @@ export function wireGenerator({ beginQuiz, syncSettingsFromUI }){
     updateCountAvailability();
   });
   loadLastBtn?.addEventListener('click', ()=>{ try{ const last = localStorage.getItem('ezq.last')||''; if(!last){ statusBox && (statusBox.textContent='No previous quiz found.'); return; } setEditorText(last); try{ setMirrorVisible(true); }catch{}; runParseFlow(last, topicInput?.value||'Last', ''); statusBox && (statusBox.textContent = 'Loaded last quiz.'); }catch{} });
+  editor?.addEventListener('input', scheduleManualEditorParse);
 
   generateBtn?.addEventListener('click', async ()=>{
     // Create never starts the quiz. The previous valid quiz remains available until

@@ -8,93 +8,79 @@ Ez-Quiz App
 ![Node.js](https://img.shields.io/badge/Node.js-Netlify%20Functions-3c873a?logo=nodedotjs&logoColor=fff)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/35b8697e-f228-4b5f-8065-6286e05246c8/deploy-status)](https://app.netlify.com/sites/ez-quiz/deploys)
 
-Ez-Quiz is a lightweight quiz app for generating, editing, and playing quizzes in a fast, keyboard-friendly interface.
+EZ Quiz is a lightweight study tool for turning topics, notes, and supported files into focused practice quizzes. Create a quiz, take it, review your results, and use explanations to understand what you missed.
 
-It is built to be:
-- fast and lightweight
-- accessible and keyboard-friendly
-- privacy-respecting
-- easy to use without account friction
+**Live app:** https://ez-quiz.app/
 
-Live app
---------
-- https://ez-quiz.app/
+## Release v3.5.0
 
-Features
---------
-- Generate quizzes from a topic
-- Create and edit quizzes manually
-- Multiple formats: Multiple Choice, True/False, Yes/No, Matching
-- Installable PWA with cache-safe updates
-- Clear results with retake support
-- Optional AI-assisted generation and explanation flows
+This release promotes the improved quiz flow to production:
 
-What this repo is
------------------
-This is the **production mirror** for Ez-Quiz.
+**Create Quiz → Start Quiz → Results → Explanations**
 
-- **Production repo:** `seanyates76/Ez-Quiz-App`
-- **Development source repo:** `seanyates76/Ez-Quiz-Dev`
+Create Quiz builds the quiz first. Start Quiz becomes available when a valid quiz is ready.
 
-The app and dependency baseline originate upstream in the development repo and are mirrored here through a filtered sync. This repository exists as the public-facing production/project surface.
+v3.5.0 also adds stronger study-material import, media import, results explanations, safer updates, and clearer result review.
 
-Quick start
------------
-```bash
-npm install
+## What EZ Quiz does
 
-# Static preview
-cd public && python3 -m http.server 8000
+- Create quizzes from a topic, pasted study material, or supported imported files/media
+- Import readable source material from PDF, images, TXT, Markdown, HTML, CSV, JSON, RTF, and DOCX
+- Paste, import, edit, copy, or export quizzes in EZ Quiz line format or `.txt`
+- Use Multiple Choice, True/False, Yes/No, and Matching question types
+- Choose public quiz lengths of 5, 10, 15, or 20 questions
+- Review results, retake missed questions, and request on-demand explanations
+- Install the app as a PWA with cache-safe updates
+- Use AI only when you choose to generate, import, or explain content
 
-# Full local app with Netlify functions
-cd ..
-netlify dev
+## Development and release source
 
-# Tests
-npm test
-npm run ui:check
-```
+This repo is the public production repo for EZ Quiz.
 
-Architecture
-------------
-- **Front end:** HTML, CSS, vanilla JS ES modules under `public/`
-- **Back end:** Netlify Functions under `netlify/functions/`
-- **Entry point:** `public/index.html`
-- **Client modules:** `public/js/*`
-- **Provider logic:** `netlify/functions/lib/providers.js`
+Runtime development happens in `seanyates76/Ez-Quiz-Dev`. Production-ready app changes are promoted here through the mirror and release workflow.
 
-Key endpoints
--------------
-- `/.netlify/functions/generate-quiz` — generate from topic or seed text
-- `/.netlify/functions/send-feedback` — feedback mailer
-- `/.netlify/functions/health` — health probe
+Public release docs live here. Deeper runtime setup, deployment configuration, and development workflow notes belong in the development repo.
 
-Environment
------------
-See `ENV.md` for setup details.
+Project policies and history live in:
 
-Common variables:
-- `AI_PROVIDER` = `gemini` | `openai` | `echo`
-- provider API keys as needed
-- feedback mailer variables for Netlify Functions
-
-Security and quality
---------------------
-- Dependabot security updates enabled
-- Secret scanning and push protection enabled
-- CodeQL and OpenSSF Scorecard workflows enabled
-
-Contributing & policies
------------------------
 - `CONTRIBUTING.md`
 - `CODE_OF_CONDUCT.md`
 - `SECURITY.md`
 - `CHANGELOG.md`
-- License: MIT (`LICENSE.txt`)
+- `LICENSE.txt`
 
-Contact
--------
-Open an issue or email **ez.quizapp@gmail.com**.
+## Run locally
 
-**Trust matters**  
-Zero tracking. Zero data sales. AI runs only when explicitly invoked.
+```bash
+npm install
+
+# Static preview
+cd public
+python3 -m http.server 8000
+```
+
+For the full app with Netlify Functions:
+
+```bash
+cd ..
+netlify dev
+```
+
+## Troubleshooting
+
+- If the app says an update is available, refresh to load the new build.
+- If a stale build sticks around, use **Settings → Reset App** and reload.
+- If generation or import fails, try a smaller source or a shorter quiz.
+- If local AI features fail, check your provider configuration in the development repo.
+
+## Contact and trust
+
+Questions, bugs, or feedback: **ez.quizapp@gmail.com**
+
+EZ Quiz is built to stay simple and respectful:
+
+- no tracking
+- no data sales
+- AI features run only when you choose to generate, import, or explain content
+
+The app primarily runs in the browser. Optional server-backed features are used only when invoked by the user.
