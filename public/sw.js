@@ -8,8 +8,9 @@
  * page for navigation requests when offline.
  */
 
-const ASSET_VERSION = '1.5.27';
-const CACHE_NAME = 'ezq-v1211';
+const ASSET_VERSION = '1.5.35';
+const CACHE_NAME = 'ezq-v1219';
+const MODULE_IMPORT_VERSION = ASSET_VERSION;
 const PRECACHE_URLS = [
   '/index.html',
   '/styles.css?v=' + ASSET_VERSION,
@@ -18,13 +19,15 @@ const PRECACHE_URLS = [
   '/js/theme-preload.js?v=' + ASSET_VERSION,
   '/js/boot-beta.js?v=' + ASSET_VERSION,
   '/js/main.js?v=' + ASSET_VERSION,
+  '/js/landing-intro.js?v=' + MODULE_IMPORT_VERSION,
   '/js/auto-refresh.js?v=' + ASSET_VERSION,
   '/js/patches.js?v=' + ASSET_VERSION,
   '/js/editor.gui.js?v=' + ASSET_VERSION,
-  '/js/generator.js?v=' + ASSET_VERSION,
-  '/js/generator-payload.js?v=' + ASSET_VERSION,
-  '/js/a11y-announcer.js?v=' + ASSET_VERSION,
-  '/js/api.js?v=' + ASSET_VERSION,
+  '/js/generator.js?v=' + MODULE_IMPORT_VERSION,
+  '/js/generator-payload.js?v=' + MODULE_IMPORT_VERSION,
+  '/js/a11y-announcer.js?v=' + MODULE_IMPORT_VERSION,
+  '/js/api.js?v=' + MODULE_IMPORT_VERSION,
+  '/js/explain-api.js?v=' + MODULE_IMPORT_VERSION,
   '/manifest.webmanifest',
   '/sw.js',
   // Module graph (unversioned dependencies imported within versioned entry points)
@@ -34,10 +37,11 @@ const PRECACHE_URLS = [
   '/js/veil.js',
   '/js/settings.js',
   '/js/modals.js',
-  '/js/quiz.js',
+  '/js/quiz.js?v=' + ASSET_VERSION,
   '/js/beta.mjs',
   '/js/import-controller.js',
   '/js/file-type-validation.js',
+  '/js/media-import-constraints.js',
   '/js/drag-drop.js',
   '/icons/icon-192.png',
   '/icons/icon-512.png',

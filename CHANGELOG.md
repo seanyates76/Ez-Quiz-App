@@ -1,6 +1,81 @@
 Changelog
 =========
 
+## v3.5.0 — Improved flow, source import, and explanations
+
+v3.5.0 promotes the improved EZ Quiz flow to production.
+
+The main flow is now:
+
+**Create Quiz → Start Quiz → Results → Explanations**
+
+This release focuses on making quiz creation more reliable, source-backed quizzes more useful, results review clearer, and the public App release cleaner.
+
+### Quiz flow
+
+- Split quiz creation and quiz-taking into clearer steps.
+- Keep **Start Quiz** locked until a valid quiz exists.
+- Preserve the last valid quiz when generation fails.
+- Keep public quiz lengths at **5, 10, 15, and 20**.
+- Keep manual quiz import/editing available for EZ Quiz line-format quizzes.
+
+### Source-backed quiz creation
+
+- Added production support for creating quizzes from pasted study material.
+- Added supported file/media import for readable source material.
+- Improved source-size handling so users get clearer behavior with larger notes.
+- Aligned source-material limits across import, payload cleanup, server handling, and provider prompting.
+- Improved fallback routing so source-backed generation avoids unnecessary cross-origin public fallback paths.
+
+### Results and explanations
+
+- Added on-demand explanations from the results screen.
+- Improved result-card answer formatting, especially for Multiple Choice answers.
+- Fixed Matching result correctness so partial matching answers are not shown as correct.
+- Reduced explanation payloads so a single explanation request sends only the needed question context.
+
+### Import and media hardening
+
+- Hardened media import sanitization.
+- Added safer DOCX extraction limits.
+- Improved UTF-16 and deterministic text handling.
+- Added bounded text import behavior for large local files.
+- Added rate-limit cleanup for public import/explanation paths.
+
+### Accessibility and UI polish
+
+- Improved dynamic button labeling for assistive technologies.
+- Added clearer disclosure state for explanation controls.
+- Polished the landing intro and quiz-start flow.
+- Kept the intro panel out of the way once dismissed or once quiz-taking starts.
+
+### Cache and release behavior
+
+- Tightened service-worker and module precache behavior for safer updates.
+- Updated app assets for the v3.5.0 promotion.
+- Kept deployment/cache identifiers separate from the product release label:
+  - Asset version: `1.5.35`
+  - Service worker cache: `ezq-v1219`
+
+### Public repo cleanup
+
+- Cleaned the App mirror so internal/dev artifacts stay out of the public repo.
+- Removed public `ENV.md` documentation from the App repo.
+- Kept environment, provider-key, deployment, and deeper runtime setup details in the development side.
+- Refreshed public README and changelog language for the v3.5.0 release.
+
+### Validation
+
+The release branch passed:
+
+- `npm test`
+- `npm run ui:check`
+- `git diff --check`
+- CodeQL
+- Dependency Review
+- CI / verify
+- Publish Mirror workflow
+
 2025-10-22 — v3.3 (hotfix) / 1.5.18-hotfix
 - Reset
   - Performs a cache-busting navigation to avoid BFCache/stale state after clearing SW + caches.
@@ -51,7 +126,7 @@ Changelog
 - Resilience: AI calls now cycle through `/.netlify/functions/generate-quiz`, `/api/generate`, and Netlify hosts (`https://ez-quiz.netlify.app/.netlify/functions/generate-quiz`, `https://eq-quiz.netlify.app/.netlify/functions/generate-quiz`), covering missing rewrites or third-party proxies.
 - Maintenance: asset query strings bumped to v1.5.17 and service worker cache advanced to v125 to flush cached modules (api/generator/main/editor).
 - Security: CSP `connect-src` now includes the Netlify hosts (including `https://ez-quiz.netlify.app`) so the fallback calls aren’t blocked client-side.
-- Gemini: default model uses `gemini-2.5-flash-lite`; override `GEMINI_MODEL` only if your account supports a different stable version.
+- Gemini: default model bumped to `gemini-2.5-flash-lite-preview-09-2025`; override `GEMINI_MODEL` only if your account supports a different version.
 
 2025-09-26 — 1.5.0-beta.8
 - Hotfix: client now calls `/.netlify/functions/generate-quiz` before `/api/generate`, so Start/Generate continue to work even if redirects are missing.
@@ -61,7 +136,7 @@ Changelog
 - Generator toolbar now opens into a generous two-column layout on 430–720px screens so wide phones have comfortable spacing.
 - Inputs, cards, and status chips share softened 1px borders with a muted focus halo for accessible, non-glowy highlights.
 - Consistent label spacing and refreshed radius tokens across modals/results keep sections from feeling cramped.
-- Maintenance: cache-buster query strings bumped to v1.5.12 and the service worker cache advanced to v121 for fast rollout.
+- Maintenance: cache-buster query strings bumped to v1.5.12 and the service worker cache advanced to v121 for fast update delivery.
 
 2025-09-24 — 1.5.0-beta.6
 - Generator: topic autofill now preserves the dark-theme fill and rounded corners while keeping the new footer spacer tinted to match the canvas.
