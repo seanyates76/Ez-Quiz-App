@@ -102,7 +102,6 @@ function toPositiveInt(value, fallback) {
 const LIMIT = toPositiveInt(process.env.MEDIA_IMPORT_LIMIT, DEFAULT_LIMIT);
 const WINDOW_MS = toPositiveInt(process.env.MEDIA_IMPORT_WINDOW_MS, DEFAULT_WINDOW_MS);
 const RL = new Map();
-const MAX_RATE_LIMIT_KEYS = 500;
 
 function clientIp(event) {
   const h = event.headers || {};
@@ -117,12 +116,6 @@ function rateLimited(event) {
   if (recent.length >= LIMIT) return true;
   recent.push(now);
   RL.set(ip, recent);
-  if (RL.size > MAX_RATE_LIMIT_KEYS) {
-    for (const [key, list] of RL.entries()) {
-      const keep = list.filter((ts) => now - ts < WINDOW_MS);
-      if (keep.length) RL.set(key, keep); else RL.delete(key);
-    }
-  }
   return false;
 }
 
@@ -551,10 +544,4 @@ module.exports._internals = {
   normalizePayload,
   sniffBufferKind,
   cleanExtractedText,
-  extractDeterministicText,
-  decodeTextBuffer,
-  stripDocxXml,
-  rateLimited,
-  rateLimitSize: () => RL.size,
-  clearRateLimit: () => RL.clear(),
 };

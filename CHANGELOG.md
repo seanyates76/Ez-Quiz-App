@@ -1,80 +1,14 @@
 Changelog
 =========
 
-## v3.5.0 — Improved flow, source import, and explanations
-
-v3.5.0 promotes the improved EZ Quiz flow to production.
-
-The main flow is now:
-
-**Create Quiz → Start Quiz → Results → Explanations**
-
-This release focuses on making quiz creation more reliable, source-backed quizzes more useful, results review clearer, and the public App release cleaner.
-
-### Quiz flow
-
-- Split quiz creation and quiz-taking into clearer steps.
-- Keep **Start Quiz** locked until a valid quiz exists.
-- Preserve the last valid quiz when generation fails.
-- Keep public quiz lengths at **5, 10, 15, and 20**.
-- Keep manual quiz import/editing available for EZ Quiz line-format quizzes.
-
-### Source-backed quiz creation
-
-- Added production support for creating quizzes from pasted study material.
-- Added supported file/media import for readable source material.
-- Improved source-size handling so users get clearer behavior with larger notes.
-- Aligned source-material limits across import, payload cleanup, server handling, and provider prompting.
-- Improved fallback routing so source-backed generation avoids unnecessary cross-origin public fallback paths.
-
-### Results and explanations
-
-- Added on-demand explanations from the results screen.
-- Improved result-card answer formatting, especially for Multiple Choice answers.
-- Fixed Matching result correctness so partial matching answers are not shown as correct.
-- Reduced explanation payloads so a single explanation request sends only the needed question context.
-
-### Import and media hardening
-
-- Hardened media import sanitization.
-- Added safer DOCX extraction limits.
-- Improved UTF-16 and deterministic text handling.
-- Added bounded text import behavior for large local files.
-- Added rate-limit cleanup for public import/explanation paths.
-
-### Accessibility and UI polish
-
-- Improved dynamic button labeling for assistive technologies.
-- Added clearer disclosure state for explanation controls.
-- Polished the landing intro and quiz-start flow.
-- Kept the intro panel out of the way once dismissed or once quiz-taking starts.
-
-### Cache and release behavior
-
-- Tightened service-worker and module precache behavior for safer updates.
-- Updated app assets for the v3.5.0 promotion.
-- Kept deployment/cache identifiers separate from the product release label:
-  - Asset version: `1.5.35`
-  - Service worker cache: `ezq-v1219`
-
-### Public repo cleanup
-
-- Cleaned the App mirror so internal/dev artifacts stay out of the public repo.
-- Removed public `ENV.md` documentation from the App repo.
-- Kept environment, provider-key, deployment, and deeper runtime setup details in the development side.
-- Refreshed public README and changelog language for the v3.5.0 release.
-
-### Validation
-
-The release branch passed:
-
-- `npm test`
-- `npm run ui:check`
-- `git diff --check`
-- CodeQL
-- Dependency Review
-- CI / verify
-- Publish Mirror workflow
+2026-05-17 — v3.5.0
+- Generation
+  - Create Quiz now builds first; Start Quiz unlocks only after a valid quiz is ready.
+  - Public quiz lengths remain 5, 10, 15, and 20 while larger 30/50-question builds stay on the reliability roadmap.
+- Production
+  - Study-material import and Results explanations are part of the production flow.
+- Maintenance
+  - Version labels and package metadata updated to v3.5.0.
 
 2025-10-22 — v3.3 (hotfix) / 1.5.18-hotfix
 - Reset

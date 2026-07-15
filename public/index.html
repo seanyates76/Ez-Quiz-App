@@ -345,8 +345,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
         <section>
           <h4>Getting Started</h4>
           <ul>
-            <li>Enter a topic, paste study material, or attach a supported file/media source.</li>
-            <li>Choose a public quiz length of 5, 10, 15, or 20 questions, then set Difficulty.</li>
+            <li>Enter a topic in the <em>Topic</em> field, set Length and Difficulty.</li>
             <li>Click <strong>Create Quiz</strong> to build the quiz. <strong>Start Quiz</strong> unlocks after a valid quiz is ready.</li>
           </ul>
         </section>
@@ -364,8 +363,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <h4>Options &amp; Quiz Editor</h4>
           <ul>
             <li>Options: Timer, Theme, Question Types, and Defaults.</li>
-            <li><strong>Quiz Editor</strong>: paste, import, edit, copy, or export EZ Quiz formatted lines.</li>
-            <li>Valid pasted manual lines are parsed in the browser and unlock Start Quiz without using AI generation.</li>
+            <li><strong>Advanced / Manual quiz import</strong>: paste or load EZ Quiz formatted lines, then use Start Quiz after the quiz is valid.</li>
             <li>Supported types: Multiple Choice (single/multiple), True/False, Yes/No, Matching.</li>
           </ul>
         </section>
@@ -399,16 +397,15 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <ul>
             <li>Results show score, time, and Missed/All (Missed first by default).</li>
             <li>Retake missed only: use the caret next to <em>Retake</em>.</li>
-            <li>Use <strong>Explain</strong> on a result card to request an explanation for that one question.</li>
           </ul>
         </section>
 
         <section>
           <h4>AI Generation</h4>
           <ul>
-            <li>Create sends only the topic or study material needed for the request, plus length, difficulty, and selected question types.</li>
-            <li>Explain sends only the selected result item needed for that explanation.</li>
-            <li>If generation or import fails, try a shorter quiz, a smaller source, Demo Set, or manual import.</li>
+            <li>Create sends Topic or Study Material, Length, Difficulty, and selected types to the AI.</li>
+            <li>Public quiz lengths are 5, 10, 15, and 20 questions while larger builds remain a future reliability goal.</li>
+            <li>If nothing usable returns, try fewer questions, a smaller source, Demo Set, or manual import.</li>
           </ul>
         </section>
 
@@ -417,11 +414,11 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <details class="help-accordion">
             <summary>What's New</summary>
             <ul>
-              <li><strong>v3.5.0 flow:</strong> Create Quiz builds first; Start Quiz begins a ready quiz.</li>
-              <li><strong>Source import:</strong> build quizzes from pasted study material or supported files/media.</li>
-              <li><strong>Results explanations:</strong> request an explanation from an individual result card.</li>
-              <li><strong>Manual editor:</strong> valid EZ Quiz lines can be pasted, parsed, and started without AI.</li>
-              <li><strong>Safer updates:</strong> cache and reset behavior are tuned for the production release.</li>
+              <li><strong>Create vs Start:</strong> Create builds the quiz; Start begins a ready quiz.</li>
+              <li><strong>Options panel:</strong> Timer, Theme, Types, and Quiz Editor tools in one place.</li>
+              <li><strong>Quiz Editor:</strong> Editor, Mirror, Copy prompts, Export .txt.</li>
+              <li><strong>Defaults:</strong> Save Count/Difficulty/Types; Reset defaults clears them.</li>
+              <li><strong>Navigation polish:</strong> Equal-width fields on mobile; clearer focus.</li>
             </ul>
           </details>
         </section>
@@ -437,16 +434,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
               <dd><strong>A:</strong> The Mirror is an advanced view for EZ Quiz formatted lines. It stays blank until a quiz is created or manual lines are loaded.</dd>
 
               <dt><strong>Q:</strong> Can I edit the quiz before starting?</dt>
-              <dd><strong>A:</strong> Yes. Use the Quiz Editor to change or add your own questions. Valid EZ Quiz lines are checked in the browser and can unlock Start Quiz without sending them to AI generation.</dd>
-
-              <dt><strong>Q:</strong> What can I import?</dt>
-              <dd><strong>A:</strong> EZ Quiz can import readable source material from PDF, images, TXT, Markdown, HTML, CSV, JSON, RTF, and DOCX. Very large sources may need to be shortened before creating a quiz.</dd>
-
-              <dt><strong>Q:</strong> How many questions can I create?</dt>
-              <dd><strong>A:</strong> Public quiz lengths are 5, 10, 15, and 20 questions.</dd>
-
-              <dt><strong>Q:</strong> How do explanations work?</dt>
-              <dd><strong>A:</strong> In Results, click Explain on a result card. EZ Quiz sends only that question’s context for the explanation request.</dd>
+              <dd><strong>A:</strong> Yes. Use the Editor to change or add your own questions. When you’re ready, click Start Quiz to run the version you’ve prepared.</dd>
 
               <dt><strong>Q:</strong> What are the Retake options?</dt>
               <dd><strong>A:</strong> Retake All repeats the full quiz. The caret menu lets you retake only the questions you missed, or shuffle everything for a fresh run.</dd>
@@ -455,13 +443,10 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
               <dd><strong>A:</strong> Open the ⚙ Settings menu. You can adjust timer length, appearance theme, and reset to defaults at any time (except while a quiz is running).</dd>
 
               <dt><strong>Q:</strong> Where can I export or copy my quiz?</dt>
-              <dd><strong>A:</strong> In the Quiz Editor, you can copy or export EZ Quiz formatted lines as a .txt file.</dd>
+              <dd><strong>A:</strong> In Advanced / Manual quiz import, you’ll find options to copy or export EZ Quiz formatted lines as a .txt file.</dd>
 
               <dt><strong>Q:</strong> What happens if the app updates mid‑quiz?</dt>
               <dd><strong>A:</strong> Nothing changes until you finish or exit. Updates only apply once you refresh or start a new quiz, so your current run is never interrupted.</dd>
-
-              <dt><strong>Q:</strong> What should I do if a stale build sticks around?</dt>
-              <dd><strong>A:</strong> Use Settings, Reset App, then reload. This clears local app caches and lets the newest production build load.</dd>
 
               <dt><strong>Q:</strong> How does feedback work?</dt>
               <dd><strong>A:</strong> Feedback is sent securely through a server function. Messages are sanitized, rate‑limited, and delivered to the maintainer’s inbox.</dd>
@@ -551,7 +536,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <h4>v3.5.0</h4>
           <ul>
             <li>Create Quiz now builds first; Start Quiz unlocks only after a valid quiz is ready.</li>
-            <li>Public quiz lengths are 5, 10, 15, and 20 questions.</li>
+            <li>Public quiz lengths are 5, 10, 15, and 20 questions while larger 30/50-question builds stay on the reliability roadmap.</li>
             <li>Study-material import and Results explanations are part of the production flow.</li>
           </ul>
         </section>
