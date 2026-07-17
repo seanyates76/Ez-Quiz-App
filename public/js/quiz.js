@@ -1,6 +1,6 @@
 import { S } from './state.js';
 import { $, byQSA, clamp, formatDuration, escapeHTML, indexesToLetters, arraysEqual, formatTopicLabel, mmSsToMs, showUpdateBannerIfReady, bindOnce, showToastNear } from './utils.js';
-import { requestLazyExplanation } from './explain-api.js?v=1.5.35';
+import { requestLazyExplanation } from './explain-api.js?v=1.5.45';
 
 // Retake scope constants
 const RETAKE_MISSED = 'missed';
@@ -299,8 +299,7 @@ function wireExplainDelegation(){
     renderExplanationPanel(origIdx, cache[origIdx]);
     try {
       const data = await requestLazyExplanation(payload);
-      const responseIndex = Number.isInteger(payload.responseIndex) ? payload.responseIndex : origIdx;
-      const item = data && data.explanations && data.explanations[String(responseIndex)];
+      const item = data && data.explanations && data.explanations[String(origIdx)];
       const explanation = item && item.explanation ? String(item.explanation).trim() : '';
       if(!explanation) throw new Error('No explanation returned. Try again.');
       cache[origIdx] = { state: 'loaded', explanation };
@@ -434,14 +433,13 @@ export function buildExplanationRequest(origIdx){
   if(!Number.isInteger(origIdx) || origIdx < 0 || origIdx >= baseQs.length){
     throw new Error('Unable to locate that question.');
   }
-  const line = questionToLegacyLine(baseQs[origIdx]);
-  if(!line){
+  const lines = baseQs.map(questionToLegacyLine);
+  if(lines.some((line)=>!line)){
     throw new Error('Unable to format this quiz for explanations.');
   }
   return {
-    lines: [line],
-    index: 0,
-    responseIndex: 0,
+    lines,
+    index: origIdx,
   };
 }
 

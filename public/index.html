@@ -6,11 +6,11 @@
   <title>EZ Quiz</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
-  <script src="js/theme-preload.js?v=1.5.35"></script>
-  <link rel="stylesheet" href="styles.css?v=1.5.35" />
-  <link rel="stylesheet" href="/styles.tokens.css?v=1.5.35">
-  <link rel="stylesheet" href="/styles.backdrop.css?v=1.5.35">
-  <script src="js/boot-beta.js?v=1.5.35"></script>
+  <script src="js/theme-preload.js?v=1.5.45"></script>
+  <link rel="stylesheet" href="styles.css?v=1.5.45" />
+  <link rel="stylesheet" href="/styles.tokens.css?v=1.5.45">
+  <link rel="stylesheet" href="/styles.backdrop.css?v=1.5.45">
+  <script src="js/boot-beta.js?v=1.5.45"></script>
 </head>
 <body>
   <header class="site-header" role="banner">
@@ -40,7 +40,7 @@
       </button>
       <div class="landing-copy">
         <p class="landing-kicker">Create, practice, review</p>
-        <h1 id="landingTitle">Welcome to EZ Quiz.</h1>
+        <h1 id="landingTitle">Welcome to EZ Quiz 3.6.0!</h1>
         <p class="landing-dek">Create focused practice quizzes from a topic or study material.</p>
       </div>
       <div id="landingPreview" class="landing-preview" aria-label="Intro sections">
@@ -50,24 +50,96 @@
           <button id="landingTabTips" class="preview-tab" type="button" role="tab" aria-selected="false" aria-controls="landingPanelTips" data-preview-tab="2" tabindex="-1">Tips</button>
         </div>
         <div id="landingPanelNew" class="preview-panel" role="tabpanel" aria-labelledby="landingTabNew" data-preview-panel="0">
-          <ul class="preview-list">
-            <li>Create from a topic or your study material.</li>
-            <li>Start when your quiz is ready.</li>
-            <li>Review missed answers with simple explanations.</li>
-          </ul>
+          <div class="feature-card-list" data-feature-cards>
+            <article class="landing-feature-card">
+              <button class="landing-feature-card__toggle" type="button" aria-expanded="false" aria-controls="featureUpTo50" data-feature-card-toggle>
+                <span class="landing-feature-card__copy">
+                  <span class="landing-feature-card__title">Up to 50 questions</span>
+                  <span class="landing-feature-card__summary">Build longer practice quizzes for full study sessions.</span>
+                </span>
+                <span class="landing-feature-card__chevron" aria-hidden="true">›</span>
+              </button>
+              <div id="featureUpTo50" class="landing-feature-card__detail" data-feature-card-detail hidden>
+                <p>Choose 30 or 50 questions when you want more review in one quiz.</p>
+              </div>
+            </article>
+            <article class="landing-feature-card">
+              <button class="landing-feature-card__toggle" type="button" aria-expanded="false" aria-controls="featureLongSources" data-feature-card-toggle>
+                <span class="landing-feature-card__copy">
+                  <span class="landing-feature-card__title">Better long-source quizzes</span>
+                  <span class="landing-feature-card__summary">Larger study material is split into useful sections before generation.</span>
+                </span>
+                <span class="landing-feature-card__chevron" aria-hidden="true">›</span>
+              </button>
+              <div id="featureLongSources" class="landing-feature-card__detail" data-feature-card-detail hidden>
+                <p>Big notes are grouped first, so questions can cover more of the material.</p>
+              </div>
+            </article>
+            <article class="landing-feature-card">
+              <button class="landing-feature-card__toggle" type="button" aria-expanded="false" aria-controls="featureCleanerQuestions" data-feature-card-toggle>
+                <span class="landing-feature-card__copy">
+                  <span class="landing-feature-card__title">Cleaner questions from notes</span>
+                  <span class="landing-feature-card__summary">Questions should feel like quiz questions, not references to your document.</span>
+                </span>
+                <span class="landing-feature-card__chevron" aria-hidden="true">›</span>
+              </button>
+              <div id="featureCleanerQuestions" class="landing-feature-card__detail" data-feature-card-detail hidden>
+                <p>Questions now avoid document callouts and focus on the material itself.</p>
+              </div>
+            </article>
+            <article class="landing-feature-card">
+              <button class="landing-feature-card__toggle" type="button" aria-expanded="false" aria-controls="featureTopicBatching" data-feature-card-toggle>
+                <span class="landing-feature-card__copy">
+                  <span class="landing-feature-card__title">Topic batching</span>
+                  <span class="landing-feature-card__summary">Topic-only quizzes now build in smaller batches for better quality.</span>
+                </span>
+                <span class="landing-feature-card__chevron" aria-hidden="true">›</span>
+              </button>
+              <div id="featureTopicBatching" class="landing-feature-card__detail" data-feature-card-detail hidden>
+                <p>Short topic prompts can stay focused while still reaching your chosen count.</p>
+              </div>
+            </article>
+            <article class="landing-feature-card">
+              <button class="landing-feature-card__toggle" type="button" aria-expanded="false" aria-controls="featureStatusCard" data-feature-card-toggle>
+                <span class="landing-feature-card__copy">
+                  <span class="landing-feature-card__title">New generation status card</span>
+                  <span class="landing-feature-card__summary">Quiz building now has a clearer persistent status area with stop support.</span>
+                </span>
+                <span class="landing-feature-card__chevron" aria-hidden="true">›</span>
+              </button>
+              <div id="featureStatusCard" class="landing-feature-card__detail" data-feature-card-detail hidden>
+                <p>The card stays in place while a quiz builds and after it finishes.</p>
+              </div>
+            </article>
+            <article class="landing-feature-card">
+              <button class="landing-feature-card__toggle" type="button" aria-expanded="false" aria-controls="featureImportCoverage" data-feature-card-toggle>
+                <span class="landing-feature-card__copy">
+                  <span class="landing-feature-card__title">Better import coverage</span>
+                  <span class="landing-feature-card__summary">PDF, DOCX, TXT, Markdown, HTML, CSV, JSON, RTF, and images are covered more clearly.</span>
+                </span>
+                <span class="landing-feature-card__chevron" aria-hidden="true">›</span>
+              </button>
+              <div id="featureImportCoverage" class="landing-feature-card__detail" data-feature-card-detail hidden>
+                <p>The supported formats are easier to see before you add study material.</p>
+              </div>
+            </article>
+          </div>
         </div>
         <div id="landingPanelSoon" class="preview-panel" role="tabpanel" aria-labelledby="landingTabSoon" data-preview-panel="1" hidden>
-          <ul class="preview-list">
-            <li>Better support for larger quizzes.</li>
-            <li>Clearer progress for big imports.</li>
-            <li>Flashcards and review tools for missed concepts.</li>
+          <ul class="roadmap-list">
+            <li><span>Bring your own API key</span><small>Use your own provider key for larger private study material.</small></li>
+            <li><span>Better PDF handling</span><small>Cleaner reads from messy or heavily formatted PDFs.</small></li>
+            <li><span>Quiz sharing</span><small>Send a quiz link to someone else.</small></li>
+            <li><span>Teacher-friendly builder</span><small>Faster editing for classroom-ready questions.</small></li>
+            <li><span>Separate pages for building, reviewing, and sharing</span><small>Clearer spaces for each part of quiz work.</small></li>
+            <li><span>Flashcards or missed-concept review</span><small>Practice the areas you missed after a quiz.</small></li>
           </ul>
         </div>
         <div id="landingPanelTips" class="preview-panel" role="tabpanel" aria-labelledby="landingTabTips" data-preview-panel="2" hidden>
-          <ul class="preview-list">
-            <li>Use a short topic for quick practice.</li>
-            <li>Use study material for notes, documents, or pasted text.</li>
-            <li>If a build fails, try a smaller source or shorter quiz.</li>
+          <ul class="tips-list">
+            <li>Create builds the quiz. Start begins it.</li>
+            <li>Better study material makes better quizzes.</li>
+            <li>If a quiz feels too broad, use fewer questions or a smaller source.</li>
           </ul>
         </div>
       </div>
@@ -121,6 +193,8 @@
               <option value="10" selected>10</option>
               <option value="15">15</option>
               <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="50">50</option>
             </select>
             <div class="stepper-group" role="group" aria-label="Adjust length">
               <button type="button" class="stepper stepper-up" data-step="up" aria-label="Increase length">▲</button>
@@ -133,14 +207,37 @@
           <button id="generateBtn" class="btn primary" type="button">Create Quiz</button>
           <button id="startToolbarBtn" class="btn" type="button" aria-describedby="startHelp" aria-disabled="true" data-start-disabled="true" tabindex="-1">Start Quiz</button>
           <button id="optionsBtn" class="btn btn-outline" aria-haspopup="true" aria-expanded="false" aria-controls="optionsPanel">Options ▾</button>
-        </div>
+      </div>
     </div>
+
+      <div id="generationStatusCard" class="generation-status-card" role="status" aria-live="polite" aria-busy="false" data-generation-state="idle" hidden>
+        <div class="generation-status-icon" aria-hidden="true">
+          <span class="generation-status-icon__orb"></span>
+          <span class="generation-status-icon__line"></span>
+        </div>
+        <div class="generation-status-head">
+          <div id="generationStatusTitle" class="generation-status-title">Building your quiz…</div>
+          <div id="generationStatusMessage" class="generation-status-message">Preparing your quiz.</div>
+        </div>
+        <div id="generationStatusScan"
+             class="generation-status-scan"
+             role="progressbar"
+             aria-label="Quiz generation progress"
+             aria-valuemin="0"
+             aria-valuemax="1"
+             aria-valuenow="0">
+          <span></span>
+        </div>
+        <div id="generationStatusMeta" class="generation-status-meta"></div>
+        <div id="generationStatusSecondary" class="generation-status-secondary" hidden></div>
+        <button id="cancelGenerationBtn" class="btn generation-status-cancel" type="button">Stop generation</button>
+      </div>
 
       <!-- Subtle hint when inputs change after generation -->
       <div id="status" class="build-status" role="status" aria-live="polite" data-build-state="idle">
         Add a topic or study material, then create a quiz.
       </div>
-      <div id="genCountHint" class="sr-only">Public quiz limit is 20 questions.</div>
+      <div id="genCountHint" class="sr-only">Public quiz limit is 50 questions.</div>
       <div id="startHelp" class="sr-only">Start Quiz is enabled after a valid quiz is ready.</div>
       <div id="regenHint" class="regen-hint" role="status" aria-live="polite" hidden>
         Updated inputs — create a new quiz when ready.
@@ -266,8 +363,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
         </div>
       </div>
       <div id="resultsSummary" class="results-summary"></div>
-      <div id="missedList" class="results-missed"></div>
-      <div class="row gap results-actions">
+      <div class="row gap results-actions results-actions-dock">
         <button id="backToMenuBtn" class="btn">Back to Menu</button>
         <span class="flex-spacer"></span>
         <div id="retakeControl" class="retake-control" role="group" aria-label="Retake options">
@@ -300,6 +396,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           </div>
         </div>
       </div>
+      <div id="missedList" class="results-missed"></div>
     </section>
   </main>
 
@@ -307,7 +404,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
   <footer class="container" role="contentinfo">
     <nav aria-label="Footer">
       <div class="footer-links" role="list">
-        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" role="listitem">v3.5.0</a>
+        <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" role="listitem">v3.6.0</a>
         <span aria-hidden="true">•</span>
         <a id="privacyLink" href="#" data-modal="privacyModal" role="listitem">Privacy</a>
         <span aria-hidden="true">•</span>
@@ -333,6 +430,24 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
   </div>
 
 
+  <!-- Narrow Source Warning Modal -->
+  <div id="narrowSourceModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="narrowSourceTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close="narrowSourceModal"></div>
+    <div class="modal__dialog" role="document">
+      <header class="modal__header">
+        <h3 id="narrowSourceTitle">Narrow source warning</h3>
+        <button id="narrowSourceClose" class="icon-btn" title="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <p id="narrowSourceMessage">This source looks narrow for a 30-question quiz. EZ Quiz can still try, but some questions may feel repetitive. For more variety, add more study material or choose fewer questions.</p>
+      </div>
+      <footer class="modal__footer">
+        <button id="narrowSourceCancel" class="btn btn-ghost" type="button">Cancel</button>
+        <button id="narrowSourceConfirm" class="btn primary" type="button">Generate anyway</button>
+      </footer>
+    </div>
+  </div>
+
   <!-- Help Modal (filled FAQ) -->
   <div id="helpModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle" aria-hidden="true">
     <div class="modal__backdrop" data-close="helpModal"></div>
@@ -345,8 +460,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
         <section>
           <h4>Getting Started</h4>
           <ul>
-            <li>Enter a topic, paste study material, or attach a supported file/media source.</li>
-            <li>Choose a public quiz length of 5, 10, 15, or 20 questions, then set Difficulty.</li>
+            <li>Enter a topic in the <em>Topic</em> field, set Length and Difficulty.</li>
             <li>Click <strong>Create Quiz</strong> to build the quiz. <strong>Start Quiz</strong> unlocks after a valid quiz is ready.</li>
           </ul>
         </section>
@@ -364,8 +478,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <h4>Options &amp; Quiz Editor</h4>
           <ul>
             <li>Options: Timer, Theme, Question Types, and Defaults.</li>
-            <li><strong>Quiz Editor</strong>: paste, import, edit, copy, or export EZ Quiz formatted lines.</li>
-            <li>Valid pasted manual lines are parsed in the browser and unlock Start Quiz without using AI generation.</li>
+            <li><strong>Advanced / Manual quiz import</strong>: paste or load EZ Quiz formatted lines, then use Start Quiz after the quiz is valid.</li>
             <li>Supported types: Multiple Choice (single/multiple), True/False, Yes/No, Matching.</li>
           </ul>
         </section>
@@ -399,16 +512,16 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <ul>
             <li>Results show score, time, and Missed/All (Missed first by default).</li>
             <li>Retake missed only: use the caret next to <em>Retake</em>.</li>
-            <li>Use <strong>Explain</strong> on a result card to request an explanation for that one question.</li>
           </ul>
         </section>
 
         <section>
           <h4>AI Generation</h4>
           <ul>
-            <li>Create sends only the topic or study material needed for the request, plus length, difficulty, and selected question types.</li>
-            <li>Explain sends only the selected result item needed for that explanation.</li>
-            <li>If generation or import fails, try a shorter quiz, a smaller source, Demo Set, or manual import.</li>
+            <li>Create sends Topic or Study Material, Length, Difficulty, and selected types to the AI.</li>
+            <li>Public quiz lengths are 5, 10, 15, 20, 30, and 50 questions.</li>
+            <li>Topic-only quizzes use smaller batches; larger study material is planned by source sections when possible.</li>
+            <li>Supported imports: PDF, DOCX, TXT, Markdown, HTML, CSV, JSON, RTF, and images.</li>
           </ul>
         </section>
 
@@ -417,11 +530,11 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <details class="help-accordion">
             <summary>What's New</summary>
             <ul>
-              <li><strong>v3.5.0 flow:</strong> Create Quiz builds first; Start Quiz begins a ready quiz.</li>
-              <li><strong>Source import:</strong> build quizzes from pasted study material or supported files/media.</li>
-              <li><strong>Results explanations:</strong> request an explanation from an individual result card.</li>
-              <li><strong>Manual editor:</strong> valid EZ Quiz lines can be pasted, parsed, and started without AI.</li>
-              <li><strong>Safer updates:</strong> cache and reset behavior are tuned for the production release.</li>
+              <li><strong>Generation quality:</strong> Topic-only quizzes now build in smaller batches.</li>
+              <li><strong>Source planning:</strong> Larger study material is split into useful sections before generation.</li>
+              <li><strong>Cleaner question wording:</strong> Questions avoid phrases like “according to the notes.”</li>
+              <li><strong>Import formats:</strong> PDF, DOCX, TXT, Markdown, HTML, CSV, JSON, RTF, and images.</li>
+              <li><strong>Quiz size:</strong> Public quiz lengths now include 30 and 50 questions.</li>
             </ul>
           </details>
         </section>
@@ -437,16 +550,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
               <dd><strong>A:</strong> The Mirror is an advanced view for EZ Quiz formatted lines. It stays blank until a quiz is created or manual lines are loaded.</dd>
 
               <dt><strong>Q:</strong> Can I edit the quiz before starting?</dt>
-              <dd><strong>A:</strong> Yes. Use the Quiz Editor to change or add your own questions. Valid EZ Quiz lines are checked in the browser and can unlock Start Quiz without sending them to AI generation.</dd>
-
-              <dt><strong>Q:</strong> What can I import?</dt>
-              <dd><strong>A:</strong> EZ Quiz can import readable source material from PDF, images, TXT, Markdown, HTML, CSV, JSON, RTF, and DOCX. Very large sources may need to be shortened before creating a quiz.</dd>
-
-              <dt><strong>Q:</strong> How many questions can I create?</dt>
-              <dd><strong>A:</strong> Public quiz lengths are 5, 10, 15, and 20 questions.</dd>
-
-              <dt><strong>Q:</strong> How do explanations work?</dt>
-              <dd><strong>A:</strong> In Results, click Explain on a result card. EZ Quiz sends only that question’s context for the explanation request.</dd>
+              <dd><strong>A:</strong> Yes. Use the Editor to change or add your own questions. When you’re ready, click Start Quiz to run the version you’ve prepared.</dd>
 
               <dt><strong>Q:</strong> What are the Retake options?</dt>
               <dd><strong>A:</strong> Retake All repeats the full quiz. The caret menu lets you retake only the questions you missed, or shuffle everything for a fresh run.</dd>
@@ -455,13 +559,10 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
               <dd><strong>A:</strong> Open the ⚙ Settings menu. You can adjust timer length, appearance theme, and reset to defaults at any time (except while a quiz is running).</dd>
 
               <dt><strong>Q:</strong> Where can I export or copy my quiz?</dt>
-              <dd><strong>A:</strong> In the Quiz Editor, you can copy or export EZ Quiz formatted lines as a .txt file.</dd>
+              <dd><strong>A:</strong> In Advanced / Manual quiz import, you’ll find options to copy or export EZ Quiz formatted lines as a .txt file.</dd>
 
               <dt><strong>Q:</strong> What happens if the app updates mid‑quiz?</dt>
               <dd><strong>A:</strong> Nothing changes until you finish or exit. Updates only apply once you refresh or start a new quiz, so your current run is never interrupted.</dd>
-
-              <dt><strong>Q:</strong> What should I do if a stale build sticks around?</dt>
-              <dd><strong>A:</strong> Use Settings, Reset App, then reload. This clears local app caches and lets the newest production build load.</dd>
 
               <dt><strong>Q:</strong> How does feedback work?</dt>
               <dd><strong>A:</strong> Feedback is sent securely through a server function. Messages are sanitized, rate‑limited, and delivered to the maintainer’s inbox.</dd>
@@ -527,7 +628,7 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
           <button id="resetApp" class="btn danger">Reset App</button>
         </div>
         <p class="muted small settings-version" data-version-copy>
-          Version <a id="versionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" data-version-label>v3.5.0</a>
+          Version <a id="settingsVersionInfoBtn" href="#" aria-haspopup="dialog" aria-controls="releaseNotesModal" data-version-label>v3.6.0</a>
           <span aria-hidden="true">·</span>
           <span data-version-mode>Production</span> build
         </p>
@@ -548,11 +649,13 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
       </header>
       <div class="modal__body">
         <section class="release-notes release-notes--production">
-          <h4>v3.5.0</h4>
+          <h4>v3.6.0</h4>
           <ul>
-            <li>Create Quiz now builds first; Start Quiz unlocks only after a valid quiz is ready.</li>
-            <li>Public quiz lengths are 5, 10, 15, and 20 questions.</li>
-            <li>Study-material import and Results explanations are part of the production flow.</li>
+            <li>Generation now shows true question progress, preserves ready questions when stopped, and clearly reports partial results.</li>
+            <li>Topic-only quizzes now build in smaller batches while preserving the requested count.</li>
+            <li>Larger study material is planned in sections, with cleaner question wording.</li>
+            <li>Public quiz lengths include 30 and 50 questions.</li>
+            <li>Imports support PDF, DOCX, TXT, Markdown, HTML, CSV, JSON, RTF, and images.</li>
           </ul>
         </section>
         <section>
@@ -709,10 +812,10 @@ MT|Prompt.|1) L1;2) L2|A) R1;B) R2|1-A,2-B</pre>
 
   
 
-  <script type="module" src="js/main.js?v=1.5.35"></script>
-  <script type="module" src="js/auto-refresh.js?v=1.5.35"></script>
-  <script type="module" src="js/patches.js?v=1.5.35"></script>
-  <script type="module" src="js/editor.gui.js?v=1.5.35"></script>
+  <script type="module" src="js/main.js?v=1.5.45"></script>
+  <script type="module" src="js/auto-refresh.js?v=1.5.45"></script>
+  <script type="module" src="js/patches.js?v=1.5.45"></script>
+  <script type="module" src="js/editor.gui.js?v=1.5.45"></script>
 
   <!-- Floating actions: Feedback + Coffee -->
   <div id="floatingActions" class="fab-stack" aria-label="Quick actions">

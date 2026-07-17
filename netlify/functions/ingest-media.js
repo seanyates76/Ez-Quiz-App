@@ -3,7 +3,7 @@
 const BYTES_PER_MIB = 1024 * 1024;
 const MAX_MEDIA_BYTES = 4 * BYTES_PER_MIB;
 const MAX_BODY_BYTES = 6 * BYTES_PER_MIB;
-const MAX_EXTRACTED_TEXT_CHARS = 30000;
+const MAX_EXTRACTED_TEXT_CHARS = 60000;
 const DEFAULT_LIMIT = 20;
 const DEFAULT_WINDOW_MS = 15 * 60 * 1000;
 const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash-lite-preview-09-2025';
@@ -102,7 +102,6 @@ function toPositiveInt(value, fallback) {
 const LIMIT = toPositiveInt(process.env.MEDIA_IMPORT_LIMIT, DEFAULT_LIMIT);
 const WINDOW_MS = toPositiveInt(process.env.MEDIA_IMPORT_WINDOW_MS, DEFAULT_WINDOW_MS);
 const RL = new Map();
-const MAX_RATE_LIMIT_KEYS = 500;
 
 function clientIp(event) {
   const h = event.headers || {};
@@ -117,12 +116,6 @@ function rateLimited(event) {
   if (recent.length >= LIMIT) return true;
   recent.push(now);
   RL.set(ip, recent);
-  if (RL.size > MAX_RATE_LIMIT_KEYS) {
-    for (const [key, list] of RL.entries()) {
-      const keep = list.filter((ts) => now - ts < WINDOW_MS);
-      if (keep.length) RL.set(key, keep); else RL.delete(key);
-    }
-  }
   return false;
 }
 
@@ -252,6 +245,15 @@ function truthy(value) {
 
 function echoAllowed(env) {
   return env.NODE_ENV === 'test' || truthy(env.ALLOW_ECHO_MEDIA_IMPORT);
+}
+
+function providerNotConfiguredMessage(kind) {
+  const normalized = String(kind || '').trim().toLowerCase();
+  if (normalized === 'pdf') return 'PDF import needs a configured Gemini media extraction provider.';
+  if (normalized === 'png' || normalized === 'jpeg' || normalized === 'gif') {
+    return 'Image import needs a configured media extraction provider.';
+  }
+  return 'Media import provider is not configured.';
 }
 
 function cleanExtractedText(text) {
@@ -468,7 +470,7 @@ async function extractWithOpenAI(file, env) {
 async function extractText(file, env) {
   if (DETERMINISTIC_KINDS.has(file.kind)) return extractDeterministicText(file);
   const provider = resolveProvider(env, file.kind);
-  if (!provider) throw makeMediaError('Media import provider is not configured', 'MEDIA_PROVIDER_NOT_CONFIGURED', 503);
+  if (!provider) throw makeMediaError(providerNotConfiguredMessage(file.kind), 'MEDIA_PROVIDER_NOT_CONFIGURED', 503);
   if (provider === 'gemini') return extractWithGemini(file, env);
   if (provider === 'openai') return extractWithOpenAI(file, env);
   if (provider === 'echo') {
@@ -551,10 +553,4 @@ module.exports._internals = {
   normalizePayload,
   sniffBufferKind,
   cleanExtractedText,
-  extractDeterministicText,
-  decodeTextBuffer,
-  stripDocxXml,
-  rateLimited,
-  rateLimitSize: () => RL.size,
-  clearRateLimit: () => RL.clear(),
 };
