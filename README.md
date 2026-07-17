@@ -11,6 +11,8 @@ Live app: https://ez-quiz.app/
 - Choose difficulty and quiz length.
 - Practice and review missed answers.
 
+![Creating a quiz from study material](public/readme-media/source-quiz-gen.gif)
+
 ## Practice Flow
 
 Answer questions at your own pace, with progress and a timer kept in view.
