@@ -2,8 +2,7 @@ export const S = (window.EZQ = window.EZQ || {});
 S.mode = S.mode || 'idle';
 S.quiz = S.quiz || { questions: [], originalQuestions: [], indexMap: [], originalAnswers: [], explanations: {}, index: 0, answers: [], score: 0, startedAt: 0, finishedAt: 0, endAt: 0, topic: '', title: '' };
 S.quiz.explanations = S.quiz.explanations || {};
-S.media = S.media || { sourceText: '', sourceName: '', sourceKind: '', sourceCharCount: 0, sourceReport: null };
-if (!Object.prototype.hasOwnProperty.call(S.media, 'sourceReport')) S.media.sourceReport = null;
+S.media = S.media || { sourceText: '', sourceName: '', sourceKind: '', sourceCharCount: 0 };
 S.settings = S.settings || { theme: 'dark', timerEnabled: true, countdown: false, durationMs: 0, autoStart: true, requireAnswer: false, showQuizEditor: false, betaEnabled: false };
 S.ui = S.ui || { primaryMode: 'generate' };
 
@@ -23,7 +22,7 @@ try {
 try {
   const bag = (window.__EZQ__ = window.__EZQ__ || window.EZQ || {});
   if (!Number.isFinite(bag.MAX_QUESTIONS)) {
-    bag.MAX_QUESTIONS = 50;
+    bag.MAX_QUESTIONS = 20;
   }
   if (window.EZQ && window.EZQ !== bag && !Number.isFinite(window.EZQ.MAX_QUESTIONS)) {
     window.EZQ.MAX_QUESTIONS = bag.MAX_QUESTIONS;
