@@ -1,0 +1,84 @@
+'use strict';
+
+const fs = require('node:fs');
+const path = require('node:path');
+const { loadBrowserModule } = require('./utils');
+
+describe('buildGeneratorPayload', () => {
+  let buildGeneratorPayload;
+  let clampCount;
+
+  beforeAll(() => {
+    ({ clampCount } = loadBrowserModule('public/js/utils.js', ['clampCount']));
+    const source = fs.readFileSync(path.resolve(__dirname, '../public/js/generator-payload.js'), 'utf8')
+      .replace(/import[^;]+;\s*/g, '')
+      .replace(/export\s+function\s+/g, 'function ');
+    const factory = new Function('clampCount', `${source}\nreturn { buildGeneratorPayload };`);
+    ({ buildGeneratorPayload } = factory(clampCount));
+  });
+
+  test('clamps the count to the configured maximum', () => {
+    window.__EZQ__ = { MAX_QUESTIONS: 12 };
+    const result = buildGeneratorPayload({ topic: 'Space', difficulty: 'hard', count: 99 });
+    expect(result.count).toBe(12);
+  });
+
+  test('allows the public 50-question default when no override is configured', () => {
+    delete window.__EZQ__;
+    const result = buildGeneratorPayload({ topic: 'Space', difficulty: 'hard', count: 50 });
+    expect(result.count).toBe(50);
+  });
+
+  test('defaults topic and difficulty when values are blank', () => {
+    delete window.__EZQ__;
+    const result = buildGeneratorPayload({ topic: '   ', difficulty: '', count: '' });
+    expect(result.topic).toBe('General knowledge');
+    expect(result.difficulty).toBe('medium');
+    expect(result.count).toBe(1);
+  });
+
+  test('carries cleaned source material when media import supplied it', () => {
+    const result = buildGeneratorPayload({
+      topic: 'Scan',
+      difficulty: 'easy',
+      count: 3,
+      sourceName: 'notes.pdf',
+      sourceText: ' Heading \n\n First   fact. \r\n Second fact. ',
+    });
+
+    expect(result).toMatchObject({
+      topic: 'Scan',
+      difficulty: 'easy',
+      count: 3,
+      sourceName: 'notes.pdf',
+      sourceText: 'Heading\nFirst fact.\nSecond fact.',
+    });
+  });
+
+  test('carries source report metadata for client-side section planning', () => {
+    const sourceReport = {
+      version: 1,
+      sections: [{ id: 'section-001', text: 'Useful section text', score: 80, flags: [] }],
+    };
+    const result = buildGeneratorPayload({
+      topic: 'Scan',
+      difficulty: 'easy',
+      count: 3,
+      sourceText: 'Useful section text',
+      sourceReport,
+    });
+
+    expect(result.sourceReport).toBe(sourceReport);
+  });
+
+  test('caps cleaned source material at the shared generation limit', () => {
+    const result = buildGeneratorPayload({
+      topic: 'Long Notes',
+      difficulty: 'medium',
+      count: 5,
+      sourceText: 'A'.repeat(240010),
+    });
+
+    expect(result.sourceText).toHaveLength(240000);
+  });
+});
